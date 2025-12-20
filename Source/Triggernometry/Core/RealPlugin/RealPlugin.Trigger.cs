@@ -9,13 +9,12 @@ namespace Triggernometry.Core
 
     public partial class RealPlugin
     {
+        public List<Trigger> Triggers = new List<Trigger>();
 
-        internal List<Trigger> Triggers = new List<Trigger>();
-
-        internal List<Trigger> ActiveTextTriggers = new List<Trigger>();
-        internal List<Trigger> ActiveFFXIVNetworkTriggers = new List<Trigger>();
-        internal List<Trigger> ActiveACTTriggers = new List<Trigger>();
-        internal List<Trigger> ActiveEndpointTriggers = new List<Trigger>();
+        public List<Trigger> ActiveTextTriggers = new List<Trigger>();
+        public List<Trigger> ActiveFFXIVNetworkTriggers = new List<Trigger>();
+        public List<Trigger> ActiveACTTriggers = new List<Trigger>();
+        public List<Trigger> ActiveEndpointTriggers = new List<Trigger>();
 
         private List<Trigger> GetActiveTriggers(Trigger.TriggerSourceEnum src)
         {
@@ -147,7 +146,7 @@ namespace Triggernometry.Core
                 }
             }
 
-            RemoveAurasFromTrigger(t);
+            // RemoveAurasFromTrigger(t);
         }
 
         internal void TestTrigger(Trigger trigger, LogEvent logEvent, ActionOld.TriggerForceTypeEnum forceType)

@@ -16,10 +16,10 @@ namespace Scarborough
     abstract class ScarboroughItem : IDisposable
     {
 
-        protected Scarborough Owner { get; set; } = null;
+        protected Triggernometry.UI.Scarborough Owner { get; set; } = null;
 
         protected OverlayWindow _window = null;
-        protected Graphics _graphics = null;
+        public Graphics _graphics = null;
         protected Color _bgColor = new Color();
 
         internal bool NeedRender { get; set; } = true;
@@ -134,7 +134,7 @@ namespace Scarborough
         public abstract void Render();
         public abstract bool InternalLogic(int numTicks);
 
-        public ScarboroughItem(Scarborough own)
+        public ScarboroughItem(Triggernometry.UI.Scarborough own)
         {
             Owner = own;
         }

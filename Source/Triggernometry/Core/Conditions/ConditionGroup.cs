@@ -20,6 +20,7 @@ namespace Triggernometry.Core.Conditions
             Not = 4
         }
 
+        [XmlIgnore]
         private CndGroupingEnum _Grouping = CndGroupingEnum.Or;
         [XmlAttribute]
         public CndGroupingEnum Grouping

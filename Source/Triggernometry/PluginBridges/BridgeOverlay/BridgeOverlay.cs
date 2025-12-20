@@ -3,74 +3,73 @@ using System.Reflection;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 
-namespace Triggernometry.PluginBridges
+
+namespace Triggernometry.PluginBridges;
+
+public static class BridgeOverlay
 {
-    public static class BridgeOverlay
+    public const string PluginName = "OverlayPlugin.dll";
+    public const string PluginType = "RainbowMage.OverlayPlugin.PluginLoader";
+
+    public static bool Ready;
+    public static dynamic OverlayPlugin;
+    public static object Container;
+    private static MethodInfo _resolveMethodGeneric;
+
+    static BridgeOverlay()
     {
-        public const string PluginName = "OverlayPlugin.dll";
-        public const string PluginType = "RainbowMage.OverlayPlugin.PluginLoader";
-
-        public static bool Ready;
-        public static RealPlugin.PluginWrapper WrappedPlugin;
-        public static object Container;
-        private static MethodInfo _resolveMethodGeneric;
-
-        static BridgeOverlay()
-        {
-            Initialize();
-        }
-
-        static void Initialize()
-        {
-            WrappedPlugin = RealPlugin.InstanceHook(PluginName, PluginType);
-            object op = WrappedPlugin?.pluginObj;
-            if (op == null)
-            { 
-                RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not found");
-                Ready = false;
-                return;
-            }
-
-            // get the container and resolve method
-            try
-            {
-                Container = op.GetType().GetProperty("Container", BindingFlags.Public | BindingFlags.Instance)?.GetValue(op)
-                    ?? throw new ReflectionNotFoundException("Container");
-                _resolveMethodGeneric = Container.GetType().GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null)
-                    ?? throw new ReflectionNotFoundException("ResolveMethodGeneric");
-                Ready = true;
-            }
-            catch (Exception ex)
-            {
-                RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, 
-                    I18n.Translate("internal/BridgeOverlay/failInit", 
-                    "OverlayPlugin-related initialization failed due to: {0}", ex.ToString())
-                );
-                Ready = false;
-                return;
-            }
-        }
-
-        public static object Resolve(this object container, string typeName)
-        {
-            Type type = Type.GetType(typeName)
-                ?? throw new ReflectionNotFoundException($"{typeName} type");
-            MethodInfo resolveMethodSpecific = _resolveMethodGeneric.MakeGenericMethod(type);
-            object resolvedInstance = resolveMethodSpecific.Invoke(container, null) 
-                ?? throw new ReflectionNotFoundException($"{typeName} instance");
-            return resolvedInstance;
-        }
-
+        Initialize();
     }
 
-    public class ReflectionNotFoundException : Exception
+    public static void Initialize()
     {
-        public ReflectionNotFoundException(string objectName) : base(I18n.Translate(
-            "internal/BridgeOverlay/reflectionNotFound",
-            "Failed to find reflection object ({0}) during initializing OverlayPlugin-related modules.", 
-            objectName))
-        {
+        // WrappedPlugin = RealPlugin.InstanceHook(PluginName, PluginType);
+        dynamic op =OverlayPlugin=ProxyPlugin.DalamudPlugin.OverlayPlugin;
+        if (op == null)
+        { 
+            RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not found");
+            Ready = false;
+            return;
         }
+
+        // get the container and resolve method
+        try
+        {
+            Container = op.Container;
+            _resolveMethodGeneric = Container.GetType().GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null)
+                                    ?? throw new ReflectionNotFoundException("ResolveMethodGeneric");
+            Ready = true;
+        }
+        catch (Exception ex)
+        {
+            RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, 
+                                                   I18n.Translate("internal/BridgeOverlay/failInit", 
+                                                                  "OverlayPlugin-related initialization failed due to: {0}", ex.ToString())
+            );
+            Ready = false;
+            return;
+        }
+    }
+
+    public static object Resolve(this object container, string typeName)
+    {
+        Type type = Type.GetType(typeName)
+                    ?? throw new ReflectionNotFoundException($"{typeName} type");
+        MethodInfo resolveMethodSpecific = _resolveMethodGeneric.MakeGenericMethod(type);
+        object resolvedInstance = resolveMethodSpecific.Invoke(container, null) 
+                                  ?? throw new ReflectionNotFoundException($"{typeName} instance");
+        return resolvedInstance;
+    }
+
+}
+
+public class ReflectionNotFoundException : Exception
+{
+    public ReflectionNotFoundException(string objectName) : base(I18n.Translate(
+                                                                     "internal/BridgeOverlay/reflectionNotFound",
+                                                                     "Failed to find reflection object ({0}) during initializing OverlayPlugin-related modules.", 
+                                                                     objectName))
+    {
     }
 }
 

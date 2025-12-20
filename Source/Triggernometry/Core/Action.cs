@@ -14,7 +14,6 @@ using Triggernometry.Core.Conditions;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Expressions.Maths;
 using Triggernometry.Localization;
-using WMPLib;
 using static Triggernometry.Core.RealPlugin;
 
 namespace Triggernometry.Core
@@ -99,14 +98,14 @@ namespace Triggernometry.Core
 
         internal ActionOld NextAction { get; set; } = null;
 
-        /// <summary> Ñ­»·µÄ¸¸¶¯×÷ </summary>
+        /// <summary> Ñ­ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ </summary>
         internal ActionOld LoopAction { get; set; } = null;
         //internal Guid LoopContext { get; set; } = Guid.Empty;
 
         /// <summary>
         /// for queue controlling
         /// </summary>
-        internal Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [XmlIgnore]
         public bool Enabled { get; set; } = true;
@@ -292,7 +291,7 @@ namespace Triggernometry.Core
             AddToLog((Context)o, DebugLevelEnum.Verbose, msg);
         }
 
-        // todo: ×ÓÀà¸´ÓÃ
+        // todo: ï¿½ï¿½ï¿½à¸´ï¿½ï¿½
         private string GetTargetWindowsDescription(string procid, string titleRegex)
         {
             procid = procid.Trim();
@@ -317,10 +316,9 @@ namespace Triggernometry.Core
             }
         }
 
-        internal string GetDescription(Context ctx)
+        public string GetDescription(Context ctx)
             => ConvertToNewAction().Describe();
 
-        internal List<WindowsMediaPlayer> players = new List<WindowsMediaPlayer>();
 
         public ActionOld()
         {
@@ -459,39 +457,12 @@ namespace Triggernometry.Core
         
         internal void Mywmp_PlayStateChange(int NewState)
         {
-            if ((WMPPlayState)NewState != WMPPlayState.wmppsStopped)
-            {
-                return;
-            }
-            WindowsMediaPlayer wmp = null;
-            lock (players) // verified
-            {
-                do
-                {
-                    wmp = null;
-                    foreach (WindowsMediaPlayer x in players)
-                    {
-                        if (x.playState == WMPPlayState.wmppsStopped)
-                        {
-                            wmp = x;
-                            break;
-                        }
-                    }
-                    if (wmp != null)
-                    {
-                        players.Remove(wmp);
-                    }
-                } while (wmp != null);
-            }
+           // D
         }
 
         internal void Mywmp_MediaError(object pMediaObject)
         {
-            WindowsMediaPlayer wmp = (WindowsMediaPlayer)pMediaObject;
-            lock (players) // verified
-            {
-                players.Remove(wmp);
-            }
+           // D
         }
 
         internal void Execute(QueuedAction qa, Context ctx)
@@ -695,18 +666,11 @@ namespace Triggernometry.Core
         /// <summary> Set text to the clipboard using the UI thread. If text is empty, clear the clipboard. </summary>
         public static void ClipboardSetText(string text)
         {
-            Instance.ui.Invoke(new System.Action(() =>
-            {
-                if (string.IsNullOrEmpty(text))
-                    Clipboard.Clear();
-                else
-                    Clipboard.SetText(text);
-            }));
+          //D
         }
 
         /// <summary> Get the clipboard text using the UI thread. </summary>
-        public static string ClipboardGetText()
-            => (string)Instance.ui.Invoke(new Func<string>(Clipboard.GetText));
+        public static string ClipboardGetText()  => "";
 
         public static ArgumentException InvalidEnumException(string enumName, string enumValue)
         { 

@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Threading;
-using Triggernometry;
-using Triggernometry.PluginBridges.BridgeNamazu;
-using Triggernometry.PluginBridges.BridgeNamazu.Modules;
-using static Triggernometry.Debug;
-using static Triggernometry.Expressions.String.Utils.DataStringHelper;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
+
+namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class LocalEntityModule : ModuleBase
 {
 
     // FFXIVClientStructs/FFXIV/Client/Game/Object/ClientObjectManager.cs
-    public IntPtr ClientObjectManagerPtr;
+    // public IntPtr ClientObjectManagerPtr;
     public IntPtr CreateBattleCharacterFuncPtr;
     public IntPtr GetObjectByIndexFuncPtr;
     public IntPtr DeleteObjectByIndexFuncPtr;
@@ -27,11 +22,11 @@ public class LocalEntityModule : ModuleBase
 
     public EntityModule entityModule => BridgeNamazu.GetModule<EntityModule>();
 
-    public LocalEntityModule()
+    public unsafe LocalEntityModule()
     {
         ScanMethod = () =>
         {
-            ClientObjectManagerPtr = Scanner.TryScan("48 8D 0D * * * * E8 ?? ?? ?? ?? C7 43 60 FF FF FF FF", nameof(ClientObjectManagerPtr));
+            // ClientObjectManagerPtr =(IntPtr) ClientObjectManager.Instance();
             CreateBattleCharacterFuncPtr = Scanner.TryScan("E8 * * * * 41 89 44 FC ??", nameof(CreateBattleCharacterFuncPtr));
             GetObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * 4C 8B C0 4D 85 C0", nameof(GetObjectByIndexFuncPtr));
             DeleteObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * C6 43 49 00", nameof(DeleteObjectByIndexFuncPtr));
@@ -43,32 +38,31 @@ public class LocalEntityModule : ModuleBase
         };
     }
 
-    public int CreateBattleCharacter(int index = -1, byte param = 0)
+    public unsafe uint CreateBattleCharacter(int index = -1, byte param = 0)
     {
-        return Memory.CallInjected64<int>(CreateBattleCharacterFuncPtr, ClientObjectManagerPtr, index, param);
+        return ClientObjectManager.Instance()->CreateBattleCharacter((uint)index, param);
     }
 
-    public IntPtr GetObjectByIndex(int idx)
+    public unsafe IntPtr GetObjectByIndex(uint idx)
     {
-        return Memory.CallInjected64<IntPtr>(GetObjectByIndexFuncPtr, ClientObjectManagerPtr, (ushort)idx);
+        return (IntPtr)ClientObjectManager.Instance()->GetObjectByIndex((ushort)idx);
     }
 
-    public IntPtr DeleteObjectByIndex(int idx, byte param)
-    {
-        return Memory.CallInjected64<IntPtr>(DeleteObjectByIndexFuncPtr, ClientObjectManagerPtr, (ushort)idx, param);
-    }
+    // public unsafe IntPtr DeleteObjectByIndex(int idx, byte param)
+    // {  ClientObjectManager.Instance()->DeleteObjectByIndex((ushort)idx,param);
+    // }
 
-    public IntPtr CopyFromCharacter(IntPtr targetPtr, IntPtr sourcePtr, CopyFlags flags)
-    {
-        var characterSetupContainerPtr = targetPtr + CharacterSetupContainerOffset();
-        return Memory.CallInjected64<IntPtr>(CopyFromCharacterFuncPtr, characterSetupContainerPtr, sourcePtr, (uint)flags);
-    }
+    // public IntPtr CopyFromCharacter(IntPtr targetPtr, IntPtr sourcePtr, CopyFlags flags)
+    // {
+    //     var characterSetupContainerPtr = targetPtr + CharacterSetupContainerOffset();
+    //     return Memory.CallInjected64<IntPtr>(CopyFromCharacterFuncPtr, characterSetupContainerPtr, sourcePtr, (uint)flags);
+    // }
 
-    public void SetupBNpc(IntPtr targetPtr, uint bNpcBaseId, uint bNpcNameId = 0)
-    {
-        var characterSetupContainerPtr = targetPtr + CharacterSetupContainerOffset();
-        Memory.CallInjected64(SetupBNpcFuncPtr, characterSetupContainerPtr, bNpcBaseId, bNpcNameId);
-    }
+    // public void SetupBNpc(IntPtr targetPtr, uint bNpcBaseId, uint bNpcNameId = 0)
+    // {
+    //     var characterSetupContainerPtr = targetPtr + CharacterSetupContainerOffset();
+    //     Memory.CallInjected64(SetupBNpcFuncPtr, characterSetupContainerPtr, bNpcBaseId, bNpcNameId);
+    // }
 
     public IntPtr CreateLocalEntity(Vector3 pos, float heading = 0)
     {

@@ -19,14 +19,14 @@ namespace Triggernometry.Core.Conditions
 
         private static object lobject = new object();
         private static long IdCounter = 1;
-        internal long Id { get; set; }
+        public long Id { get; set; }
 
         [XmlAttribute]
         public bool Enabled { get; set; } = true;
+        [XmlIgnore]
+        public ConditionGroup Parent { get; set; } = null;
 
-        internal ConditionGroup Parent { get; set; } = null;
-
-        protected void TriggerOnPropertyChange()
+        public void TriggerOnPropertyChange()
         {
             if (OnPropertyChange != null)
             {
