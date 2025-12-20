@@ -45,7 +45,7 @@ namespace Triggernometry.Core
         // ============ ACT Zone Name ============
 
         [XmlIgnore]
-        internal bool ZoneFilterEnabled { get; set; } = false;
+        public bool ZoneFilterEnabled { get; set; } = false;
 
         [XmlAttribute("ZoneFilterEnabled")]
         public string Xml_ZoneFilterEnabled
@@ -79,7 +79,7 @@ namespace Triggernometry.Core
         // ============ FFXIV Zone ID ============
 
         [XmlIgnore]
-        internal bool FFXIVZoneFilterEnabled { get; set; } = false;
+        public bool FFXIVZoneFilterEnabled { get; set; } = false;
 
         [XmlAttribute("FFXIVZoneFilterEnabled")]
         public string Xml_FFXIVZoneFilterEnabled
@@ -113,7 +113,7 @@ namespace Triggernometry.Core
         // ============ Event Text ============
 
         [XmlIgnore]
-        internal bool EventFilterEnabled { get; set; } = false;
+        public bool EventFilterEnabled { get; set; } = false;
 
         [XmlAttribute("EventFilterEnabled")]
         public string Xml_EventFilterEnabled

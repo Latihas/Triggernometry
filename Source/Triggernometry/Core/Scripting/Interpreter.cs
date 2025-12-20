@@ -3,15 +3,16 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Triggernometry.Localization;
 
 namespace Triggernometry.Core.Scripting
 {
-
-    internal class Interpreter
+    public class Interpreter
     {
         private readonly ScriptOptions _scriptOptions;
 
@@ -46,29 +47,31 @@ namespace Triggernometry.Core.Scripting
 
         public void Evaluate(string rawScript, string extraAssembliesInput, Context ctx)
         {
-            ScriptGlobs globs = new ScriptGlobs(ctx);
-            ScriptOptions scriptOptions = BuildScriptOptions(extraAssembliesInput, ctx);
-
-            string[] restrictedApis = ScriptSecurity.GetRestrictedApisFromConfig(ctx);
-            bool allowDynamic = ScriptSecurity.IsFeatureAllowedByConfig(ctx.Plugin.cfg.DynamicUsage, ctx);
-
-            // nothing restricted: run directly
-            if (restrictedApis.Length == 0 && allowDynamic)
-            {
-                Task<object> scriptTask = CSharpScript.EvaluateAsync(rawScript, scriptOptions, globs, typeof(ScriptGlobs));
-                ExecuteScriptTask(scriptTask, globs);
+            if (!CSharpScriptCompiler.CompileScript(rawScript, []))
                 return;
-            }
-            else // check and run
+            try
             {
-                Script<object> script = CSharpScript.Create(rawScript, scriptOptions, typeof(ScriptGlobs));
-
-                if (!PassedRestrictedApiCheck(script, restrictedApis, globs) ||
-                    !PassedDynamicUsageCheck(script, allowDynamic, globs))
-                    return;
-
-                Task<ScriptState<object>> scriptTask = script.RunAsync(globs);
-                ExecuteScriptTask(scriptTask, globs);
+                Assembly asm;
+                using (var memoryStream = new MemoryStream(File.ReadAllBytes(CSharpScriptCompiler.GetScriptDllPath(rawScript))))
+                {
+                    asm = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly())!.LoadFromStream(memoryStream);
+                }
+                var targetType = typeof(ITrnNamedCallback);
+                var implementingTypes = asm.GetTypes().Where(t =>
+                                                                 t is { IsClass: true, IsAbstract: false } &&
+                                                                 targetType.IsAssignableFrom(t)).ToList();
+                foreach (var type in implementingTypes)
+                {
+                    var instance = (ITrnNamedCallback)Activator.CreateInstance(type)!;
+                    instance.Load();
+                    var name = type.Name;
+                    RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Loaded Dll {name}");
+                }
+            }
+            catch (Exception e)
+            {
+                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Load Dll Failed:{e.Message}{e}");
+                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Load Dll Failed:{rawScript}");
             }
         }
 

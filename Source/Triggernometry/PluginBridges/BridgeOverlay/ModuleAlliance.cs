@@ -7,6 +7,7 @@ using Triggernometry.Core;
 using Triggernometry.Localization;
 
 
+
 namespace Triggernometry.PluginBridges
 {
     [OverlayModule]

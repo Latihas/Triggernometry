@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Triggernometry.Core;
 using Triggernometry.Core.Variables;
 using Triggernometry.PluginBridges;
+using System.ComponentModel;
 
 namespace Triggernometry.UI.CustomControls
 {
@@ -231,6 +232,7 @@ namespace Triggernometry.UI.CustomControls
 
             private int _order;
             /// <summary> Start from 0. </summary>
+            [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
             public int Order
             {
                 get => _order;

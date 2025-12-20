@@ -1,109 +1,86 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<Platform>AnyCPU</Platform>
-		<ProjectGuid>{CA86FD05-FB30-4923-BB27-638CA9CBAFCD}</ProjectGuid>
-		<OutputType>Library</OutputType>
-		<AppDesignerFolder>Properties</AppDesignerFolder>
-		<RootNamespace>Triggernometry</RootNamespace>
-		<AssemblyName>TriggernometryPlugin</AssemblyName>
-		<TargetFramework>net481</TargetFramework>
-		<FileAlignment>512</FileAlignment>
-		<NuGetPackageImportStamp>
-		</NuGetPackageImportStamp>
-		<TargetFrameworkProfile />
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<OutputPath>bin\Release\</OutputPath>
-		<DefineConstants>TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-		<StartAction>Program</StartAction>
-		<StartProgram>C:\Program Files (x86)\Advanced Combat Tracker\Advanced Combat Tracker.exe</StartProgram>
-		<SignAssembly>false</SignAssembly>
-		<AssemblyOriginatorKeyFile>
-		</AssemblyOriginatorKeyFile>
-		<UseWindowsForms>true</UseWindowsForms>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-	</PropertyGroup>
-	<ItemGroup>
-	  <Compile Remove="Expressions\String\Metadata\**" />
-	  <Compile Remove="Resources\**" />
-	  <EmbeddedResource Remove="Expressions\String\Metadata\**" />
-	  <EmbeddedResource Remove="Resources\**" />
-	  <None Remove="Expressions\String\Metadata\**" />
-	  <None Remove="Resources\**" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="CsvHelper" Version="33.1.0" />
-		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.9">
-			<Private>True</Private>
-		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis" Version="4.14.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="4.14.0" />
-		<PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="SharpDX" Version="4.2.0">
-			<SpecificVersion>False</SpecificVersion>
-			<Private>True</Private>
-			<EmbedInteropTypes>False</EmbedInteropTypes>
-		</PackageReference>
-		<PackageReference Include="SharpDX.Direct2D1" Version="4.2.0">
-			<SpecificVersion>False</SpecificVersion>
-			<Private>True</Private>
-		</PackageReference>
-		<PackageReference Include="SharpDX.Direct3D11" Version="4.2.0">
-			<SpecificVersion>False</SpecificVersion>
-			<Private>True</Private>
-		</PackageReference>
-		<PackageReference Include="SharpDX.DXGI" Version="4.2.0">
-			<SpecificVersion>False</SpecificVersion>
-			<Private>True</Private>
-		</PackageReference>
-		<PackageReference Include="System.Collections.Immutable" Version="9.0.9">
-			<Private>True</Private>
-		</PackageReference>
-		<PackageReference Include="System.Net.Http" Version="4.3.4" />
-		<PackageReference Include="System.Reflection.Metadata" Version="9.0.9" />
-		<PackageReference Include="System.Speech" Version="9.0.9" />
-		<PackageReference Include="System.Text.Json" Version="9.0.9">
-			<Private>True</Private>
-		</PackageReference>
-		<PackageReference Include="System.ValueTuple" Version="4.6.1" />
-		<Reference Include="System.Web.Extensions" />
-	</ItemGroup>
-	<ItemGroup>
-		<COMReference Include="WMPLib">
-			<Guid>{6BF52A50-394A-11D3-B153-00C04F79FAA6}</Guid>
-			<VersionMajor>1</VersionMajor>
-			<VersionMinor>0</VersionMinor>
-			<Lcid>0</Lcid>
-			<WrapperTool>tlbimp</WrapperTool>
-			<Isolated>False</Isolated>
-			<EmbedInteropTypes>True</EmbedInteropTypes>
-		</COMReference>
-	</ItemGroup>
-	<ItemGroup>
-		<Content Include="Localization\newtranslations.txt" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="app.config" />
-		<None Include="readme.md" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Remove="UI\Aura\Renderer\SharpDXRenderer.cs" />
-		<Compile Remove="UI\Aura\Renderer\WinformsRenderer.cs" />
-		<Compile Remove="Forms/testi.cs" />
-		<Compile Remove="Forms/testi.Designer.cs" />
-		<Compile Remove="Forms/testi2.cs" />
-		<Compile Remove="Forms/testi2.Designer.cs" />
-		<Compile Remove="Forms/testi3.cs" />
-		<Compile Remove="Forms/testi3.Designer.cs" />
-		<Compile Remove="UI\Forms\testi2.cs" />
-		<Compile Remove="UI\Forms\testi2.Designer.cs" />
-	</ItemGroup>
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Triggernometry</RootNamespace>
+        <AssemblyName>Triggernometry</AssemblyName>
+        <FileAlignment>512</FileAlignment>
+        <UseWindowsForms>true</UseWindowsForms>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Version>1.2.0.999</Version>
+        <AssemblyVersion>1.2.0.999</AssemblyVersion>
+        <FileVersion>1.2.0.999</FileVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\NotACT\NotACT.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CsvHelper" Version="33.1.0"/>
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1">
+            <Private>True</Private>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.0.0"/>
+        <PackageReference Include="SharpDX" Version="4.2.0">
+            <SpecificVersion>False</SpecificVersion>
+            <Private>True</Private>
+            <EmbedInteropTypes>False</EmbedInteropTypes>
+        </PackageReference>
+        <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0">
+            <SpecificVersion>False</SpecificVersion>
+            <Private>True</Private>
+        </PackageReference>
+        <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0">
+            <SpecificVersion>False</SpecificVersion>
+            <Private>True</Private>
+        </PackageReference>
+        <PackageReference Include="SharpDX.DXGI" Version="4.2.0">
+            <SpecificVersion>False</SpecificVersion>
+            <Private>True</Private>
+        </PackageReference>
+        <Reference Include="FFXIVClientStructs">
+          <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+        </Reference>
+        <Reference Include="FFXIV_ACT_Plugin">
+          <HintPath>..\..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
+        </Reference>
+        <PackageReference Include="System.Collections.Immutable" Version="10.0.1" />
+        <PackageReference Include="System.Management" Version="10.0.1" />
+        <PackageReference Include="System.Reflection.Metadata" Version="10.0.1" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2"/>
+        <PackageReference Include="System.Speech" Version="10.0.0-rc.2.25502.107" />
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.1" />
+        <PackageReference Include="System.Text.Encodings.Web" Version="10.0.1">
+            <Private>True</Private>
+        </PackageReference>
+        <PackageReference Include="System.ValueTuple" Version="4.6.1"/>
+        <Reference Include="System.Web.Extensions">
+            <HintPath>System.Web.Extensions.dll</HintPath>
+        </Reference>
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7"/>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+        <Reference Include="Dalamud">
+            <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Dalamud.Bindings.ImGui">
+            <HintPath>$(DalamudLibPath)Dalamud.Bindings.ImGui.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="InteropGenerator.Runtime">
+            <HintPath>$(DalamudLibPath)InteropGenerator.Runtime.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Remove="Expressions\String\Metadata\**" />
+        <EmbeddedResource Remove="Resources\**" />
+        <None Remove="Expressions\String\Metadata\**" />
+        <None Remove="Resources\**" />
+        <Content Include="Localization\newtranslations.txt" />
+    </ItemGroup>
 </Project>

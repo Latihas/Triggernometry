@@ -1,95 +1,88 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Triggernometry.Core;
 
-namespace Triggernometry.UI.Aura
+namespace Triggernometry.UI.Aura;
+
+internal sealed class AuraImage : Aura
 {
 
-    internal sealed class AuraImage : Aura
+    internal string ImageFilenameExpression { get; set; }
+
+    private string _ImageFileName;
+    internal string ImageFileName
     {
-
-        internal string ImageFilenameExpression { get; set; }
-
-        private string _ImageFileName;
-        internal string ImageFileName
+        get
         {
-            get
+            return _ImageFileName;
+        }
+        set
+        {
+            if (value != _ImageFileName)
             {
-                return _ImageFileName;
-            }
-            set
-            {
-                if (value != _ImageFileName)
-                {
-                    Changed = true;
-                    _ImageFileName = value;
-                }
+                Changed = true;
+                _ImageFileName = value;
             }
         }
+    }
 
-        private PictureBoxSizeMode _Display;
-        internal PictureBoxSizeMode Display
+    private PictureBoxSizeMode _Display;
+    internal PictureBoxSizeMode Display
+    {
+        get
         {
-            get
+            return _Display;
+        }
+        set
+        {
+            if (value != _Display)
             {
-                return _Display;
-            }
-            set
-            {
-                if (value != _Display)
-                {
-                    Changed = true;
-                    _Display = value;
-                }
+                Changed = true;
+                _Display = value;
             }
         }
+    }
 
-        public override void Dispose()
+    public override void Dispose()
+    {
+        base.Dispose();
+    }
+
+    internal static string GetImageFilename(RealPlugin plug, string ifn)
+    {
+        Uri u = new Uri(ifn);
+        if (u.IsFile == true)
         {
-            base.Dispose();
+            return ifn;
         }
-
-        internal static string GetImageFilename(RealPlugin plug, string ifn)
+        else
         {
-            Uri u = new Uri(ifn);
-            if (u.IsFile == true)
+            string fn = Path.Combine(plug.ConfigPath, "TriggernometryRemoteImages");
+            if (Directory.Exists(fn) == false)
             {
-                return ifn;
+                Directory.CreateDirectory(fn);
             }
-            else
+            string ext = Path.GetExtension(u.LocalPath);
+            fn = Path.Combine(fn, RealPlugin.GenerateHash(u.AbsoluteUri) + Path.GetExtension(u.LocalPath));
+            if (File.Exists(fn) == true)
             {
-                string fn = Path.Combine(plug.ConfigPath, "TriggernometryRemoteImages");
-                if (Directory.Exists(fn) == false)
+                FileInfo fi = new FileInfo(fn);
+                DateTime dt = DateTime.Now.AddMinutes(0 - plug.cfg.CacheImageExpiry);
+                if (fi.LastWriteTime > dt)
                 {
-                    Directory.CreateDirectory(fn);
-                }
-                string ext = Path.GetExtension(u.LocalPath);
-                fn = Path.Combine(fn, RealPlugin.GenerateHash(u.AbsoluteUri) + Path.GetExtension(u.LocalPath));
-                if (File.Exists(fn) == true)
-                {
-                    FileInfo fi = new FileInfo(fn);
-                    DateTime dt = DateTime.Now.AddMinutes(0 - plug.cfg.CacheImageExpiry);
-                    if (fi.LastWriteTime > dt)
-                    {
-                        return fn;
-                    }
-                }
-                using (WebClient wc = new WebClient())
-                {
-                    wc.Headers["User-Agent"] = "Triggernometry Image Retriever";
-                    byte[] data = wc.DownloadData(u.AbsoluteUri);
-                    File.WriteAllBytes(fn, data);
                     return fn;
                 }
             }
+            using (WebClient wc = new WebClient())
+            {
+                wc.Headers["User-Agent"] = "Triggernometry Image Retriever";
+                byte[] data = wc.DownloadData(u.AbsoluteUri);
+                File.WriteAllBytes(fn, data);
+                return fn;
+            }
         }
-
     }
 
 }

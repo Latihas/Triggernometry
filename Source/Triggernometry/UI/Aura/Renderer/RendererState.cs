@@ -1,13 +1,10 @@
 ﻿using System;
 
-namespace Triggernometry.UI.Aura.Renderer
+namespace Triggernometry.UI.Aura.Renderer;
+
+abstract internal class RendererState : IDisposable
 {
 
-    abstract internal class RendererState : IDisposable
-    {
-
-        abstract public void Dispose();
-
-    }
+    abstract public void Dispose();
 
 }

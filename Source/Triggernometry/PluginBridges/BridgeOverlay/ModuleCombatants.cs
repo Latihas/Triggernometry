@@ -8,6 +8,7 @@ using System.Text;
 using Triggernometry.Localization;
 using Triggernometry.Core;
 
+
 namespace Triggernometry.PluginBridges
 {
     [OverlayModule]

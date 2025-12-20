@@ -57,10 +57,10 @@ namespace Triggernometry.Expressions.String.Parsers
                     return plug?.sc?.textitems != null  
                         ? ContainsKeyResultWithLock(plug?.sc?.textitems, body) // new
                         : ContainsKeyResultWithLock(plug?.textauras, body);    // old
-                case "eimage":
-                    return plug?.sc?.imageitems != null
-                        ? ContainsKeyResultWithLock(plug?.sc?.imageitems, body) // new
-                        : ContainsKeyResultWithLock(plug?.imageauras, body);    // old
+                // case "eimage":
+                //     return plug?.sc?.imageitems != null
+                //         ? ContainsKeyResultWithLock(plug?.sc?.imageitems, body) // new
+                //         : ContainsKeyResultWithLock(plug?.imageauras, body);    // old
                 case "ecallback":
                     return ContainsKeyResultWithLock(plug?.callbacksByName, body);
                 case "estorage":

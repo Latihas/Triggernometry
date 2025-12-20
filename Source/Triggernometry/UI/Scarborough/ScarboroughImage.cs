@@ -256,7 +256,7 @@ namespace Scarborough
         private double TimeAccumulator = 0.0;
         private DateTime LastAdvance = DateTime.MinValue;
         
-        public ScarboroughImage(Scarborough own) : base(own)
+        public ScarboroughImage(Triggernometry.UI.Scarborough own) : base(own)
         {
         }
 

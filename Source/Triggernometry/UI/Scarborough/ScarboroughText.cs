@@ -168,7 +168,7 @@ namespace Scarborough
         private Font TextFont { get; set; } = null;
         private SolidBrush TextBrush { get; set; } = null;
 
-        public ScarboroughText(Scarborough own) : base(own)
+        public ScarboroughText(Triggernometry.UI.Scarborough own) : base(own)
         {
         }
 

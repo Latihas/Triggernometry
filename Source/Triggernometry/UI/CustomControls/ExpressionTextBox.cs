@@ -271,12 +271,14 @@ namespace Triggernometry.UI.CustomControls
             String, Numeric, Regex, Color
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ReadOnly
         {
             get => textBox1.ReadOnly;
             set => textBox1.ReadOnly = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Expression
         {
             get => textBox1.Text;
@@ -290,6 +292,7 @@ namespace Triggernometry.UI.CustomControls
         }
 
         private bool _IsPersistent = false;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsPersistent
         {
             get => _IsPersistent;
@@ -300,9 +303,11 @@ namespace Triggernometry.UI.CustomControls
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AutocompleteAvailable { get; set; } = true;
 
         private SupportedExpressionTypeEnum _ExpressionType;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SupportedExpressionTypeEnum ExpressionType
         {
             get => _ExpressionType;
@@ -347,26 +352,27 @@ namespace Triggernometry.UI.CustomControls
 
         /// <summary> For autofilling. </summary>
         // to-do: replace the logic using the static RealPlugin instance
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         internal Context UiContext
         {
             get
             {
-                if (_uiContext != null)
-                    return _uiContext;
+                // if (_uiContext != null)
+                //     return _uiContext;
 
-                if (!_triedToGetUiContext)
-                {
-                    var form = this.FindForm();
-                    if (form is TriggerForm tf)
-                    {
-                        _uiContext = tf.UiContext;
-                    }
-                    else if (form is ActionForm af)
-                    {
-                        _uiContext = af.UiContext;
-                    }
-                    _triedToGetUiContext = true;
-                }
+                // if (!_triedToGetUiContext)
+                // {
+                //     var form = this.FindForm();
+                //     if (form is TriggerForm tf)
+                //     {
+                //         _uiContext = tf.UiContext;
+                //     }
+                //     else if (form is ActionForm af)
+                //     {
+                //         _uiContext = af.UiContext;
+                //     }
+                //     _triedToGetUiContext = true;
+                // }
 
                 return _uiContext ?? Context.Unbound;
             }
@@ -869,435 +875,7 @@ namespace Triggernometry.UI.CustomControls
 
         private void ProcessAutocomplete()
         {
-            acfDebounceTimer.Stop();
-
-            if (!textBox1.Focused) return;
-
-            string temp = textBox1.Text.Substring(0, textBox1.SelectionStart);
-            IEnumerable<string> matchedStrings = null;
-            suffix = "";
-
-            // string after "${" : match prefixes (e.g. "${func:...}") and regex capture groups
-            Match m = rexPrefix.Match(temp);
-            if (m.Success)
-            {
-                matchedStrings = GetAutocompleteSuggestions(CurrentRegexGroupsAndPrefixes, m.Groups["prefix"].Value);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = m.Groups["prefix"].Value;
-                    suffix = "matchPrefix"; // decide after selected
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // match functions: "func:xxx" "f:xxx"
-            m = rexFunc.Match(temp);
-            if (m.Success)
-            {
-                matchedStrings = GetAutocompleteSuggestions(funcs, m.Groups["funcid"].Value);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = m.Groups["funcid"].Value;
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // match storage functions: "sfunc:xxx()"
-            m = rexStorageFunc.Match(temp);
-            if (m.Success)
-            {
-                matchedStrings = GetAutocompleteSuggestions(GetStorageFuncDescs(), m.Groups["funcid"].Value);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = m.Groups["funcid"].Value;
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // match variable names:
-            m = rexVarName.Match(temp);
-            if (m.Success)
-            {
-                bool isPersist = m.Groups["persist"].Value == "p";
-                string typeString = m.Groups["type"].Value;
-                if (!StringToAutofillEnum.TryGetValue(typeString, out AutofillTypeEnum type))
-                {
-                    type = AutofillTypeEnum.None;
-                }
-
-                // combine the existing and dynamic variable names
-                HashSet<string> varNames = new HashSet<string>(GetExistingAutofillNameList(type, isPersist));
-                varNames.UnionWith(GetDynamicAutofillNameList(type, isPersist) ?? Enumerable.Empty<string>());
-
-                matchedStrings = GetAutocompleteSuggestions(varNames, m.Groups["name"].Value);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = m.Groups["name"].Value;
-                    if (m.Groups["type"].Value == "v" || m.Groups["e"].Value == "e")
-                    {
-                        suffix = "}";
-                    }
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // match table row headers: "${(p)tvarrl:xxx[xxx" or "${(p)tvardl[xxx][xxx":
-            m = rexRowHeader.Match(temp);
-            if (m.Success)
-            {
-                VariableStore vs = RealPlugin.Instance.GetVariableStore(m.Groups["persist"].Value == "p");
-                VariableTable vt;
-                string varName = m.Groups["name1"].Value + m.Groups["name2"].Value;
-                if (vs.Table.ContainsKey(varName) && vs.Table[varName].Height > 0)
-                {
-                    vt = vs.Table[varName];
-                }
-                else
-                {
-                    HideAutocomplete();
-                    return;
-                }
-
-                List<string> headers = new List<string>();
-                for (int index = 1; index <= vt.Height; index++)
-                {
-                    headers.Add(vt.Peek(1, index).ToString());
-                }
-
-                matchedStrings = GetAutocompleteSuggestions(headers, m.Groups["key"].Value);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = m.Groups["key"].Value;
-                    suffix = (m.Groups["name1"].Value != "") ? "][" : "]}";
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // match table col headers "${(p)tvarcl:...[xxx" or "${(p)tvardl:...[xxx":
-            m = rexColHeader.Match(temp);
-            if (m.Success)
-            {
-                VariableStore vs = RealPlugin.Instance.GetVariableStore(m.Groups["persist"].Value == "p");
-                VariableTable vt;
-                string varName = m.Groups["name"].Value;
-                if (vs.Table.ContainsKey(varName) && vs.Table[varName].Width > 0)
-                {
-                    vt = vs.Table[varName];
-                }
-                else
-                {
-                    HideAutocomplete();
-                    return;
-                }
-                List<string> headers = new List<string>();
-                for (int index = 1; index <= vt.Width; index++)
-                {
-                    headers.Add(vt.Peek(index, 1).ToString());
-                }
-
-                matchedStrings = GetAutocompleteSuggestions(headers, m.Groups["key"].Value);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = m.Groups["key"].Value;
-                    suffix = "][";
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // match dict keys
-            m = rexDictKey.Match(temp);
-            if (m.Success)
-            {
-                VariableStore vs = RealPlugin.Instance.GetVariableStore(m.Groups["persist"].Value == "p");
-                VariableDictionary vd;
-                string varName = m.Groups["name"].Value;
-                if (vs.Dict.ContainsKey(varName) && vs.Dict[varName].Size > 0)
-                {
-                    vd = vs.Dict[varName];
-                }
-                else
-                {
-                    HideAutocomplete();
-                    return;
-                }
-
-                List<string> keys = vd.Values.Keys.ToList();
-                matchedStrings = GetAutocompleteSuggestions(keys, m.Groups["key"].Value);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = m.Groups["key"].Value;
-                    suffix = "]}";
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // match "_xxx[xxx"
-            m = rexStructKey.Match(temp);
-            if (m.Success)
-            {
-                List<string> keys = null;
-                switch (m.Groups["struct"].Value)
-                {
-                    case "const": keys = RealPlugin.Instance.cfg.Constants.Keys.ToList(); break;
-                    case "textaura":
-                        {
-                            keys = (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.textitems.Keys.ToList() : RealPlugin.Instance.textauras.Keys.ToList();
-                            keys.AddRange(tmpTextNames);
-                            break;
-                        }
-                    case "imageaura":
-                        {
-                            keys = (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.imageitems.Keys.ToList() : RealPlugin.Instance.imageauras.Keys.ToList();
-                            keys.AddRange(tmpImageNames);
-                            break;
-                        }
-                    case "config": keys = configurations; break;
-                    case "storage": keys = RealPlugin.Instance.scriptingStorage.Keys.ToList(); break;
-                }
-                matchedStrings = GetAutocompleteSuggestions(keys, m.Groups["key"].Value);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = m.Groups["key"].Value;
-                    suffix = "]}";
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // match folder environment variable names: (${env:...})
-            m = rexEnvironment.Match(temp);
-            if (m.Success)
-            {
-                var key = m.Groups["key"].Value;
-                var form = this.FindForm();
-                Trigger trig = null;
-                if (form is TriggerForm tf)
-                {
-                    trig = tf.Trigger;
-                }
-                else if (form is ActionForm af)
-                {
-                    trig = af.ParentTrigger;
-                }
-
-                var envKeys = trig?.Parent?.RecursiveGetEnvironmentVariables()?.Keys?.ToList() ?? new List<string>();
-                matchedStrings = GetAutocompleteSuggestions(envKeys, key);
-                if (matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = key;
-                    suffix = "}";
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            // search for the previous unclosed '{'
-            int leftBracketCount = 0;
-            string currentExpr = null;
-            for (int index = temp.Length - 1; index >= 0; index--)
-            {   // search '{' '}' from the end of the string
-                if (temp[index] == '}')
-                {
-                    leftBracketCount--;
-                }
-                else if (temp[index] == '{')
-                {
-                    leftBracketCount++;
-                }
-                if (leftBracketCount == 1)
-                {   // get the string after the unclosed '{'
-                    currentExpr = temp.Substring(index + 1);
-                    break;
-                }
-            }
-
-            if (currentExpr == null)
-            {   // parse later
-                currentExpr = temp;
-            }
-            else
-            {
-                if (currentExpr.Contains('}'))
-                {   // aaa{bbb{ccc}ddd{eee}fff}ggg.hhh => aaaggg.hhh
-                    currentExpr = currentExpr.Substring(0, currentExpr.IndexOf('{'))
-                                + currentExpr.Substring(currentExpr.LastIndexOf('}') + 1);
-                }
-                // match numeric:
-                if (currentExpr.StartsWith("n:") || currentExpr.StartsWith("numeric:") || currentExpr.StartsWith("if:"))
-                {
-                    m = rexMath.Match(currentExpr);
-                    if (m.Success)
-                    {
-                        matchedStrings = GetAutocompleteSuggestions(math, m.Value);
-                        if (matchedStrings != null && matchedStrings.Count() > 0)
-                        {
-                            CurrentMatch = m.Value;
-                            ShowAutocomplete(matchedStrings);
-                        }
-                        else
-                        {
-                            HideAutocomplete();
-                        }
-                        return;
-                    }
-                }
-                // match (p)[ltd](var):name.prop
-                m = rexVarProp.Match(currentExpr);
-                if (m.Success)
-                {
-                    List<string> varProps = null;
-                    switch (m.Groups["type"].Value)
-                    {
-                        case "l": varProps = lvarProps; break;
-                        case "t": varProps = tvarProps; break;
-                        case "d": varProps = dvarProps; break;
-                    }
-                    matchedStrings = GetAutocompleteSuggestions(varProps, m.Groups["prop"].Value);
-                    if (matchedStrings != null && matchedStrings.Count() > 0)
-                    {
-                        CurrentMatch = m.Groups["prop"].Value;
-                        ShowAutocomplete(matchedStrings);
-                    }
-                    else
-                    {
-                        HideAutocomplete();
-                    }
-                    return;
-                }
-
-                // match _me.prop
-                m = rexMeProp.Match(currentExpr);
-                if (m.Success)
-                {
-                    matchedStrings = GetAutocompleteSuggestions(XivEntityProps, m.Groups["prop"].Value);
-                    if (matchedStrings != null && matchedStrings.Count() > 0)
-                    {
-                        CurrentMatch = m.Groups["prop"].Value;
-                        ShowAutocomplete(matchedStrings);
-                    }
-                    else
-                    {
-                        HideAutocomplete();
-                    }
-                    return;
-                }
-
-                // match _xxx[xxx].prop
-                m = rexStructProp.Match(currentExpr);
-                if (m.Success)
-                {
-                    switch (m.Groups["struct"].Value)
-                    {
-                        case "ffxivparty":
-                        case "ffxiventity":
-                        case "party":
-                        case "entity":
-                            matchedStrings = GetAutocompleteSuggestions(XivEntityProps, m.Groups["prop"].Value);
-                            break;
-                        case "textaura":
-                            matchedStrings = GetAutocompleteSuggestions(textAuraProps, m.Groups["prop"].Value);
-                            break;
-                        case "imageaura":
-                            matchedStrings = GetAutocompleteSuggestions(imageAuraProps, m.Groups["prop"].Value);
-                            break;
-                        case "job":
-                            matchedStrings = GetAutocompleteSuggestions(XivJobProps, m.Groups["prop"].Value);
-                            break;
-                    }
-                    if (matchedStrings != null && matchedStrings.Count() > 0)
-                    {
-                        CurrentMatch = m.Groups["prop"].Value;
-                        ShowAutocomplete(matchedStrings);
-                    }
-                    else
-                    {
-                        HideAutocomplete();
-                    }
-                    return;
-                }
-            }
-
-            // all matches failed or temp contains no unclosed '{'
-
-            if (AutofillType != AutofillTypeEnum.None)
-            {
-                var names = GetExistingAutofillNameList(AutofillType, IsPersistent);
-                names.AddRange(GetDynamicAutofillNameList(AutofillType, IsPersistent) ?? new List<string>());
-                matchedStrings = GetAutocompleteSuggestions(names, temp);
-                if (matchedStrings != null && matchedStrings.Count() > 0)
-                {
-                    CurrentMatch = temp;
-                    ShowAutocomplete(matchedStrings);
-                }
-                else
-                {
-                    HideAutocomplete();
-                }
-                return;
-            }
-
-            if (ExpressionType == SupportedExpressionTypeEnum.Numeric)
-            {
-                m = rexMath.Match(currentExpr);
-                if (m.Success)
-                {
-                    matchedStrings = GetAutocompleteSuggestions(math, m.Value);
-                    if (matchedStrings != null && matchedStrings.Count() > 0)
-                    {
-                        CurrentMatch = m.Value;
-                        ShowAutocomplete(matchedStrings);
-                    }
-                    else
-                    {
-                        HideAutocomplete();
-                    }
-                    return;
-                }
-            }
-            HideAutocomplete();
+           //D
         }
 
         private void panel1_Click(object sender, EventArgs e)
@@ -1474,6 +1052,7 @@ namespace Triggernometry.UI.CustomControls
             { "storage",  AutofillTypeEnum.Storage },
         };
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public AutofillTypeEnum AutofillType { get; set; } = AutofillTypeEnum.None;
 
         /// <summary> 
@@ -1507,7 +1086,7 @@ namespace Triggernometry.UI.CustomControls
                 case AutofillTypeEnum.Table: return vs.Table.Keys.ToList();
                 case AutofillTypeEnum.Dict: return vs.Dict.Keys.ToList();
                 case AutofillTypeEnum.Text: return (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.textitems.Keys.ToList() : RealPlugin.Instance.textauras.Keys.ToList();
-                case AutofillTypeEnum.Image: return (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.imageitems.Keys.ToList() : RealPlugin.Instance.imageauras.Keys.ToList();
+                // case AutofillTypeEnum.Image: return (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.imageitems.Keys.ToList() : RealPlugin.Instance.imageauras.Keys.ToList();
                 case AutofillTypeEnum.Callback: return RealPlugin.Instance.callbacksByName.Keys.ToList();
                 case AutofillTypeEnum.Storage: return RealPlugin.Instance.scriptingStorage.Keys.ToList();
                 default: return new List<string>();

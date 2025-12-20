@@ -208,7 +208,7 @@ namespace Triggernometry.Core
             Root.Folders.Clear();
             Root.Triggers.Clear();
             ReadmeTriggers.Clear();
-            Instance.ui.ClearRepositoryInTree(this);
+            // Instance.ui.ClearRepositoryInTree(this);
         }
 
         #region Restrictions
@@ -379,7 +379,7 @@ namespace Triggernometry.Core
             {
                 restrictions |= ApplySettingsOnFolder(exp.ExportedFolder);
                 Root.Folders.Add(exp.ExportedFolder);
-                RegisterFolder(exp.ExportedFolder, Enabled && Instance.ui.treeView1.Nodes[1].Checked);
+                RegisterFolder(exp.ExportedFolder, Enabled );
             }
 
             if (exp.ExportedTrigger != null)
@@ -403,7 +403,7 @@ namespace Triggernometry.Core
                     Name, string.Join(", ", restrictionNames)));
             }
 
-            Instance.ui.BuildTreeForRepository(exp, this);
+            // Instance.ui.BuildTreeForRepository(exp, this);
         }
 
         internal void RegisterFolder(Folder f, bool parentEnabled)

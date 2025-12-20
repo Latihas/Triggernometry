@@ -12,8 +12,8 @@ using Triggernometry.Core.Serialization;
 using Triggernometry.Core.Variables;
 using Triggernometry.Localization;
 
-namespace Triggernometry.Core
-{
+namespace Triggernometry.Core;
+
 
     public partial class Configuration
     {
@@ -519,7 +519,7 @@ namespace Triggernometry.Core
         public bool UiFontDefault { get; set; } = true;
 
         [XmlAttribute]
-        public string UiFontName { get; set; } = null;
+    public string UiFontName { get; set; }
 
         [XmlAttribute]
         public float UiFontSize { get; set; } = 10.0f;
@@ -537,13 +537,13 @@ namespace Triggernometry.Core
         public bool ActionAsyncByDefault { get; set; } = true;
 
         [XmlAttribute]
-        public bool DeveloperMode { get; set; } = false;
+    public bool DeveloperMode { get; set; }
 
         [XmlAttribute]
         public bool AutoComplete { get; set; } = true;
 
         [XmlAttribute]
-        public bool AutosaveEnabled { get; set; } = false;
+    public bool AutosaveEnabled { get; set; }
 
         [XmlAttribute]
         public int AutosaveInterval { get; set; } = 5;
@@ -700,6 +700,8 @@ namespace Triggernometry.Core
             }
         }
 
-    }
-
+    [XmlAttribute]
+    public bool EnableModuleBase { get; set; }
+    [XmlAttribute]
+    public List<string> CompileFailedScripts { get; set; } = [];
 }

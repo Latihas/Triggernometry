@@ -7,6 +7,7 @@ using Triggernometry.Expressions.String.Evaluators;
 using Triggernometry.Expressions.String.Models;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.FFXIV;
+using Triggernometry.Forms;
 using Triggernometry.Localization;
 using Triggernometry.PluginBridges;
 using Triggernometry.Utilities;
@@ -177,26 +178,26 @@ namespace Triggernometry.Expressions.String.Parsers
                         {
                             lock (plug.textauras)
                             {
-                                if (!plug.textauras.TryGetValue(expr.Index, out UI.Forms.AuraContainerForm acf))
+                                if (!plug.textauras.TryGetValue(expr.Index, out AuraContainerForm acf))
                                     return "";
 
-                                switch (expr.Member.Name.ToLowerInvariant())
-                                {
-                                    case "x":
-                                        return I18n.ThingToString(acf.Left);
-                                    case "y":
-                                        return I18n.ThingToString(acf.Top);
-                                    case "w":
-                                    case "width":
-                                        return I18n.ThingToString(acf.Width);
-                                    case "h":
-                                    case "height":
-                                        return I18n.ThingToString(acf.Height);
-                                    case "opacity":
-                                        return I18n.ThingToString(acf.PresentableOpacity);
-                                    case "text":
-                                        return acf.CurrentText;
-                                }
+                                // switch (expr.Member.Name.ToLowerInvariant())
+                                // {
+                                //     case "x":
+                                //         return I18n.ThingToString(acf.Left);
+                                //     case "y":
+                                //         return I18n.ThingToString(acf.Top);
+                                //     case "w":
+                                //     case "width":
+                                //         return I18n.ThingToString(acf.Width);
+                                //     case "h":
+                                //     case "height":
+                                //         return I18n.ThingToString(acf.Height);
+                                //     case "opacity":
+                                //         return I18n.ThingToString(acf.PresentableOpacity);
+                                //     case "text":
+                                //         return acf.CurrentText;
+                                // }
                             }
                         }
                         return "";
@@ -228,26 +229,26 @@ namespace Triggernometry.Expressions.String.Parsers
                         }
                         else
                         {
-                            lock (plug.imageauras)
-                            {
-                                if (!plug.imageauras.TryGetValue(expr.Index, out UI.Forms.AuraContainerForm acf))
-                                    return "";
-                                switch (expr.Member.Name.ToLowerInvariant())
-                                {
-                                    case "x":
-                                        return I18n.ThingToString(acf.Left);
-                                    case "y":
-                                        return I18n.ThingToString(acf.Top);
-                                    case "w":
-                                    case "width":
-                                        return I18n.ThingToString(acf.Width);
-                                    case "h":
-                                    case "height":
-                                        return I18n.ThingToString(acf.Height);
-                                    case "opacity":
-                                        return I18n.ThingToString(acf.PresentableOpacity);
-                                }
-                            }
+                            // lock (plug.imageauras)
+                            // {
+                            //     if (!plug.imageauras.TryGetValue(expr.Index, out UI.Forms.AuraContainerForm acf))
+                            //         return "";
+                            //     switch (expr.Member.Name.ToLowerInvariant())
+                            //     {
+                            //         case "x":
+                            //             return I18n.ThingToString(acf.Left);
+                            //         case "y":
+                            //             return I18n.ThingToString(acf.Top);
+                            //         case "w":
+                            //         case "width":
+                            //             return I18n.ThingToString(acf.Width);
+                            //         case "h":
+                            //         case "height":
+                            //             return I18n.ThingToString(acf.Height);
+                            //         case "opacity":
+                            //             return I18n.ThingToString(acf.PresentableOpacity);
+                            //     }
+                            // }
                         }
                         return "";
                     }

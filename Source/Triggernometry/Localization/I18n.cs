@@ -213,19 +213,7 @@ namespace Triggernometry.Localization
                 }
                 if (c is CheckedListBox)
                 {
-                    CheckedListBox x = (CheckedListBox)c;
-                    for (int i = 0; i < x.Items.Count; i++)
-                    {
-                        string o = x.Items[i].ToString();
-                        if (x.Items[i] is UI.Forms.FolderForm.ClassLink)
-                        {
-                            ((UI.Forms.FolderForm.ClassLink)x.Items[i]).name = GetLocalizationFor(path + "/" + c.Name + "[" + o + "]", o);
-                        }
-                        else
-                        {
-                            x.Items[i] = GetLocalizationFor(path + "/" + c.Name + "[" + o + "]", o);
-                        }
-                    }
+                    //D
                 }
                 else if (c is ListBox)
                 {
