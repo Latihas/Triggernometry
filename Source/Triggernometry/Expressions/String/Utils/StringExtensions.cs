@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.International.Converters.TraditionalChineseToSimplifiedConverter;
 using Microsoft.VisualBasic;
 using Triggernometry.Expressions.String.Parsers;
 using static Triggernometry.Expressions.String.Utils.ParserCommon;
@@ -121,26 +122,26 @@ namespace Triggernometry.Expressions.String.Utils
         /// <summary>
         /// Convert the string to Simplified Chinese. <br />
         /// · Segments are split by the linebreak placeholder (<see cref="LINEBREAK"/>). <br />
-        /// · Each segment is converted with <see cref="VisualBasic.Strings.StrConv"/>.
+        /// · Each segment is converted with <see cref="Strings.StrConv"/>.
         /// </summary>
         public static string ToSimplifiedChinese(this string input)
         {
-            var conv = VbStrConv.SimplifiedChinese;
+            // var conv = VbStrConv.SimplifiedChinese;
             var lines = input.Split(LINEBREAK)
-                             .Select(s => Strings.StrConv(s, conv));
+                             .Select(s => ChineseConverter.Convert(s,ChineseConversionDirection.TraditionalToSimplified));
             return string.Join(LINEBREAK_STR, lines);
         }
 
         /// <summary>
         /// Convert the string to Traditional Chinese. <br />
         /// · Segments are split by the linebreak placeholder (<see cref="LINEBREAK"/>). <br />
-        /// · Each segment is converted with <see cref="VisualBasic.Strings.StrConv"/>.
+        /// · Each segment is converted with <see cref="Strings.StrConv"/>.
         /// </summary>
         public static string ToTraditionalChinese(this string input)
         {
-            var conv = VbStrConv.TraditionalChinese;
+            // var conv = VbStrConv.TraditionalChinese;
             var lines = input.Split(LINEBREAK)
-                             .Select(s => Strings.StrConv(s, conv));
+                             .Select(s => ChineseConverter.Convert(s,ChineseConversionDirection.SimplifiedToTraditional));
             return string.Join(LINEBREAK_STR, lines);
         }
 
