@@ -6,7 +6,6 @@ using Triggernometry.Localization;
 
 namespace Triggernometry.Core
 {
-
     public partial class RealPlugin
     {
         public List<Trigger> Triggers = new List<Trigger>();
@@ -46,12 +45,12 @@ namespace Triggernometry.Core
 
             lock (Triggers)
             {
-                Triggers.Add(t);
+                if (!Triggers.Contains(t)) Triggers.Add(t);
                 if (t.Enabled == true && parentEnabled == true && activeTriggers != null)
                 {
                     lock (activeTriggers)
                     {
-                        activeTriggers.Add(t);
+                        if (!activeTriggers.Contains(t)) activeTriggers.Add(t);
                     }
                 }
             }
@@ -123,7 +122,7 @@ namespace Triggernometry.Core
                 if (!activeTriggers.Contains(t))
                 {
                     FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trigaddbook",
-                        "Trigger '{0}' added to bookkeeping", t.LogName));
+                                                                            "Trigger '{0}' added to bookkeeping", t.LogName));
                     activeTriggers.Add(t);
                 }
             }
@@ -140,7 +139,7 @@ namespace Triggernometry.Core
                     if (activeTriggers.Contains(t))
                     {
                         FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trigrembook",
-                            "Trigger '{0}' removed from bookkeeping", t.LogName));
+                                                                                "Trigger '{0}' removed from bookkeeping", t.LogName));
                         activeTriggers.Remove(t);
                     }
                 }
@@ -214,6 +213,5 @@ namespace Triggernometry.Core
                 trigger.Fire(ctx, null);
             }
         }
-
     }
 }
