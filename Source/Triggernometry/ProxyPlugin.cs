@@ -319,7 +319,7 @@ public class ProxyPlugin
 
     public void GetPluginNameAndPath()
     {
-        Instance.ConfigPath =  PluginInterface.ConfigDirectory.ToString();
+        Instance.ConfigPath = PluginInterface.ConfigDirectory.ToString();
         Instance.pluginPath = Instance.ConfigPath;
         string name = null;            
         // foreach (ActPluginData p in ActGlobals.oFormActMain.ActPlugins)

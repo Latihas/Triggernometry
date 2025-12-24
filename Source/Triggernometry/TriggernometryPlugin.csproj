@@ -49,7 +49,7 @@
         <PackageReference Include="System.Management" Version="10.0.1" />
         <PackageReference Include="System.Reflection.Metadata" Version="10.0.1" />
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2"/>
-        <PackageReference Include="System.Speech" Version="10.0.0-rc.2.25502.107" />
+        <PackageReference Include="System.Speech" Version="10.0.1" />
         <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.1" />
         <PackageReference Include="System.Text.Encodings.Web" Version="10.0.1">
             <Private>True</Private>
