@@ -11,7 +11,7 @@ namespace Triggernometry.Core;
 public partial class RealPlugin
 {
     // internal Thread ActionQueueThread;
-    internal List<QueuedAction> ActionQueue = new List<QueuedAction>();
+    public List<QueuedAction> ActionQueue = new List<QueuedAction>();
     // internal AutoResetEvent ActionUpdateEvent;
     private long curOrdinal;
     internal object QueueProcessingLock = new object();
