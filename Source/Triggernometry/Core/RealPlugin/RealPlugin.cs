@@ -721,7 +721,9 @@ public partial class RealPlugin {
             {
                 if (cfg.LogNormalEvents == true)
                 {
-                    FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/logline", "Log line: ({0})", logLine));
+                    logFlattenACT.Enqueue(logLine);
+                    if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.Dequeue();
+                    // FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/logline", "Log line: ({0})", logLine));
                 }
                 LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
             }

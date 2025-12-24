@@ -704,4 +704,6 @@ namespace Triggernometry.Core;
     public bool EnableModuleBase { get; set; }
     [XmlAttribute]
     public List<string> CompileFailedScripts { get; set; } = [];
+    [XmlAttribute]
+    public int LogFlattenMaxCount { get; set; }=114514;
 }
