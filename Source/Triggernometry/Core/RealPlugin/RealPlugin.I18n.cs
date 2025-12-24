@@ -122,7 +122,7 @@ namespace Triggernometry.Core
             }*/
             //if (path != pluginPath)
             //{
-                string[] files = Directory.GetFiles(pluginPath, "*.triglations.xml", SearchOption.TopDirectoryOnly);
+                string[] files = Directory.GetFiles(ProxyPlugin. PluginInterface.AssemblyLocation.ToString(), "*.triglations.xml", SearchOption.TopDirectoryOnly);
                 foreach (string file in files)
                 {
                     Language l = LoadLanguage(file);
