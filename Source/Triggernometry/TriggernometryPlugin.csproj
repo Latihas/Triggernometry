@@ -9,6 +9,7 @@
         <Version>1.2.0.999</Version>
         <AssemblyVersion>1.2.0.999</AssemblyVersion>
         <FileVersion>1.2.0.999</FileVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\..\NotACT\NotACT.csproj" />
