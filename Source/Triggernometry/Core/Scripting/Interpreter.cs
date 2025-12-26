@@ -47,7 +47,7 @@ namespace Triggernometry.Core.Scripting
 
         public void Evaluate(string rawScript, string extraAssembliesInput, Context ctx)
         {
-            if (!CSharpScriptCompiler.CompileScript(rawScript, []))
+            if (!CSharpScriptCompiler.CompileScript(rawScript))
                 return;
             try
             {

@@ -202,8 +202,8 @@ public class ProxyPlugin
     {
         try
         {
-            string rs = File.ReadAllText(Path.Combine(PluginInterface.ConfigDirectory.ToString(), "PScript", t + ".cs"));
-            if (CSharpScriptCompiler.CompileScript(rs, []))
+            var rs = File.ReadAllText(Path.Combine(PluginInterface.ConfigDirectory.ToString(), "PScript", t + ".cs"));
+            if (CSharpScriptCompiler.CompileScript(rs))
             {
                 Assembly asm;
                 using (var memoryStream = new MemoryStream(File.ReadAllBytes(CSharpScriptCompiler.GetScriptDllPath(rs))))
