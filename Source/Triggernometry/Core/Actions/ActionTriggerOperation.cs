@@ -447,6 +447,7 @@ namespace Triggernometry.Core.Actions
                 case OperationEnum.EnableTrigger:
                     {
                         t.Enabled = true;
+                        RealPlugin.Instance.TriggerEnabled(t);
                         // plug.ui.Invoke((System.Action)(() =>
                         // {
                         //     bool isLocal = ctx.Trigger == null || ctx.Trigger.Repo == null;
@@ -467,6 +468,7 @@ namespace Triggernometry.Core.Actions
                 case OperationEnum.DisableTrigger:
                     {
                         t.Enabled = false;
+                        RealPlugin.Instance.TriggerDisabled(t);
                         // plug.ui.Invoke((System.Action)(() =>
                         // {
                         //     bool isLocal = ctx.Trigger == null || ctx.Trigger.Repo == null;

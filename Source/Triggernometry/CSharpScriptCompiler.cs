@@ -44,6 +44,7 @@ public static class CSharpScriptCompiler
         "Triggernometry.dll",
         "Advanced Combat Tracker.dll",
         "PostNamazu.dll",
+        "IINACTEx.dll"
     ];
     public static readonly string[] DalamudDirReferenes =
     [
@@ -75,7 +76,7 @@ public static class CSharpScriptCompiler
         return Path.Combine(prefix, className + ".dll");
     }
 
-    public static bool CompileScript(string scriptCode, string[] referencedAssemblies)
+    public static bool CompileScript(string scriptCode)
     {
         var outputPath = GetScriptDllPath(scriptCode);
         if (File.Exists(outputPath)) return true;
@@ -89,11 +90,10 @@ public static class CSharpScriptCompiler
         {
             var pluginPathRoot =  RealPlugin.Instance.ConfigPath;
             var dalamudPathRoot = (string)ProxyPlugin.DalamudPlugin.DalamudStartInfo.WorkingDirectory.ToString();
-            var referencedAssembliesL = referencedAssemblies.ToList();
+            List<string> referencedAssembliesL =[];
             foreach (var r in PluginDirReferenes) referencedAssembliesL.Add(Path.Combine(ProxyPlugin.DalamudPlugin.PluginAssemblyDirectory, r));
             foreach (var r in DalamudDirReferenes) referencedAssembliesL.Add(Path.Combine(dalamudPathRoot, r));
-            referencedAssembliesL.Add(Path.Combine(ProxyPlugin.DalamudPlugin.PluginAssemblyDirectory, "IINACTEx.dll"));
-            referencedAssemblies = referencedAssembliesL.ToArray();
+            var referencedAssemblies = referencedAssembliesL.ToArray();
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Compiling command: {scriptCode}");
 
             var tempClassName = $"{className}_Functions";
