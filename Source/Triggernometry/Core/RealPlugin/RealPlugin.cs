@@ -12,15 +12,17 @@ using Triggernometry.UI.CustomControls;
 using Triggernometry.Localization;
 using Triggernometry.Utilities;
 using Triggernometry.Core.Variables;
+using Triggernometry.PluginBridges;
 using Triggernometry.PluginBridges.ExternalTools;
+using Triggernometry.PScript;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
 
-public partial class RealPlugin {
+public partial class RealPlugin
+{
     public class CustomTriggerProxy
     {
-
         public bool Active { get; set; }
         public string ShortRegexString { get; set; }
         public string SoundData { get; set; }
@@ -28,16 +30,13 @@ public partial class RealPlugin {
         public string TimerName { get; set; }
         public bool Tabbed { get; set; }
         public bool Timer { get; set; }
-
     }
 
     public class CustomTriggerCategoryProxy
     {
-
         public string Category { get; set; }
         public bool RestrictToCategoryZone { get; set; }
         public List<CustomTriggerProxy> Items = new List<CustomTriggerProxy>();
-
     }
 
     public class PluginWrapper
@@ -57,17 +56,29 @@ public partial class RealPlugin {
     public IntPtr XivProcHandle => Memory.XivProcHandle;
 
     private delegate void LogLineProcDelegate(LogEvent le);
+
     public delegate bool SimpleBoolDelegate();
+
     public delegate void SimpleVoidDelegate();
+
     public delegate double SimpleDoubleDelegate();
+
     public delegate string SimpleStringDelegate();
+
     public delegate void BoolDelegate(bool boolParam);
+
     public delegate void TabPageDelegate(TabPage tp);
+
     public delegate void TtsDelegate(string text);
+
     public delegate void SoundDelegate(string filename, int volume);
+
     public delegate List<CustomTriggerCategoryProxy> CustomTriggerDelegate();
+
     public delegate PluginWrapper InstanceDelegate(string ActPluginName, string ActPluginType);
+
     public delegate void ACTEncounterLogDelegate(string message);
+
     private Queue<LogEvent> EventQueue = new Queue<LogEvent>();
     private ManualResetEvent QueueWakeupEvent;
     // public CustomControls.UserInterface ui = null;
@@ -75,7 +86,7 @@ public partial class RealPlugin {
     public string path => ConfigPath;
     public string ConfigPath { get; set; }
     private bool isInitialized { get; set; }
-    internal Task EventQueueTask; 
+    internal Task EventQueueTask;
     // private TabPage mytp;
     private bool complainAboutReload;
     public string pluginName { get; set; }
@@ -176,7 +187,7 @@ public partial class RealPlugin {
 
     private void _ep_OnStatusChange(Endpoint.StatusEnum newStatus, string statusDesc)
     {
-            FilteredAddToLog(DebugLevelEnum.Verbose, string.Format("Endpoint ({0}) {1}", newStatus, statusDesc));
+        FilteredAddToLog(DebugLevelEnum.Verbose, string.Format("Endpoint ({0}) {1}", newStatus, statusDesc));
     }
 
     private void BridgeFFXIV_OnLogEvent(DebugLevelEnum level, string text)
@@ -236,6 +247,7 @@ public partial class RealPlugin {
     {
         complainAboutReload = true;
     }
+
     public void InitPlugin()
     {
         InitLanguage();
@@ -380,11 +392,11 @@ public partial class RealPlugin {
     }
 
     public static int UProgress = 100;
-    public static  string UState="就绪";
-        
+    public static string UState = "就绪";
+
     public static void ShowProgress(int progress, string state)
     {
-        UProgress = Math.Max(0,progress) ;
+        UProgress = Math.Max(0, progress);
         UState = state;
         // ui.ShowProgress(progress, state);
     }
@@ -421,9 +433,9 @@ public partial class RealPlugin {
         if (EventQueueTask != null && !EventQueueTask.IsCompleted)
         {
             var waitTask = EventQueueTask.WaitAsync(TimeSpan.FromSeconds(5));
-            waitTask.GetAwaiter().GetResult(); 
+            waitTask.GetAwaiter().GetResult();
         }
-        EventQueueTask = null; 
+        EventQueueTask = null;
         DeinitActionQueue();
         // DeInitAura();
         if (QueueWakeupEvent != null)
@@ -521,7 +533,7 @@ public partial class RealPlugin {
         WaitHandle[] wh = new WaitHandle[2]
         {
             cancellationToken.WaitHandle,
-            QueueWakeupEvent            
+            QueueWakeupEvent
         };
         EventQueue.Clear();
         while (!cancellationToken.IsCancellationRequested)
@@ -538,7 +550,7 @@ public partial class RealPlugin {
                         {
                             lxx.AddRange(EventQueue);
                             EventQueue.Clear();
-                            QueueWakeupEvent.Reset(); 
+                            QueueWakeupEvent.Reset();
                         }
                         foreach (LogEvent lx in lxx) LogLineProcessor(lx);
                         lxx.Clear();
@@ -725,6 +737,13 @@ public partial class RealPlugin {
                     if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.Dequeue();
                     // FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/logline", "Log line: ({0})", logLine));
                 }
+                var szone = BridgeFFXIV.ZoneID.ToString();
+                foreach (var script in LoadedScripts.Values)
+                {
+                    if (!script.Enabled) continue;
+                    if (script.RegionIdRegex() == null || script.RegionIdRegex()!.Contains(szone))
+                        script.MatchAll(logLine);
+                }
                 LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
             }
         }
@@ -736,7 +755,7 @@ public partial class RealPlugin {
     }
 
     /// <summary> Invoked by <see cref="Triggernometry.PluginBridges.BridgeFFXIV.SubscribeToZoneChanged" /></summary>
-    public void ZoneChangeDelegate(uint ZoneID, string ZoneName) 
+    public void ZoneChangeDelegate(uint ZoneID, string ZoneName)
     {
         // PluginBridges.BridgeFFXIV.ZoneID = ZoneID;
         PluginBridges.BridgeFFXIV.UpdateState(); // fix player id, etc. after travelling to a new server
@@ -804,8 +823,8 @@ public partial class RealPlugin {
         return 0;
     }
 
-        public VariableStore GetVariableStore(bool isPersistent)
-            => isPersistent ? cfg.PersistentVariables : sessionvars;
-    }
+    public VariableStore GetVariableStore(bool isPersistent)
+        => isPersistent ? cfg.PersistentVariables : sessionvars;
 
-
+    public static Dictionary<string, IScriptBase> LoadedScripts = [];
+}
