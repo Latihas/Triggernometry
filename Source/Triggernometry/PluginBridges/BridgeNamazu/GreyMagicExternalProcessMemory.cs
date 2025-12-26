@@ -1,3 +1,3 @@
 ﻿namespace Triggernometry.PluginBridges.BridgeNamazu;
 
-public class GreyMagicExternalProcessMemory : Memory;
+public class GreyMagicExternalProcessMemory : GreyMagicMemoryBase;

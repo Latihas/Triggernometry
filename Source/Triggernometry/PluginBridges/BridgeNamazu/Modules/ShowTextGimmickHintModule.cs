@@ -27,7 +27,7 @@ public class ShowTextGimmickHintModule : ModuleBase
         int timeIn100Ms = Math.Max(0, (int)(MathParser.Parse(rawTime) * 10));
         NamazuLog((isHint ? "[Hint]" : "[Warn]") + $": ({timeIn100Ms / 10.0:F1} s) {text}");
 
-        Memory.ExecuteWithLock(() => ShowTextGimmickHint(isHint, text, timeIn100Ms));
+        GreyMagicMemoryBase.ExecuteWithLock(() => ShowTextGimmickHint(isHint, text, timeIn100Ms));
     }
 
     public unsafe void ShowTextGimmickHint(bool isHint, string text, int timeIn100Ms)

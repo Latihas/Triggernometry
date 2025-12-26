@@ -63,7 +63,7 @@ public class VfxModule : ModuleBase
             var actorVfxRemovePtrPtr = Scanner.TryScan(
                 "0F 11 48 10 48 8D 05 * * * *", nameof(ActorVfxRemovePtr));
             if (actorVfxRemovePtrPtr != IntPtr.Zero)
-                ActorVfxRemovePtr = Memory.Read<nint>(actorVfxRemovePtrPtr);
+                ActorVfxRemovePtr = GreyMagicMemoryBase.Read<nint>(actorVfxRemovePtrPtr);
 
             // 48 89 5C 24 08 57 48 83 EC 20 48 8B 05 ?? ?? ?? ?? 48 8B F9 BA 80 03 00 00 41 B8 10 00 00 00 48 8B 48 30 48 8B 01 FF 50 ??
             StaticVfxCreatePtr = Scanner.TryScan(
@@ -221,7 +221,7 @@ public class VfxModule : ModuleBase
 
     public unsafe ActorVfx ActorVfxCreate(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = Vfx.Vfx.DefaultTag, bool autoRemoved = false)
     {
-        return Memory.ExecuteWithLock(() =>
+        return GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             CheckIfAnyZeroPtr(ActorVfxCreatePtr);
             if (!autoRemoved) CheckIfAnyZeroPtr(ActorVfxRemovePtr);
@@ -248,7 +248,7 @@ public class VfxModule : ModuleBase
 
     public bool TryActorVfxRemove(IntPtr vfxPtr) // 待优化：判断是否存在 vfx
     {
-        return Memory.ExecuteWithLock(() =>
+        return GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             CheckIfAnyZeroPtr(ActorVfxRemovePtr);
             if (!ProxyPlugin.ActorVfxRemoveHook.IsEnabled)
@@ -298,7 +298,7 @@ public class VfxModule : ModuleBase
 
     private void ProcessStaticVfx(string rawArgs, string nameFormatTemplate = null)
     {
-        Memory.ExecuteWithLock(() =>
+        GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             CheckBeforeExecution(rawArgs);
             if (GetConfig<bool>("StaticVfx") == false) return; // ignored
@@ -330,7 +330,7 @@ public class VfxModule : ModuleBase
 
     public unsafe StaticVfx StaticVfxCreate(string fullPath, string tag = Vfx.Vfx.DefaultTag)
     {
-        return Memory.ExecuteWithLock(() =>
+        return GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             CheckIfAnyZeroPtr(StaticVfxCreatePtr, StaticVfxRunPtr, StaticVfxRemovePtr);
             const string pool = "Client.System.Scheduler.Instance.VfxObject";
@@ -341,7 +341,7 @@ public class VfxModule : ModuleBase
                 // debug：为什么会炸游戏
                 if (staticVfxCreateBytesDebug == null || (DateTime.Now - lastRead).TotalSeconds > 3)
                 {
-                    staticVfxCreateBytesDebug = Memory.ReadBytes(StaticVfxCreatePtr, 30);
+                    staticVfxCreateBytesDebug = GreyMagicMemoryBase.ReadBytes(StaticVfxCreatePtr, 30);
                     lastRead = DateTime.Now;
                 }
                 vfxPtr = StaticVfxCreateD(fullPath, pool);
@@ -369,7 +369,7 @@ public class VfxModule : ModuleBase
 
     public void StaticVfxRun(IntPtr vfxPtr)
     {
-        Memory.ExecuteWithLock(() =>
+        GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             CheckIfAnyZeroPtr(StaticVfxRunPtr);
             StaticVfxRunD(vfxPtr, 0.0f, -1);
@@ -378,7 +378,7 @@ public class VfxModule : ModuleBase
 
     public bool TryStaticVfxRemove(IntPtr vfxPtr)
     {
-        return Memory.ExecuteWithLock(() =>
+        return GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             CheckIfAnyZeroPtr(StaticVfxRemovePtr);
             if (!ProxyPlugin.StaticVfxRemoveHook.IsEnabled)

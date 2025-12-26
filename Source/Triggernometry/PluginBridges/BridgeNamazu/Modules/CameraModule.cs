@@ -19,32 +19,32 @@ public class CameraModule : ModuleBase
 
     public float AngleV
     {
-        get => Memory.Read<float>(CameraPtr + Offsets["AngleV"]);
-        set => Memory.Write(CameraPtr + Offsets["AngleV"], value);
+        get => GreyMagicMemoryBase.Read<float>(CameraPtr + Offsets["AngleV"]);
+        set => GreyMagicMemoryBase.Write(CameraPtr + Offsets["AngleV"], value);
     }
 
     public float AngleH // 和游戏的角度（南 = 0）是反的，补偿 pi
     {
         get
         {
-            var actualValue = Memory.Read<float>(CameraPtr + Offsets["AngleH"]);
+            var actualValue = GreyMagicMemoryBase.Read<float>(CameraPtr + Offsets["AngleH"]);
             var convertedValue = MathParser.ModFunction(actualValue, 2 * Math.PI) - Math.PI;
             return (float)convertedValue;
         }
         set // 这个角度似乎不是底层的数值，手动修改（增加或减少）时，改变量的绝对值 θ 会变为 max(θ - pi/40, 0) （即少变化 pi/40）
         {
             double errθ = Math.PI / 40;
-            double oldθ = Memory.Read<float>(CameraPtr + Offsets["AngleH"]);
+            double oldθ = GreyMagicMemoryBase.Read<float>(CameraPtr + Offsets["AngleH"]);
             double newθ = MathParser.ModFunction(value, 2 * Math.PI) - Math.PI;  // 补偿
             double dθ = MathParser.ModFunction(newθ - oldθ + Math.PI, 2 * Math.PI) - Math.PI;
             if (Math.Abs(dθ) >= 3.05)
             {
-                Memory.Write(CameraPtr + Offsets["AngleH"], (float)oldθ + Math.Sign(dθ));
+                GreyMagicMemoryBase.Write(CameraPtr + Offsets["AngleH"], (float)oldθ + Math.Sign(dθ));
                 oldθ += Math.Sign(dθ) * (1 - errθ); // 实际变化的量
                 dθ = MathParser.ModFunction(newθ - oldθ + Math.PI, 2 * Math.PI) - Math.PI;
             }
             double writeValue = newθ + Math.Sign(dθ) * errθ;
-            Memory.Write(CameraPtr + Offsets["AngleH"], (float)writeValue);
+            GreyMagicMemoryBase.Write(CameraPtr + Offsets["AngleH"], (float)writeValue);
         }
     }
 
@@ -52,7 +52,7 @@ public class CameraModule : ModuleBase
     {
         if (Offsets.TryGetValue(param, out int offset))
         {
-            return Memory.Read<float>(CameraPtr + offset);
+            return GreyMagicMemoryBase.Read<float>(CameraPtr + offset);
         }
         else
         {
@@ -71,7 +71,7 @@ public class CameraModule : ModuleBase
                 if (Offsets.TryGetValue(param, out int offset))
                 {
                     IntPtr address = CameraPtr + offset;
-                    Memory.Write(address, newValue);
+                    GreyMagicMemoryBase.Write(address, newValue);
                     Custom2Log($"[鲶鱼精邮差扩展] 成功设置相机参数 {param} = {newValue}");
                 }
                 else

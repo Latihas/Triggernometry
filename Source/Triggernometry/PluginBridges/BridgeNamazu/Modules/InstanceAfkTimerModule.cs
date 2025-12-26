@@ -32,7 +32,7 @@ public class InstanceAfkTimerModule : ModuleBase
     public void DisableInstanceTimer(bool shouldDisable)
     {
         CheckIfAnyZeroPtr(PatchPtr);
-        var currentBytes = Memory.ReadBytes(PatchPtr, OriginalBytes.Length);
+        var currentBytes = GreyMagicMemoryBase.ReadBytes(PatchPtr, OriginalBytes.Length);
         bool? isDisabled = currentBytes.SequenceEqual(PatchedBytes) ? true :
                            currentBytes.SequenceEqual(OriginalBytes) ? false : null;  
         if (isDisabled == null)
@@ -40,7 +40,7 @@ public class InstanceAfkTimerModule : ModuleBase
             WarningLog("[鲶鱼精邮差扩展] 当前副本计时疑似被其他插件修改，无法禁用副本计时器。");
             return;
         }
-        Memory.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
+        GreyMagicMemoryBase.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
         if (isDisabled == shouldDisable)
         {
             CustomLog(shouldDisable ? "[鲶鱼精邮差扩展] 已禁用副本计时器。" : "[鲶鱼精邮差扩展] 已恢复副本计时器。");
