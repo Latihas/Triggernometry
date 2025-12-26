@@ -66,7 +66,7 @@ public class EntityModule : ModuleBase
         foreach (IntPtr address in Entity.GetEntities().Where(filter).Select(e => e.Address))
         {
             var strAddress = address.ToString();
-            var hexId = Memory.Read<uint>(address + IdOffset()).ToString("X8");
+            var hexId = GreyMagicMemoryBase.Read<uint>(address + IdOffset()).ToString("X8");
             // 后续行是回调名称和参数，实体地址用 _address 替换
             foreach (var cbPair in cmds.Skip(1).Select(c => c.Split(new[] { ',' }, 2)))
             {
@@ -93,7 +93,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
         var (objectPtr, x, y, z) = cmd.ParseArgs<IntPtr, float, float, float>();
-        Memory.ExecuteWithLock(() => SetDefaultPos(objectPtr, x, y, z));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetDefaultPos(objectPtr, x, y, z));
     }
 
     [CallbackMethod("SetPos", tag: "Kairos")]
@@ -101,7 +101,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
         var (objectPtr, x, y, z) = cmd.ParseArgs<IntPtr, float, float, float>();
-        Memory.ExecuteWithLock(() => SetPos(objectPtr, x, y, z));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetPos(objectPtr, x, y, z));
     }
 
     [CallbackMethod("SetModelRelPos")]
@@ -109,7 +109,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
         var (objectPtr, dx, dy, dz) = cmd.ParseArgs<IntPtr, float, float, float>();
-        Memory.ExecuteWithLock(() => SetModelRelPos(objectPtr, dx, dy, dz));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetModelRelPos(objectPtr, dx, dy, dz));
     }
 
     [CallbackMethod("Teleport", tag: "Kairos")]
@@ -118,7 +118,7 @@ public class EntityModule : ModuleBase
         CheckBeforeExecution(cmd);
         var objectPtr = Triggernometry.FFXIV.Entity.GetMyself().Address;
         var (x, y, z) = cmd.ParseArgs<float, float, float>();
-        Memory.ExecuteWithLock(() => SetPos(objectPtr, x, y, z));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetPos(objectPtr, x, y, z));
     }
 
     [CallbackMethod("SetDefaultHeading")]
@@ -126,7 +126,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
        var (objectPtr, heading) = cmd.ParseArgs<IntPtr, float>();
-        Memory.ExecuteWithLock(() => SetDefaultHeading(objectPtr, heading));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetDefaultHeading(objectPtr, heading));
     }
 
     [CallbackMethod("SetHeading")]
@@ -134,7 +134,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
         var (objectPtr, heading) = cmd.ParseArgs<IntPtr, float>();
-        Memory.ExecuteWithLock(() => SetHeading(objectPtr, heading));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetHeading(objectPtr, heading));
     }
 
     [CallbackMethod("Target")]
@@ -160,7 +160,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
         var (objectPtr, modelStatus) = cmd.ParseArgs<IntPtr, int>();
-        Memory.ExecuteWithLock(() => SetModelStatus(objectPtr, modelStatus));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetModelStatus(objectPtr, modelStatus));
     }
 
     // 新方法 直接修改实体参数并重绘
@@ -170,7 +170,7 @@ public class EntityModule : ModuleBase
         CheckBeforeExecution(cmd);
         if (GetConfig<bool>("ObjectScale") == false) return; // ignored
         var (objectPtr, scale) = cmd.ParseArgs<IntPtr, float>();
-        Memory.ExecuteWithLock(() => SetObjectScale(objectPtr, scale));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetObjectScale(objectPtr, scale));
     }
 
     // 旧方法 临时修改已经绘制生成的实体模型
@@ -180,7 +180,7 @@ public class EntityModule : ModuleBase
         CheckBeforeExecution(cmd);
         if (GetConfig<bool>("ObjectScale") == false) return; // ignored
         var (objectPtr, scaleX, scaleY, scaleZ) = cmd.ParseArgs<IntPtr, float, float?, float?>((2, null), (3, null));
-        Memory.ExecuteWithLock(() => SetObjectScaleTemp(objectPtr, scaleX, scaleY ?? scaleX, scaleZ ?? scaleX));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetObjectScaleTemp(objectPtr, scaleX, scaleY ?? scaleX, scaleZ ?? scaleX));
     }
 
     [CallbackMethod("SetOpacity")]
@@ -189,7 +189,7 @@ public class EntityModule : ModuleBase
         CheckBeforeExecution(cmd);
         if (GetConfig<bool>("Opacity") == false) return; // ignored
         var (objectPtr, opacity) = cmd.ParseArgs<IntPtr, float>();
-        Memory.ExecuteWithLock(() => SetOpacity(objectPtr, opacity));
+        GreyMagicMemoryBase.ExecuteWithLock(() => SetOpacity(objectPtr, opacity));
     }
 
     [CallbackMethod("SetStatusLoopVfx")]
@@ -197,7 +197,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
        var (objectPtr, vfxId) = cmd.ParseArgs<IntPtr, ushort>();
-        Memory.ExecuteWithLock(() =>
+        GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             SetStatusLoopVfx(objectPtr, vfxId);
             ReDraw(objectPtr);
@@ -209,7 +209,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
         var objectPtr = cmd.ParseData<IntPtr>();
-        Memory.ExecuteWithLock(() => ReDraw(objectPtr));
+        GreyMagicMemoryBase.ExecuteWithLock(() => ReDraw(objectPtr));
     }
 
     [CallbackMethod("SetHighlightColor")]
@@ -217,7 +217,7 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
         var (objectPtr, color) = cmd.ParseArgs<IntPtr, byte>();
-        Memory.ExecuteWithLock(() =>
+        GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             var character = (Character*)objectPtr;
             character->VirtualTable->Highlight(character, (ObjectHighlightColor)color);
@@ -229,48 +229,48 @@ public class EntityModule : ModuleBase
     {
         CheckBeforeExecution(cmd);
        var (objectPtr, statusId) = cmd.ParseArgs<IntPtr, ushort>();
-        Memory.ExecuteWithLock(() => RemoveStatus(objectPtr, statusId));
+        GreyMagicMemoryBase.ExecuteWithLock(() => RemoveStatus(objectPtr, statusId));
     }
 
     public void SetPos(IntPtr objectAddress, float x, float y, float z)
     {
         Vector3 pos = new Vector3(x, z, y); // 注意 Y Z 轴交换
-        IntPtr modelAddress = Memory.Read<nint>(objectAddress + ModelOffset());
-        Memory.Write(objectAddress + PosOffset(), pos);
+        IntPtr modelAddress = GreyMagicMemoryBase.Read<nint>(objectAddress + ModelOffset());
+        GreyMagicMemoryBase.Write(objectAddress + PosOffset(), pos);
         if (modelAddress != IntPtr.Zero)
-            Memory.Write(modelAddress + ModelPosOffset(), pos);
+            GreyMagicMemoryBase.Write(modelAddress + ModelPosOffset(), pos);
     }
 
     public void SetDefaultPos(IntPtr objectAddress, float x, float y, float z)
     {
         Vector3 pos = new Vector3(x, z, y); // 注意 Y Z 轴交换
-        Memory.Write(objectAddress + DefaultPosOffset(), pos);
+        GreyMagicMemoryBase.Write(objectAddress + DefaultPosOffset(), pos);
     }
 
     public void SetModelRelPos(IntPtr objectAddress, float dx, float dy, float dz)
     {
         Vector3 relPos = new Vector3(dx, dz, dy); // 注意 Y Z 轴交换
-        Memory.Write(objectAddress + ModelRelPosOffset(), relPos);
+        GreyMagicMemoryBase.Write(objectAddress + ModelRelPosOffset(), relPos);
     }
 
     public void SetHeading(IntPtr objectAddress, float h)
     {
-        IntPtr modelAddress = Memory.Read<nint>(objectAddress + ModelOffset());
-        Memory.Write(objectAddress + PosOffset() + 0x10, h);
+        IntPtr modelAddress = GreyMagicMemoryBase.Read<nint>(objectAddress + ModelOffset());
+        GreyMagicMemoryBase.Write(objectAddress + PosOffset() + 0x10, h);
         // 四元数
-        Memory.Write(modelAddress + ModelPosOffset() + 0x14, (float)Math.Sin(h / 2));
-        Memory.Write(modelAddress + ModelPosOffset() + 0x1C, (float)Math.Cos(h / 2));
+        GreyMagicMemoryBase.Write(modelAddress + ModelPosOffset() + 0x14, (float)Math.Sin(h / 2));
+        GreyMagicMemoryBase.Write(modelAddress + ModelPosOffset() + 0x1C, (float)Math.Cos(h / 2));
     }
 
     public void SetDefaultHeading(IntPtr objectAddress, float h)
     {
-        Memory.Write(objectAddress + DefaultPosOffset() + 0x10, h);
+        GreyMagicMemoryBase.Write(objectAddress + DefaultPosOffset() + 0x10, h);
     }
 
     public unsafe void Target(IntPtr address, bool hard = true, bool soft = true)
     {
-        if (hard) Memory.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset(), address);
-        if (soft) Memory.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset() + 8, address);
+        if (hard) GreyMagicMemoryBase.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset(), address);
+        if (soft) GreyMagicMemoryBase.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset() + 8, address);
     }
 
     /// <summary> 见 status 参数描述 </summary>
@@ -284,30 +284,30 @@ public class EntityModule : ModuleBase
     /// </param>
     public void SetModelStatus(IntPtr objectAddress, int status)
     {
-        Memory.Write(objectAddress + ModelStatusOffset(), status);
+        GreyMagicMemoryBase.Write(objectAddress + ModelStatusOffset(), status);
     }
 
     public void SetObjectScaleTemp(IntPtr objectAddress, float scaleX, float scaleY, float scaleZ)
     {
-        IntPtr drawObjectAddress = Memory.Read<nint>(objectAddress + ModelOffset());
-        Memory.Write(drawObjectAddress + ModelScaleOffset(), new Vector3(scaleX, scaleZ, scaleY));
+        IntPtr drawObjectAddress = GreyMagicMemoryBase.Read<nint>(objectAddress + ModelOffset());
+        GreyMagicMemoryBase.Write(drawObjectAddress + ModelScaleOffset(), new Vector3(scaleX, scaleZ, scaleY));
     }
 
     public void SetObjectScale(IntPtr objectAddress, float scale)
     {
-        Memory.Write(objectAddress + ScaleOffset(), scale);
+        GreyMagicMemoryBase.Write(objectAddress + ScaleOffset(), scale);
         ReDraw(objectAddress);
     }
 
     // FFXIVClientStructs/FFXIV/Client/Game/Character/Character.cs    public float Alpha;
     public void SetOpacity(IntPtr objectAddress, float opacity)
     {
-        Memory.Write(objectAddress + OpacityOffset(), opacity);
+        GreyMagicMemoryBase.Write(objectAddress + OpacityOffset(), opacity);
     }
 
     public void SetStatusLoopVfx(IntPtr objectAddress, ushort id)
     {
-        Memory.Write(objectAddress + StatusLoopVfxOffset(), id);
+        GreyMagicMemoryBase.Write(objectAddress + StatusLoopVfxOffset(), id);
         ReDraw(objectAddress);
     }
 

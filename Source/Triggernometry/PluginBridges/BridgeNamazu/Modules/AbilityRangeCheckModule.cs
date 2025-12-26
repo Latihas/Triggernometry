@@ -29,7 +29,7 @@ public class AbilityRangeCheckModule : ModuleBase
     public void DisableAbilityRangeCheck(bool shouldDisable)
     {
         CheckIfAnyZeroPtr(PatchPtr);
-        Memory.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
+        GreyMagicMemoryBase.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
         CustomLog(shouldDisable ? "[Kairos] 开启屏蔽技能距离检测。" : "[Kairos] 已恢复技能距离检测。");
     }
 }

@@ -86,7 +86,7 @@ public class EnvironmentEffectModule : ModuleBase
                 continue;
             }
         }
-        Memory.ExecuteWithLock(() =>
+        GreyMagicMemoryBase.ExecuteWithLock(() =>
         {
             foreach (var (index, unknownFlag, flag) in args)
             {
@@ -153,7 +153,7 @@ public class EnvironmentEffectModule : ModuleBase
         var weatherId = command.ParseData<byte>();
         CheckBeforeExecution(command);
         NamazuLog($"[ChangeWeather] {weatherId}");
-        Memory.ExecuteWithLock(() => ChangeWeather(weatherId));
+        GreyMagicMemoryBase.ExecuteWithLock(() => ChangeWeather(weatherId));
     }
 
     // FFXIVClientStructs/FFXIV/Client/Graphics/Environment/EnvManager.cs
@@ -161,7 +161,7 @@ public class EnvironmentEffectModule : ModuleBase
     {
         // CheckIfAnyZeroPtr(EnvManagerPtrPtr);
         var envManagerPtr = (IntPtr)EnvManager.Instance();
-        Memory.Write(envManagerPtr + 0x27, weatherId); // ActiveWeather
-        Memory.Write<float>(envManagerPtr + 0x28, 1);  // TransitionTime
+        GreyMagicMemoryBase.Write(envManagerPtr + 0x27, weatherId); // ActiveWeather
+        GreyMagicMemoryBase.Write<float>(envManagerPtr + 0x28, 1);  // TransitionTime
     }
 }

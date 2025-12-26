@@ -11,7 +11,7 @@ namespace Triggernometry.PluginBridges.BridgeNamazu;
 /// <summary>
 /// Wrapper for GreyMagic.MemoryBase
 /// </summary>
-public class Memory
+public class GreyMagicMemoryBase
 {
     public static void ExecuteWithLock(System.Action a) => ProxyPlugin.Framework.RunOnTick(a);
     public static T ExecuteWithLock<T>(Func<T> a) => ProxyPlugin.Framework.RunOnTick(a).Result;
