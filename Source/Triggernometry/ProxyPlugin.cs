@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading;
 using System.Windows.Forms;
 using Advanced_Combat_Tracker;
@@ -11,13 +13,14 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Triggernometry.Core;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
+using Triggernometry.PScript;
+
 // using Costura;
 
 namespace Triggernometry;
 
 public class ProxyPlugin
 {
-
     public RealPlugin Instance;
 
     // private ActPluginData ActPluginPrevious = null;
@@ -30,7 +33,7 @@ public class ProxyPlugin
     private List<Tuple<int, string, CustomCallbackDelegate, object, string>> queuedRegs = new List<Tuple<int, string, CustomCallbackDelegate, object, string>>();
 
     public delegate void CustomCallbackDelegate(object o, string param);
-        
+
     public ProxyPlugin()
     {
         // CosturaUtility.Initialize();
@@ -130,10 +133,10 @@ public class ProxyPlugin
     public static IClientState ClientState;
     public static IFramework Framework;
     public static IGameInteropProvider GameInteropProvider;
-    public static Hook<VfxModule.StaticVfxRemoveDelegate>  StaticVfxRemoveHook;
-    public static Hook<VfxModule.ActorVfxRemoveDelegate>  ActorVfxRemoveHook;
-        
-    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface,IPluginLog log,IClientState clientState,IFramework framework,IGameInteropProvider gameInteropProvider)
+    public static Hook<VfxModule.StaticVfxRemoveDelegate> StaticVfxRemoveHook;
+    public static Hook<VfxModule.ActorVfxRemoveDelegate> ActorVfxRemoveHook;
+
+    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider)
     {
         RealPlugin.ResetPlugin(log);
         DalamudPlugin = dalamudPlugin;
@@ -191,8 +194,40 @@ public class ProxyPlugin
         // ActGlobals.oFormActMain.OnCombatStart += OFormActMain_OnCombatStart;
         // ActGlobals.oFormActMain.OnCombatEnd += OFormActMain_OnCombatEnd;
         Instance.InitPlugin();
+        foreach (string rt in Directory.GetFiles(Path.Combine(PluginInterface.ConfigDirectory.ToString(), "PScript"), "*.cs", SearchOption.TopDirectoryOnly))
+            LoadPScript(Path.GetFileNameWithoutExtension(rt));
     }
 
+    public static void LoadPScript(string t)
+    {
+        try
+        {
+            string rs = File.ReadAllText(Path.Combine(PluginInterface.ConfigDirectory.ToString(), "PScript", t + ".cs"));
+            if (CSharpScriptCompiler.CompileScript(rs, []))
+            {
+                Assembly asm;
+                using (var memoryStream = new MemoryStream(File.ReadAllBytes(CSharpScriptCompiler.GetScriptDllPath(rs))))
+                    asm = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly())!.LoadFromStream(memoryStream);
+                Type targetInterface = typeof(IScriptBase);
+                var scriptTypes = asm.GetTypes()
+                                     .Where(type => type is { IsAbstract: false, IsInterface: false } && targetInterface.IsAssignableFrom(type))
+                                     .ToList();
+                foreach (var type in scriptTypes)
+                {
+                    var instance = Activator.CreateInstance(type);
+                    if (instance is IScriptBase scriptInstance)
+                    {
+                        scriptInstance.Enabled = !RealPlugin.Instance.cfg.PScriptsDisabled.Contains(t);
+                        RealPlugin.LoadedScripts[t] = scriptInstance;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"PScript {t} 载入失败: {ex}");
+        }
+    }
     // private void OFormActMain_OnCombatStart(bool isImport, CombatToggleEventArgs encounterInfo)
     // {
     //     ExtendedACTEvents(new string[] { "OnCombatStart" });
@@ -321,7 +356,7 @@ public class ProxyPlugin
     {
         Instance.ConfigPath = PluginInterface.ConfigDirectory.ToString();
         Instance.pluginPath = Instance.ConfigPath;
-        string name = null;            
+        string name = null;
         // foreach (ActPluginData p in ActGlobals.oFormActMain.ActPlugins)
         // {
         //     if (p.pluginObj == this)
@@ -433,7 +468,8 @@ public class ProxyPlugin
 
     public List<RealPlugin.CustomTriggerCategoryProxy> GetCustomTriggers()
     {
-        List<RealPlugin.CustomTriggerCategoryProxy> alltrigs = new List<RealPlugin.CustomTriggerCategoryProxy>(); ;
+        List<RealPlugin.CustomTriggerCategoryProxy> alltrigs = new List<RealPlugin.CustomTriggerCategoryProxy>();
+        ;
         // var trigs = from ix in ActGlobals.oFormActMain.CustomTriggers
         //             group ix by new { ix.Value.Category, ix.Value.RestrictToCategoryZone } into ixs
         //             select new { Key = ixs.Key, Items = ixs.ToList() };
@@ -461,12 +497,14 @@ public class ProxyPlugin
 
     public RealPlugin.PluginWrapper GetInstance(string ActPluginName, string ActPluginType)
     {
-        if (!(ActPluginName == "FFXIV_ACT_Plugin.dll" && ActPluginType == "FFXIV_ACT_Plugin.FFXIV_ACT_Plugin")) {
-            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,$"PluginWrapper GetInstance Not Implemented: {ActPluginName}|{ActPluginType}");
+        if (!(ActPluginName == "FFXIV_ACT_Plugin.dll" && ActPluginType == "FFXIV_ACT_Plugin.FFXIV_ACT_Plugin"))
+        {
+            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"PluginWrapper GetInstance Not Implemented: {ActPluginName}|{ActPluginType}");
             return new RealPlugin.PluginWrapper() { pluginObj = null };
         }
-        return new RealPlugin.PluginWrapper() {
-            pluginObj =ActGlobals.oFormActMain.FfxivPlugin
+        return new RealPlugin.PluginWrapper()
+        {
+            pluginObj = ActGlobals.oFormActMain.FfxivPlugin
             // PnlInfo = pluginData.pPluginInfo,
             // TabPage = pluginData.tpPluginSpace,
             // PluginFile = pluginData.pluginFile,

@@ -90,9 +90,9 @@ public static class CSharpScriptCompiler
             var pluginPathRoot =  RealPlugin.Instance.ConfigPath;
             var dalamudPathRoot = (string)ProxyPlugin.DalamudPlugin.DalamudStartInfo.WorkingDirectory.ToString();
             var referencedAssembliesL = referencedAssemblies.ToList();
-            foreach (var r in PluginDirReferenes) referencedAssembliesL.Add(Path.Combine(pluginPathRoot, r));
+            foreach (var r in PluginDirReferenes) referencedAssembliesL.Add(Path.Combine(ProxyPlugin.DalamudPlugin.PluginAssemblyDirectory, r));
             foreach (var r in DalamudDirReferenes) referencedAssembliesL.Add(Path.Combine(dalamudPathRoot, r));
-            referencedAssembliesL.Add(Path.Combine(pluginPathRoot, "IINACTEx.dll"));
+            referencedAssembliesL.Add(Path.Combine(ProxyPlugin.DalamudPlugin.PluginAssemblyDirectory, "IINACTEx.dll"));
             referencedAssemblies = referencedAssembliesL.ToArray();
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Compiling command: {scriptCode}");
 

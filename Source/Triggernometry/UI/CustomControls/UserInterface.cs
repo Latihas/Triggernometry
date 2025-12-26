@@ -2404,6 +2404,12 @@ public class UserInterface
     {
         if (parentTag == null || parentfolder == null)
         {
+            lock (RealPlugin.Instance.Triggers) RealPlugin.Instance.Triggers.Clear();
+            lock (RealPlugin.Instance.ActiveTextTriggers) RealPlugin.Instance.ActiveTextTriggers.Clear();
+            lock (RealPlugin.Instance.ActiveFFXIVNetworkTriggers) RealPlugin.Instance.ActiveFFXIVNetworkTriggers.Clear();
+            lock (RealPlugin.Instance.ActiveACTTriggers) RealPlugin.Instance.ActiveACTTriggers.Clear();
+            lock (RealPlugin.Instance.ActiveEndpointTriggers) RealPlugin.Instance.ActiveEndpointTriggers.Clear();
+            lock (RealPlugin.Instance.ActionQueue) RealPlugin.Instance.ActionQueue.Clear();
             BuildTriggerTreeFromConfiguration(RealPlugin.Instance.cfg.Root, RealPlugin.Instance.cfg.Root);
             foreach (var r in RealPlugin.Instance.cfg.RepositoryRoot.Repositories)
             {

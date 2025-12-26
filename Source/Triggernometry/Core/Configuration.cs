@@ -706,4 +706,6 @@ namespace Triggernometry.Core;
     public List<string> CompileFailedScripts { get; set; } = [];
     [XmlAttribute]
     public int LogFlattenMaxCount { get; set; }=114514;
+    [XmlAttribute]
+    public List<string> PScriptsDisabled { get; set; } = [];
 }
