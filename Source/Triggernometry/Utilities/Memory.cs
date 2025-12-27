@@ -66,12 +66,6 @@ namespace Triggernometry.Utilities
 
                 _xivProc = PluginBridges.BridgeFFXIV.GetProcess();
                 _xivProcId = _xivProc?.Id ?? 0;
-
-                if (_xivProc?.HasExited ?? true)
-                {
-                    _xivProcHandle = IntPtr.Zero;
-                    return;
-                }
                 
                 if (_xivProcHandle != IntPtr.Zero)
                 {
@@ -217,7 +211,6 @@ namespace Triggernometry.Utilities
 
         public static byte[] ReadModuleData(Process proc)
         {
-            if (proc.HasExited) return new byte[] { };
             int moduleSize = proc.MainModule.ModuleMemorySize;
             byte[] moduleData = new byte[moduleSize];
             ReadProcessMemory(proc.Handle, proc.MainModule.BaseAddress, moduleData, (uint)moduleSize, out _);

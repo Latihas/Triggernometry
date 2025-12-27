@@ -139,7 +139,6 @@ public partial class RealPlugin
     {
         _instance = new RealPlugin();
         Log = log;
-        Log.Warning("Triggernometry Inited");
     }
 
     private RealPlugin()

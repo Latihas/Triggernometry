@@ -92,31 +92,31 @@ namespace Triggernometry.PluginBridges.ExternalTools
         private bool _complaintAboutNotRunning = false;
         internal ObsRunningState CheckRunningState()
         {
-            if (ObsProc?.HasExited == false)
-            {
+            // if (ObsProc?.HasExited == false)
+            // {
                 _complaintAboutNotRunning = false;
                 return ObsRunningState.Running;
-            }
-            else
-            {
-                ObsProc = null;
-            }
-            if (DateTime.Now - _lastChecked > TimeSpan.FromSeconds(5))
-            {
-                _lastChecked = DateTime.Now;
-                ObsProc = Process.GetProcessesByName("obs64").FirstOrDefault()
-                       ?? Process.GetProcessesByName("obs32").FirstOrDefault();
-            }
-            if (ObsProc != null) return ObsRunningState.Running;
-            if (!_complaintAboutNotRunning)
-            {
-                _complaintAboutNotRunning = true;
-                return ObsRunningState.NotRunningFirstlyFound;
-            }
-            else
-            {
-                return ObsRunningState.NotRunning;
-            }
+            // }
+            // else
+            // {
+            //     ObsProc = null;
+            // }
+            // if (DateTime.Now - _lastChecked > TimeSpan.FromSeconds(5))
+            // {
+            //     _lastChecked = DateTime.Now;
+            //     ObsProc = Process.GetProcessesByName("obs64").FirstOrDefault()
+            //            ?? Process.GetProcessesByName("obs32").FirstOrDefault();
+            // }
+            // if (ObsProc != null) return ObsRunningState.Running;
+            // if (!_complaintAboutNotRunning)
+            // {
+            //     _complaintAboutNotRunning = true;
+            //     return ObsRunningState.NotRunningFirstlyFound;
+            // }
+            // else
+            // {
+            //     return ObsRunningState.NotRunning;
+            // }
         }
 
         internal enum ObsRunningState 
