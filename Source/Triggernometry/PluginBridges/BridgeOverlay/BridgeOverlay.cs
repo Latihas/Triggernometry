@@ -35,7 +35,7 @@ public static class BridgeOverlay
         // get the container and resolve method
         try
         {
-            Container = op.Container;
+            Container = op._container;
             _resolveMethodGeneric = Container.GetType().GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null)
                                     ?? throw new ReflectionNotFoundException("ResolveMethodGeneric");
             Ready = true;
