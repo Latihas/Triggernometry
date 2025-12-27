@@ -31,7 +31,7 @@ public class InstanceAfkTimerModule : ModuleBase
 
     public void DisableInstanceTimer(bool shouldDisable)
     {
-        CheckIfAnyZeroPtr(PatchPtr);
+        CheckIfAnyZeroPtr();
         var currentBytes = GreyMagicMemoryBase.ReadBytes(PatchPtr, OriginalBytes.Length);
         bool? isDisabled = currentBytes.SequenceEqual(PatchedBytes) ? true :
                            currentBytes.SequenceEqual(OriginalBytes) ? false : null;  

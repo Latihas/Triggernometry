@@ -8,11 +8,7 @@ using System.Threading.Tasks;
 using Triggernometry.Expressions.String.Models;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
-using Triggernometry.Utilities;
 using static System.Math;
-
-using Triggernometry.Expressions.String.Models;
-using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Utilities.Maths;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;

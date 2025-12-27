@@ -13,7 +13,6 @@ public class UseActionModule : ModuleBase
     {
         ScanMethod = () =>
         {
-            // https://github.com/zfxsquare/PostNamazuFra/blob/main/PostNamazu/Actions/Tp.cs
             MouseToWorldPtr = Scanner.TryScan(
                 "4C 8B DC 49 89 5B ?? 49 89 6B ?? 49 89 73 ?? 57 48 81 EC ?? ?? ?? ?? 33 C0", nameof(MouseToWorldPtr));
         };
@@ -33,6 +32,7 @@ public class UseActionModule : ModuleBase
 
     public unsafe bool UseAction(ActionType actionType, uint actionId, uint targetId, UseActionMode mode = UseActionMode.None)
     {
+        CheckIfAnyZeroPtr();
         uint extraParam = (uint)(actionType == ActionType.Item ? 0xFFFF : 0);
         uint comboRouteID = 0;
         var result =ActionManager.Instance()->UseAction((FFXIVClientStructs.FFXIV.Client.Game.ActionType)(int)actionType, actionId, targetId, extraParam, (ActionManager.UseActionMode)(int)mode, comboRouteID, (bool*)0);
@@ -58,6 +58,7 @@ public class UseActionModule : ModuleBase
 
     public unsafe bool UseActionLocation(ActionType actionType, uint actionId, float x, float y, float z, uint extraParam = 0)
     {
+        CheckIfAnyZeroPtr();
         uint targetId = DataStringHelper.HexOrDecId.Default;
         // IntPtr posPtr = default;
         bool result = default;
@@ -82,7 +83,7 @@ public class UseActionModule : ModuleBase
     // [ScriptingMethod("MouseToWorld")]
     // public Vector3? MouseToWorld()
     // {
-    // CheckIfAnyZeroPtr(MouseToWorldPtr, ActionManagerPtr);
+    // CheckIfAnyZeroPtr();
     // uint actionId = 0xFFFFFFFF;
     // ActionType actionType = ActionType.Waymark;
     // IntPtr resultPtr = IntPtr.Zero;
@@ -110,7 +111,7 @@ public class UseActionModule : ModuleBase
     // [ScriptingMethod("IsMouseInSight")]
     // public bool IsMouseInSight()
     // {
-    //     CheckIfAnyZeroPtr(MouseToWorldPtr, ActionManagerPtr);
+    //     CheckIfAnyZeroPtr();
     //     uint actionId = 0xFFFFFFFF;
     //     ActionType actionType = ActionType.Waymark;
     //     IntPtr resultPtr = IntPtr.Zero;

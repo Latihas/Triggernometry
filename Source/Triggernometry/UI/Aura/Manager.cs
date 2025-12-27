@@ -44,7 +44,7 @@ class Manager : IDisposable
     }
 
     public RendererEnum Renderer { get; set; }
-    private Int64 CurOrdinal = 1;
+    private long CurOrdinal = 1;
     private Thread drawThread;
     internal bool RenderingActive { get; set; }
     internal RealPlugin plug { get; set; }

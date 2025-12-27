@@ -20,7 +20,8 @@ public partial class RealPlugin
     public delegate void ActionExecutionHook(Context ctx, ActionOld a);
 
     private void InitActionQueue()
-    {if (cfg.StartupTriggerId != Guid.Empty)
+    {
+        if (cfg.StartupTriggerId != Guid.Empty)
         {
             if (cfg.StartupTriggerType == Configuration.StartupTriggerTypeEnum.Trigger)
             {
@@ -148,8 +149,6 @@ public partial class RealPlugin
                     ActionQueue.Sort();
                 }
             }
-            // if (removedCount > 0)
-                // ActionUpdateEvent.Set();
         }
         return removedCount;
     }
@@ -247,14 +246,10 @@ public partial class RealPlugin
             a.AddToLog(ctx, DebugLevelEnum.Info, I18n.Translate("internal/Plugin/actionqueued", "Queuing trigger '{0}' action '{1}' to {2} slot {3}", t.LogName, a.GetDescription(ctx), FormatDateTime(when), newOrdinal));
             ActionQueue.Add(new QueuedAction(when, newOrdinal, m, a, ctx, releaseMutex));
             ActionQueue.Sort();
-            // ActionUpdateEvent.Set();
         }
     }
 
-    internal bool ReadyForOperation()
-    {
-        return true;
-    }
+    internal bool ReadyForOperation() => true;
 
     internal void ActionThreadProc(IFramework _)
     {

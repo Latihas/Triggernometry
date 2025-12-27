@@ -40,13 +40,13 @@ public class MovementModule : ModuleBase
 
     public void SetMoveSpeedMultiplier(float multiplier)
     {
-        CheckIfAnyZeroPtr(MoveSpeedPtr);
+        CheckIfAnyZeroPtr();
         GreyMagicMemoryBase.Write(MoveSpeedPtr, 6f * multiplier);
     }
 
     public void SetJumpHeightMultiplier(float multiplier)
     {
-        CheckIfAnyZeroPtr(JumpHeightPtr);
+        CheckIfAnyZeroPtr();
         GreyMagicMemoryBase.Write(JumpHeightPtr, 10.4f * multiplier);
     }
 

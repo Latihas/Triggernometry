@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Triggernometry.Core;
-
-// using Triggernometry.Forms;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu;
@@ -38,7 +36,6 @@ public static class BridgeNamazu
 
     internal static void AddSideloadModule(ModuleBase module)
     {
-        if (!RealPlugin.Instance.cfg.EnableModuleBase) return;
         lock (_sideloadModules)
         {
             _sideloadModules[module.GetType()] = module;
@@ -57,7 +54,6 @@ public static class BridgeNamazu
     /// </summary>
     public static void InitializeModules(System.Action sideload = null)
     {
-        if (!RealPlugin.Instance.cfg.EnableModuleBase) return;
         // 重新生成所有模块实例
         lock (_modules)
         {
@@ -103,7 +99,6 @@ public static class BridgeNamazu
     /// </summary>
     public static void RegisterAnnotatedMethods(params string[] methodTags)
     {
-        if (!RealPlugin.Instance.cfg.EnableModuleBase) return;
         foreach (var type in GetAllModuleTypes())
         {
             var module = GetModule(type);
@@ -131,22 +126,4 @@ public static class BridgeNamazu
         => (T)GetModule(typeof(T));
 
     public static void Log(string msg) => ((dynamic)NamazuPlugin.PluginUI).Log(msg);
-
-    // [STAThread]
-    // public static void ShowConfig()
-    // {
-    //     try
-    //     {
-    //         Application.OpenForms.OfType<GameConfigForm>().ToList().ForEach(f => f.Close());
-    //         Thread staThread = new Thread(new ThreadStart(NamazuConfig.TryRunConfigForm));
-    //         staThread.SetApartmentState(ApartmentState.STA);
-    //         staThread.Start();
-    //         staThread.Join();
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         MessageBox.Show("[鲶鱼精邮差扩展] 配置表单运行错误：\n" + ex, NamazuConfig.Info.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-    //     }
-    // }
-
 }

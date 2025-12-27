@@ -5,10 +5,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Triggernometry.Core;
-using Triggernometry.Core.Scripting;
 using Triggernometry.Core.Variables;
 using Triggernometry.Expressions.String.Utils;
-using Triggernometry.Utilities;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
@@ -27,17 +25,11 @@ public abstract class ModuleBase
 
     public void CheckBeforeExecution(string command)
     {
-        // RealPlugin.plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,$"{Triggernometry.Utilities.Memory.XivProc != null}");
-        // RealPlugin.plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,$"{ Memory != null}");
-        // if (!Plugin.IsReady)
-        //     throw new Exception("[鲶鱼精邮差扩展] 没有对应的 FFXIV 进程。");
+        if(!RealPlugin.Instance.cfg.EnableModuleBase)
+            throw new Exception($"[鲶鱼精邮差扩展] {command} 指令执行因ModuleBase禁用而禁用。");
     }
 
-    public void CheckIfAnyZeroPtr(params IntPtr[] ptrs)
-    {
-        if (ptrs.Any(p => p == IntPtr.Zero))
-            throw new Exception($"[鲶鱼精邮差扩展] {GetType().Name} 指令执行所需的 IntPtr 未初始化，无法执行指令。");
-    }
+    public void CheckIfAnyZeroPtr() =>CheckBeforeExecution(GetType().Name);
 
     public void NamazuLog(string msg) => BridgeNamazu.Log(msg);
     public void TriggerLog(RealPlugin.DebugLevelEnum level, string msg) => RealPlugin.Instance.UnfilteredAddToLog(level, msg);
@@ -192,7 +184,7 @@ public abstract class ModuleBase
 
     public static VariableDictionary GetConfigDict()
     {
-        var store = RealPlugin.Instance.cfg.PersistentVariables;
+        var store = RealPlugin.Instance.GetVariableStore(true);
         var cfg = store.GetDictVariable("PNE_cfg", true);
         return cfg;
     }

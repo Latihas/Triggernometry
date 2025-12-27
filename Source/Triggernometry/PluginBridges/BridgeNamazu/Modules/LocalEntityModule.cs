@@ -6,9 +6,6 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class LocalEntityModule : ModuleBase
 {
-
-    // FFXIVClientStructs/FFXIV/Client/Game/Object/ClientObjectManager.cs
-    // public IntPtr ClientObjectManagerPtr;
     public IntPtr CreateBattleCharacterFuncPtr;
     public IntPtr GetObjectByIndexFuncPtr;
     public IntPtr DeleteObjectByIndexFuncPtr;
@@ -26,7 +23,6 @@ public class LocalEntityModule : ModuleBase
     {
         ScanMethod = () =>
         {
-            // ClientObjectManagerPtr =(IntPtr) ClientObjectManager.Instance();
             CreateBattleCharacterFuncPtr = Scanner.TryScan("E8 * * * * 41 89 44 FC ??", nameof(CreateBattleCharacterFuncPtr));
             GetObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * 4C 8B C0 4D 85 C0", nameof(GetObjectByIndexFuncPtr));
             DeleteObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * C6 43 49 00", nameof(DeleteObjectByIndexFuncPtr));
@@ -38,12 +34,12 @@ public class LocalEntityModule : ModuleBase
         };
     }
 
-    public unsafe uint CreateBattleCharacter(int index = -1, byte param = 0)
+    public unsafe int CreateBattleCharacter(int index = -1, byte param = 0)
     {
-        return ClientObjectManager.Instance()->CreateBattleCharacter((uint)index, param);
+        return (int)ClientObjectManager.Instance()->CreateBattleCharacter((uint)index, param);
     }
 
-    public unsafe IntPtr GetObjectByIndex(uint idx)
+    public unsafe IntPtr GetObjectByIndex(int idx)
     {
         return (IntPtr)ClientObjectManager.Instance()->GetObjectByIndex((ushort)idx);
     }
