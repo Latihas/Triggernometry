@@ -92,7 +92,7 @@ public partial class RealPlugin
             }
         }
         double vol = ctx.EvaluateNumericExpression(a.ActionContextLogger, ctx, a._PlaySoundVolumeExpression);
-        vol *= (ctx.Plugin.cfg.SfxVolumeAdjustment / 100.0);
+        vol *= ctx.Plugin.cfg.SfxVolumeAdjustment / 100.0;
         if (vol < 0.0)
         {
             vol = 0.0;

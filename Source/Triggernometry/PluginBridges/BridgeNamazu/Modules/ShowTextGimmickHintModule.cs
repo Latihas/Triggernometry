@@ -32,6 +32,7 @@ public class ShowTextGimmickHintModule : ModuleBase
 
     public unsafe void ShowTextGimmickHint(bool isHint, string text, int timeIn100Ms)
     {
+        CheckIfAnyZeroPtr();
         RaptureAtkModule.Instance()->ShowTextGimmickHint(  text, ( RaptureAtkModule.TextGimmickHintStyle)(isHint ? 1 : 0), timeIn100Ms);
     }
 }

@@ -128,6 +128,4 @@ public class NamazuPlugin
 
     // Region detection
     public bool IsCN => _plugin.IsCN;
-    // public IntPtr FrameworkPtr =>(Intp) Framework.Instance();
-
 }

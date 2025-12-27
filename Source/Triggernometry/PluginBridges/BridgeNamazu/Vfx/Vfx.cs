@@ -44,11 +44,11 @@ public abstract class Vfx
 
     public byte Flag
     {
-        get => PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<byte>(Ptr + 0x38);
+        get => GreyMagicMemoryBase.Read<byte>(Ptr + 0x38);
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x38, value);
+            GreyMagicMemoryBase.Write(Ptr + 0x38, value);
         }
     }
 
@@ -56,13 +56,13 @@ public abstract class Vfx
     {
         get
         {
-            var raw = PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<Vector3>(Ptr + 0x50);
+            var raw = GreyMagicMemoryBase.Read<Vector3>(Ptr + 0x50);
             return new Vector3(raw.X, raw.Z, raw.Y);
         }
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x50, new Vector3(value.X, value.Z, value.Y));
+            GreyMagicMemoryBase.Write(Ptr + 0x50, new Vector3(value.X, value.Z, value.Y));
         }
     }
 
@@ -76,7 +76,7 @@ public abstract class Vfx
     {
         get
         {
-            var raw = PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<Vector4>(Ptr + 0x60);
+            var raw = GreyMagicMemoryBase.Read<Vector4>(Ptr + 0x60);
             var q = new Quaternion(raw.X, raw.Z, raw.Y, raw.W);
 
             float yaw, pitch, roll;
@@ -104,7 +104,7 @@ public abstract class Vfx
         {
             if (Removed) return;
             var q = Quaternion.CreateFromYawPitchRoll(value.Z, value.Y, value.X); // θy, θx, θ
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x60, new Vector4(q.X, q.Z, q.Y, q.W));
+            GreyMagicMemoryBase.Write(Ptr + 0x60, new Vector4(q.X, q.Z, q.Y, q.W));
         }
     }
 
@@ -112,73 +112,73 @@ public abstract class Vfx
     {
         get
         {
-            var raw = PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<Vector3>(Ptr + 0x70);
+            var raw = GreyMagicMemoryBase.Read<Vector3>(Ptr + 0x70);
             return new Vector3(raw.X, raw.Z, raw.Y);
         }
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x70, new Vector3(value.X, value.Z, value.Y));
+            GreyMagicMemoryBase.Write(Ptr + 0x70, new Vector3(value.X, value.Z, value.Y));
         }
     }
 
     public uint ActorVfxSource
     {
-        get => PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<uint>(Ptr + 0x128);
+        get => GreyMagicMemoryBase.Read<uint>(Ptr + 0x128);
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x128, value);
+            GreyMagicMemoryBase.Write(Ptr + 0x128, value);
         }
     }
 
     public uint ActorVfxTarget
     {
-        get => PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<uint>(Ptr + 0x130);
+        get => GreyMagicMemoryBase.Read<uint>(Ptr + 0x130);
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x130, value);
+            GreyMagicMemoryBase.Write(Ptr + 0x130, value);
         }
     }
 
     public uint StaticVfxSource
     {
-        get => PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<uint>(Ptr + 0x1B8);
+        get => GreyMagicMemoryBase.Read<uint>(Ptr + 0x1B8);
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x1B8, value);
+            GreyMagicMemoryBase.Write(Ptr + 0x1B8, value);
         }
     }
 
     public uint StaticVfxTarget
     {
-        get => PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<uint>(Ptr + 0x1C0);
+        get => GreyMagicMemoryBase.Read<uint>(Ptr + 0x1C0);
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x1C0, value);
+            GreyMagicMemoryBase.Write(Ptr + 0x1C0, value);
         }
     }
 
     public float Speed
     {
-        get => PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<float>(Ptr + 0x250);
+        get => GreyMagicMemoryBase.Read<float>(Ptr + 0x250);
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x250, value);
+            GreyMagicMemoryBase.Write(Ptr + 0x250, value);
         }
     }
 
     public Vector4 Color
     {
-        get => PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Read<Vector4>(Ptr + 0x260);
+        get => GreyMagicMemoryBase.Read<Vector4>(Ptr + 0x260);
         set
         {
             if (Removed) return;
-            PluginBridges.BridgeNamazu.GreyMagicMemoryBase.Write(Ptr + 0x260, value);
+            GreyMagicMemoryBase.Write(Ptr + 0x260, value);
         }
     }
 

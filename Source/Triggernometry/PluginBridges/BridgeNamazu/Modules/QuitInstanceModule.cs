@@ -6,11 +6,14 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class QuitInstanceModule : ModuleBase
 {
-    // public IntPtr QuitInstancePtr;
-
+    public static QuitInstanceDelegate QuitInstanceD = null!;
+    public delegate IntPtr QuitInstanceDelegate(byte shouldForceQuit);
     public QuitInstanceModule()
     {
-        ScanMethod = () => { };
+        ScanMethod = () =>
+        {
+            QuitInstanceD = Marshal.GetDelegateForFunctionPointer<QuitInstanceDelegate>(Scanner.TryScan("48 83 EC ?? 0F B6 D1 45 33 C9", "QuitInstancePtr")); 
+        };
     }
 
     [CallbackMethod("QuitInstance")]
@@ -23,12 +26,7 @@ public class QuitInstanceModule : ModuleBase
 
     public void QuitInstance(bool shouldForceQuit)
     {
-        // CheckIfAnyZeroPtr(QuitInstancePtr);
-        QuitInstanceD ??= Marshal.GetDelegateForFunctionPointer<QuitInstanceDelegate>(Scanner.TryScan("48 83 EC ?? 0F B6 D1 45 33 C9", "QuitInstancePtr"));
-        QuitInstanceD!((byte)(shouldForceQuit ? 1 : 0));
+        CheckIfAnyZeroPtr();
+        QuitInstanceD((byte)(shouldForceQuit ? 1 : 0));
     }
-
-    public unsafe delegate IntPtr QuitInstanceDelegate(byte shouldForceQuit);
-
-    public static QuitInstanceDelegate? QuitInstanceD;
 }

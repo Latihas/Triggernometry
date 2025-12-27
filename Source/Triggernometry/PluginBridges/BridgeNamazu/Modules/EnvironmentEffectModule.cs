@@ -24,15 +24,8 @@ public class EnvironmentEffectModule : ModuleBase
     {
         ScanMethod = () =>
         {
-            // ECommons/ECommons/Hooks/MapEffect.cs
-            // 原始 sig: 48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B FA 41 0F B7 E8
             MapEffectOldFunctionPtr = Scanner.TryScan("44 0F B7 40 ? E9 * * * * C3", nameof(MapEffectOldFunctionPtr));
-            // 上面函数的下一层
-            // 原始 sig：48 89 6C 24 ?? 56 48 83 EC ?? 8B C2 41 0F B7 E8 45 33 C0 48 8D 14 40 48 8B 81 ?? ?? ?? ?? B1 ??
             MapEffectFunctionPtr = Scanner.TryScan("E8 * * * * 3C ? 75 ? 80 64 B3 ? ?", nameof(MapEffectFunctionPtr));
-            // ffcs EventFramework.Instance
-
-            // EnvManagerPtrPtr = Scanner.TryScan("0F 28 F2 48 8B 05 * * * *", nameof(EnvManagerPtrPtr));
         };
     }
 
@@ -110,7 +103,7 @@ public class EnvironmentEffectModule : ModuleBase
     /// <returns> 是否调用成功。</returns>
     public unsafe bool MapEffect(uint index, ushort flag)
     {
-        // CheckIfAnyZeroPtr(MapEffectFunctionPtr, EventFrameworkPtrPtr);
+        CheckIfAnyZeroPtr();
         var contentDirectorPtr = ContentDirectorPtr;
         if (contentDirectorPtr != IntPtr.Zero)
         {
@@ -134,7 +127,7 @@ public class EnvironmentEffectModule : ModuleBase
     [Obsolete("Use MapEffect(uint index, ushort flag)")]
     public void MapEffectOld(uint index, ushort unknownFlag, ushort flag)
     {
-        // CheckIfAnyZeroPtr(MapEffectOldFunctionPtr, EventFrameworkPtrPtr);
+        CheckIfAnyZeroPtr();
         var contentDirectorPtr = ContentDirectorPtr;
         if (contentDirectorPtr != IntPtr.Zero)
         {
@@ -159,7 +152,7 @@ public class EnvironmentEffectModule : ModuleBase
     // FFXIVClientStructs/FFXIV/Client/Graphics/Environment/EnvManager.cs
     public unsafe void ChangeWeather(byte weatherId)
     {
-        // CheckIfAnyZeroPtr(EnvManagerPtrPtr);
+        CheckIfAnyZeroPtr();
         var envManagerPtr = (IntPtr)EnvManager.Instance();
         GreyMagicMemoryBase.Write(envManagerPtr + 0x27, weatherId); // ActiveWeather
         GreyMagicMemoryBase.Write<float>(envManagerPtr + 0x28, 1);  // TransitionTime

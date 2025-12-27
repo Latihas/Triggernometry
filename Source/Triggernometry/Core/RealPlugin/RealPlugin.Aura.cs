@@ -5,7 +5,6 @@ using Dalamud.Plugin.Services;
 using Scarborough;
 using Triggernometry.Forms;
 using Triggernometry.Localization;
-using Triggernometry.UI.Forms;
 using static Triggernometry.UI.Scarborough;
 using Color = System.Drawing.Color;
 using ExpressionTextBox = Triggernometry.UI.CustomControls.ExpressionTextBox;

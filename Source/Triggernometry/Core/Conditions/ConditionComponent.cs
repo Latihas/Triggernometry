@@ -23,6 +23,7 @@ namespace Triggernometry.Core.Conditions
 
         [XmlAttribute]
         public bool Enabled { get; set; } = true;
+
         [XmlIgnore]
         public ConditionGroup Parent { get; set; } = null;
 

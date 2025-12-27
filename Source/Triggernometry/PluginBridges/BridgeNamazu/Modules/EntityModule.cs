@@ -10,6 +10,7 @@ using Triggernometry.Core;
 using Triggernometry.Expressions.String.Evaluators;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.FFXIV;
+using static Triggernometry.Expressions.String.Utils.DataStringHelper;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
@@ -30,8 +31,9 @@ public class EntityModule : ModuleBase
     /// <summary> 实体 StatusLoopVfx ID 相对于实体地址的偏移。</summary>
     public Func<int> StatusLoopVfxOffset = () => Plugin.IsCN ? 0x1C8 : 0x1C8; // 7.2 / 7.3
     /// <summary> 实体透明度相对于实体地址的偏移。</summary>
-    public Func<int> OpacityOffset = () => Plugin.IsCN ? 0x22D8 : 0x22D8; // 7.2 / 7.3 (尚未确认)
-    /// <summary> 实体 ModelStatus 相对于实体地址的偏移。</summary>
+    public Func<int> OpacityOffset = () => 0x22E8; // 7.4; 7.3 0x22D8 
+        /// <summary> 实体 ModelStatus (RenderFlags) 相对于实体地址的偏移。</summary>
+        /// https://github.com/xivdev/Penumbra/blob/master/Penumbra/Interop/Structs/DrawState.cs
     public Func<int> ModelStatusOffset = () => Plugin.IsCN ? 0x118 : 0x118; // 7.2 / 7.3
 
     /// <summary> 硬目标地址相对于实体 TargetSystem 地址的偏移（SoftTarget 地址在此基础上 +0x8）。</summary>
@@ -51,7 +53,7 @@ public class EntityModule : ModuleBase
     /// <summary> GetStatusManager 虚函数索引。</summary>
     public Func<int> GetStatusManagerVTableIdx = () => 77; // 7.0
 
-    public unsafe EntityModule()
+    public EntityModule()
     {
         ScanMethod = () => { };
     }
@@ -141,7 +143,7 @@ public class EntityModule : ModuleBase
     internal void CbTarget(string cmd)
     {
         CheckBeforeExecution(cmd);
-        (uint id, bool hard, bool soft) = cmd.ParseArgs<DataStringHelper.HexOrDecId, bool, bool>((1, true), (2, true));
+        (uint id, bool hard, bool soft) = cmd.ParseArgs<HexOrDecId, bool, bool>((1, true), (2, true));
         IntPtr objectPtr = default;
 
         if (id != DataStringHelper.HexOrDecId.Default)
@@ -235,7 +237,7 @@ public class EntityModule : ModuleBase
     public void SetPos(IntPtr objectAddress, float x, float y, float z)
     {
         Vector3 pos = new Vector3(x, z, y); // 注意 Y Z 轴交换
-        IntPtr modelAddress = GreyMagicMemoryBase.Read<nint>(objectAddress + ModelOffset());
+        IntPtr modelAddress = GreyMagicMemoryBase.Read<IntPtr>(objectAddress + ModelOffset());
         GreyMagicMemoryBase.Write(objectAddress + PosOffset(), pos);
         if (modelAddress != IntPtr.Zero)
             GreyMagicMemoryBase.Write(modelAddress + ModelPosOffset(), pos);
@@ -269,6 +271,7 @@ public class EntityModule : ModuleBase
 
     public unsafe void Target(IntPtr address, bool hard = true, bool soft = true)
     {
+        CheckIfAnyZeroPtr();
         if (hard) GreyMagicMemoryBase.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset(), address);
         if (soft) GreyMagicMemoryBase.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset() + 8, address);
     }
@@ -331,6 +334,7 @@ public class EntityModule : ModuleBase
 
     public unsafe void RemoveStatus(IntPtr address, ushort statusId)
     {
+        CheckIfAnyZeroPtr();
         StatusManager* sm = ((Character*)address)->GetStatusManager();
         sm->RemoveStatus((int)sm->GetStatusId(statusId));
     }
