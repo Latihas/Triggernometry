@@ -708,4 +708,6 @@ namespace Triggernometry.Core;
     public int LogFlattenMaxCount { get; set; }=114514;
     [XmlAttribute]
     public List<string> PScriptsDisabled { get; set; } = [];
+    [XmlAttribute]
+    public List<string> PModuleDisabled { get; set; } = [];
 }

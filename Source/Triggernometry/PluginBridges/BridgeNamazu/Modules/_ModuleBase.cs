@@ -25,11 +25,13 @@ public abstract class ModuleBase
 
     public void CheckBeforeExecution(string command)
     {
-        if(!RealPlugin.Instance.cfg.EnableModuleBase)
+        if (!RealPlugin.Instance.cfg.EnableModuleBase
+            || RealPlugin.Instance.cfg.PModuleDisabled.Contains(command)
+            || RealPlugin.Instance.cfg.PModuleDisabled.Contains(GetType().Name))
             throw new Exception($"[鲶鱼精邮差扩展] {command} 指令执行因ModuleBase禁用而禁用。");
     }
 
-    public void CheckIfAnyZeroPtr() =>CheckBeforeExecution(GetType().Name);
+    public void CheckIfAnyZeroPtr() => CheckBeforeExecution(GetType().Name);
 
     public void NamazuLog(string msg) => BridgeNamazu.Log(msg);
     public void TriggerLog(RealPlugin.DebugLevelEnum level, string msg) => RealPlugin.Instance.UnfilteredAddToLog(level, msg);
