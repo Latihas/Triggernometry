@@ -6,9 +6,9 @@
         <FileAlignment>512</FileAlignment>
         <UseWindowsForms>true</UseWindowsForms>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Version>1.2.0.999</Version>
-        <AssemblyVersion>1.2.0.999</AssemblyVersion>
-        <FileVersion>1.2.0.999</FileVersion>
+        <Version>2.99.99.99</Version>
+        <AssemblyVersion>2.99.99.99</AssemblyVersion>
+        <FileVersion>2.99.99.99</FileVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
