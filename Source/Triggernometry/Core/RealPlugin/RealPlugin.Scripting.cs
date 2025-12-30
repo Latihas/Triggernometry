@@ -5,7 +5,7 @@ using System.Reflection;
 using Triggernometry.Core.Scripting;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Localization;
-using Triggernometry.Utilities;
+
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
 

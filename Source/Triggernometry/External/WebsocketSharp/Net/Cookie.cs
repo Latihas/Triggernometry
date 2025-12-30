@@ -43,7 +43,6 @@
 using System;
 using System.Globalization;
 using System.Text;
-using WebSocketSharp;
 
 namespace WebSocketSharp.Net
 {

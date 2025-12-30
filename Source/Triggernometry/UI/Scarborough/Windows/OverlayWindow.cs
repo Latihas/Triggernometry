@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Runtime.InteropServices;
-
 using Scarborough.PInvoke;
 
 namespace Scarborough.Windows

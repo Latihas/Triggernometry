@@ -48,8 +48,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using WebSocketSharp;
-using WebSocketSharp.Net;
 
 namespace WebSocketSharp.Net
 {

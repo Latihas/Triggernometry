@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scarborough.Drawing
+﻿namespace Scarborough.Drawing
 {
     /// <summary>
     ///     Offers different built-in styles for crosshairs

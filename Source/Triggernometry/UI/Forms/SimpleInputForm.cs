@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 using Triggernometry.UI.CustomControls;
 using Triggernometry.Localization;

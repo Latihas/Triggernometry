@@ -46,7 +46,6 @@
 
 using System;
 using System.Threading;
-using WebSocketSharp.Net;
 
 namespace WebSocketSharp.Net
 {

@@ -2623,7 +2623,7 @@ public class UserInterface
         foreach (var trigger in f.Triggers) trigs.Add(trigger);
     }
 
-    private static void RenderTreeNode(string text, object tag, bool isDisabled, System.Action? renderChildren)
+    private static void RenderTreeNode(string text, object tag, bool isDisabled, Action? renderChildren)
     {
         _nodeExpandedStates.TryAdd(tag, false);
         _nodeCheckedStates[tag] = tag switch

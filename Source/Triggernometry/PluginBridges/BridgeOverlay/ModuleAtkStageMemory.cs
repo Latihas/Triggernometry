@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using RainbowMage.OverlayPlugin.MemoryProcessors.AtkStage;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 
@@ -13,20 +10,13 @@ namespace Triggernometry.PluginBridges
     internal static class ModuleAtkStageMemory
     {
         public static bool Ready;
-        public static object AtkStageMemoryManager;
-        private static MethodInfo _getAddonMethod;
-        private static MethodInfo _getAddonAddressMethod;
+        public static IAtkStageMemory AtkStageMemoryManager;
 
         static ModuleAtkStageMemory()
         {
             try
             {
-                AtkStageMemoryManager = BridgeOverlay.Container.Resolve($"RainbowMage.OverlayPlugin.MemoryProcessors.AtkStage.IAtkStageMemory, OverlayPlugin.Core")
-                    ?? throw new Exception("AtkStageMemoryManager not found");
-                _getAddonMethod = AtkStageMemoryManager.GetType().GetMethod("GetAddon", BindingFlags.Public | BindingFlags.Instance)
-                    ?? throw new Exception("GetAddonMethod not found");
-                _getAddonAddressMethod = AtkStageMemoryManager.GetType().GetMethod("GetAddonAddress", BindingFlags.Public | BindingFlags.Instance)
-                    ?? throw new Exception("GetAddonAddressMethod not found");
+                AtkStageMemoryManager = BridgeOverlay.Container.Resolve<RainbowMage.OverlayPlugin.MemoryProcessors.AtkStage.IAtkStageMemory>();
                 Ready = true;
             }
             catch (Exception ex)
@@ -42,12 +32,12 @@ namespace Triggernometry.PluginBridges
 
         public static IntPtr GetAddonAddress(string name)
         {
-            return (IntPtr)_getAddonAddressMethod.Invoke(AtkStageMemoryManager, new object[] { name });
+            return AtkStageMemoryManager.GetAddonAddress(name);
         }
 
         public static object GetAddon(string name)
         {
-            return _getAddonMethod.Invoke(AtkStageMemoryManager, new object[] { name });
+            return AtkStageMemoryManager.GetAddon(name);
         }
 
         #endregion AtkStageMemory

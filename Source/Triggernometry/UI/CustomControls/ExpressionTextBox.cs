@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using System.Globalization;
 using System.ComponentModel;
-using System.Linq.Expressions;
 using Triggernometry.UI.Forms;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Localization;
@@ -443,7 +441,7 @@ namespace Triggernometry.UI.CustomControls
         private string CurrentMatch;
         private Timer acfDebounceTimer = new Timer();
 
-        public Forms.AutoCompleteForm acf = null;
+        public AutoCompleteForm acf = null;
 
         // unhide TextChanged on base class
         private EventHandler _TextChanged;
@@ -530,7 +528,7 @@ namespace Triggernometry.UI.CustomControls
                 bool refresh = acf != null;
                 if (!refresh)
                 {
-                    acf = new Forms.AutoCompleteForm();
+                    acf = new AutoCompleteForm();
                 }
 
                 // show acf beneath the start of the matched string
@@ -1211,7 +1209,7 @@ namespace Triggernometry.UI.CustomControls
                     if (!Multiline && clipboardText.Contains("\n"))
                     {
                         ExpTextBox?.ToggleExpand();
-                        this.BeginInvoke(new System.Action(() => this.Paste()));
+                        this.BeginInvoke(new Action(() => this.Paste()));
                         return;
                     }
                 }

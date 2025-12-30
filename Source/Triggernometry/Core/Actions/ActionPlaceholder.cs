@@ -1,5 +1,4 @@
-﻿using System.Windows.Forms;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using Triggernometry.Localization;
 
 namespace Triggernometry.Core.Actions

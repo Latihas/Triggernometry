@@ -52,7 +52,7 @@ public static class BridgeNamazu
     /// 接收到鲶鱼精邮差注入游戏的日志后，需要从脚本调用此方法以便初始化所有模块。
     /// 可传入 sideload 方法，改写模块的 ScanMethod 或其他字段等。
     /// </summary>
-    public static void InitializeModules(System.Action sideload = null)
+    public static void InitializeModules(Action sideload = null)
     {
         // 重新生成所有模块实例
         lock (_modules)

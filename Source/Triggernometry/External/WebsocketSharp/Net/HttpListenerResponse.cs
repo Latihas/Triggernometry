@@ -49,7 +49,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using WebSocketSharp;
 
 namespace WebSocketSharp.Net
 {

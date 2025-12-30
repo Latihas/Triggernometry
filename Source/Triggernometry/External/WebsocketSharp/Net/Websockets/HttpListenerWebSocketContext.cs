@@ -31,8 +31,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Security.Principal;
-using WebSocketSharp;
-using WebSocketSharp.Net;
 
 namespace WebSocketSharp.Net.Websockets
 {

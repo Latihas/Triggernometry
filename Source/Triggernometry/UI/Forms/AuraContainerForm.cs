@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Numerics;
 using System.Windows.Forms;
-using Dalamud.Bindings.ImGui;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 

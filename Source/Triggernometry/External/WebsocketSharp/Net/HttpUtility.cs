@@ -48,8 +48,6 @@ using System.Globalization;
 using System.IO;
 using System.Security.Principal;
 using System.Text;
-using WebSocketSharp;
-using WebSocketSharp.Net;
 
 namespace WebSocketSharp.Net
 {

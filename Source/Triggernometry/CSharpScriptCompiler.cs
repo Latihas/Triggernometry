@@ -76,7 +76,7 @@ public static class CSharpScriptCompiler
         return Path.Combine(prefix, className + ".dll");
     }
 
-    public static bool CompileScript(string scriptCode)
+    public static bool CompileScript(string scriptCode,bool fromTrn)
     {
         var outputPath = GetScriptDllPath(scriptCode);
         if (File.Exists(outputPath)) return true;
@@ -88,76 +88,81 @@ public static class CSharpScriptCompiler
         }
         try
         {
-            var pluginPathRoot =  RealPlugin.Instance.ConfigPath;
             var dalamudPathRoot = (string)ProxyPlugin.DalamudPlugin.DalamudStartInfo.WorkingDirectory.ToString();
             List<string> referencedAssembliesL =[];
             foreach (var r in PluginDirReferenes) referencedAssembliesL.Add(Path.Combine(ProxyPlugin.DalamudPlugin.PluginAssemblyDirectory, r));
             foreach (var r in DalamudDirReferenes) referencedAssembliesL.Add(Path.Combine(dalamudPathRoot, r));
             var referencedAssemblies = referencedAssembliesL.ToArray();
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Compiling command: {scriptCode}");
-
+            SyntaxTree syntaxTree=null;
             var tempClassName = $"{className}_Functions";
-            var syntaxTree = CSharpSyntaxTree.ParseText(scriptCode, new CSharpParseOptions(LanguageVersion.Latest));
-            if (syntaxTree.GetRoot() is not CompilationUnitSyntax root)
+            if (fromTrn)
             {
-                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, ("无法解析代码为编译单元"));
-                RealPlugin.Instance.cfg.CompileFailedScripts.Add(className);
-                return false;
+                syntaxTree = CSharpSyntaxTree.ParseText(scriptCode, new CSharpParseOptions(LanguageVersion.Latest));
+                if (syntaxTree.GetRoot() is not CompilationUnitSyntax root)
+                {
+                    RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, ("无法解析代码为编译单元"));
+                    RealPlugin.Instance.cfg.CompileFailedScripts.Add(className);
+                    File.WriteAllText(outputPath + ".ori.cs", scriptCode);
+                    return false;
+                }
+                List<StatementSyntax> topLevelStatements = [];
+                List<StatementSyntax> topLevelFunctions = [];
+                foreach (var gs in root.Members.OfType<GlobalStatementSyntax>())
+                {
+                    var sta = gs.Statement;
+                    if (sta.Kind() == SyntaxKind.LocalFunctionStatement) topLevelFunctions.Add(sta);
+                    else topLevelStatements.Add(sta);
+                }
+                var typeDeclarations = root.Members
+                                           .Where(m => m is TypeDeclarationSyntax or EnumDeclarationSyntax)
+                                           .ToList();
+                var loadMethod = SyntaxFactory.MethodDeclaration(
+                                                  SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)),
+                                                  "Load")
+                                              .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                              .WithBody(SyntaxFactory.Block(topLevelStatements));
+                var interfaceName = SyntaxFactory.QualifiedName(
+                    SyntaxFactory.IdentifierName("Triggernometry"),
+                    SyntaxFactory.IdentifierName("ITrnNamedCallback")
+                );
+                var convertedFunctions = topLevelFunctions
+                                         .Cast<LocalFunctionStatementSyntax>()
+                                         .Select(localFunc =>
+                                                     SyntaxFactory.MethodDeclaration(
+                                                                      localFunc.ReturnType,
+                                                                      localFunc.Identifier)
+                                                                  .WithParameterList(localFunc.ParameterList)
+                                                                  .WithBody(localFunc.Body)
+                                                                  .WithModifiers(SyntaxFactory.TokenList(
+                                                                                     localFunc.Modifiers.Where(i =>
+                                                                                              {
+                                                                                                  var kind = i.Kind();
+                                                                                                  return kind != SyntaxKind.PublicKeyword
+                                                                                                         && kind != SyntaxKind.PrivateKeyword
+                                                                                                         && kind != SyntaxKind.InternalKeyword;
+                                                                                              })
+                                                                                              .Concat([SyntaxFactory.Token(SyntaxKind.InternalKeyword)])
+                                                                                 ))
+                                         )
+                                         .Cast<MemberDeclarationSyntax>()
+                                         .ToList();
+                var newClass = SyntaxFactory.ClassDeclaration(className)
+                                            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                            .WithBaseList(SyntaxFactory.BaseList(
+                                                              SyntaxFactory.SeparatedList<BaseTypeSyntax>(
+                                                                  [SyntaxFactory.SimpleBaseType(interfaceName)]
+                                                              )))
+                                            .WithMembers(SyntaxFactory.List(new List<MemberDeclarationSyntax> { loadMethod }));
+                var tempClass = SyntaxFactory.ClassDeclaration(tempClassName)
+                                             .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
+                                             .WithMembers(SyntaxFactory.List(convertedFunctions));
+                var newMembers = typeDeclarations.Concat([newClass, tempClass]).ToList();
+                var newCompilationUnit = root.WithMembers(SyntaxFactory.List(newMembers));
+                syntaxTree = syntaxTree.WithRootAndOptions(newCompilationUnit, syntaxTree.Options);
             }
-            List<StatementSyntax> topLevelStatements = [];
-            List<StatementSyntax> topLevelFunctions = [];
-            foreach (var gs in root.Members.OfType<GlobalStatementSyntax>())
-            {
-                var sta = gs.Statement;
-                if (sta.Kind() == SyntaxKind.LocalFunctionStatement) topLevelFunctions.Add(sta);
-                else topLevelStatements.Add(sta);
-            }
-            var typeDeclarations = root.Members
-                                       .Where(m => m is TypeDeclarationSyntax or EnumDeclarationSyntax)
-                                       .ToList();
-            var loadMethod = SyntaxFactory.MethodDeclaration(
-                                              SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)),
-                                              "Load")
-                                          .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                          .WithBody(SyntaxFactory.Block(topLevelStatements));
-            var interfaceName = SyntaxFactory.QualifiedName(
-                SyntaxFactory.IdentifierName("Triggernometry"),
-                SyntaxFactory.IdentifierName("ITrnNamedCallback")
-            );
-            var convertedFunctions = topLevelFunctions
-                                     .Cast<LocalFunctionStatementSyntax>()
-                                     .Select(localFunc =>
-                                                 SyntaxFactory.MethodDeclaration(
-                                                                  localFunc.ReturnType,
-                                                                  localFunc.Identifier)
-                                                              .WithParameterList(localFunc.ParameterList)
-                                                              .WithBody(localFunc.Body)
-                                                              .WithModifiers(SyntaxFactory.TokenList(
-                                                                                 localFunc.Modifiers.Where(i =>
-                                                                                          {
-                                                                                              var kind = i.Kind();
-                                                                                              return kind != SyntaxKind.PublicKeyword
-                                                                                                     && kind != SyntaxKind.PrivateKeyword
-                                                                                                     && kind != SyntaxKind.InternalKeyword;
-                                                                                          })
-                                                                                          .Concat([SyntaxFactory.Token(SyntaxKind.InternalKeyword)])
-                                                                             ))
-                                     )
-                                     .Cast<MemberDeclarationSyntax>()
-                                     .ToList();
-            var newClass = SyntaxFactory.ClassDeclaration(className)
-                                        .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                        .WithBaseList(SyntaxFactory.BaseList(
-                                                          SyntaxFactory.SeparatedList<BaseTypeSyntax>(
-                                                              [SyntaxFactory.SimpleBaseType(interfaceName)]
-                                                          )))
-                                        .WithMembers(SyntaxFactory.List(new List<MemberDeclarationSyntax> { loadMethod }));
-            var tempClass = SyntaxFactory.ClassDeclaration(tempClassName)
-                                         .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
-                                         .WithMembers(SyntaxFactory.List(convertedFunctions));
-            var newMembers = typeDeclarations.Concat([newClass, tempClass]).ToList();
-            var newCompilationUnit = root.WithMembers(SyntaxFactory.List(newMembers));
-            var newSyntaxTree = syntaxTree.WithRootAndOptions(newCompilationUnit, syntaxTree.Options);
+            else syntaxTree = CSharpSyntaxTree.ParseText(scriptCode, new CSharpParseOptions(LanguageVersion.Latest));
+            
             var metadataReferences = new List<MetadataReference>();
             var coreAssemblyPath = typeof(object).Assembly.Location;
             var coreAssemblyDir = Path.GetDirectoryName(coreAssemblyPath) ?? string.Empty;
@@ -232,11 +237,11 @@ public static class CSharpScriptCompiler
                     RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"添加用户程序集 {asmPath} 失败：{ex.Message}");
                 }
             }
-            var modifiedCode = newSyntaxTree.GetText().ToString();
+            var modifiedCode = syntaxTree.GetText().ToString();
             File.WriteAllText(outputPath + ".cs", modifiedCode);
             var compilation = CSharpCompilation.Create(
                 assemblyName: Path.GetFileNameWithoutExtension(outputPath),
-                syntaxTrees: [newSyntaxTree],
+                syntaxTrees: [syntaxTree],
                 references: metadataReferences,
                 options: new CSharpCompilationOptions(
                     outputKind: OutputKind.DynamicallyLinkedLibrary,
@@ -252,6 +257,7 @@ public static class CSharpScriptCompiler
                     RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
                                                      $"位置 {error.Location.GetLineSpan().StartLinePosition.ToString()}：{error.GetMessage()}");
                 RealPlugin.Instance.cfg.CompileFailedScripts.Add(className);
+                File.WriteAllText(outputPath + ".ori.cs", scriptCode);
                 return false;
             }
             using (var outputStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write))
@@ -263,6 +269,7 @@ public static class CSharpScriptCompiler
                     foreach (var error in emitResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error))
                         RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, error.GetMessage());
                     RealPlugin.Instance.cfg.CompileFailedScripts.Add(className);
+                    File.WriteAllText(outputPath + ".ori.cs", scriptCode);
                     return false;
                 }
             }
@@ -273,6 +280,7 @@ public static class CSharpScriptCompiler
         {
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"编译过程异常：{ex.Message}");
             RealPlugin.Instance.cfg.CompileFailedScripts.Add(className);
+            File.WriteAllText(outputPath + ".ori.cs", scriptCode);
             return false;
         }
     }

@@ -118,7 +118,7 @@ public class EntityModule : ModuleBase
     internal void CbTeleport(string cmd)
     {
         CheckBeforeExecution(cmd);
-        var objectPtr = Triggernometry.FFXIV.Entity.GetMyself().Address;
+        var objectPtr = Entity.GetMyself().Address;
         var (x, y, z) = cmd.ParseArgs<float, float, float>();
         GreyMagicMemoryBase.ExecuteWithLock(() => SetPos(objectPtr, x, y, z));
     }
@@ -146,9 +146,9 @@ public class EntityModule : ModuleBase
         (uint id, bool hard, bool soft) = cmd.ParseArgs<HexOrDecId, bool, bool>((1, true), (2, true));
         IntPtr objectPtr = default;
 
-        if (id != DataStringHelper.HexOrDecId.Default)
+        if (id != HexOrDecId.Default)
         {
-            var entity = Triggernometry.FFXIV.Entity.GetEntityByID(id);
+            var entity = Entity.GetEntityByID(id);
             if (entity.Exist)
                 objectPtr = entity.Address;
             else

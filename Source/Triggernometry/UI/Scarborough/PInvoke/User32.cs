@@ -173,7 +173,7 @@ namespace Scarborough.PInvoke
                     IconSm = IntPtr.Zero
                 };
 
-                if (User32.RegisterClassEx(ref wndClassEx) != 0)
+                if (RegisterClassEx(ref wndClassEx) != 0)
                 {
                     break;
                 }
@@ -187,7 +187,7 @@ namespace Scarborough.PInvoke
 
         static void UninitializeWindowClass()
         {
-            User32.UnregisterClass(_className, IntPtr.Zero);
+            UnregisterClass(_className, IntPtr.Zero);
         }
 
         static User32()

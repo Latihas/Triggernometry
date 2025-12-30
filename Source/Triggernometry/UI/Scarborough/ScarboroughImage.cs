@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Triggernometry.Core;
 
@@ -139,13 +136,13 @@ namespace Scarborough
             }
         }
 
-        internal void LoadImageDataFromFile(Triggernometry.Core.RealPlugin plug, Graphics g, string fn)
+        internal void LoadImageDataFromFile(RealPlugin plug, Graphics g, string fn)
         {
             byte[] data = File.ReadAllBytes(fn);
             LoadImageDataFromByte(plug, g, data);
         }
 
-        internal void LoadImageDataFromByte(Triggernometry.Core.RealPlugin plug, Graphics g, byte[] data)
+        internal void LoadImageDataFromByte(RealPlugin plug, Graphics g, byte[] data)
         {
             GifData gif = GetGifData(data);
             using (MemoryStream ms = new MemoryStream(data))
@@ -213,7 +210,7 @@ namespace Scarborough
             }
         }
 
-        internal void LoadImageData(Triggernometry.Core.RealPlugin plug, Graphics g, string ifn)
+        internal void LoadImageData(RealPlugin plug, Graphics g, string ifn)
         {
             Uri u = new Uri(ifn);
             if (u.IsFile == true)

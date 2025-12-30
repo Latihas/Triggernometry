@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Triggernometry.Localization;
 using static Triggernometry.Expressions.String.Utils.ParserCommon;

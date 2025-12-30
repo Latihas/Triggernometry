@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Globalization;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;

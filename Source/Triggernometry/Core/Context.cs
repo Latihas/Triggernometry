@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Triggernometry.Expressions.Maths;
@@ -21,12 +19,12 @@ namespace Triggernometry.Core
         internal Guid id = Guid.NewGuid();
         internal bool testByPlaceholder;
         private readonly RealPlugin _plugOverride;
-        internal RealPlugin Plugin => _plugOverride ?? RealPlugin.Instance;
+        internal RealPlugin Plugin => _plugOverride ?? Instance;
         public readonly Trigger Trigger;
         internal ActionOld.TriggerForceTypeEnum forceType;
 
-        internal RealPlugin.ActionExecutionHook soundhook;
-        internal RealPlugin.ActionExecutionHook ttshook;
+        internal ActionExecutionHook soundhook;
+        internal ActionExecutionHook ttshook;
 
         private Dictionary<string, string> _namedRegexGroups = null;
         private List<string> _numRegexGroups = null;
@@ -56,13 +54,13 @@ namespace Triggernometry.Core
 
         /// <summary>
         /// Shared context not bound to any trigger, used for evaluations not related with any triggers.<br />
-        /// ¡¤ Has <see cref="Trigger"/> <c> == null</c> and uses the global <see cref="RealPlugin.Instance"/> instance.
+        /// ï¿½ï¿½ Has <see cref="Trigger"/> <c> == null</c> and uses the global <see cref="RealPlugin.Instance"/> instance.
         /// </summary>
         public static Context Unbound { get; } = new Context(null);
 
         /// <summary>
         /// Create a new evaluation context bound to a trigger.<br />
-        /// ¡¤ <paramref name="trigger" />: Trigger associated with this context; may be null.
+        /// ï¿½ï¿½ <paramref name="trigger" />: Trigger associated with this context; may be null.
         /// </summary>
         public Context(Trigger trigger)
         {
@@ -75,8 +73,8 @@ namespace Triggernometry.Core
 
         /// <summary>
         /// Create a new evaluation context with an explicit plugin instance.<br />
-        /// ¡¤ <paramref name="trigger" />: Trigger associated with this context; may be null.<br />
-        /// ¡¤ <paramref name="plugOverride" />: Plugin instance to use instead of <see cref="RealPlugin.Instance"/>.
+        /// ï¿½ï¿½ <paramref name="trigger" />: Trigger associated with this context; may be null.<br />
+        /// ï¿½ï¿½ <paramref name="plugOverride" />: Plugin instance to use instead of <see cref="RealPlugin.Instance"/>.
         /// </summary>
         public Context(Trigger trigger, RealPlugin plugOverride)
         {
@@ -226,7 +224,7 @@ namespace Triggernometry.Core
             string exp = ExpandVariables(logger, o, true, expr ?? "");
             if (Plugin != null)
             {
-                exp = Plugin.cfg.PerformSubstitution(exp, Configuration.Substitution.SubstitutionScopeEnum.NumericExpression);
+                exp = Plugin.cfg.PerformSubstitution(exp, Substitution.SubstitutionScopeEnum.NumericExpression);
             }
             return MathParser.Parse(exp);
         }
@@ -236,7 +234,7 @@ namespace Triggernometry.Core
             string exp = ExpandVariables(logger, o, false, expr ?? "");
             if (Plugin != null)
             {
-                exp = Plugin.cfg.PerformSubstitution(exp, Configuration.Substitution.SubstitutionScopeEnum.StringExpression);
+                exp = Plugin.cfg.PerformSubstitution(exp, Substitution.SubstitutionScopeEnum.StringExpression);
             }
             return exp;
         }
@@ -250,7 +248,7 @@ namespace Triggernometry.Core
             // log expansions: ${...} => ...
             if (Plugin?.cfg?.LogVariableExpansions == true &&
                 result != expr &&
-                Trigger?.GetDebugLevel(Plugin) >= RealPlugin.DebugLevelEnum.Verbose) // should not be DebugLevelEnum.Inherit here
+                Trigger?.GetDebugLevel(Plugin) >= DebugLevelEnum.Verbose) // should not be DebugLevelEnum.Inherit here
             {
                 var log = I18n.Translate("internal/Context/expansion", "Variable expansion from '{0}' to '{1}'", expr, result);
                 if (logger != null)
@@ -259,7 +257,7 @@ namespace Triggernometry.Core
                 }
                 else
                 {
-                    Plugin?.FilteredAddToLog(RealPlugin.DebugLevelEnum.Verbose, log, Trigger);
+                    Plugin?.FilteredAddToLog(DebugLevelEnum.Verbose, log, Trigger);
                 }
             }
             return result;

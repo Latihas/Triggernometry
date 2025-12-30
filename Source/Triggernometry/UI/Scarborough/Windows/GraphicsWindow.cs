@@ -3,7 +3,6 @@ using System.Threading;
 using System.Diagnostics;
 
 using Scarborough.Drawing;
-using Scarborough.PInvoke;
 
 namespace Scarborough.Windows
 {

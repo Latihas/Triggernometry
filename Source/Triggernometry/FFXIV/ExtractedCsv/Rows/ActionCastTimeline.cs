@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Triggernometry.FFXIV.ExtractedCsv.Rows
+﻿namespace Triggernometry.FFXIV.ExtractedCsv.Rows
 {
     public class ActionCastTimeline : TypedCsvRow
     {

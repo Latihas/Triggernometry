@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<TriggernometryExport Version="1">
-  <ExportedTrigger Enabled="true" Source="None" IsReadme="True" Name="PLEASE RE-ADD THIS REPO (Double-click on me for more instructions)" Id="7c833bf4-af17-41ef-8d46-102943bccd9c" RegularExpression="" Description="The source for this trigger repository has moved. Please re-add the repository by following the instructions in:&#xD;&#xA;&#xD;&#xA;https://cdn.discordapp.com/attachments/374555392119930882/788163186930090094/unknown.png">
-    <Actions />
-    <Condition Enabled="false" Grouping="Or" />
-    <Conditions />
-  </ExportedTrigger>
-</TriggernometryExport>

@@ -39,7 +39,6 @@
 
 using System;
 using System.Security.Principal;
-using WebSocketSharp;
 using WebSocketSharp.Net.Websockets;
 
 namespace WebSocketSharp.Net

@@ -112,7 +112,7 @@ namespace Triggernometry.FFXIV.ExtractedCsv
         {
             var sb = new StringBuilder();
 
-            int count = System.Math.Min(Headers.Count, Types.Count);
+            int count = Math.Min(Headers.Count, Types.Count);
             for (int i = 0; i < count; i++)
             {
                 string header = Headers[i];

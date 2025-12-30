@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -707,7 +705,5 @@ namespace Triggernometry.Core;
     [XmlAttribute]
     public int LogFlattenMaxCount { get; set; }=114514;
     [XmlAttribute]
-    public List<string> PScriptsDisabled { get; set; } = [];
-    [XmlAttribute]
-    public List<string> PModuleDisabled { get; set; } = [];
+    public List<string> PostnamazuModuleDisabled { get; set; } = [];
 }

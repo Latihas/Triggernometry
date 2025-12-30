@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Advanced_Combat_Tracker;
 using Dalamud.Plugin.Services;
 using Triggernometry.UI.CustomControls;
 using Triggernometry.Localization;
@@ -44,12 +45,12 @@ public partial class RealPlugin
         public object pluginObj { get; set; }
         // public Panel PnlInfo { get; set; }
         // public TabPage TabPage { get; set; }
-        // public FileInfo PluginFile { get; set; }
+        // public FileInfo  PluginFile { get; set; }
         // public Label LblTitle { get; set; }
         // public Label LblStatus { get; set; }
         // public Button BtnX { get; set; }
         // public CheckBox CbxEnabled { get; set; }
-        // public string FileVersion { get; set; }
+        public string FileVersion { get; set; } = "99.99.99.99";
         // public string PluginType { get; set; }
     }
 
@@ -144,7 +145,7 @@ public partial class RealPlugin
     private RealPlugin()
     {
         ThreadPool.SetMinThreads(10, 10);
-        PluginBridges.BridgeFFXIV.OnLogEvent += BridgeFFXIV_OnLogEvent;
+        BridgeFFXIV.OnLogEvent += BridgeFFXIV_OnLogEvent;
         _ep = new Endpoint();
         _ep.OnStatusChange += _ep_OnStatusChange;
     }
@@ -267,7 +268,7 @@ public partial class RealPlugin
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
             BackupConfiguration();
             FixDuplicateFolderReferences(null, cfg, null);
-            PluginBridges.BridgeFFXIV.cfg = cfg;
+            BridgeFFXIV.cfg = cfg;
             // start
             /*
             if (cfg.Language != null)
@@ -410,7 +411,7 @@ public partial class RealPlugin
     public void DeInitPlugin()
     {
         // ui?.CloseForms();
-        PluginBridges.BridgeFFXIV.UnsubscribeFromNetworkEvents(this);
+        BridgeFFXIV.UnsubscribeFromNetworkEvents(this);
         if (_ep != null)
         {
             _ep.Stop();
@@ -571,7 +572,7 @@ public partial class RealPlugin
     {
         if (firstevent == true)
         {
-            PluginBridges.BridgeFFXIV.SubscribeToZoneChanged(this);
+            BridgeFFXIV.SubscribeToZoneChanged(this);
             firstevent = false;
         }
         switch (le.Source)
@@ -737,7 +738,7 @@ public partial class RealPlugin
                     // FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/logline", "Log line: ({0})", logLine));
                 }
                 var szone = BridgeFFXIV.ZoneID.ToString();
-                foreach (var script in LoadedScripts.Values)
+                foreach (IScriptBase script in ActGlobals.oFormActMain.ActPlugins.Where(i=>i.isIScriptBase) .Select(i=>i.pluginObj as IScriptBase))
                 {
                     if (!script.Enabled) continue;
                     if (script.RegionIdRegex() == null || script.RegionIdRegex()!.Contains(szone))
@@ -757,7 +758,7 @@ public partial class RealPlugin
     public void ZoneChangeDelegate(uint ZoneID, string ZoneName)
     {
         // PluginBridges.BridgeFFXIV.ZoneID = ZoneID;
-        PluginBridges.BridgeFFXIV.UpdateState(); // fix player id, etc. after travelling to a new server
+        BridgeFFXIV.UpdateState(); // fix player id, etc. after travelling to a new server
         FFXIV.Entity.UpdateMySnapshot();
         ZoneChanged(currentZone);
     }
@@ -824,6 +825,4 @@ public partial class RealPlugin
 
     public VariableStore GetVariableStore(bool isPersistent)
         => isPersistent ? cfg.PersistentVariables : sessionvars;
-
-    public static Dictionary<string, IScriptBase> LoadedScripts = [];
 }
