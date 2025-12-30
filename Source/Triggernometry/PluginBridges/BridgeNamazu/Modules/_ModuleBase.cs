@@ -15,7 +15,7 @@ public abstract class ModuleBase
     public static NamazuPlugin Plugin => BridgeNamazu.NamazuPlugin;
     public static NamazuScanner Scanner => Plugin?.SigScanner;
 
-    public System.Action ScanMethod;
+    public Action ScanMethod;
 
     public void Scan()
     {
@@ -26,8 +26,8 @@ public abstract class ModuleBase
     public void CheckBeforeExecution(string command)
     {
         if (!RealPlugin.Instance.cfg.EnableModuleBase
-            || RealPlugin.Instance.cfg.PModuleDisabled.Contains(command)
-            || RealPlugin.Instance.cfg.PModuleDisabled.Contains(GetType().Name))
+            || RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(command)
+            || RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(GetType().Name))
             throw new Exception($"[鲶鱼精邮差扩展] {command} 指令执行因ModuleBase禁用而禁用。");
     }
 

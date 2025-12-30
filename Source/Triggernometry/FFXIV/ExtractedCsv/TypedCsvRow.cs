@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
-using Triggernometry.Utilities;
-
-namespace Triggernometry.FFXIV.ExtractedCsv
+﻿namespace Triggernometry.FFXIV.ExtractedCsv
 {
     public abstract class TypedCsvRow : CsvRow
     {

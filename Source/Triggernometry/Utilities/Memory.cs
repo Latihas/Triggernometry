@@ -85,7 +85,7 @@ namespace Triggernometry.Utilities
 
         internal static void OnXivProcUpdated()
         {
-            Triggernometry.FFXIV.GameLanguage.ScanOffsets();
+            FFXIV.GameLanguage.ScanOffsets();
             foreach (var action in _xivProcUpdatedActions.Values)
             {
                 try { action.Invoke(); }
@@ -103,10 +103,10 @@ namespace Triggernometry.Utilities
             }
         }
 
-        private static Dictionary<string, System.Action> _xivProcUpdatedActions = new Dictionary<string, System.Action>();
+        private static Dictionary<string, Action> _xivProcUpdatedActions = new Dictionary<string, Action>();
 
         // could be used in scripts
-        public static void RegisterXivProcUpdatedAction(string key, System.Action action)
+        public static void RegisterXivProcUpdatedAction(string key, Action action)
         {
             _xivProcUpdatedActions[key] = action;
         }

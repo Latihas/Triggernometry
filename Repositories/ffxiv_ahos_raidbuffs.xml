@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<TriggernometryExport Version="1">
-  <ExportedTrigger Enabled="true" IsReadme="True" Name="PLEASE RE-ADD THIS REPO" Id="2e73aa00-1431-4ffd-8b4c-abe8d461d56b" RegularExpression="PLEASE RE-ADD THIS REPO" Description="PLEASE RE-ADD THIS REPO&#xD;&#xA;(It has been moved to another github repo for various reasons, please re-add them for them to work properly)">
-    <Actions />
-    <Condition Enabled="false" Grouping="Or" />
-    <Conditions />
-  </ExportedTrigger>
-</TriggernometryExport>

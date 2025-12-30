@@ -1,12 +1,4 @@
 ﻿using Scarborough.Drawing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using Triggernometry.Core;
 
 namespace Scarborough
@@ -19,8 +11,8 @@ namespace Scarborough
         internal bool NeedFont { get; set; }
         internal string FontName { get; set; }
 
-        private Triggernometry.Core.ActionOld.TextAuraAlignmentEnum _TextAlignment;
-        internal Triggernometry.Core.ActionOld.TextAuraAlignmentEnum TextAlignment
+        private ActionOld.TextAuraAlignmentEnum _TextAlignment;
+        internal ActionOld.TextAuraAlignmentEnum TextAlignment
         {
             get
             {
@@ -258,33 +250,33 @@ namespace Scarborough
             SharpDX.DirectWrite.TextAlignment ta = SharpDX.DirectWrite.TextAlignment.Center;
             switch (TextAlignment)
             {
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.TopLeft:
+                case ActionOld.TextAuraAlignmentEnum.TopLeft:
                     pa = SharpDX.DirectWrite.ParagraphAlignment.Near;
                     ta = SharpDX.DirectWrite.TextAlignment.Leading;
                     break;
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.TopCenter:
+                case ActionOld.TextAuraAlignmentEnum.TopCenter:
                     pa = SharpDX.DirectWrite.ParagraphAlignment.Near;
                     break;
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.TopRight:
+                case ActionOld.TextAuraAlignmentEnum.TopRight:
                     pa = SharpDX.DirectWrite.ParagraphAlignment.Near;
                     ta = SharpDX.DirectWrite.TextAlignment.Trailing;
                     break;
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.MiddleLeft:
+                case ActionOld.TextAuraAlignmentEnum.MiddleLeft:
                     ta = SharpDX.DirectWrite.TextAlignment.Leading;
                     break;
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.MiddleCenter:
+                case ActionOld.TextAuraAlignmentEnum.MiddleCenter:
                     break;
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.MiddleRight:
+                case ActionOld.TextAuraAlignmentEnum.MiddleRight:
                     ta = SharpDX.DirectWrite.TextAlignment.Trailing;
                     break;
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.BottomLeft:
+                case ActionOld.TextAuraAlignmentEnum.BottomLeft:
                     pa = SharpDX.DirectWrite.ParagraphAlignment.Far;
                     ta = SharpDX.DirectWrite.TextAlignment.Leading;
                     break;
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.BottomCenter:
+                case ActionOld.TextAuraAlignmentEnum.BottomCenter:
                     pa = SharpDX.DirectWrite.ParagraphAlignment.Far;
                     break;
-                case Triggernometry.Core.ActionOld.TextAuraAlignmentEnum.BottomRight:
+                case ActionOld.TextAuraAlignmentEnum.BottomRight:
                     pa = SharpDX.DirectWrite.ParagraphAlignment.Far;
                     ta = SharpDX.DirectWrite.TextAlignment.Trailing;
                     break;

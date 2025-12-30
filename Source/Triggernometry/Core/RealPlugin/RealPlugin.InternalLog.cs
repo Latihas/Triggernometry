@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Triggernometry.Expressions.String.Utils;
+using Advanced_Combat_Tracker;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
@@ -85,6 +85,7 @@ public partial class RealPlugin
             queue.Enqueue(il);
             if (queue.Count > 30000) queue.Dequeue();
             logFlattenTrn.Enqueue(il);
+            ActGlobals.oFormActMain.TrnLogQueue.Enqueue(il.ToString());
             if (cfg != null && logFlattenTrn.Count > cfg.LogFlattenMaxCount) logFlattenTrn.Dequeue();
         }
     }

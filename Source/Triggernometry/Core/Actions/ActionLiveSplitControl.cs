@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;
@@ -107,7 +106,7 @@ namespace Triggernometry.Core.Actions
             {
                 if (LiveSplitConnector(ctx) != true)
                 {
-                    AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/lscontrolerror", "Can't execute LiveSplit control action due to error"));
+                    AddToLog(ctx, DebugLevelEnum.Warning, I18n.Translate("internal/Action/lscontrolerror", "Can't execute LiveSplit control action due to error"));
                     return;
                 }
                 try
@@ -146,7 +145,7 @@ namespace Triggernometry.Core.Actions
                 }
                 catch (Exception ex)
                 {
-                    AddToLog(ctx, RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/Action/lscontrolexception", "Can't execute LiveSplit control action due to exception: " + ex.Message));
+                    AddToLog(ctx, DebugLevelEnum.Error, I18n.Translate("internal/Action/lscontrolexception", "Can't execute LiveSplit control action due to exception: " + ex.Message));
                 }
             }
         }

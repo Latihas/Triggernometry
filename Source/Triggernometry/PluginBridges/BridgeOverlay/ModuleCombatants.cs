@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Triggernometry.FFXIV;
-using System.Text;
-using Triggernometry.Localization;
+using RainbowMage.OverlayPlugin.MemoryProcessors;
+using RainbowMage.OverlayPlugin.MemoryProcessors.Combatant;
 using Triggernometry.Core;
+using Triggernometry.FFXIV;
+using Triggernometry.Localization;
+using ModelStatus = Triggernometry.FFXIV.ModelStatus;
+using MonsterType = Triggernometry.FFXIV.MonsterType;
+using ObjectStatus = Triggernometry.FFXIV.ObjectStatus;
 
 
 namespace Triggernometry.PluginBridges
@@ -20,25 +22,12 @@ namespace Triggernometry.PluginBridges
         /// null: Before initialization
         /// </summary>
         public static bool? Ready;
-        private static object _combatantMemoryManager;
-
-        private static MethodInfo _getCombatantListMethod;
-
-        private static object _currentCombatantMemory;
-
-        private static FieldInfo _memoryField;
-        private static dynamic memory => _memoryField.GetValue(_currentCombatantMemory);
-
-        private static FieldInfo _charmapAddressField;
-        private static IntPtr charmapAddress => (IntPtr)_charmapAddressField.GetValue(_currentCombatantMemory);
-
-        private static FieldInfo _numMemoryCombatantsField;
-        private static int numMemoryCombatants => (int)_numMemoryCombatantsField.GetValue(_currentCombatantMemory);
-
-        private static FieldInfo _combatantSizeField;
-        private static int combatantSize => (int)_combatantSizeField.GetValue(_currentCombatantMemory);
-
-        private static MethodInfo _getMobFromByteArrayMethod;
+        private static dynamic _combatantMemoryManager;
+        private static dynamic _currentCombatantMemory;
+        private static FFXIVMemory memory => _currentCombatantMemory.memory;
+        private static IntPtr charmapAddress => _currentCombatantMemory.charmapAddress;
+        private static int numMemoryCombatants => _currentCombatantMemory.numMemoryCombatants;
+        private static int combatantSize => _currentCombatantMemory.combatantSize;
 
         static ModuleCombatants()
         {
@@ -49,21 +38,20 @@ namespace Triggernometry.PluginBridges
         {
             try
             {
-                _combatantMemoryManager = BridgeOverlay.Container.Resolve($"RainbowMage.OverlayPlugin.MemoryProcessors.Combatant.ICombatantMemory, OverlayPlugin.Core");
-                _getCombatantListMethod = _combatantMemoryManager.GetType().GetMethod("GetCombatantList", BindingFlags.Public | BindingFlags.Instance)
-                    ?? throw new ReflectionNotFoundException("CombatantMemoryManager.GetCombatantList");
-
-                var _currentCombatantMemoryField = _combatantMemoryManager.GetType().GetField("memory", BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?? throw new ReflectionNotFoundException("CombatantMemoryManager.memory");
-                
-                _currentCombatantMemory = _currentCombatantMemoryField.GetValue(_combatantMemoryManager);
+                _combatantMemoryManager = BridgeOverlay.Container.Resolve<ICombatantMemory>();
+                _currentCombatantMemory = _combatantMemoryManager.memory;
                 if (_currentCombatantMemory == null) // OverlayPlugin is still scanning memory
                 {
-                    Ready = false;
-                    RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate(
-                        "internal/BridgeOverlay/moduleCombatantsNotReady",
-                        "OverlayPlugin combatant memory is not ready. Could not retrieve entities via OverlayPlugin yet, will retry later."));
-                    return;
+                    _combatantMemoryManager.ScanPointers();
+                    _currentCombatantMemory = _combatantMemoryManager.memory;
+                    if (_currentCombatantMemory == null)
+                    {
+                        Ready = false;
+                        RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate(
+                                                                   "internal/BridgeOverlay/moduleCombatantsNotReady",
+                                                                   "OverlayPlugin combatant memory is not ready. Could not retrieve entities via OverlayPlugin yet, will retry later."));
+                        return;
+                    }
                 }
                 if (Ready == false) // previously not ready (has generated the warning above)
                 {
@@ -72,18 +60,6 @@ namespace Triggernometry.PluginBridges
                         "OverlayPlugin combatant memory is ready."));
                 }
                 Ready = true;
-
-                var combatantMemoryType = _currentCombatantMemory.GetType().BaseType;
-                _memoryField = combatantMemoryType.GetField("memory", BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?? throw new ReflectionNotFoundException("CombatantMemory.memory");
-                _charmapAddressField = combatantMemoryType.GetField("charmapAddress", BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?? throw new ReflectionNotFoundException("CombatantMemory.charmapAddress");
-                _numMemoryCombatantsField = combatantMemoryType.GetField("numMemoryCombatants", BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?? throw new ReflectionNotFoundException("CombatantMemory.numMemoryCombatants");
-                _combatantSizeField = combatantMemoryType.GetField("combatantSize", BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?? throw new ReflectionNotFoundException("CombatantMemory.combatantSize");
-                _getMobFromByteArrayMethod = combatantMemoryType.GetMethod("GetMobFromByteArray", BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?? throw new ReflectionNotFoundException("CombatantMemory.GetMobFromByteArray");
             }
             catch (Exception ex)
             {
@@ -115,13 +91,13 @@ namespace Triggernometry.PluginBridges
         const int ptrSize = 8;  // Int64 pointer size
 
         /// <returns>Empty if Overlay is not ready.</returns>
-        internal static IEnumerable<FFXIV.Entity> InternalGetEntities()
+        internal static IEnumerable<Entity> InternalGetEntities()
         {
             if (!BridgeOverlay.Ready) yield break;
-            if (BridgeOverlay.Ready && ModuleCombatants.Ready == false)
+            if (BridgeOverlay.Ready && Ready == false)
             {
-                ModuleCombatants.Initialize();
-                if (ModuleCombatants.Ready == false)
+                Initialize();
+                if (Ready == false)
                 {
                     yield break;
                 }
@@ -141,7 +117,7 @@ namespace Triggernometry.PluginBridges
                 dynamic combatant = GetMobFromByteArray(c, 0);
                 if (combatant == null || seen.Contains(combatant.ID))
                     continue;
-                FFXIV.Entity entity = new OpEntity(combatant, p);
+                Entity entity = new OpEntity(combatant, p);
                 seen.Add(entity.ID);
                 yield return entity;
             }
@@ -158,23 +134,23 @@ namespace Triggernometry.PluginBridges
         /// <returns>Null if not found.</returns>
         private static dynamic GetMobFromByteArray(byte[] source, uint mycharID)
         {
-            return _getMobFromByteArrayMethod.Invoke(_currentCombatantMemory, new object[] { source, mycharID });
+            return _currentCombatantMemory.GetMobFromByteArray( source, mycharID);
         }
 
         /// <returns>OpEntity.NullEntity() if not found.</returns>
-        internal static FFXIV.Entity InternalGetEntityByID(uint id)
+        internal static Entity InternalGetEntityByID(uint id)
         {
             return InternalGetEntities().FirstOrDefault(entity => entity.ID == id) ?? OpEntity.NullEntity();
         }
 
         /// <returns>OpEntity.NullEntity() if not found.</returns>
-        internal static FFXIV.Entity InternalGetMyself()
+        internal static Entity InternalGetMyself()
         {
             return InternalGetEntities().FirstOrDefault() ?? OpEntity.NullEntity();
         }
 
         // OverlayPlugin/OverlayPlugin.Core/MemoryProcessors/Combatant/Common.cs
-        public class OpEntity : FFXIV.Entity
+        public class OpEntity : Entity
         {
             private readonly dynamic _entity; // the original combatant object from OverlayPlugin, properties DO NOT change over time
             public override PluginSource PluginSource { get; set; } = PluginSource.OverlayPlugin;
@@ -202,7 +178,7 @@ namespace Triggernometry.PluginBridges
             public override ushort CurrentGP => _entity.CurrentGP;
             public override ushort MaxGP => _entity.MaxGP;
             public override short TransformationID => _entity.TransformationId;
-            public override Job Job => FFXIV.Job.TryGetJob(_entity.Job/*numeric id*/, out Job result) ? result : FFXIV.Job.GetJob(0);
+            public override Job Job => FFXIV.Job.TryGetJob(_entity.Job/*numeric id*/, out Job result) ? result : Job.GetJob(0);
             public override byte Level => _entity.Level;
             public override MonsterType MonsterType { get; set; }  //=> _entity.MonsterType; (not updated yet)
             public override bool IsEnemy { get; set; }  //=> _entity.IsEnemy; (not updated yet)
@@ -217,7 +193,7 @@ namespace Triggernometry.PluginBridges
                         var xivCombatant = BridgeFFXIV.GetIdEntity(HexID);
                         return xivCombatant.GetValue("inparty").ToString() == "1";
                     }
-                    else return false;
+                    return false;
                 }
             }
             public override bool InAlliance // (not updated yet)
@@ -229,7 +205,7 @@ namespace Triggernometry.PluginBridges
                         var xivCombatant = BridgeFFXIV.GetIdEntity(HexID);
                         return xivCombatant.GetValue("inalliance").ToString() == "1";
                     }
-                    else return false;
+                    return false;
                 }
             }
             // public override bool IsFriend => _entity.IsFriend;
@@ -249,7 +225,7 @@ namespace Triggernometry.PluginBridges
                     // Overlay 现在有 bug！（修了？）
                     if (_entity.Effects is IEnumerable<dynamic> opEffects)
                         return opEffects.Select(e => (Status)new OpStatus(e, this)).ToList();
-                    else return new List<Status>();
+                    return new List<Status>();
                 }
             }
             public override bool IsCasting => (_entity.IsCasting1 & 1) == 1;
@@ -268,7 +244,7 @@ namespace Triggernometry.PluginBridges
                 Address = address;
             }
 
-            internal new static FFXIV.Entity NullEntity() => new FFXIV.Entity()
+            internal new static Entity NullEntity() => new Entity
             { 
                 Exist = false,
                 PluginSource = PluginSource.OverlayPlugin,
@@ -287,10 +263,10 @@ namespace Triggernometry.PluginBridges
             public override float Timer => _rawEffectEntry.Timer;
             public override uint SourceID => _rawEffectEntry.ActorID;
 
-            private readonly FFXIV.Entity _target;
-            public override FFXIV.Entity Target => _target;
+            private readonly Entity _target;
+            public override Entity Target => _target;
 
-            public OpStatus(dynamic opEffectEntry, FFXIV.Entity target)
+            public OpStatus(dynamic opEffectEntry, Entity target)
             {
                 _rawEffectEntry = opEffectEntry;
                 _target = target;

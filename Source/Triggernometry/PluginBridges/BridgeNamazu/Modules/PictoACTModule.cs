@@ -12,7 +12,7 @@ using static System.Math;
 using Triggernometry.Utilities.Maths;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
-using static Triggernometry.Expressions.String.Utils.DataStringHelper;
+using static DataStringHelper;
 
 /// <summary>
 /// 基于 VfxModule

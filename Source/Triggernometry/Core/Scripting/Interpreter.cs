@@ -1,5 +1,4 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
@@ -47,7 +46,7 @@ namespace Triggernometry.Core.Scripting
 
         public void Evaluate(string rawScript, string extraAssembliesInput, Context ctx)
         {
-            if (!CSharpScriptCompiler.CompileScript(rawScript))
+            if (!CSharpScriptCompiler.CompileScript(rawScript,true))
                 return;
             try
             {

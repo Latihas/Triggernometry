@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
-
-namespace Triggernometry.FFXIV.ExtractedCsv.Rows
+﻿namespace Triggernometry.FFXIV.ExtractedCsv.Rows
 {
     public class BNpcBase : TypedCsvRow
     {

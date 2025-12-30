@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Conditions;
 using Triggernometry.Core.Serialization;

@@ -35,7 +35,6 @@ using System.Collections.Specialized;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
-using WebSocketSharp;
 
 namespace WebSocketSharp.Net
 {

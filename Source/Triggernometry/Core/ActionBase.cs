@@ -563,7 +563,7 @@ namespace Triggernometry.Core
                 return;
             }
             Context ctx = ai.ctx;
-            if ((ctx.forceType & ActionOld.TriggerForceTypeEnum.SkipConditions) == 0 && ctx.testByPlaceholder == false)
+            if ((ctx.forceType & TriggerForceTypeEnum.SkipConditions) == 0 && ctx.testByPlaceholder == false)
             {
                 if (Condition != null && Condition.Enabled == true)
                 {
@@ -725,7 +725,7 @@ namespace Triggernometry.Core
             }
         }
 
-        protected Tuple<int, string> SendJson(Context ctx, ActionOld.HTTPMethodEnum method, string url, string json, IEnumerable<string> headers, bool expectNoContent)
+        protected Tuple<int, string> SendJson(Context ctx, HTTPMethodEnum method, string url, string json, IEnumerable<string> headers, bool expectNoContent)
         {
             try
             {

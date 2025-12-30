@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Reflection;
+using RainbowMage.OverlayPlugin;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 
@@ -12,9 +12,8 @@ public static class BridgeOverlay
     public const string PluginType = "RainbowMage.OverlayPlugin.PluginLoader";
 
     public static bool Ready;
-    public static dynamic OverlayPlugin;
-    public static object Container;
-    private static MethodInfo _resolveMethodGeneric;
+    public static PluginMain OverlayPlugin;
+    public static TinyIoCContainer Container;
 
     static BridgeOverlay()
     {
@@ -23,8 +22,7 @@ public static class BridgeOverlay
 
     public static void Initialize()
     {
-        // WrappedPlugin = RealPlugin.InstanceHook(PluginName, PluginType);
-        dynamic op =OverlayPlugin=ProxyPlugin.DalamudPlugin.OverlayPlugin;
+        PluginMain op =OverlayPlugin=ProxyPlugin.DalamudPlugin.OverlayPlugin;
         if (op == null)
         { 
             RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not found");
@@ -36,8 +34,6 @@ public static class BridgeOverlay
         try
         {
             Container = op._container;
-            _resolveMethodGeneric = Container.GetType().GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null)
-                                    ?? throw new ReflectionNotFoundException("ResolveMethodGeneric");
             Ready = true;
         }
         catch (Exception ex)
@@ -51,15 +47,15 @@ public static class BridgeOverlay
         }
     }
 
-    public static object Resolve(this object container, string typeName)
-    {
-        Type type = Type.GetType(typeName)
-                    ?? throw new ReflectionNotFoundException($"{typeName} type");
-        MethodInfo resolveMethodSpecific = _resolveMethodGeneric.MakeGenericMethod(type);
-        object resolvedInstance = resolveMethodSpecific.Invoke(container, null) 
-                                  ?? throw new ReflectionNotFoundException($"{typeName} instance");
-        return resolvedInstance;
-    }
+    // public static object Resolve(this TinyIoCContainer container, string typeName)
+    // {
+        // Type type = Type.GetType(typeName)
+        //             ?? throw new ReflectionNotFoundException($"{typeName} type");
+        // MethodInfo resolveMethodSpecific = _resolveMethodGeneric.MakeGenericMethod(type);
+        // object resolvedInstance = resolveMethodSpecific.Invoke(container, null) 
+        //                           ?? throw new ReflectionNotFoundException($"{typeName} instance");
+        // return container.Resolve(typeName);
+    // }
 
 }
 

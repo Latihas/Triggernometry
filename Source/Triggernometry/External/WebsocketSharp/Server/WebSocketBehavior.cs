@@ -28,7 +28,6 @@
 
 using System;
 using System.IO;
-using WebSocketSharp;
 using WebSocketSharp.Net;
 using WebSocketSharp.Net.Websockets;
 

@@ -686,7 +686,7 @@ public static class BridgeFFXIV
         return allEntities;
     }
 
-    public class XivEntity : FFXIV.Entity
+    public class XivEntity : Entity
     {
         private readonly dynamic _entity; // the original combatant object from FFXIV_ACT_Plugin, properties change over time
         public override PluginSource PluginSource { get; set; } = PluginSource.XivPlugin;
@@ -709,7 +709,7 @@ public static class BridgeFFXIV
         public override ushort MaxCP => (ushort)_entity.MaxCP;         // uint
         public override ushort CurrentGP => (ushort)_entity.CurrentGP; // uint
         public override ushort MaxGP => (ushort)_entity.MaxGP;         // uint
-        public override Job Job => FFXIV.Job.TryGetJob(_entity.Job/*int*/, out Job result) ? result : FFXIV.Job.GetJob(0);
+        public override Job Job => FFXIV.Job.TryGetJob(_entity.Job/*int*/, out Job result) ? result : Job.GetJob(0);
         public override byte Level => (byte)_entity.Level; // int
         //public override bool InCombat { get; set; }
         public override bool InParty => (int)_entity.PartyType == 1;
@@ -745,7 +745,7 @@ public static class BridgeFFXIV
             _entity = xivEntity;
         }
 
-        internal new static FFXIV.Entity NullEntity() => new FFXIV.Entity()
+        internal new static Entity NullEntity() => new Entity()
         {
             Exist = false,
             PluginSource = PluginSource.XivPlugin,
@@ -804,9 +804,9 @@ public static class BridgeFFXIV
         public override float Timer => Duration - (float)(DateTime.Now - Timestamp).TotalSeconds;
         public override uint SourceID => _networkBuff.ActorID;
 
-        private readonly FFXIV.Entity _target;
-        public override FFXIV.Entity Target => _target;
-        public XivStatus(dynamic networkBuff, FFXIV.Entity target)
+        private readonly Entity _target;
+        public override Entity Target => _target;
+        public XivStatus(dynamic networkBuff, Entity target)
         {
             _networkBuff = networkBuff;
             _target = target;
@@ -827,7 +827,7 @@ public static class BridgeFFXIV
          */
     }
 
-    internal static IEnumerable<FFXIV.Entity> InternalGetEntities()
+    internal static IEnumerable<Entity> InternalGetEntities()
     {
         try
         {
@@ -838,7 +838,7 @@ public static class BridgeFFXIV
                 PropertyInfo pi = GetDataRepository(plug);
                 CombatantData cd = GetCombatants(plug, pi);
                 var combatants = cd.Combatants as IEnumerable<dynamic>;
-                return combatants.Select(c => (FFXIV.Entity)new XivEntity(c));
+                return combatants.Select(c => (Entity)new XivEntity(c));
             }
         }
         catch (Exception ex)
@@ -846,17 +846,17 @@ public static class BridgeFFXIV
             LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/allentitiesexception", 
                                                                        "Exception in FFXIV all entities retrieve: {0}", ex.Message));
         }
-        return Enumerable.Empty<FFXIV.Entity>();
+        return Enumerable.Empty<Entity>();
     }
 
     /// <returns>XivEntity.NullEntity() if not found.</returns>
-    internal static FFXIV.Entity InternalGetEntityByID(uint id)
+    internal static Entity InternalGetEntityByID(uint id)
     {
         return InternalGetEntities().FirstOrDefault(entity => entity.ID == id) ?? XivEntity.NullEntity();
     }
 
     /// <returns>XivEntity.NullEntity() if not found.</returns>
-    internal static FFXIV.Entity InternalGetMyself()
+    internal static Entity InternalGetMyself()
     {
         return InternalGetEntities().FirstOrDefault() ?? XivEntity.NullEntity();
     }

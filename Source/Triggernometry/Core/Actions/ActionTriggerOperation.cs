@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;
@@ -277,7 +276,7 @@ namespace Triggernometry.Core.Actions
 
         internal override string DescribeImplementation()
         {
-            Trigger t = RealPlugin.Instance.GetTriggerById(TriggerId, ParentTrigger?.Repo);
+            Trigger t = Instance.GetTriggerById(TriggerId, ParentTrigger?.Repo);
             if (t == null && Operation != OperationEnum.CancelAllTrigger)
             {
                 return I18n.Translate("internal/Action/desctriginvalidref", "trigger action with an invalid trigger reference ({0})", TriggerId);

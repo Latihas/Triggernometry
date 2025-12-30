@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Triggernometry.Core.Variables;
-
-namespace Triggernometry.Core.Scripting
+﻿namespace Triggernometry.Core.Scripting
 {
     public class ScriptGlobs
     {

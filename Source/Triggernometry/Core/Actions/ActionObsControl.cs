@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;
@@ -196,7 +195,7 @@ namespace Triggernometry.Core.Actions
             }
             else
             {
-                var constants = RealPlugin.Instance.cfg.Constants;
+                var constants = Instance.cfg.Constants;
                 if (constants.TryGetValue("OBSWebsocketEndpoint", out var e) && constants.TryGetValue("OBSWebsocketPort", out var p))
                     endpoint = $"ws://{e}:{p}";
             }
@@ -208,7 +207,7 @@ namespace Triggernometry.Core.Actions
             }
             else
             {
-                var constants = RealPlugin.Instance.cfg.Constants;
+                var constants = Instance.cfg.Constants;
                 if (constants.TryGetValue("OBSWebsocketPassword", out var pw))
                     password = pw.ToString();
             }
@@ -298,7 +297,7 @@ namespace Triggernometry.Core.Actions
                 }
                 catch (Exception ex)
                 {
-                    AddToLog(ctx, RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/Action/obscontrolexception", 
+                    AddToLog(ctx, DebugLevelEnum.Error, I18n.Translate("internal/Action/obscontrolexception", 
                         "Can't execute OBS control action due to exception: {0}", ex.Message));
                 }
             }
@@ -330,13 +329,13 @@ namespace Triggernometry.Core.Actions
                 try
                 {
                     obsController.Connect(endpoint, password);
-                    AddToLog(ctx, RealPlugin.DebugLevelEnum.Info, I18n.Translate("internal/Action/obsconnectok",
+                    AddToLog(ctx, DebugLevelEnum.Info, I18n.Translate("internal/Action/obsconnectok",
                         "OBS WebSocket connected successfully"));
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    AddToLog(ctx, RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/Action/obsconnecterror",
+                    AddToLog(ctx, DebugLevelEnum.Error, I18n.Translate("internal/Action/obsconnecterror",
                         "Error connecting to OBS WebSocket: {0}", ex.Message));
                     return false;
                 }

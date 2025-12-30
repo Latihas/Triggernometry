@@ -2,8 +2,6 @@
 using System.Text.Json;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
-using System.Globalization;
 
 namespace Triggernometry.Utilities
 {

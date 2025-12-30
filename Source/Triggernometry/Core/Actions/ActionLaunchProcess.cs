@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Windows.Forms;
+﻿using System.Diagnostics;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;

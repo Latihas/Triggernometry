@@ -48,7 +48,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
-using WebSocketSharp;
 
 namespace WebSocketSharp.Net
 {

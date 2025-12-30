@@ -41,8 +41,6 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Principal;
 using System.Text;
-using WebSocketSharp;
-using WebSocketSharp.Net;
 
 namespace WebSocketSharp.Net.Websockets
 {

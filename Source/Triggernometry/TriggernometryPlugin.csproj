@@ -13,6 +13,7 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\..\NotACT\NotACT.csproj" />
+        <ProjectReference Include="..\..\..\OverlayPlugin.Core\OverlayPlugin.Core.csproj" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="ChineseConverter" Version="1.0.0" />

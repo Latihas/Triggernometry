@@ -75,7 +75,7 @@ public class NamazuPlugin
         ExecuteWithForcedModuleState(moduleName, () => DoAction(command, payload));
     }
 
-    public void ExecuteWithForcedModuleState(string moduleName, System.Action visitor)
+    public void ExecuteWithForcedModuleState(string moduleName, Action visitor)
     {
         if (!ActionEnabled.TryGetValue(moduleName, out bool enabled))
         {

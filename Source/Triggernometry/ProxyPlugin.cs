@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Threading;
 using System.Windows.Forms;
 using Advanced_Combat_Tracker;
@@ -13,13 +11,12 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Triggernometry.Core;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
-using Triggernometry.PScript;
 
 // using Costura;
 
 namespace Triggernometry;
 
-public class ProxyPlugin
+public class ProxyPlugin:IActPluginV1
 {
     public RealPlugin Instance;
 
@@ -194,40 +191,9 @@ public class ProxyPlugin
         // ActGlobals.oFormActMain.OnCombatStart += OFormActMain_OnCombatStart;
         // ActGlobals.oFormActMain.OnCombatEnd += OFormActMain_OnCombatEnd;
         Instance.InitPlugin();
-        foreach (string rt in Directory.GetFiles(Path.Combine(PluginInterface.ConfigDirectory.ToString(), "PScript"), "*.cs", SearchOption.TopDirectoryOnly))
-            LoadPScript(Path.GetFileNameWithoutExtension(rt));
     }
 
-    public static void LoadPScript(string t)
-    {
-        try
-        {
-            var rs = File.ReadAllText(Path.Combine(PluginInterface.ConfigDirectory.ToString(), "PScript", t + ".cs"));
-            if (CSharpScriptCompiler.CompileScript(rs))
-            {
-                Assembly asm;
-                using (var memoryStream = new MemoryStream(File.ReadAllBytes(CSharpScriptCompiler.GetScriptDllPath(rs))))
-                    asm = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly())!.LoadFromStream(memoryStream);
-                Type targetInterface = typeof(IScriptBase);
-                var scriptTypes = asm.GetTypes()
-                                     .Where(type => type is { IsAbstract: false, IsInterface: false } && targetInterface.IsAssignableFrom(type))
-                                     .ToList();
-                foreach (var type in scriptTypes)
-                {
-                    var instance = Activator.CreateInstance(type);
-                    if (instance is IScriptBase scriptInstance)
-                    {
-                        scriptInstance.Enabled = !RealPlugin.Instance.cfg.PScriptsDisabled.Contains(t);
-                        RealPlugin.LoadedScripts[t] = scriptInstance;
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"PScript {t} 载入失败: {ex}");
-        }
-    }
+   
     // private void OFormActMain_OnCombatStart(bool isImport, CombatToggleEventArgs encounterInfo)
     // {
     //     ExtendedACTEvents(new string[] { "OnCombatStart" });
@@ -322,6 +288,10 @@ public class ProxyPlugin
         // }
     }
 
+    public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
+    {
+    }
+
     public void DeInitPlugin()
     {
         // ActGlobals.oFormActMain.OnCombatEnd -= OFormActMain_OnCombatEnd;
@@ -387,7 +357,7 @@ public class ProxyPlugin
     {
         if (inCombat)
         {
-            string myName = Triggernometry.PluginBridges.BridgeFFXIV.GetMyself()?.GetValue("name").ToString() ?? "Player";
+            string myName = PluginBridges.BridgeFFXIV.GetMyself()?.GetValue("name").ToString() ?? "Player";
             ActGlobals.oFormActMain.SetEncounter(DateTime.Now, myName, myName);
         }
         else

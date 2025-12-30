@@ -187,7 +187,7 @@ namespace Triggernometry.Expressions.String.Parsers
 
                 // ===== Misc =====
                 case "_clipboard":
-                    return Core.ActionOld.ClipboardGetText();
+                    return ActionOld.ClipboardGetText();
 
                 default: 
                     break;

@@ -33,7 +33,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using WebSocketSharp.Net;
-using WebSocketSharp;
 
 namespace WebSocketSharp
 {

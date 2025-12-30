@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using RainbowMage.OverlayPlugin.MemoryProcessors.Party;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 
@@ -14,16 +11,13 @@ namespace Triggernometry.PluginBridges
     internal static class ModuleAlliance
     {
         public static bool Ready; 
-        private static object _partyMemoryManager;
-        private static MethodInfo _getPartyListsMethod;
+        private static IPartyMemory _partyMemoryManager;
 
         static ModuleAlliance()
         {
             try
             {
-                _partyMemoryManager = BridgeOverlay.Container.Resolve($"RainbowMage.OverlayPlugin.MemoryProcessors.Party.IPartyMemory, OverlayPlugin.Core");
-                _getPartyListsMethod = _partyMemoryManager.GetType().GetMethod("GetPartyLists", BindingFlags.Public | BindingFlags.Instance)
-                    ?? throw new Exception("GetPartyListsMethod not found");
+                _partyMemoryManager = BridgeOverlay.Container.Resolve<RainbowMage.OverlayPlugin.MemoryProcessors.Party.IPartyMemory>();
                 Ready = true;
             }
             catch (Exception ex)
@@ -44,7 +38,7 @@ namespace Triggernometry.PluginBridges
                 RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not ready");
                 return new object();
             }
-            var o = _getPartyListsMethod.Invoke(_partyMemoryManager, null);
+            var o = _partyMemoryManager.GetPartyLists();
             return o;
         }
 

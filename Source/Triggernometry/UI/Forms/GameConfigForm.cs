@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Xml.Linq;
 using Triggernometry.Core;
 using Triggernometry.Core.Variables;
 using Triggernometry.Expressions.Maths;
@@ -254,7 +252,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class MyCheckBox : System.Windows.Forms.CheckBox
+        private class MyCheckBox : CheckBox
         {
             public MyCheckBox() : base()
             {
@@ -264,7 +262,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class MyTextBox : System.Windows.Forms.TextBox
+        private class MyTextBox : TextBox
         {
             public MyTextBox() : base()
             {
@@ -274,7 +272,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class MyComboBox : System.Windows.Forms.ComboBox
+        private class MyComboBox : ComboBox
         {
             public MyComboBox() : base()
             {
@@ -293,7 +291,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class MyLabel : System.Windows.Forms.Label
+        private class MyLabel : Label
         {
             public MyLabel() : base()
             {
@@ -303,7 +301,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class MyButton : System.Windows.Forms.Button
+        private class MyButton : Button
         {
             public MyButton() : base()
             {
@@ -314,7 +312,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class SeperatorPanel : System.Windows.Forms.Panel
+        private class SeperatorPanel : Panel
         {
             public SeperatorPanel() : base()
             {
@@ -326,7 +324,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class BackgroundPanel : System.Windows.Forms.Panel
+        private class BackgroundPanel : Panel
         {
             public BackgroundPanel() : base()
             {
@@ -343,7 +341,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class GroupPanel : System.Windows.Forms.Panel
+        private class GroupPanel : Panel
         {
             public GroupPanel() : base()
             {
@@ -354,7 +352,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        public class OptionsTableLayoutPanel : System.Windows.Forms.TableLayoutPanel
+        public class OptionsTableLayoutPanel : TableLayoutPanel
         {
             public OptionsTableLayoutPanel() : base()
             {
@@ -368,7 +366,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class BottomTableLayoutPanel : System.Windows.Forms.TableLayoutPanel
+        private class BottomTableLayoutPanel : TableLayoutPanel
         {
             public BottomTableLayoutPanel() : base()
             {
@@ -377,7 +375,7 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class MyToolTip : System.Windows.Forms.ToolTip
+        private class MyToolTip : ToolTip
         {
             public MyToolTip() : base()
             {
