@@ -15,7 +15,7 @@ namespace Triggernometry.Core.Scripting
     {
         private readonly ScriptOptions _scriptOptions;
 
-        internal bool Ready = false;
+        internal bool Ready;
         internal Interpreter()
         {
             _scriptOptions = ScriptOptions.Default.AddImports("System");

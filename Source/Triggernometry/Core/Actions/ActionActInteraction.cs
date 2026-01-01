@@ -54,7 +54,7 @@ namespace Triggernometry.Core.Actions
         /// </summary>
         [XmlIgnore]
         [Action(order: 2)]
-        public bool BoolParam { get; set; } = false;
+        public bool BoolParam { get; set; }
 
         [XmlAttribute("BoolParam")]
         public string Xml_BoolParam

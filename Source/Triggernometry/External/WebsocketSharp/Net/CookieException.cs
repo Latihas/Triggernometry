@@ -93,51 +93,5 @@ namespace WebSocketSharp.Net
     }
 
     #endregion
-
-    #region Public Methods
-
-    /// <summary>
-    /// Populates the specified <see cref="SerializationInfo"/> with the data needed to serialize
-    /// the current <see cref="CookieException"/>.
-    /// </summary>
-    /// <param name="serializationInfo">
-    /// A <see cref="SerializationInfo"/> that holds the serialized object data.
-    /// </param>
-    /// <param name="streamingContext">
-    /// A <see cref="StreamingContext"/> that specifies the destination for the serialization.
-    /// </param>
-    [SecurityPermission (
-      SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-    public override void GetObjectData (
-      SerializationInfo serializationInfo, StreamingContext streamingContext)
-    {
-      base.GetObjectData (serializationInfo, streamingContext);
-    }
-
-    #endregion
-
-    #region Explicit Interface Implementation
-
-    /// <summary>
-    /// Populates the specified <see cref="SerializationInfo"/> with the data needed to serialize
-    /// the current <see cref="CookieException"/>.
-    /// </summary>
-    /// <param name="serializationInfo">
-    /// A <see cref="SerializationInfo"/> that holds the serialized object data.
-    /// </param>
-    /// <param name="streamingContext">
-    /// A <see cref="StreamingContext"/> that specifies the destination for the serialization.
-    /// </param>
-    [SecurityPermission (
-      SecurityAction.LinkDemand,
-      Flags = SecurityPermissionFlag.SerializationFormatter,
-      SerializationFormatter = true)]
-    void ISerializable.GetObjectData (
-      SerializationInfo serializationInfo, StreamingContext streamingContext)
-    {
-      base.GetObjectData (serializationInfo, streamingContext);
-    }
-
-    #endregion
   }
 }

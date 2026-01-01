@@ -273,7 +273,7 @@ namespace Triggernometry.UI.CustomControls
             set => Expression = value;
         }
 
-        private bool _IsPersistent = false;
+        private bool _IsPersistent;
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsPersistent
         {
@@ -375,7 +375,7 @@ namespace Triggernometry.UI.CustomControls
             }
         }
 
-        private static HashSet<string> _currentRegexGroupsAndPrefixes = null;
+        private static HashSet<string> _currentRegexGroupsAndPrefixes;
         private static HashSet<string> CurrentRegexGroupsAndPrefixes
         {
             get // lazy loading
@@ -441,7 +441,7 @@ namespace Triggernometry.UI.CustomControls
         private string CurrentMatch;
         private Timer acfDebounceTimer = new Timer();
 
-        public AutoCompleteForm acf = null;
+        public AutoCompleteForm acf;
 
         // unhide TextChanged on base class
         private EventHandler _TextChanged;
@@ -1140,7 +1140,7 @@ namespace Triggernometry.UI.CustomControls
 
             #region Enhanced Double-Click Selection
 
-            private int clickCount = 0;
+            private int clickCount;
             private DateTime lastClickTime = DateTime.Now;
             private ExpressionTextBox ExpTextBox => Parent as ExpressionTextBox;
 

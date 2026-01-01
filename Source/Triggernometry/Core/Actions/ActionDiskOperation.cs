@@ -88,7 +88,7 @@ namespace Triggernometry.Core.Actions
         /// </summary>
         [XmlIgnore]
         [Action(order: 4)]
-        public bool UseCache { get; set; } = false;
+        public bool UseCache { get; set; }
 
         [XmlAttribute("UseCache")]
         public string Xml_UseCache
@@ -102,7 +102,7 @@ namespace Triggernometry.Core.Actions
         /// </summary>
         [XmlIgnore]
         [Action(order: 5)] // todo need to couple this with variable on editor
-        public bool Persistent { get; set; } = false;
+        public bool Persistent { get; set; }
 
         [XmlAttribute("Persistent")]
         public string Xml_Persistent

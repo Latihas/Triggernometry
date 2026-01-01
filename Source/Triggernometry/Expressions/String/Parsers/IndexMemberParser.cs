@@ -1,7 +1,7 @@
 ﻿using Scarborough;
 using System;
 using System.Linq;
-using System.Web.Script.Serialization;
+using System.Text.Json;
 using Triggernometry.Core;
 using Triggernometry.Expressions.String.Evaluators;
 using Triggernometry.Expressions.String.Models;
@@ -130,8 +130,7 @@ namespace Triggernometry.Expressions.String.Parsers
                 case "_jsonresponse":
                     if (ctx.isContextJsonParsed == false)
                     {
-                        JavaScriptSerializer jsonSerializer = new JavaScriptSerializer();
-                        ctx.contextJsonResponse = jsonSerializer.Deserialize<dynamic>(ctx.contextResponse);
+                        ctx.contextJsonResponse = JsonSerializer.Deserialize<dynamic>(ctx.contextResponse);
                         ctx.isContextJsonParsed = true;
                     }
                     string jsonPath = expr.Index;

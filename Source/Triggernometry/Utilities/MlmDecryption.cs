@@ -20,7 +20,7 @@ namespace Triggernometry.Utilities
 
         private static byte[] ProcessDES(byte[] data, string key, bool isEncrypt)
         {
-            using (DESCryptoServiceProvider cryptoServiceProvider = new DESCryptoServiceProvider())
+            using (var cryptoServiceProvider = DES.Create())
             {
                 byte[] array1 = Md5(key);
                 byte[] array2 = new ArraySegment<byte>(array1, 0, 8).ToArray();

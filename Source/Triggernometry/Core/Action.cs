@@ -97,7 +97,7 @@ namespace Triggernometry.Core
         internal ActionOld NextAction { get; set; } = null;
 
         /// <summary> ѭ���ĸ����� </summary>
-        internal ActionOld LoopAction { get; set; } = null;
+        internal ActionOld LoopAction { get; set; }
         //internal Guid LoopContext { get; set; } = Guid.Empty;
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Triggernometry.Core
 
 
         [XmlIgnore]
-        public Trigger ParentTrigger { get; set; } = null;
+        public Trigger ParentTrigger { get; set; }
 
 
 
@@ -183,7 +183,7 @@ namespace Triggernometry.Core
 
 
         [XmlIgnore]
-        public bool RefireInterrupt { get; set; } = false;
+        public bool RefireInterrupt { get; set; }
 
         [XmlAttribute("RefireInterrupt")]
         public string Xml_RefireInterrupt
@@ -248,7 +248,7 @@ namespace Triggernometry.Core
 
 
         [XmlIgnore]
-        public bool DescriptionOverride { get; set; } = false;
+        public bool DescriptionOverride { get; set; }
 
         [XmlAttribute("DescriptionOverride")]
         public string Xml_DescriptionOverride

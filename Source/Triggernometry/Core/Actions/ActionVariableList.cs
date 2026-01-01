@@ -167,7 +167,7 @@ namespace Triggernometry.Core.Actions
         /// </summary>
         [XmlIgnore]
         [Action(order: 7)] // todo need to couple this with variable on editor
-        public bool Persistent { get; set; } = false;
+        public bool Persistent { get; set; }
 
         [XmlAttribute("Persistent")]
         public string Xml_Persistent
@@ -181,7 +181,7 @@ namespace Triggernometry.Core.Actions
         /// </summary>
         [XmlIgnore]
         [Action(order: 8)] // todo need to couple this with variable on editor
-        public bool TargetPersistent { get; set; } = false;
+        public bool TargetPersistent { get; set; }
 
         [XmlAttribute("TargetPersistent")]
         public string Xml_TargetPersistent

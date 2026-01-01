@@ -45,7 +45,7 @@ namespace Triggernometry.Core
         // ============ ACT Zone Name ============
 
         [XmlIgnore]
-        public bool ZoneFilterEnabled { get; set; } = false;
+        public bool ZoneFilterEnabled { get; set; }
 
         [XmlAttribute("ZoneFilterEnabled")]
         public string Xml_ZoneFilterEnabled
@@ -79,7 +79,7 @@ namespace Triggernometry.Core
         // ============ FFXIV Zone ID ============
 
         [XmlIgnore]
-        public bool FFXIVZoneFilterEnabled { get; set; } = false;
+        public bool FFXIVZoneFilterEnabled { get; set; }
 
         [XmlAttribute("FFXIVZoneFilterEnabled")]
         public string Xml_FFXIVZoneFilterEnabled
@@ -113,7 +113,7 @@ namespace Triggernometry.Core
         // ============ Event Text ============
 
         [XmlIgnore]
-        public bool EventFilterEnabled { get; set; } = false;
+        public bool EventFilterEnabled { get; set; }
 
         [XmlAttribute("EventFilterEnabled")]
         public string Xml_EventFilterEnabled
@@ -147,7 +147,7 @@ namespace Triggernometry.Core
         // ============ FFXIV Job ============
 
         [XmlIgnore]
-        internal bool FFXIVJobFilterEnabled { get; set; } = false;
+        internal bool FFXIVJobFilterEnabled { get; set; }
 
         [XmlAttribute("FFXIVJobFilterEnabled")]
         public string Xml_FFXIVJobFilterEnabled
@@ -157,7 +157,7 @@ namespace Triggernometry.Core
         }
 
         [XmlIgnore]
-        internal long FFXIVJobFilter { get; set; } = 0;
+        internal long FFXIVJobFilter { get; set; }
 
         [XmlAttribute("FFXIVJobFilter")]
         public string Xml_FFXIVJobFilter
@@ -228,7 +228,7 @@ namespace Triggernometry.Core
         // ============ Misc ============
 
         [XmlIgnore]
-        internal bool DescendingSort { get; set; } = false;
+        internal bool DescendingSort { get; set; }
 
         [XmlAttribute("DescendingSort")]
         public string Xml_DescendingSort
@@ -238,7 +238,7 @@ namespace Triggernometry.Core
         }
 
         [XmlIgnore]
-        internal bool ReadOnly { get; set; } = false;
+        internal bool ReadOnly { get; set; }
 
         [XmlAttribute("ReadOnly")]
         public string Xml_ReadOnly
@@ -248,7 +248,7 @@ namespace Triggernometry.Core
         }
 
         [XmlIgnore]
-        internal bool DisableRemoteExpand { get; set; } = false;
+        internal bool DisableRemoteExpand { get; set; }
 
         [XmlAttribute("DisableRemoteExpand")]
         public string Xml_DisableRemoteExpand
@@ -258,7 +258,7 @@ namespace Triggernometry.Core
         }
 
         [XmlIgnore]
-        internal bool DisableRemoteToggle { get; set; } = false;
+        internal bool DisableRemoteToggle { get; set; }
 
         [XmlAttribute("DisableRemoteToggle")]
         public string Xml_DisableRemoteToggle

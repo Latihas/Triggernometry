@@ -2,7 +2,7 @@
 {
     public class ScriptGlobs
     {
-        public ScriptContextHelper TriggernometryHelpers { get; set; } = null;
+        public ScriptContextHelper TriggernometryHelpers { get; set; }
 
         internal ScriptGlobs(Context ctx)
         {

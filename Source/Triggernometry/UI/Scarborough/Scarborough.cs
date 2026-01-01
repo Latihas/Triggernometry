@@ -718,7 +718,7 @@ class Scarborough : IDisposable
     }
 
     DateTime prevTick = DateTime.Now;
-    double lag = 0.0;
+    double lag;
     RenderCollection rc = new();
 
     public void Render(IFramework framework)

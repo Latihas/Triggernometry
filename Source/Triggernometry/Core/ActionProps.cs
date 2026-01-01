@@ -342,7 +342,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _ActOpBoolParam { get; set; } = false;
+        internal bool _ActOpBoolParam { get; set; }
         [XmlAttribute]
         public string ActOpBoolParam
         {
@@ -532,7 +532,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _DictSourcePersist { get; set; } = false;
+        internal bool _DictSourcePersist { get; set; }
         [XmlAttribute]
         public string DictSourcePersist
         {
@@ -546,7 +546,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _DictTargetPersist { get; set; } = false;
+        internal bool _DictTargetPersist { get; set; }
         [XmlAttribute]
         public string DictTargetPersist
         {
@@ -599,7 +599,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _DiscordTts { get; set; } = false;
+        internal bool _DiscordTts { get; set; }
         [XmlAttribute]
         public string DiscordTts
         {
@@ -622,7 +622,7 @@ namespace Triggernometry.Core
 
         internal DiskFileOpEnum _DiskFileOp { get; set; } = DiskFileOpEnum.ReadIntoVariable;
         [XmlAttribute]
-        public string DiskFileOp
+        public string? DiskFileOp
         {
             get
             {
@@ -676,7 +676,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _DiskFileCache { get; set; } = false;
+        internal bool _DiskFileCache { get; set; }
         [XmlAttribute]
         public string DiskFileCache
         {
@@ -694,7 +694,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _DiskPersist { get; set; } = false;
+        internal bool _DiskPersist { get; set; }
         [XmlAttribute]
         public string DiskPersist
         {
@@ -1080,7 +1080,7 @@ namespace Triggernometry.Core
 
         internal HTTPMethodEnum _JsonOperationType { get; set; } = HTTPMethodEnum.POST;
         [XmlAttribute]
-        public string JsonOperationType
+        public string? JsonOperationType
         {
             get
             {
@@ -1096,7 +1096,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _JsonCacheRequest { get; set; } = false;
+        internal bool _JsonCacheRequest { get; set; }
         [XmlAttribute]
         public string JsonCacheRequest
         {
@@ -1204,7 +1204,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _JsonResultVariablePersist { get; set; } = false;
+        internal bool _JsonResultVariablePersist { get; set; }
         [XmlAttribute]
         public string JsonResultVariablePersist
         {
@@ -1227,7 +1227,7 @@ namespace Triggernometry.Core
 
         internal KeypressTypeEnum _KeypressType { get; set; } = KeypressTypeEnum.SendKeys;
         [XmlAttribute]
-        public string KeypressType
+        public string? KeypressType
         {
             get
             {
@@ -1323,7 +1323,7 @@ namespace Triggernometry.Core
 
         internal System.Diagnostics.ProcessWindowStyle _LaunchProcessWindowStyle { get; set; } = System.Diagnostics.ProcessWindowStyle.Normal;
         [XmlAttribute]
-        public string LaunchProcessWindowStyle
+        public string? LaunchProcessWindowStyle
         {
             get
             {
@@ -1513,7 +1513,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _ListSourcePersist { get; set; } = false;
+        internal bool _ListSourcePersist { get; set; }
         [XmlAttribute]
         public string ListSourcePersist
         {
@@ -1531,7 +1531,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _ListTargetPersist { get; set; } = false;
+        internal bool _ListTargetPersist { get; set; }
         [XmlAttribute]
         public string ListTargetPersist
         {
@@ -1554,7 +1554,7 @@ namespace Triggernometry.Core
 
         internal LogEvent.SourceEnum _LogMessageTarget { get; set; } = LogEvent.SourceEnum.Log;
         [XmlAttribute]
-        public string LogMessageTarget
+        public string? LogMessageTarget
         {
             get
             {
@@ -1591,7 +1591,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _LogProcess { get; set; } = false;
+        internal bool _LogProcess { get; set; }
         [XmlAttribute]
         public string LogProcess
         {
@@ -1609,7 +1609,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _LogProcessACT { get; set; } = false;
+        internal bool _LogProcessACT { get; set; }
         [XmlAttribute]
         public string LogProcessACT
         {
@@ -1629,7 +1629,7 @@ namespace Triggernometry.Core
 
         internal LogMessageEnum _LogLevel { get; set; } = LogMessageEnum.Error;
         [XmlAttribute]
-        public string LogLevel
+        public string? LogLevel
         {
             get
             {
@@ -1728,7 +1728,7 @@ namespace Triggernometry.Core
 
         internal MessageBoxIconTypeEnum _MessageBoxIconType { get; set; } = MessageBoxIconTypeEnum.None;
         [XmlAttribute]
-        public string MessageBoxIconType
+        public string? MessageBoxIconType
         {
             get
             {
@@ -1770,7 +1770,7 @@ namespace Triggernometry.Core
 
         internal MouseOpEnum _MouseOpType { get; set; } = MouseOpEnum.Move;
         [XmlAttribute]
-        public string MouseOpType
+        public string? MouseOpType
         {
             get
             {
@@ -1791,7 +1791,7 @@ namespace Triggernometry.Core
 
         internal MouseCoordEnum _MouseCoordType { get; set; } = MouseCoordEnum.Absolute;
         [XmlAttribute]
-        public string MouseCoordType
+        public string? MouseCoordType
         {
             get
             {
@@ -1851,7 +1851,7 @@ namespace Triggernometry.Core
 
         internal MutexOpEnum _MutexOpType { get; set; } = MutexOpEnum.Release;
         [XmlAttribute]
-        public string MutexOpType
+        public string? MutexOpType
         {
             get
             {
@@ -2045,7 +2045,7 @@ namespace Triggernometry.Core
         #region Action specific properties - LiveSplit
         internal LiveSplitControlTypeEnum _LSControlType { get; set; } = LiveSplitControlTypeEnum.StartOrSplit;
         [XmlAttribute]
-        public string LiveSplitControlType
+        public string? LiveSplitControlType
         {
             get
             {
@@ -2312,7 +2312,7 @@ namespace Triggernometry.Core
 
         internal VariableOpEnum _VariableOp { get; set; } = VariableOpEnum.Unset;
         [XmlAttribute]
-        public string VariableOp
+        public string? VariableOp
         {
             get
             {
@@ -2385,7 +2385,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _VariableTargetPersist { get; set; } = false;
+        internal bool _VariableTargetPersist { get; set; }
         [XmlAttribute]
         public string VariableTargetPersist
         {
@@ -2403,7 +2403,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _VariablePersist { get; set; } = false;
+        internal bool _VariablePersist { get; set; }
         [XmlAttribute]
         public string VariablePersist
         {
@@ -2556,7 +2556,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _TableSourcePersist { get; set; } = false;
+        internal bool _TableSourcePersist { get; set; }
         [XmlAttribute]
         public string TableSourcePersist
         {
@@ -2574,7 +2574,7 @@ namespace Triggernometry.Core
             }
         }
 
-        internal bool _TableTargetPersist { get; set; } = false;
+        internal bool _TableTargetPersist { get; set; }
         [XmlAttribute]
         public string TableTargetPersist
         {
@@ -2597,7 +2597,7 @@ namespace Triggernometry.Core
 
         internal AuraOpEnum _TextAuraOp { get; set; } = AuraOpEnum.ActivateAura;
         [XmlAttribute]
-        public string TextAuraOp
+        public string? TextAuraOp
         {
             get
             {
@@ -2618,7 +2618,7 @@ namespace Triggernometry.Core
 
         internal TextAuraAlignmentEnum _TextAuraAlignment { get; set; } = TextAuraAlignmentEnum.MiddleCenter;
         [XmlAttribute]
-        public string TextAuraAlignment
+        public string? TextAuraAlignment
         {
             get
             {

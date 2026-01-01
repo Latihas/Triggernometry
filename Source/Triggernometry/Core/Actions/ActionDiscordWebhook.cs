@@ -1,4 +1,4 @@
-﻿using System.Web.Script.Serialization;
+﻿using System.Text.Json;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;
@@ -56,7 +56,7 @@ namespace Triggernometry.Core.Actions
         /// </summary>
         [XmlIgnore]
         [Action(order: 3)]
-        public bool UseTTS { get; set; } = false;
+        public bool UseTTS { get; set; }
 
         [XmlAttribute("UseTTS")]
         public string Xml_UseTTS
@@ -93,7 +93,7 @@ namespace Triggernometry.Core.Actions
                     msg = msg.Substring(0, 1970);
                     AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/warndiscordtrunc", "Discord message too long, capping to {0}", msg.Length));
                 }
-                var wh = new JavaScriptSerializer().Serialize(new { content = msg, tts = true });
+                var wh = JsonSerializer.Serialize(new { content = msg, tts = true });
                 SendJson(ctx, ActionOld.HTTPMethodEnum.POST, url, wh, null, true);
             }
             else
@@ -103,7 +103,7 @@ namespace Triggernometry.Core.Actions
                     msg = msg.Substring(0, 1980);
                     AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/warndiscordtrunc", "Discord message too long, capping to {0}", msg.Length));
                 }
-                var wh = new JavaScriptSerializer().Serialize(new { content = msg });
+                var wh = JsonSerializer.Serialize(new { content = msg });
                 SendJson(ctx, ActionOld.HTTPMethodEnum.POST, url, wh, null, true);
             }
         }

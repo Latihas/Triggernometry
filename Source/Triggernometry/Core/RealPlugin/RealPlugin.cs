@@ -738,12 +738,9 @@ public partial class RealPlugin
                     // FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/logline", "Log line: ({0})", logLine));
                 }
                 var szone = BridgeFFXIV.ZoneID.ToString();
-                foreach (IScriptBase script in ActGlobals.oFormActMain.ActPlugins.Where(i=>i.isIScriptBase) .Select(i=>i.pluginObj as IScriptBase))
-                {
-                    if (!script.Enabled) continue;
-                    if (script.RegionIdRegex() == null || script.RegionIdRegex()!.Contains(szone))
+                foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i=>i.isIScriptBase) .Select(i=>i.pluginObj as IScriptBase))
+                    if (script!.TerritoryIds() == null || script.TerritoryIds()!.Contains(szone))
                         script.MatchAll(logLine);
-                }
                 LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
             }
         }

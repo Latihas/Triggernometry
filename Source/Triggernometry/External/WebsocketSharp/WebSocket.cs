@@ -155,7 +155,7 @@ namespace WebSocketSharp
       _maxRetryCountForConnect = 10;
       EmptyBytes = new byte[0];
       FragmentLength = 1016;
-      RandomNumber = new RNGCryptoServiceProvider ();
+      RandomNumber =  RandomNumberGenerator.Create() ;
     }
 
     #endregion

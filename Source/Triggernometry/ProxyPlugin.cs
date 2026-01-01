@@ -128,12 +128,13 @@ public class ProxyPlugin:IActPluginV1
     public static dynamic DalamudPlugin;
     public static IDalamudPluginInterface PluginInterface;
     public static IClientState ClientState;
+    public static IObjectTable ObjectTable;
     public static IFramework Framework;
     public static IGameInteropProvider GameInteropProvider;
     public static Hook<VfxModule.StaticVfxRemoveDelegate> StaticVfxRemoveHook;
     public static Hook<VfxModule.ActorVfxRemoveDelegate> ActorVfxRemoveHook;
 
-    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider)
+    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider,IObjectTable objectTable)
     {
         RealPlugin.ResetPlugin(log);
         DalamudPlugin = dalamudPlugin;
@@ -141,6 +142,7 @@ public class ProxyPlugin:IActPluginV1
         ClientState = clientState;
         Framework = framework;
         GameInteropProvider = gameInteropProvider;
+        ObjectTable = objectTable;
         lock (this)
         {
             Instance = RealPlugin.Instance;

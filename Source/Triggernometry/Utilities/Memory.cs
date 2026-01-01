@@ -26,7 +26,7 @@ namespace Triggernometry.Utilities
         private static DateTime _lastUpdateTime = DateTime.MinValue;
         private const int CACHE_INTERVAL_SECONDS = 10;
 
-        private static Process _xivProc = null;
+        private static Process _xivProc;
         public static Process XivProc
         {
             get
@@ -36,7 +36,7 @@ namespace Triggernometry.Utilities
             }
         }
 
-        private static int _xivProcId = 0;
+        private static int _xivProcId;
         public static int XivProcId
         {
             get
