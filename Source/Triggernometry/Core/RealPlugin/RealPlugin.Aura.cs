@@ -38,7 +38,7 @@ public partial class RealPlugin
     }
 
     DateTime prevTick = DateTime.Now;
-    double lag = 0.0;
+    double lag;
 
     private void AuraUpdateThreadProc(IFramework framework)
     {

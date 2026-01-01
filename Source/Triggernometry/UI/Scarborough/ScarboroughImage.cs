@@ -15,7 +15,7 @@ namespace Scarborough
         private int CurrentFrame { get; set; }
         private int CurrentFrameDelay { get; set; }
         private int NumberOfFrames = 1;
-        private bool IsAnimated = false;
+        private bool IsAnimated;
         public List<int> FrameDelays { get; set; }
         public List<Image> Frames { get; set; }
 
@@ -40,7 +40,7 @@ namespace Scarborough
             }
         }
 
-        private Image OriginalImage { get; set; } = null;
+        private Image OriginalImage { get; set; }
 
         private byte[] ImageToByte(System.Drawing.Image img)
         {
@@ -53,10 +53,10 @@ namespace Scarborough
 
             public int TransparencyIndex { get; set; } = -1;
             public int BackgroundColor { get; set; } = -1;
-            public bool HasGCTF { get; set; } = false;
+            public bool HasGCTF { get; set; }
             public int GCTFSize { get; set; } = -1;
             public int GCTFColors { get; set; } = -1;
-            public Color[] Palette { get; set; } = null;
+            public Color[] Palette { get; set; }
 
         }
 
@@ -250,7 +250,7 @@ namespace Scarborough
             }
         }
 
-        private double TimeAccumulator = 0.0;
+        private double TimeAccumulator;
         private DateTime LastAdvance = DateTime.MinValue;
         
         public ScarboroughImage(Triggernometry.UI.Scarborough own) : base(own)

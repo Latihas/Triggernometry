@@ -90,7 +90,7 @@ namespace Triggernometry.Core
         /// <summary>
         /// Currently loaded repository content length (raw bytes). <br />
         /// </summary>
-        internal long CurrentContentLength { get; set; } = 0;
+        internal long CurrentContentLength { get; set; }
 
         /// <summary>
         /// The last known modification time of the downloaded remote repository backup. <br />
@@ -108,7 +108,7 @@ namespace Triggernometry.Core
         /// When enabled, a timer will regularly scan for updates.
         /// </summary>
         [XmlAttribute]
-        public bool AutoUpdate { get; set; } = false;
+        public bool AutoUpdate { get; set; }
 
         /// <summary>
         /// The interval, in minutes, at which automatic update checks are performed. <br />
@@ -118,15 +118,15 @@ namespace Triggernometry.Core
         public int UpdateInterval { get; set; } = 5;
 
         [XmlAttribute]
-        public bool AllowScriptExecution { get; set; } = false;
+        public bool AllowScriptExecution { get; set; }
         [XmlAttribute]
-        public bool AllowProcessLaunch { get; set; } = false;
+        public bool AllowProcessLaunch { get; set; }
         [XmlAttribute]
-        public bool AllowWindowMessages { get; set; } = false;
+        public bool AllowWindowMessages { get; set; }
         [XmlAttribute]
-        public bool AllowObsControl { get; set; } = false;
+        public bool AllowObsControl { get; set; }
         [XmlAttribute]
-        public bool AllowDiskOperations { get; set; } = false;
+        public bool AllowDiskOperations { get; set; }
 
         /// <summary>Determines how newly imported folders or triggers should be enabled.</summary>
         [XmlAttribute]

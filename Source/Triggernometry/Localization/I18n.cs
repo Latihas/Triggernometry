@@ -12,9 +12,9 @@ namespace Triggernometry.Localization
 
         internal static Dictionary<string, Language> RegisteredLanguages = new Dictionary<string, Language>();
 
-        internal static Language BuiltInLanguage = null;
-        internal static Language DefaultLanguage = null;
-        internal static Language CurrentLanguage = null;
+        internal static Language BuiltInLanguage;
+        internal static Language DefaultLanguage;
+        internal static Language CurrentLanguage;
 
         internal static object DoNotTranslate = new object();
 

@@ -215,7 +215,7 @@ namespace Triggernometry.Core
             internal MutexInformation mutex { get; set; }
             internal ActionOld act { get; set; }
             internal Context ctx { get; set; }
-            internal bool releaseMutex { get; set; } = false;
+            internal bool releaseMutex { get; set; }
 
             public ActionInstance(DateTime when, long ordinal, MutexInformation mtx, ActionOld act, Context ctx, bool releaseMutex)
             {
@@ -348,7 +348,7 @@ namespace Triggernometry.Core
 
 
         [XmlIgnore]
-        public Trigger ParentTrigger { get; set; } = null;
+        public Trigger ParentTrigger { get; set; }
 
 
 
@@ -390,7 +390,7 @@ namespace Triggernometry.Core
 
 
         [XmlIgnore]
-        public bool RefireInterrupt { get; set; } = false;
+        public bool RefireInterrupt { get; set; }
 
         [XmlAttribute("RefireInterrupt")]
         public string Xml_RefireInterrupt
@@ -455,7 +455,7 @@ namespace Triggernometry.Core
 
 
         [XmlIgnore]
-        public bool DescriptionOverride { get; set; } = false;
+        public bool DescriptionOverride { get; set; }
 
         [XmlAttribute("DescriptionOverride")]
         public string Xml_DescriptionOverride
@@ -550,9 +550,9 @@ namespace Triggernometry.Core
                 ExecutionCount++;
             }
         }
-        private bool _LastExecutionResult { get; set; } = false;
+        private bool _LastExecutionResult { get; set; }
         internal DateTime LastExecutionTime { get; set; } = DateTime.MinValue;
-        internal int ExecutionCount { get; set; } = 0;
+        internal int ExecutionCount { get; set; }
 
         internal abstract void ExecuteImplementation(ActionInstance ai);
         public void Execute(ActionInstance ai)

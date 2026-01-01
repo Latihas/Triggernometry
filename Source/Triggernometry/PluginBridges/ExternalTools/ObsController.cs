@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
-using System.Web.Script.Serialization;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 using WebSocketSharp;
@@ -58,7 +58,7 @@ namespace Triggernometry.PluginBridges.ExternalTools
         private Dictionary<string, Action<RequestResponseOp>> respCallbacks = new Dictionary<string, Action<RequestResponseOp>>();
         private Dictionary<string, Action<RequestBatchResponseOp>> respBatchCallbacks = new Dictionary<string, Action<RequestBatchResponseOp>>();
         private Action<HelloOp> helloCallback;
-        private AutoResetEvent authRespReceived = null;
+        private AutoResetEvent authRespReceived;
 
         internal ObsController()
         {
@@ -76,7 +76,7 @@ namespace Triggernometry.PluginBridges.ExternalTools
             }
         }
 
-        private Process _obsProc = null;
+        private Process _obsProc;
         private Process ObsProc 
         {
             get => _obsProc;
@@ -87,7 +87,7 @@ namespace Triggernometry.PluginBridges.ExternalTools
             }
         }
         private DateTime _lastChecked;
-        private bool _complaintAboutNotRunning = false;
+        private bool _complaintAboutNotRunning;
         internal ObsRunningState CheckRunningState()
         {
             // if (ObsProc?.HasExited == false)
@@ -168,27 +168,27 @@ namespace Triggernometry.PluginBridges.ExternalTools
                 }
             }
             identify.eventSubscriptions = 0;
-            var json = new JavaScriptSerializer().Serialize(new Message { op = (int)OpCode.Identify, d = identify });
+            var json = JsonSerializer.Serialize(new Message { op = (int)OpCode.Identify, d = identify });
             SendRequestJson(json);
         }
 
         private void WSConnection_OnMessage(object sender, MessageEventArgs e)
         {
-            var message = new JavaScriptSerializer().Deserialize<Message>(e.Data);
+            var message = JsonSerializer.Deserialize<Message>(e.Data);
             switch ((OpCode) message.op)
             {
                 case OpCode.Hello:
-                    var helloData = new JavaScriptSerializer().Deserialize<Message<HelloOp>>(e.Data)?.d;
+                    var helloData = JsonSerializer.Deserialize<Message<HelloOp>>(e.Data)?.d;
                     helloCallback(helloData);
                     break;
                 case OpCode.Identified:
-                    var identifiedData = new JavaScriptSerializer().Deserialize<Message<IdentifiedOp>>(e.Data)?.d;
+                    var identifiedData = JsonSerializer.Deserialize<Message<IdentifiedOp>>(e.Data)?.d;
                     if (identifiedData.negotiatedRpcVersion > maxRpcVersion)
                         throw new ArgumentException(I18n.Translate("internal/Action/obsconnectversionerror", "Your version of OBS WebSocket is not currently supported."));
                     authRespReceived.Set();
                     break;
                 case OpCode.RequestResponse:
-                    var resp = new JavaScriptSerializer().Deserialize<Message<RequestResponseOp>>(e.Data)?.d;
+                    var resp = JsonSerializer.Deserialize<Message<RequestResponseOp>>(e.Data)?.d;
                     Action<RequestResponseOp> respCallback;
                     lock (lockobj)
                     {
@@ -199,7 +199,7 @@ namespace Triggernometry.PluginBridges.ExternalTools
                         respCallback(resp);
                     break;
                 case OpCode.RequestBatchResponse:
-                    var respBatch = new JavaScriptSerializer().Deserialize<Message<RequestBatchResponseOp>>(e.Data)?.d;
+                    var respBatch = JsonSerializer.Deserialize<Message<RequestBatchResponseOp>>(e.Data)?.d;
                     Action<RequestBatchResponseOp> respBatchCallback;
                     lock (lockobj)
                     {
@@ -262,7 +262,7 @@ namespace Triggernometry.PluginBridges.ExternalTools
                     requestData = requestData 
                 } 
             };
-            SendRequestJson(new JavaScriptSerializer().Serialize(req));
+            SendRequestJson(JsonSerializer.Serialize(req));
             return requestId;
         }
 
@@ -284,7 +284,7 @@ namespace Triggernometry.PluginBridges.ExternalTools
                     requests = requests
                 }
             };
-            SendRequestJson(new JavaScriptSerializer().Serialize(req));
+            SendRequestJson(JsonSerializer.Serialize(req));
             return requestId;
         }
 

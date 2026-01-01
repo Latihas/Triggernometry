@@ -34,8 +34,8 @@ namespace Triggernometry.Core
         internal RealPlugin plug => RealPlugin.Instance;
         internal StatusEnum Status { get; set; }
         internal string StatusDescription { get; set; } = "zzz";
-        private Context curctx = null;
-        internal uint ReceivedTelegrams = 0;
+        private Context curctx;
+        internal uint ReceivedTelegrams;
         internal List<Tuple<DateTime, string>> teleHistory = new List<Tuple<DateTime, string>>();
 
         internal delegate void StatusChangeDelegate(StatusEnum newStatus, string statusDesc);

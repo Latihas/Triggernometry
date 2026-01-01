@@ -158,7 +158,7 @@ namespace Scarborough.Drawing
         }
 
         #region IDisposable Support
-        private bool disposedValue = false;
+        private bool disposedValue;
 
         /// <summary>
         /// Releases all resources used by this LinearGradientBrush.

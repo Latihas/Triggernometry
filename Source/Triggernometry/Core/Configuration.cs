@@ -48,11 +48,11 @@ namespace Triggernometry.Core;
         public bool LogNormalEvents { get; set; } = true;
 
         [XmlAttribute]
-        public bool LogVariableExpansions { get; set; } = false;
+        public bool LogVariableExpansions { get; set; }
 
         // Startup
 
-        internal bool _ShowWelcomeHasBeenSet = false;
+        internal bool _ShowWelcomeHasBeenSet;
         private bool _ShowWelcome { get; set; } = true;
 
         [XmlAttribute]
@@ -269,7 +269,7 @@ namespace Triggernometry.Core;
         #region FFXIV
 
         [XmlAttribute]
-        public bool FfxivLogNetwork { get; set; } = false;
+        public bool FfxivLogNetwork { get; set; }
 
         public enum FfxivPartyOrderingEnum
         {
@@ -509,7 +509,7 @@ namespace Triggernometry.Core;
         public Trigger TemplateTrigger = new Trigger() { Enabled = true, Condition = new ConditionGroup() { Grouping = ConditionGroup.CndGroupingEnum.Or, Enabled = false } };
 
         [XmlAttribute]
-        public bool UseTemplateTrigger { get; set; } = false;
+        public bool UseTemplateTrigger { get; set; }
 
         // User Interface
 

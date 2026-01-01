@@ -24,7 +24,7 @@ namespace Triggernometry.Core
         public string PluginVersionDescription => string.IsNullOrWhiteSpace(PluginVersion) ? "< 1.2.0.1" : PluginVersion;
 
         [XmlIgnore]
-        public bool Corrupted = false;
+        public bool Corrupted;
 
         public Folder ExportedFolder;
         public Trigger ExportedTrigger;

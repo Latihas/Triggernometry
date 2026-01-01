@@ -58,7 +58,7 @@ namespace Triggernometry.Core.Actions
         /// </summary>
         [XmlIgnore]
         [Action(order: 3)]
-        public bool ProcessAsLogline { get; set; } = false;
+        public bool ProcessAsLogline { get; set; }
 
         [XmlAttribute("ProcessAsLogline")]
         public string Xml_ProcessAsLogline
@@ -72,7 +72,7 @@ namespace Triggernometry.Core.Actions
         /// </summary>
         [XmlIgnore]
         [Action(order: 4)]
-        public bool AddToACTEncounter { get; set; } = false;
+        public bool AddToACTEncounter { get; set; }
 
         [XmlAttribute("AddToACTEncounter")]
         public string Xml_AddToACTEncounter

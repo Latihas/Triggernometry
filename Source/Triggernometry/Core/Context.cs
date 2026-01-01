@@ -26,8 +26,8 @@ namespace Triggernometry.Core
         internal ActionExecutionHook soundhook;
         internal ActionExecutionHook ttshook;
 
-        private Dictionary<string, string> _namedRegexGroups = null;
-        private List<string> _numRegexGroups = null;
+        private Dictionary<string, string> _namedRegexGroups;
+        private List<string> _numRegexGroups;
         internal DateTime triggeredTime;
         internal string zoneName = "";
         internal string regexPattern; // todo

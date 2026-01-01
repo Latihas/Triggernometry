@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Text;
-using Microsoft.International.Converters.TraditionalChineseToSimplifiedConverter;
+using ChineseConverter;
 using Microsoft.VisualBasic;
 using static Triggernometry.Expressions.String.Utils.ParserCommon;
 
@@ -125,7 +125,7 @@ namespace Triggernometry.Expressions.String.Utils
         {
             // var conv = VbStrConv.SimplifiedChinese;
             var lines = input.Split(LINEBREAK)
-                             .Select(s => ChineseConverter.Convert(s,ChineseConversionDirection.TraditionalToSimplified));
+                             .Select(s => ChineseConverter.ChineseConverter.Convert(s,ChineseConversionDirection.TraditionalToSimplified));
             return string.Join(LINEBREAK_STR, lines);
         }
 
@@ -138,7 +138,7 @@ namespace Triggernometry.Expressions.String.Utils
         {
             // var conv = VbStrConv.TraditionalChinese;
             var lines = input.Split(LINEBREAK)
-                             .Select(s => ChineseConverter.Convert(s,ChineseConversionDirection.SimplifiedToTraditional));
+                             .Select(s => ChineseConverter.ChineseConverter.Convert(s,ChineseConversionDirection.SimplifiedToTraditional));
             return string.Join(LINEBREAK_STR, lines);
         }
 

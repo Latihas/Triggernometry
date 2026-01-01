@@ -293,7 +293,7 @@ namespace Triggernometry.Core
         /// Determines whether the trigger should automatically fire after being saved.
         /// </summary>
         [XmlIgnore]
-        public bool EditAutofire { get; set; } = false;
+        public bool EditAutofire { get; set; }
 
         [XmlAttribute("EditAutofire")]
         public string Xml_EditAutofire
@@ -306,7 +306,7 @@ namespace Triggernometry.Core
         /// Determines whether the trigger should respect its conditions when auto-fired after being saved.
         /// </summary>
         [XmlIgnore]
-        public bool EditAutofireAllowCondition { get; set; } = false;
+        public bool EditAutofireAllowCondition { get; set; }
 
         [XmlAttribute("EditAutofireAllowCondition")]
         public string Xml_EditAutofireAllowCondition
@@ -319,7 +319,7 @@ namespace Triggernometry.Core
         /// Determines whether the actions in this trigger are executed sequentially.
         /// </summary>
         [XmlIgnore]
-        public bool Sequential { get; set; } = false;
+        public bool Sequential { get; set; }
 
         [XmlAttribute("Sequential")]
         public string Xml_Sequential
@@ -382,7 +382,7 @@ namespace Triggernometry.Core
         /// Indicates whether this trigger serves as a readme or informational entry rather than an active trigger.
         /// </summary>
         [XmlIgnore]
-        public bool IsReadme { get; set; } = false;
+        public bool IsReadme { get; set; }
 
         [XmlAttribute("IsReadme")]
         public string Xml_IsReadme

@@ -1144,40 +1144,7 @@ namespace WebSocketSharp.Net
       var vals = base.GetValues (header);
       return vals != null && vals.Length > 0 ? vals : null;
     }
-
-    /// <summary>
-    /// Populates the specified <see cref="SerializationInfo"/> with the data needed to serialize
-    /// the <see cref="WebHeaderCollection"/>.
-    /// </summary>
-    /// <param name="serializationInfo">
-    /// A <see cref="SerializationInfo"/> that holds the serialized object data.
-    /// </param>
-    /// <param name="streamingContext">
-    /// A <see cref="StreamingContext"/> that specifies the destination for the serialization.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="serializationInfo"/> is <see langword="null"/>.
-    /// </exception>
-    [SecurityPermission (
-      SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-    public override void GetObjectData (
-      SerializationInfo serializationInfo, StreamingContext streamingContext)
-    {
-      if (serializationInfo == null)
-        throw new ArgumentNullException ("serializationInfo");
-
-      serializationInfo.AddValue ("InternallyUsed", _internallyUsed);
-      serializationInfo.AddValue ("State", (int) _state);
-
-      var cnt = Count;
-      serializationInfo.AddValue ("Count", cnt);
-      cnt.Times (
-        i => {
-          serializationInfo.AddValue (i.ToString (), GetKey (i));
-          serializationInfo.AddValue ((cnt + i).ToString (), Get (i));
-        });
-    }
-
+    
     /// <summary>
     /// Determines whether the specified header can be set for the request.
     /// </summary>
@@ -1425,33 +1392,6 @@ namespace WebSocketSharp.Net
       Count.Times (i => buff.AppendFormat ("{0}: {1}\r\n", GetKey (i), Get (i)));
 
       return buff.Append ("\r\n").ToString ();
-    }
-
-    #endregion
-
-    #region Explicit Interface Implementations
-
-    /// <summary>
-    /// Populates the specified <see cref="SerializationInfo"/> with the data needed to serialize
-    /// the current <see cref="WebHeaderCollection"/>.
-    /// </summary>
-    /// <param name="serializationInfo">
-    /// A <see cref="SerializationInfo"/> that holds the serialized object data.
-    /// </param>
-    /// <param name="streamingContext">
-    /// A <see cref="StreamingContext"/> that specifies the destination for the serialization.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="serializationInfo"/> is <see langword="null"/>.
-    /// </exception>
-    [SecurityPermission (
-      SecurityAction.LinkDemand,
-      Flags = SecurityPermissionFlag.SerializationFormatter,
-      SerializationFormatter = true)]
-    void ISerializable.GetObjectData (
-      SerializationInfo serializationInfo, StreamingContext streamingContext)
-    {
-      GetObjectData (serializationInfo, streamingContext);
     }
 
     #endregion
