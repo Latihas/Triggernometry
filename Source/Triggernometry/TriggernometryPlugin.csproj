@@ -47,21 +47,13 @@
         <Reference Include="FFXIV_ACT_Plugin">
           <HintPath>..\..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
         </Reference>
-        <PackageReference Include="System.Collections.Immutable" Version="10.0.1" />
         <PackageReference Include="System.Management" Version="10.0.1" />
-        <PackageReference Include="System.Reflection.Metadata" Version="10.0.1" />
-        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2"/>
         <PackageReference Include="System.Speech" Version="10.0.1" />
-        <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.1" />
-        <PackageReference Include="System.Text.Encodings.Web" Version="10.0.1">
-            <Private>True</Private>
-        </PackageReference>
         <PackageReference Include="System.ValueTuple" Version="4.6.1"/>
         <Reference Include="System.Web.Extensions">
             <HintPath>System.Web.Extensions.dll</HintPath>
         </Reference>
         <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7"/>
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
         <Reference Include="Dalamud">
             <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
             <Private>false</Private>

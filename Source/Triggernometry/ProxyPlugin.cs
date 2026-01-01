@@ -298,11 +298,11 @@ public class ProxyPlugin:IActPluginV1
         // ActGlobals.oFormActMain.OnCombatStart -= OFormActMain_OnCombatStart;
         ActGlobals.oFormActMain.OnLogLineRead -= OFormActMain_OnLogLineRead;
         ActGlobals.oFormActMain.BeforeLogLineRead -= OFormActMain_BeforeLogLineRead;
-        StaticVfxRemoveHook?.Disable();
-        StaticVfxRemoveHook?.Dispose();
-        ActorVfxRemoveHook?.Disable();
-        ActorVfxRemoveHook?.Dispose();
-        Instance?.DeInitPlugin();
+        StaticVfxRemoveHook.Disable();
+        StaticVfxRemoveHook.Dispose();
+        ActorVfxRemoveHook.Disable();
+        ActorVfxRemoveHook.Dispose();
+        Instance.DeInitPlugin();
         Instance = null;
         // HideCornerNotification();
     }
