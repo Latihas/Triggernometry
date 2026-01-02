@@ -740,49 +740,11 @@ public partial class RealPlugin
                     logFlattenACT.Enqueue(logLine);
                     if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.Dequeue();
                 }
-                var now = DateTime.Now.Ticks / 10000;
-                if (LastMs == 0) LastMs = now;
-                var deltaMs = now - LastMs;
                 var szone = BridgeFFXIV.ZoneID.ToString();
+                // BDL.Clear();
                 foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
                     if (script!.TerritoryIds() == null || script.TerritoryIds()!.Contains(szone))
-                    {
                         script.MatchAll(logLine);
-                        foreach (var shape in script.DrawList)
-                        {
-                            shape.Duration -= deltaMs;
-                            if (shape.Duration > 0)
-                            {
-                                switch (shape.ShapeType)
-                                {
-                                    case ShapeType.Circle:
-                                        var circle = (IGCircle)shape;
-                                        ProxyPlugin.GameGui.WorldToScreen(circle.Position, out var vcircle);
-                                        BDL.AddCircle(vcircle, circle.R, circle.Color);
-                                        break;
-                                    case ShapeType.Cone:
-                                        var cone = (IGCone)shape;
-                                        var position = cone.Position;
-                                        var rotation = cone.Rotation + (MathF.PI / 4);
-                                        var partialCircleSegmentRotation = cone.AngleRad / CircleSegments;
-                                        ProxyPlugin.GameGui.WorldToScreen(cone.Position, out var originPositionOnScreen);
-                                        BDL.PathLineTo(originPositionOnScreen);
-                                        for (var i = 0; i <= CircleSegments; i++)
-                                        {
-                                            var currentRotation = rotation - (i * partialCircleSegmentRotation);
-                                            var xValue = cone.R * MathF.Sin(currentRotation);
-                                            var yValue = cone.R * MathF.Cos(currentRotation);
-                                            ProxyPlugin.GameGui.WorldToScreen(new Vector3(position.X + xValue, position.Y, position.Z + yValue),
-                                                                              out var segmentVectorOnCircle);
-                                            BDL.PathLineTo(segmentVectorOnCircle);
-                                        }
-                                        BDL.PathFillConvex(cone.Color);
-                                        BDL.PathClear(); //TODO necessary?
-                                        break;
-                                }
-                            }
-                        }
-                    }
                 LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
             }
         }
