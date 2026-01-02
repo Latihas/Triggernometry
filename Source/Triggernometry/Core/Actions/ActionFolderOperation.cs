@@ -88,7 +88,7 @@ namespace Triggernometry.Core.Actions
             if (f == null)
             {
                 AddToLog(ctx, RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/Action/nofolderwithid",
-                    "Folder operation failed: In trigger ({1}), the specified folder id ({0}) does not exist.", FolderId, ParentTrigger?.FullPath ?? "null"));
+                                                                              "Folder operation failed: In trigger ({1}), the specified folder id ({0}) does not exist.", FolderId, ParentTrigger?.FullPath ?? "null"));
                 return;
             }
             switch (Operation)
@@ -110,8 +110,8 @@ namespace Triggernometry.Core.Actions
                             _qa => _qa?.ctx?.Trigger != null && triggersInFolder.Contains(_qa.ctx.Trigger)
                         );
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/cancelfolder",
-                            "Cancelled {1} queued action(s) from {2} triggers in folder ({0})",
-                            f.Name, removed, triggersInFolder.Count));
+                                                                                        "Cancelled {1} queued action(s) from {2} triggers in folder ({0})",
+                                                                                        f.Name, removed, triggersInFolder.Count));
                     }
                     break;
                 default:

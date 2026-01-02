@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Media;
+using System.Text;
 using static System.Math;
 
 namespace Triggernometry.Common.Audio
@@ -46,9 +47,9 @@ namespace Triggernometry.Common.Audio
                 int fileLength = 36 + dataLength;
 
                 // === WAV Header ===
-                binWriter.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+                binWriter.Write(Encoding.ASCII.GetBytes("RIFF"));
                 binWriter.Write(fileLength);
-                binWriter.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));
+                binWriter.Write(Encoding.ASCII.GetBytes("WAVEfmt "));
                 binWriter.Write(16); // fmt chunk size
                 binWriter.Write((short)1); // PCM
                 binWriter.Write((short)1); // mono
@@ -56,7 +57,7 @@ namespace Triggernometry.Common.Audio
                 binWriter.Write(sampleRate * 2); // byte rate
                 binWriter.Write((short)2); // block align
                 binWriter.Write((short)16); // bits per sample
-                binWriter.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+                binWriter.Write(Encoding.ASCII.GetBytes("data"));
                 binWriter.Write(dataLength);
 
                 // === PCM Data ===

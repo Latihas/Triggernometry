@@ -161,7 +161,7 @@ public unsafe struct OmenControl
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x500)] //未知大小
-public unsafe struct OmenData
+public struct OmenData
 {
     [FieldOffset(0x30)] public Vector4 Color;
     //[FieldOffset(0x40)] public Transform Transform;

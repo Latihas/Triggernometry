@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Net;
 using System.Security.Principal;
 
 namespace WebSocketSharp.Net.Websockets
@@ -309,7 +310,7 @@ namespace WebSocketSharp.Net.Websockets
     /// A <see cref="System.Net.IPEndPoint"/> that represents the server IP
     /// address and port number.
     /// </value>
-    public override System.Net.IPEndPoint ServerEndPoint {
+    public override IPEndPoint ServerEndPoint {
       get {
         return _context.Request.LocalEndPoint;
       }
@@ -340,7 +341,7 @@ namespace WebSocketSharp.Net.Websockets
     /// A <see cref="System.Net.IPEndPoint"/> that represents the client IP
     /// address and port number.
     /// </value>
-    public override System.Net.IPEndPoint UserEndPoint {
+    public override IPEndPoint UserEndPoint {
       get {
         return _context.Request.RemoteEndPoint;
       }

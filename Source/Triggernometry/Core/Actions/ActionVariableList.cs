@@ -400,7 +400,7 @@ namespace Triggernometry.Core.Actions
                     {
                         svs.UnsetVariable(svs.List, sourcename);
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listunset",
-                            "{1}List variable ({0}) unset", sourcename, sPersist));
+                                                                                        "{1}List variable ({0}) unset", sourcename, sPersist));
                     }
                     break;
                 case OperationEnum.Push:
@@ -409,11 +409,11 @@ namespace Triggernometry.Core.Actions
                         lock (svs.List)
                         {
                             VariableList vl = svs.GetListVariable(sourcename, true);
-                            vl.Push(new VariableScalar() { Value = value }, changer);
+                            vl.Push(new VariableScalar { Value = value }, changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listpush",
-                            "Value ({0}) pushed to the end of {2}list variable ({1})",
-                            value, sourcename, sPersist));
+                                                                                        "Value ({0}) pushed to the end of {2}list variable ({1})",
+                                                                                        value, sourcename, sPersist));
                     }
                     break;
                 case OperationEnum.Insert:
@@ -426,8 +426,8 @@ namespace Triggernometry.Core.Actions
                             vl.Insert(index, value, changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listindexinsert",
-                            "Value ({0}) inserted to index ({1}) of {3}list variable ({2})",
-                            value, index, sourcename, sPersist));
+                                                                                        "Value ({0}) inserted to index ({1}) of {3}list variable ({2})",
+                                                                                        value, index, sourcename, sPersist));
                     }
                     break;
                 case OperationEnum.Set:
@@ -445,8 +445,8 @@ namespace Triggernometry.Core.Actions
                             vl.Set(index, value, changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listindexset",
-                            "Value ({0}) set to index ({1}) of {3}list variable ({2})",
-                            value, index, sourcename, sPersist));
+                                                                                        "Value ({0}) set to index ({1}) of {3}list variable ({2})",
+                                                                                        value, index, sourcename, sPersist));
                     }
                     break;
                 case OperationEnum.SetAll:
@@ -465,13 +465,13 @@ namespace Triggernometry.Core.Actions
                             {
                                 ctx.listIndex = i;  // ${_idx}
                                 string expr = GetListExpressionValue(ctx, ValueType, ValueExpression);
-                                vlNew.Push(new VariableScalar() { Value = expr }, changer);
+                                vlNew.Push(new VariableScalar { Value = expr }, changer);
                             }
                             svs.List[sourcename] = vlNew;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsetall",
-                            "All values in {1}list variable ({0}) set to ({2})",
-                            sourcename, sPersist, ValueExpression));
+                                                                                        "All values in {1}list variable ({0}) set to ({2})",
+                                                                                        sourcename, sPersist, ValueExpression));
                     }
                     break;
                 case OperationEnum.Remove:
@@ -483,8 +483,8 @@ namespace Triggernometry.Core.Actions
                             vl.Remove(index, changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listindexunset",
-                            "Value removed from index ({0}) of {2}list variable ({1})",
-                            index, sourcename, sPersist));
+                                                                                        "Value removed from index ({0}) of {2}list variable ({1})",
+                                                                                        index, sourcename, sPersist));
                     }
                     break;
                 case OperationEnum.PopFirst:
@@ -507,8 +507,8 @@ namespace Triggernometry.Core.Actions
                             tvs.Scalar[targetname] = x;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listpop",
-                            "Value ({4}) popped from index ({5}) of {1}list ({0}) into {3}scalar variable ({2})",
-                            sourcename, sPersist, targetname, tPersist, newval, rawIndex));
+                                                                                        "Value ({4}) popped from index ({5}) of {1}list ({0}) into {3}scalar variable ({2})",
+                                                                                        sourcename, sPersist, targetname, tPersist, newval, rawIndex));
                     }
                     break;
                 case OperationEnum.PopToListInsert:
@@ -531,8 +531,8 @@ namespace Triggernometry.Core.Actions
                             VariableList svl = svs.GetListVariable(sourcename, false);
                             popped = (VariableScalar)svl.Pop(rawSourceIndex, changer);
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listpoptolist",
-                                "pop value ({3}) from {1}list variable ({0}) index ({2})",
-                                sourcename, sPersist, rawSourceIndex, targetname, tPersist));
+                                                                                            "pop value ({3}) from {1}list variable ({0}) index ({2})",
+                                                                                            sourcename, sPersist, rawSourceIndex, targetname, tPersist));
                         }
                         lock (tvs.List)
                         {
@@ -543,22 +543,22 @@ namespace Triggernometry.Core.Actions
                                 tvl.LastChanged = DateTime.Now;
                                 tvl.LastChanger = changer;
                                 AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listindexset",
-                                    "Value ({0}) set to index ({1}) of {3}list variable ({2})",
-                                    popped.Value, tvl.Size, targetname, tPersist));
+                                                                                                "Value ({0}) set to index ({1}) of {3}list variable ({2})",
+                                                                                                popped.Value, tvl.Size, targetname, tPersist));
                             }
                             else if (isInsert)
                             {
                                 tvl.Insert(rawTargetIndex, popped, changer);
                                 AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listindexinsert",
-                                    "Value ({0}) inserted to index ({1}) of {3}list variable ({2})",
-                                    popped.Value, rawTargetIndex, targetname, tPersist));
+                                                                                                "Value ({0}) inserted to index ({1}) of {3}list variable ({2})",
+                                                                                                popped.Value, rawTargetIndex, targetname, tPersist));
                             }
                             else
                             {
                                 tvl.Set(rawTargetIndex, popped, changer);
                                 AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listindexset",
-                                    "Value ({0}) set to index ({1}) of {3}list variable ({2})",
-                                    popped.Value, rawTargetIndex, targetname, tPersist));
+                                                                                                "Value ({0}) set to index ({1}) of {3}list variable ({2})",
+                                                                                                popped.Value, rawTargetIndex, targetname, tPersist));
                             }
                         }
                     }
@@ -572,7 +572,7 @@ namespace Triggernometry.Core.Actions
                             vl.SortAlphaAsc(changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsortstr",
-                            "{1}List variable ({0}) sorted in alphabetically {2} order", sourcename, sPersist, order));
+                                                                                        "{1}List variable ({0}) sorted in alphabetically {2} order", sourcename, sPersist, order));
                     }
                     break;
                 case OperationEnum.SortAlphaDesc:
@@ -584,7 +584,7 @@ namespace Triggernometry.Core.Actions
                             vl.SortAlphaDesc(changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsortstr",
-                            "{1}List variable ({0}) sorted in alphabetically {2} order", sourcename, sPersist, order));
+                                                                                        "{1}List variable ({0}) sorted in alphabetically {2} order", sourcename, sPersist, order));
                     }
                     break;
                 case OperationEnum.SortNumericAsc:
@@ -596,7 +596,7 @@ namespace Triggernometry.Core.Actions
                             vl.SortNumericAsc(changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsortnum",
-                            "{1}List variable ({0}) sorted in numerically {2} order", sourcename, sPersist, order));
+                                                                                        "{1}List variable ({0}) sorted in numerically {2} order", sourcename, sPersist, order));
                     }
                     break;
                 case OperationEnum.SortNumericDesc:
@@ -608,7 +608,7 @@ namespace Triggernometry.Core.Actions
                             vl.SortNumericDesc(changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsortnum",
-                            "{1}List variable ({0}) sorted in numerically {2} order", sourcename, sPersist, order));
+                                                                                        "{1}List variable ({0}) sorted in numerically {2} order", sourcename, sPersist, order));
                     }
                     break;
                 case OperationEnum.SortFfxivPartyAsc:
@@ -620,7 +620,7 @@ namespace Triggernometry.Core.Actions
                             vl.SortFfxivPartyAsc(plug.cfg, changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsortffxiv",
-                            "{1}List variable ({0}) sorted in FFXIV party {2} order", sourcename, sPersist, order));
+                                                                                        "{1}List variable ({0}) sorted in FFXIV party {2} order", sourcename, sPersist, order));
                     }
                     break;
                 case OperationEnum.SortFfxivPartyDesc:
@@ -632,7 +632,7 @@ namespace Triggernometry.Core.Actions
                             vl.SortFfxivPartyDesc(plug.cfg, changer);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsortffxiv",
-                            "{1}List variable ({0}) sorted in FFXIV party {2} order", sourcename, sPersist, order));
+                                                                                        "{1}List variable ({0}) sorted in FFXIV party {2} order", sourcename, sPersist, order));
                     }
                     break;
                 case OperationEnum.SortByKeys:
@@ -672,10 +672,10 @@ namespace Triggernometry.Core.Actions
                         for (int i = 0; i < keysCount; i++)
                         {   // logging each sorting keys
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsortbykeys",
-                                "Sorting {1}list ({0}): function ({2}/{3}, {5}) = ({4}). Keys: ({6})",
-                                sourcename, sPersist, i + 1, keysCount, keysExpr[i],
-                                (isNumeric[i] ? "n" : "s") + (isAscending[i] ? "+" : "-"),
-                                string.Join(", ", values[i])));
+                                                                                            "Sorting {1}list ({0}): function ({2}/{3}, {5}) = ({4}). Keys: ({6})",
+                                                                                            sourcename, sPersist, i + 1, keysCount, keysExpr[i],
+                                                                                            (isNumeric[i] ? "n" : "s") + (isAscending[i] ? "+" : "-"),
+                                                                                            string.Join(", ", values[i])));
                         }
                     }
                     break;
@@ -697,8 +697,8 @@ namespace Triggernometry.Core.Actions
                             tvs.List[targetname] = newvl;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listcopy",
-                            "{2}List variable ({0}) copied to {3}list variable ({1})",
-                            sourcename, targetname, sPersist, tPersist));
+                                                                                        "{2}List variable ({0}) copied to {3}list variable ({1})",
+                                                                                        sourcename, targetname, sPersist, tPersist));
                     }
                     break;
                 case OperationEnum.InsertList:
@@ -729,8 +729,8 @@ namespace Triggernometry.Core.Actions
                             }
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listinsertlist",
-                            "{3}List variable ({0}) inserted to {4}list variable ({1}) at index ({2})",
-                            sourcename, targetname, rawIndex, sPersist, tPersist));
+                                                                                        "{3}List variable ({0}) inserted to {4}list variable ({1}) at index ({2})",
+                                                                                        sourcename, targetname, rawIndex, sPersist, tPersist));
                     }
                     break;
                 case OperationEnum.Filter:
@@ -759,8 +759,8 @@ namespace Triggernometry.Core.Actions
                         {
                             tvs.List[targetname] = vlResult;
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listfilter",
-                                "Filtered {4} elements from {1}list ({0}) into {3}list ({2})",
-                                sourcename, sPersist, targetname, tPersist, vlResult.Size));
+                                                                                            "Filtered {4} elements from {1}list ({0}) into {3}list ({2})",
+                                                                                            sourcename, sPersist, targetname, tPersist, vlResult.Size));
                         }
                     }
                     break;
@@ -785,8 +785,8 @@ namespace Triggernometry.Core.Actions
                             tvs.Scalar[targetname] = x;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listscalarjoin",
-                            "{3}List variable ({0}) joined to {4}scalar variable ({1}) with separator ({2})",
-                            sourcename, targetname, separator, sPersist, tPersist));
+                                                                                        "{3}List variable ({0}) joined to {4}scalar variable ({1}) with separator ({2})",
+                                                                                        sourcename, targetname, separator, sPersist, tPersist));
                     }
                     break;
                 case OperationEnum.Split:
@@ -801,20 +801,20 @@ namespace Triggernometry.Core.Actions
                                 splitval = svs.Scalar[sourcename].Value;
                             }
                         }
-                        string[] vals = splitval.Split(new string[] { separator }, StringSplitOptions.None);
+                        string[] vals = splitval.Split(new[] { separator }, StringSplitOptions.None);
 
                         VariableList vl = new VariableList();
                         foreach (string x in vals)
                         {
-                            vl.Push(new VariableScalar() { Value = x }, changer);
+                            vl.Push(new VariableScalar { Value = x }, changer);
                         }
                         lock (tvs.List)
                         {
                             tvs.List[targetname] = vl;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listsplit",
-                            "{3}Scalar variable ({0}) split into {4}list variable ({1}) with separator ({2})",
-                            sourcename, targetname, separator, sPersist, tPersist));
+                                                                                        "{3}Scalar variable ({0}) split into {4}list variable ({1}) with separator ({2})",
+                                                                                        sourcename, targetname, separator, sPersist, tPersist));
                     }
                     break;
                 case OperationEnum.Build:
@@ -831,14 +831,14 @@ namespace Triggernometry.Core.Actions
                             string splitval = expr.Substring(1);
                             vl = VariableList.Build(splitval, separator, changer);
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listbuild",
-                                "{1}List variable ({0}) built from expression ({2}) splitted by ({3})",
-                                targetname, tPersist, splitval, separator));
+                                                                                            "{1}List variable ({0}) built from expression ({2}) splitted by ({3})",
+                                                                                            targetname, tPersist, splitval, separator));
                         }
                         else
                         {
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/listbuildfail",
-                                "{1}List variable ({0}) cannot be built because expression ({2}) length < 1",
-                                targetname, tPersist, expr));
+                                                                                            "{1}List variable ({0}) cannot be built because expression ({2}) length < 1",
+                                                                                            targetname, tPersist, expr));
                         }
 
                         lock (tvs.List)
@@ -851,14 +851,14 @@ namespace Triggernometry.Core.Actions
                     {
                         svs.UnsetAllVariables(svs.List);
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listunsetall",
-                            "All {0}list variables unset", sPersist));
+                                                                                        "All {0}list variables unset", sPersist));
                     }
                     break;
                 case OperationEnum.UnsetRegex:
                     {
                         svs.UnsetVariableRegex(svs.List, Name);
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listunsetregex",
-                            "All {1}list variables matching ({0}) unset", Name, sPersist));
+                                                                                        "All {1}list variables matching ({0}) unset", Name, sPersist));
                         break;
                     }
                 default:

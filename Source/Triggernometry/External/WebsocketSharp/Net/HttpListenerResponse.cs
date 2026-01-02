@@ -48,6 +48,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Text;
 
 namespace WebSocketSharp.Net
@@ -395,7 +396,7 @@ namespace WebSocketSharp.Net
       set {
         checkDisposedOrHeadersSent ();
         if (value < 100 || value > 999)
-          throw new System.Net.ProtocolViolationException (
+          throw new ProtocolViolationException (
             "A value isn't between 100 and 999 inclusive.");
 
         _statusCode = value;

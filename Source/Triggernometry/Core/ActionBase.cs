@@ -64,7 +64,7 @@ namespace Triggernometry.Core
         /// This class attribute determines the category in which the action belongs into.
         /// The category in turn is used by the trigger action editor to assign it to the right menu.
         /// </summary>
-        [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+        [AttributeUsage(AttributeTargets.Class, Inherited = false)]
         public class ActionCategory : Attribute
         {
 
@@ -120,7 +120,7 @@ namespace Triggernometry.Core
         /// <summary>
         /// This property attribute controls how the generic action property editor will treat and display a specific property
         /// </summary>
-        [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+        [AttributeUsage(AttributeTargets.Property)]
         public class ActionAttribute : Attribute
         {
 
@@ -240,7 +240,7 @@ namespace Triggernometry.Core
 
             public void ActionFinished()
             {
-                if (mutex != null && releaseMutex == true)
+                if (mutex != null && releaseMutex)
                 {
                     mutex.Release(ctx);
                 }
@@ -557,17 +557,17 @@ namespace Triggernometry.Core
         internal abstract void ExecuteImplementation(ActionInstance ai);
         public void Execute(ActionInstance ai)
         {            
-            if (Enabled == false)
+            if (!Enabled)
             {
                 LastExecutionResult = false;
                 return;
             }
             Context ctx = ai.ctx;
-            if ((ctx.forceType & TriggerForceTypeEnum.SkipConditions) == 0 && ctx.testByPlaceholder == false)
+            if ((ctx.forceType & TriggerForceTypeEnum.SkipConditions) == 0 && !ctx.testByPlaceholder)
             {
-                if (Condition != null && Condition.Enabled == true)
+                if (Condition != null && Condition.Enabled)
                 {
-                    if (Condition.CheckCondition(ctx, ActionContextLogger, ctx) == false)
+                    if (!Condition.CheckCondition(ctx, ActionContextLogger, ctx))
                     {
                         AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/actionnotfired", "Action #{0} on trigger '{1}' not fired, condition not met", OrderNumber, ctx.Trigger?.LogName ?? "(null)"));
                         LastExecutionResult = false;
@@ -575,7 +575,7 @@ namespace Triggernometry.Core
                     }
                 }
             }
-            if (Asynchronous == true)
+            if (Asynchronous)
             {
                 Task t;
                 if (ctx.Plugin != null)
@@ -780,7 +780,7 @@ namespace Triggernometry.Core
                         break;
                 }
                 var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                if (httpResponse.StatusCode != HttpStatusCode.NoContent && expectNoContent == true)
+                if (httpResponse.StatusCode != HttpStatusCode.NoContent && expectNoContent)
                 {
                     AddToLog(ctx, DebugLevelEnum.Error, I18n.Translate("internal/Action/jsonpostunexpectedresponse", "Unexpected response code: {0}", httpResponse.StatusCode));
                 }
@@ -918,7 +918,7 @@ namespace Triggernometry.Core
                         continue;
                     }
                 }
-                else if (clb.GetItemChecked(i) == false)
+                else if (!clb.GetItemChecked(i))
                 {
                     continue;
                 }
@@ -1055,7 +1055,7 @@ namespace Triggernometry.Core
                 }
                 else if (prop.attr._typehint == typeof(Enum))
                 {
-                    if (prop.prop.PropertyType.IsDefined(typeof(FlagsAttribute), true) == true)
+                    if (prop.prop.PropertyType.IsDefined(typeof(FlagsAttribute), true))
                     {
                         // for flags enums, show checkedlistbox
                         CheckedListBox clb = new CheckedListBox();
@@ -1070,7 +1070,7 @@ namespace Triggernometry.Core
                             {
                                 // show only single bit values
                                 string trkey = "Internal/Enum/" + prop.prop.PropertyType.DeclaringType.Name + "/" + prop.prop.PropertyType.Name + "/" + name;
-                                EnumBinding eb = new EnumBinding() { Text = trkey, Prop = prop.prop, EnumValueName = name };
+                                EnumBinding eb = new EnumBinding { Text = trkey, Prop = prop.prop, EnumValueName = name };
                                 clb.Items.Add(eb);
                                 if ((thisval & curval) != 0)
                                 {
@@ -1094,7 +1094,7 @@ namespace Triggernometry.Core
                         {
                             // for example, "Internal/Enum/ActionActInteraction/OperationEnum/SetCombatState"
                             string trkey = "Internal/Enum/" + prop.prop.PropertyType.DeclaringType.Name + "/" + prop.prop.PropertyType.Name + "/" + name;
-                            EnumBinding eb = new EnumBinding() { Text = trkey, Prop = prop.prop, EnumValueName = name };
+                            EnumBinding eb = new EnumBinding { Text = trkey, Prop = prop.prop, EnumValueName = name };
                             cb.Items.Add(eb);
                             if (curval == name)
                             {

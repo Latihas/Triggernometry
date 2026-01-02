@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Triggernometry.Core;
+using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.Expressions.String.Parsers
 {
@@ -102,7 +103,7 @@ namespace Triggernometry.Expressions.String.Parsers
                         i = j - 1; // skip scanned part
                         break;
                     }
-                    else if (charAfterDollar >= '0' && charAfterDollar <= '9') // inner $n
+                    if (charAfterDollar >= '0' && charAfterDollar <= '9') // inner $n
                     {
                         AddNumGroupTemplate(results, charAfterDollar, j, out i);
                         break;
@@ -162,7 +163,7 @@ namespace Triggernometry.Expressions.String.Parsers
 
                 // add evaluated template
                 var result = ParseTemplateMatch(template, ctx, isNumeric);
-                result = Utils.ParserCommon.ReplaceLineBreak(result);
+                result = ParserCommon.ReplaceLineBreak(result);
                 sb.Append(result);
 
                 start = template.End + 1;

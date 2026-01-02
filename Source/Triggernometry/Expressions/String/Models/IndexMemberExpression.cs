@@ -134,8 +134,7 @@ namespace Triggernometry.Expressions.String.Models
         {
             if (indexOfIndex >= 0 && indexOfIndex < Indexes.Length)
                 return Indexes[indexOfIndex];
-            else
-                return null;
+            return null;
         }
 
         #endregion
@@ -183,7 +182,7 @@ namespace Triggernometry.Expressions.String.Models
 
                 // '.' may appear inside expressions and must be validated
                 // e.g. ${?d: a=1.5, b=2.5 .size}
-                else if (c == '.' && validDotPos == -1)
+                if (c == '.' && validDotPos == -1)
                 {
                     bool isValidDot = true;
                     for (int k = i + 1; k < expr.Length; k++)
@@ -198,7 +197,7 @@ namespace Triggernometry.Expressions.String.Models
                             break;
                         }
                         // '(' indicates a method call and is acceptable
-                        else if (c2 == '(')
+                        if (c2 == '(')
                         {
                             break;
                         }
@@ -253,11 +252,10 @@ namespace Triggernometry.Expressions.String.Models
                 {
                     break;
                 }
-                else if (expr[k] == '[')
+                if (expr[k] == '[')
                 {
                     startIndex = k + 1;
                     i = k;
-                    continue;
                 }
                 else if (expr[k] == '.')
                 {

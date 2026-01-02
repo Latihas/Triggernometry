@@ -43,7 +43,7 @@ namespace Triggernometry.Core.Variables
 
         public override int CompareTo(object o)
         {
-            if (o is Variable == false)
+            if (!(o is Variable))
             {
                 throw new InvalidOperationException();
             }
@@ -169,7 +169,7 @@ namespace Triggernometry.Core.Variables
 
         public void Set(int x, int y, string value, string changer)
         {
-            InternalSet(x, y, new VariableScalar() { Value = value }, changer);
+            InternalSet(x, y, new VariableScalar { Value = value }, changer);
         }
 
         public void Set(int x, int y, Variable value, string changer)

@@ -193,8 +193,7 @@ namespace Triggernometry.Expressions.String.Parsers
 
                         if (funcNameLower == "padleft")
                             return sourceString.PadLeft(length, paddingChar);
-                        else
-                            return sourceString.PadRight(length, paddingChar);
+                        return sourceString.PadRight(length, paddingChar);
                     }
 
                 case "repeat": // repeat(times, joiner = "")
@@ -209,21 +208,18 @@ namespace Triggernometry.Expressions.String.Parsers
                         {
                             return "";
                         }
-                        else
+                        if (times < 0)
                         {
-                            if (times < 0)
-                            {
-                                times = -times;
-                                sourceString = new string(sourceString.Reverse().ToArray());
-                            }
-                            StringBuilder sb = new StringBuilder(sourceString);
-                            string repeatedUnit = joiner + sourceString;
-                            for (int repeatCount = 1; repeatCount < times; repeatCount++)
-                            {
-                                sb.Append(repeatedUnit);
-                            }
-                            return sb.ToString();
+                            times = -times;
+                            sourceString = new string(sourceString.Reverse().ToArray());
                         }
+                        StringBuilder sb = new StringBuilder(sourceString);
+                        string repeatedUnit = joiner + sourceString;
+                        for (int repeatCount = 1; repeatCount < times; repeatCount++)
+                        {
+                            sb.Append(repeatedUnit);
+                        }
+                        return sb.ToString();
                     }
 
                 case "replace": // replace(oldStr, newStr = "", isLooped = false)

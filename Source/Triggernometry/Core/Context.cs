@@ -14,7 +14,7 @@ namespace Triggernometry.Core
     /// Context for running triggers and evaluating string expressions.<br />
     /// Holds trigger, captured groups, timing info and plugin hooks used during evaluation.
     /// </summary>
-    public partial class Context
+    public class Context
     {
         internal Guid id = Guid.NewGuid();
         internal bool testByPlaceholder;
@@ -84,7 +84,7 @@ namespace Triggernometry.Core
 
         public override string ToString()
         {
-            return id.ToString() + " for " + (Trigger != null ? Trigger.LogName : "(no trigger)") + " at " + triggeredTime.ToString();
+            return id + " for " + (Trigger != null ? Trigger.LogName : "(no trigger)") + " at " + triggeredTime;
         }
 
         internal Context Duplicate()
@@ -105,7 +105,7 @@ namespace Triggernometry.Core
         {
             lock (ActionResults)
             {
-                if (previous == true)
+                if (previous)
                 {
                     if (ActionResults.Count > 0)
                     {
@@ -113,14 +113,11 @@ namespace Triggernometry.Core
                     }
                     return 0;
                 }
-                else
+                if (i < 1 || i > ActionResults.Count)
                 {
-                    if (i < 1 || i > ActionResults.Count)
-                    {
-                        return 0;
-                    }
-                    return ActionResults[i - 1];
+                    return 0;
                 }
+                return ActionResults[i - 1];
             }
         }
 

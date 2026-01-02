@@ -24,7 +24,7 @@ namespace Triggernometry.Core
                 I18n.CurrentLanguage != null ? I18n.CurrentLanguage.LanguageName : "(not set)",
                 langname != null ? langname : "(default)"
             ));
-            if (I18n.ChangeLanguage(langname) == true)
+            if (I18n.ChangeLanguage(langname))
             {
                 FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchangeok", "Language is now '{0}'",
                     I18n.CurrentLanguage != null ? I18n.CurrentLanguage.LanguageName : "(not set)"
@@ -57,7 +57,7 @@ namespace Triggernometry.Core
                 string x = I18n.Translate("internal/Plugin/langload", "Loading language from '{0}'", filename);
                 FilteredAddToLog(DebugLevelEnum.Info, x);
                 FileInfo fi = new FileInfo(filename);
-                if (fi.Exists == false)
+                if (!fi.Exists)
                 {
                     FilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Plugin/langfilenotfound", "Language file '{0}' does not exist", filename));
                     return null;

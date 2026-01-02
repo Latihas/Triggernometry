@@ -35,17 +35,17 @@ namespace Triggernometry.Localization
 
         internal static void AddLanguage(Language ld)
         {
-            if (ld.IsDefault == true)
+            if (ld.IsDefault)
             {
                 DefaultLanguage = ld;
             }
-            if (RegisteredLanguages.ContainsKey(ld.LanguageName) == true)
+            if (RegisteredLanguages.ContainsKey(ld.LanguageName))
             {
                 string basename = ld.LanguageName;
                 for (int i = 2; ; i++)
                 {
                     string curname = basename + " #" + i;
-                    if (RegisteredLanguages.ContainsKey(curname) == true)
+                    if (RegisteredLanguages.ContainsKey(curname))
                     {
                         continue;
                     }
@@ -81,7 +81,7 @@ namespace Triggernometry.Localization
         {
             if (BuiltInLanguage != null)
             {
-                if (BuiltInLanguage.TranslationsLookup.ContainsKey(key) == false)
+                if (!BuiltInLanguage.TranslationsLookup.ContainsKey(key))
                 {
                     BuiltInLanguage.TranslationsLookup[key] = text;
                 }
@@ -95,14 +95,11 @@ namespace Triggernometry.Localization
                 catch (FormatException)
                 {
                     RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, Translate("internal/I18n/formatex", 
-                        "You might need to update your translation file (your_language_name.triglations.xml). \nFormatException occured during translating \"{0}\".",key));
+                                                                                                    "You might need to update your translation file (your_language_name.triglations.xml). \nFormatException occured during translating \"{0}\".",key));
                     return string.Format(text, args);
                 }
             }
-            else
-            {
-                return string.Format(text, args);
-            }
+            return string.Format(text, args);
         }
 
         internal static void TranslateSecondaryControl(string path, ToolStripItem tsi)
@@ -153,19 +150,13 @@ namespace Triggernometry.Localization
                 CurrentLanguage = DefaultLanguage;
                 return true;
             }
-            else
+            if (RegisteredLanguages.ContainsKey(langname))
             {
-                if (RegisteredLanguages.ContainsKey(langname) == true)
-                {
-                    CurrentLanguage = RegisteredLanguages[langname];
-                    return true;
-                }
-                else
-                {
-                    CurrentLanguage = DefaultLanguage;
-                    return false;
-                }
+                CurrentLanguage = RegisteredLanguages[langname];
+                return true;
             }
+            CurrentLanguage = DefaultLanguage;
+            return false;
         }
 
         internal static void TranslateControl(string path, Control c)
@@ -298,11 +289,8 @@ namespace Triggernometry.Localization
                 string path = $"internal/I18n/{key}";
                 return Translate(path, key);
             }
-            else
-            {
-                throw new Exception(Translate("internal/I18n/translatewordmissingkey", 
-                    "The key {0} is not in I18n._wordsToTranslate. Please report the bug if you see this error.", key));
-            }
+            throw new Exception(Translate("internal/I18n/translatewordmissingkey", 
+                                          "The key {0} is not in I18n._wordsToTranslate. Please report the bug if you see this error.", key));
         }
 
         internal static string TrlVarPersist(bool isPersist)
@@ -354,18 +342,16 @@ namespace Triggernometry.Localization
             {
                 return Translate("internal/I18n/desctimesec", "{0} s", (int)s);
             }
-            else if (Math.Abs(s) >= 10 || s == Math.Round(s, 1)) // > 10 s   or 1-digit decimal
+            if (Math.Abs(s) >= 10 || s == Math.Round(s, 1)) // > 10 s   or 1-digit decimal
             {
                 return Translate("internal/I18n/desctimesec", "{0} s", s.ToString("F1", CultureInfo.InvariantCulture));
             }
-            else if (Math.Abs(s) >= 0.1 || s == Math.Round(s, 2)) // > 0.1 s   or 2-digit decimal
+            if (Math.Abs(s) >= 0.1 || s == Math.Round(s, 2)) // > 0.1 s   or 2-digit decimal
             {
                 return Translate("internal/I18n/desctimesec", "{0} s", s.ToString("F2", CultureInfo.InvariantCulture));
             }
-            else    // < 0.1 s
-            {
-                return Translate("internal/I18n/desctimems", "{0} ms", ms);
-            }
+            // < 0.1 s
+            return Translate("internal/I18n/desctimems", "{0} ms", ms);
         }
 
         public static bool IsChineseEnvironment => (RealPlugin.Instance.cfg.Language ?? "").Contains("zh") || CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "zh";

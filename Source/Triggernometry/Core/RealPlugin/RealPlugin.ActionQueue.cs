@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Dalamud.Plugin.Services;
@@ -111,7 +112,7 @@ public partial class RealPlugin
 
         public void ActionFinished()
         {
-            if (mutex != null && releaseMutex == true)
+            if (mutex != null && releaseMutex)
             {
                 mutex.Release(ctx);
             }
@@ -158,11 +159,11 @@ public partial class RealPlugin
         ActionOld lastAction = null;
         var sortedActions = actions.OrderBy(a => a.OrderNumber);
         var finalAction = sortedActions.LastOrDefault(); // _Enabled?
-        if (sequential == false)
+        if (!sequential)
         {
             foreach (ActionOld action in sortedActions)
             {
-                    if (action.Enabled == true)
+                    if (action.Enabled)
                 {
                         startingFrom = startingFrom.AddMilliseconds(ctx.EvaluateNumericExpression(logger, this, action.ExecutionDelayExpression));
                     QueueAction(ctx, ctx.Trigger, mtx, action, startingFrom, finalAction == action);
@@ -176,7 +177,7 @@ public partial class RealPlugin
             ActionOld first = null;
             foreach (ActionOld action in sortedActions)
             {
-                    if (action.Enabled == false)
+                    if (!action.Enabled)
                 {
                     continue;
                 }
@@ -204,14 +205,14 @@ public partial class RealPlugin
     {
         lock (ActionQueue) // verified
         {
-                if (a.RefireRequeue == false || a.RefireInterrupt == true)
+                if (!a.RefireRequeue || a.RefireInterrupt)
             {
                 var ix = from ax in ActionQueue
                          where ax.act.Id == a.Id
                          select ax;
                 if (ix.Count() > 0)
                 {
-                        if (a.RefireInterrupt == true)
+                        if (a.RefireInterrupt)
                     {
                         List<QueuedAction> rems = new List<QueuedAction>();
                         rems.AddRange(ix);
@@ -226,10 +227,10 @@ public partial class RealPlugin
                             a.AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/actionqueuerem", "Removed {0} instance(s) of trigger '{1}' action '{2}' from queue", exx, t.LogName, a.GetDescription(ctx)));
                         }
                     }
-                        if (a.RefireRequeue == false)
+                        if (!a.RefireRequeue)
                     {
                         a.AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/actionqueuefail", "Trigger '{0}' action '{1}' not queued, refire requeue disabled", t.LogName, a.GetDescription(ctx)));
-                        if (releaseMutex == true && m != null)
+                        if (releaseMutex && m != null)
                         {
                             m.Release(ctx);
                         }
@@ -312,23 +313,23 @@ public partial class RealPlugin
 
         internal MutexTicket QueueForAcquisition(Context ctx)
         {
-                System.Diagnostics.Debug.WriteLine("### {0} - Queuing acquisition for context: {1}", name, ctx.ToString());
+                Debug.WriteLine("### {0} - Queuing acquisition for context: {1}", name, ctx);
             MutexTicket m = new MutexTicket(ctx);
             lock (this)
             {
                 acquireQueue.Add(m);
             }
-                System.Diagnostics.Debug.WriteLine("### {0} - Queued acquisition {1} for context: {2}", name, m.GetHashCode(), ctx.ToString());
+                Debug.WriteLine("### {0} - Queued acquisition {1} for context: {2}", name, m.GetHashCode(), ctx);
             return m;
         }
 
         internal void Acquire(Context ctx)
         {
-                System.Diagnostics.Debug.WriteLine("### {0} - Acquiring for context: {1}", name, ctx.ToString());
+                Debug.WriteLine("### {0} - Acquiring for context: {1}", name, ctx);
             using (MutexTicket m = QueueForAcquisition(ctx))
             {
                 Acquire(ctx, m);
-                    System.Diagnostics.Debug.WriteLine("### {0} - Acquired {1} for context: {2}", name, m.GetHashCode(), ctx.ToString());
+                    Debug.WriteLine("### {0} - Acquired {1} for context: {2}", name, m.GetHashCode(), ctx);
             }
         }
 
@@ -337,7 +338,7 @@ public partial class RealPlugin
             DateTime start = DateTime.Now;
             string ownername = "";
             bool autoget = false;
-                System.Diagnostics.Debug.WriteLine("### {0} - Acquisition {1} pending stage 1 for context: {2}", name, m.GetHashCode(), ctx.ToString());
+                Debug.WriteLine("### {0} - Acquisition {1} pending stage 1 for context: {2}", name, m.GetHashCode(), ctx);
             lock (this)
             {
                 if (heldBy == null)
@@ -357,13 +358,12 @@ public partial class RealPlugin
                     refCount++;
                     autoget = true;
                 }
-                else { }
-                if (autoget == false)
+                if (!autoget)
                 {
                     ownername = heldBy != null ? heldBy.ToString() : null;
                 }
             }
-            while (m.ev.WaitOne(5000) == false)
+            while (!m.ev.WaitOne(5000))
             {
                 if (ctx.Plugin != null)
                 {
@@ -372,12 +372,12 @@ public partial class RealPlugin
                                                                (DateTime.Now - start).TotalMilliseconds, ownername));
                 }
             }
-                System.Diagnostics.Debug.WriteLine("### {0} - Acquisition {1} pending stage 2 for context: {2}", name, m.GetHashCode(), ctx.ToString());
+                Debug.WriteLine("### {0} - Acquisition {1} pending stage 2 for context: {2}", name, m.GetHashCode(), ctx);
             lock (this)
             {
-                    System.Diagnostics.Debug.WriteLine("### {0} - Acquisition {1} pending stage 3 for context: {2}", name, m.GetHashCode(), ctx.ToString());
+                    Debug.WriteLine("### {0} - Acquisition {1} pending stage 3 for context: {2}", name, m.GetHashCode(), ctx);
                 acquireQueue.Remove(m);
-                if (autoget == false)
+                if (!autoget)
                 {
                     if (heldBy != null)
                     {
@@ -385,19 +385,19 @@ public partial class RealPlugin
                     }
                     heldBy = ctx;
                     refCount++;
-                        System.Diagnostics.Debug.WriteLine("### {0} - New acquisition {1} for context: {2}", name, m.GetHashCode(), ctx.ToString());
+                        Debug.WriteLine("### {0} - New acquisition {1} for context: {2}", name, m.GetHashCode(), ctx);
                 }
                 else
                 {
-                        System.Diagnostics.Debug.WriteLine("### {0} - Autoget acquisition {1} for context: {2}", name, m.GetHashCode(), ctx.ToString());
+                        Debug.WriteLine("### {0} - Autoget acquisition {1} for context: {2}", name, m.GetHashCode(), ctx);
                 }
             }
-                System.Diagnostics.Debug.WriteLine("### {0} - Acquisition {1} pending stage 4 for context: {2}", name, m.GetHashCode(), ctx.ToString());
+                Debug.WriteLine("### {0} - Acquisition {1} pending stage 4 for context: {2}", name, m.GetHashCode(), ctx);
         }
 
         internal void Release(Context ctx)
         {
-                System.Diagnostics.Debug.WriteLine("### {0} - Releasing for context: {1}", name, ctx.ToString());
+                Debug.WriteLine("### {0} - Releasing for context: {1}", name, ctx);
             lock (this)
             {
                 if (heldBy == null || heldBy.id != ctx.id)
@@ -407,24 +407,24 @@ public partial class RealPlugin
                 refCount--;
                 if (refCount == 0)
                 {
-                        System.Diagnostics.Debug.WriteLine("### {0} - Fully released by context: {1}", name, ctx.ToString());
+                        Debug.WriteLine("### {0} - Fully released by context: {1}", name, ctx);
                     heldBy = null;
                     WakeupNext();
                 }
             }
-                System.Diagnostics.Debug.WriteLine("### {0} - Released for context: {1}", name, ctx.ToString());
+                Debug.WriteLine("### {0} - Released for context: {1}", name, ctx);
         }
 
         internal void ForceRelease()
         {
-                System.Diagnostics.Debug.WriteLine("### {0} - Releasing by force", name);
+                Debug.WriteLine("### {0} - Releasing by force", name);
             lock (this)
             {
                 refCount = 0;
                 heldBy = null;
                 WakeupNext();
             }
-                System.Diagnostics.Debug.WriteLine("### {0} - Released by force", name);
+                Debug.WriteLine("### {0} - Released by force", name);
         }
 
         private void WakeupNext()
@@ -432,7 +432,7 @@ public partial class RealPlugin
             if (acquireQueue.Count > 0)
             {
                 MutexTicket m = acquireQueue.ElementAt(0);
-                    System.Diagnostics.Debug.WriteLine("### {0} - Waking up next context in queue : {1}", name, m.ctx.ToString());
+                    Debug.WriteLine("### {0} - Waking up next context in queue : {1}", name, m.ctx);
                 m.ev.Set();
             }
         }
@@ -443,7 +443,7 @@ public partial class RealPlugin
         MutexInformation mi = null;
         lock (mutexes)
         {
-            if (mutexes.ContainsKey(name) == false)
+            if (!mutexes.ContainsKey(name))
             {
                 mutexes[name] = new MutexInformation(name);
             }

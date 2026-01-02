@@ -173,14 +173,11 @@ namespace Triggernometry.Core.Actions
                     Endpoint, cache
                 );
             }
-            else
-            {
-                return I18n.Translate(
-                    "internal/Action/descjsonsend",
-                    "send JSON payload to endpoint ({0}){1} and cache the response",
-                    Endpoint, cache
-                );
-            }
+            return I18n.Translate(
+                "internal/Action/descjsonsend",
+                "send JSON payload to endpoint ({0}){1} and cache the response",
+                Endpoint, cache
+            );
         }
 
         internal override void ExecuteImplementation(ActionInstance ai)
@@ -200,20 +197,20 @@ namespace Triggernometry.Core.Actions
             {
                 headerslist.AddRange(headers.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
             }
-            if (UseCache == true)
+            if (UseCache)
             {
                 string endpointh = RealPlugin.GenerateHash(endpoint);
                 string payloadh = RealPlugin.GenerateHash(payload);
                 string headersh = RealPlugin.GenerateHash(headers);
                 string fh = RealPlugin.GenerateHash(endpointh + payloadh + headersh);
                 string fn = Path.Combine(plug.ConfigPath, "TriggernometryJsonCache");
-                if (Directory.Exists(fn) == false)
+                if (!Directory.Exists(fn))
                 {
                     Directory.CreateDirectory(fn);
                 }
                 fn = Path.Combine(fn, fh + ".json");
                 bool fromcache = false;
-                if (File.Exists(fn) == true)
+                if (File.Exists(fn))
                 {
                     FileInfo fi = new FileInfo(fn);
                     DateTime dt = DateTime.Now.AddMinutes(0 - plug.cfg.CacheJsonExpiry);
@@ -224,7 +221,7 @@ namespace Triggernometry.Core.Actions
                         fromcache = true;
                     }
                 }
-                if (fromcache == false)
+                if (!fromcache)
                 {
                     Tuple<int, string> resp = SendJson(ctx, Method, endpoint, payload, headerslist, false); // todo
                     responseCode = resp.Item1;
@@ -243,7 +240,7 @@ namespace Triggernometry.Core.Actions
                 VariableStore vs = plug.GetVariableStore(Persistent);
                 lock (vs.Scalar) // verified
                 {
-                    if (vs.Scalar.ContainsKey(varname) == false)
+                    if (!vs.Scalar.ContainsKey(varname))
                     {
                         vs.Scalar[varname] = new VariableScalar();
                     }
@@ -260,7 +257,7 @@ namespace Triggernometry.Core.Actions
                     x.LastChanged = DateTime.Now;
                 }
                 AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarsetjson",
-                    "{1}Scalar variable ({0}) value set to JSON response", varname, persist));
+                                                                                "{1}Scalar variable ({0}) value set to JSON response", varname, persist));
             }
             ctx.contextResponse = response;
             ctx.contextResponseCode = responseCode;

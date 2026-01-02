@@ -7,7 +7,7 @@ namespace Triggernometry.FFXIV
 {
     public partial class Job
     {
-        public readonly static Job EmptyJob = new Job() { JobType = JobEnum.None };
+        public readonly static Job EmptyJob = new Job { JobType = JobEnum.None };
         public JobEnum JobType { get; private set; }
         public int JobID => (int)JobType; // actually byte
         public int DefaultOrder { get; private set; }
@@ -160,11 +160,8 @@ namespace Triggernometry.FFXIV
                 result = accessor(this).ToDataString();
                 return true;
             }
-            else
-            {
-                result = null;
-                return false;
-            }
+            result = null;
+            return false;
         }
 
         public static bool TryGetAccessor(string propName, out Func<Job, object> accessor)

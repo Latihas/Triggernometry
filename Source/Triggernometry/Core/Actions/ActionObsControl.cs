@@ -314,7 +314,7 @@ namespace Triggernometry.Core.Actions
 
             lock (obsController)
             {
-                if (obsController.IsConnected == true)
+                if (obsController.IsConnected)
                 {
                     return true;
                 }

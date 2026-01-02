@@ -62,16 +62,8 @@ public class UseActionModule : ModuleBase
         uint targetId = DataStringHelper.HexOrDecId.Default;
         // IntPtr posPtr = default;
         bool result = default;
-        try
-        {
-            Vector3 posPtr = new Vector3(x, z, y);
-            ActionManager.Instance()->UseActionLocation((FFXIVClientStructs.FFXIV.Client.Game.ActionType)(int)actionType, actionId, targetId, &posPtr, extraParam);
-        }
-        finally
-        {
-            // if (posPtr != IntPtr.Zero)
-            //     Memory.FreeMemory(posPtr);
-        }
+        Vector3 posPtr = new Vector3(x, z, y);
+        ActionManager.Instance()->UseActionLocation((FFXIVClientStructs.FFXIV.Client.Game.ActionType)(int)actionType, actionId, targetId, &posPtr, extraParam);
         if (result)
         {
             NamazuLog($"[UseActionLocation]: {actionType} ({(byte)actionType}); action = {actionId} (0x{actionId:X}) @ ({x:0.##}, {y:0.##}, {z:0.##})");

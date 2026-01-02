@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Triggernometry.Core;
 
-
 namespace Triggernometry.PluginBridges.BridgeNamazu;
 
 /// <summary>

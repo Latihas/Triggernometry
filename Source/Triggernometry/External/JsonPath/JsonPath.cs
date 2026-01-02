@@ -28,17 +28,17 @@
 //
 #endregion
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+
 namespace JsonPath
 {
     #region Imports
-
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Text;
-    using System.Text.RegularExpressions;
 
     #endregion
 
@@ -131,7 +131,7 @@ namespace JsonPath
 
         static int? TryParseInt(string str) =>
             int.TryParse(str, NumberStyles.Integer, CultureInfo.InvariantCulture, out var n)
-            ? n : (int?)null;
+            ? n : null;
 
         sealed class Interpreter
         {

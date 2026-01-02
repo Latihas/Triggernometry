@@ -230,7 +230,7 @@ namespace Triggernometry.Core.Actions
             }
             set
             {
-                string[] exx = value != null ? value.Split(",".ToCharArray()) : new string[] { "" };
+                string[] exx = value != null ? value.Split(",".ToCharArray()) : new[] { "" };
                 ForceEnum newval = ForceEnum.NoSkip;
                 foreach (string ex in exx)
                 {
@@ -239,7 +239,7 @@ namespace Triggernometry.Core.Actions
                         newval = ForceEnum.SkipAll;
                         break;
                     }
-                    else if (string.Compare(ex, "false", true) == 0)
+                    if (string.Compare(ex, "false", true) == 0)
                     {
                         newval = ForceEnum.NoSkip;
                         break;
@@ -290,24 +290,18 @@ namespace Triggernometry.Core.Actions
                             "cancel all actions queued from trigger ({0})",
                             t?.Name ?? "null");
                     }
-                    else
-                    {
-                        return I18n.Translate("internal/Action/desctrigcanceltrigtag",
-                            "cancel all actions queued from trigger ({0}) with tags matching regex ({1})",
-                            t?.Name ?? "null", TagRegex);
-                    }
+                    return I18n.Translate("internal/Action/desctrigcanceltrigtag",
+                                          "cancel all actions queued from trigger ({0}) with tags matching regex ({1})",
+                                          t?.Name ?? "null", TagRegex);
                 case OperationEnum.CancelAllTrigger:
                     if (string.IsNullOrWhiteSpace(TagRegex))
                     {
                         return I18n.Translate("internal/Action/desctrigcancelall",
                             "cancel all actions queued from all triggers");
                     }
-                    else
-                    {
-                        return I18n.Translate("internal/Action/desctrigcanceltag",
-                            "cancel all actions queued from all triggers with tags matching regex ({0})",
-                            TagRegex);
-                    }
+                    return I18n.Translate("internal/Action/desctrigcanceltag",
+                                          "cancel all actions queued from all triggers with tags matching regex ({0})",
+                                          TagRegex);
                 case OperationEnum.FireTrigger:
                     string temp = I18n.Translate("internal/Action/desctrigfire", "fire trigger ({0})", t?.Name ?? "null");
                     List<string> ex = new List<string>();

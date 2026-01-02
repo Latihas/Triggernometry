@@ -32,7 +32,7 @@ public partial class RealPlugin
         {
             return;
         }
-        if (cfg._ShowWelcomeHasBeenSet == false && (cfg.Root.Folders.Count > 0 || cfg.Root.Triggers.Count > 0))
+        if (!cfg._ShowWelcomeHasBeenSet && (cfg.Root.Folders.Count > 0 || cfg.Root.Triggers.Count > 0))
         {
             cfg.ShowWelcome = false;
         }
@@ -47,15 +47,15 @@ public partial class RealPlugin
         Configuration dummy = new Configuration();
         foreach (KeyValuePair<string, VariableScalar> kp in dummy.Constants)
         {
-            if (cfg.Constants.ContainsKey(kp.Key) == false)
+            if (!cfg.Constants.ContainsKey(kp.Key))
             {
-                cfg.Constants[kp.Key] = new VariableScalar() { Value = kp.Value.Value, LastChanged = kp.Value.LastChanged, LastChanger = kp.Value.LastChanger };
+                cfg.Constants[kp.Key] = new VariableScalar { Value = kp.Value.Value, LastChanged = kp.Value.LastChanged, LastChanger = kp.Value.LastChanger };
             }
         }
-        cfg.Constants["TriggernometryVersionMajor"] = new VariableScalar() { Value = v.Major.ToString() };
-        cfg.Constants["TriggernometryVersionMinor"] = new VariableScalar() { Value = v.Minor.ToString() };
-        cfg.Constants["TriggernometryVersionBuild"] = new VariableScalar() { Value = v.Build.ToString() };
-        cfg.Constants["TriggernometryVersionRevision"] = new VariableScalar() { Value = v.Revision.ToString() };
+        cfg.Constants["TriggernometryVersionMajor"] = new VariableScalar { Value = v.Major.ToString() };
+        cfg.Constants["TriggernometryVersionMinor"] = new VariableScalar { Value = v.Minor.ToString() };
+        cfg.Constants["TriggernometryVersionBuild"] = new VariableScalar { Value = v.Build.ToString() };
+        cfg.Constants["TriggernometryVersionRevision"] = new VariableScalar { Value = v.Revision.ToString() };
     }
 
     public void BackupConfiguration()
@@ -67,9 +67,9 @@ public partial class RealPlugin
         {
             string oldfn = Path.Combine(ConfigPath, pluginName + ".config.xml");
             string bacfn = Path.Combine(ConfigPath, pluginName + "." + cfgver + ".config.xml");
-            if (File.Exists(oldfn) == true)
+            if (File.Exists(oldfn))
             {
-                if (File.Exists(bacfn) == false)
+                if (!File.Exists(bacfn))
                 {
                     FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgbackupupdate", "Plugin updated from {0} to {1}, backing up configuration as {2}", cfgver, curver, bacfn));
                     File.Copy(oldfn, bacfn, false);
@@ -97,7 +97,7 @@ public partial class RealPlugin
             FileInfo fi = new FileInfo(filename);
             string origfilename = filename;
             string cre = "";
-            if (fi.Exists == false)
+            if (!fi.Exists)
             {
                 FilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Plugin/cfgnew", "Configuration file '{0}' does not exist, creating a new configuration", filename));
                 Configuration c = new Configuration();
@@ -120,7 +120,7 @@ public partial class RealPlugin
                                      "'{1}'",
                                      filename, newfilename);
                 MessageBox.Show(cre, "Triggernometry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                if (fi.Exists == true)
+                if (fi.Exists)
                 {
                     filename = newfilename;
                     corruptFallback = true;
@@ -136,7 +136,7 @@ public partial class RealPlugin
                 cx.isnew = false;
                 cx.lastWrite = fi.LastWriteTimeUtc;
             }
-            if (corruptFallback == true)
+            if (corruptFallback)
             {
                 cx.corruptRecoveryError = cre;
                 SaveConfigToFile(cx, origfilename, false);
@@ -197,13 +197,13 @@ public partial class RealPlugin
             {
                 throw new Exception(I18n.Translate("internal/Plugin/cfgsaveincomplete", "The saving process was interrupted.") + "\n");
             }
-            if (switchprevious == true)
+            if (switchprevious)
             {
-                if (File.Exists(filename + ".previous") == true)
+                if (File.Exists(filename + ".previous"))
                 {
                     File.Delete(filename + ".previous");
                 }
-                if (File.Exists(filename) == true)
+                if (File.Exists(filename))
                 {
                     File.Move(filename, filename + ".previous");
                 }

@@ -1,8 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Scripting;
-using System.Collections.Generic;
-using System.Linq;
 using static Triggernometry.Core.Configuration;
 
 namespace Triggernometry.Core.Scripting

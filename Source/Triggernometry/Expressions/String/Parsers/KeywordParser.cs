@@ -100,8 +100,7 @@ namespace Triggernometry.Expressions.String.Parsers
                 case "_duration":
                     if (plug?.InCombatHook?.Invoke() == true)
                         return Math.Floor(plug.EncounterDurationHook()).ToString("0.###", CultureInfo.InvariantCulture);
-                    else
-                        return "0";
+                    return "0";
 
                 case "_lastencounter":
                     return plug?.LastEncounterHook() ?? "";
@@ -151,8 +150,7 @@ namespace Triggernometry.Expressions.String.Parsers
                 case "_this": // 【需要优化】
                     if (ctx.varName.StartsWith("tvar:") || ctx.varName.StartsWith("ptvar:"))
                         return $"${{{ctx.varName}[{ctx.tableColIndex}][{ctx.tableRowIndex}]}}";
-                    else
-                        return $"${{{ctx.varName}[{ctx.listIndex}]}}";
+                    return $"${{{ctx.varName}[{ctx.listIndex}]}}";
 
 
                 // ===== Triggernometry info =====
@@ -188,9 +186,6 @@ namespace Triggernometry.Expressions.String.Parsers
                 // ===== Misc =====
                 case "_clipboard":
                     return ActionOld.ClipboardGetText();
-
-                default: 
-                    break;
             }
 
             // ${1} ${2}

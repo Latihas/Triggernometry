@@ -164,10 +164,6 @@ namespace Triggernometry.Core
             }
         }
 
-        public Repository()
-        {
-        }
-
         /// <summary>
         /// Add a message to the repository's log. <br />
         /// If a debug level is provided, also forward the message to <see cref="RealPlugin.FilteredAddToLog" />.
@@ -285,7 +281,7 @@ namespace Triggernometry.Core
                         f.Enabled = false;
                         break;
                 }
-                FolderStates.Add(new RepositoryItem() { Id = f.Id, Enabled = f.Enabled });
+                FolderStates.Add(new RepositoryItem { Id = f.Id, Enabled = f.Enabled });
             }
             else // saved
             {
@@ -332,7 +328,7 @@ namespace Triggernometry.Core
                         t.Enabled = false;
                         break;
                 }
-                TriggerStates.Add(new RepositoryItem() { Id = t.Id, Enabled = t.Enabled });
+                TriggerStates.Add(new RepositoryItem { Id = t.Id, Enabled = t.Enabled });
             }
             else // saved
             {
@@ -408,7 +404,7 @@ namespace Triggernometry.Core
 
         internal void RegisterFolder(Folder f, bool parentEnabled)
         {
-            if (f.Enabled == false)
+            if (!f.Enabled)
             {
                 parentEnabled = false;
             }
@@ -431,7 +427,7 @@ namespace Triggernometry.Core
             // Always register the trigger, but enable/disable depends on parentEnabled
             Instance.AddTrigger(t, parentEnabled);
 
-            if (t.IsReadme == true && t.Enabled == true)
+            if (t.IsReadme && t.Enabled)
             {
                 ReadmeTriggers.Add(t);
             }
@@ -555,7 +551,7 @@ namespace Triggernometry.Core
                 AddContentFromExport(exp);
 
                 // Save backup
-                if (KeepLocalBackup == true)
+                if (KeepLocalBackup)
                 {
                     SaveLocalBackup(raw);
                 }
@@ -617,7 +613,7 @@ namespace Triggernometry.Core
             // if an update is not needed, try to load local backup
             if (!shouldUpdate && KeepLocalBackup)
             {
-                if (TryLoadLocalBackup() == false)
+                if (!TryLoadLocalBackup())
                 {
                     // but if the local backup fails to load, still need to update
                     shouldUpdate = true;

@@ -1,7 +1,7 @@
-﻿using Scarborough;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.Json;
+using Scarborough;
 using Triggernometry.Core;
 using Triggernometry.Expressions.String.Evaluators;
 using Triggernometry.Expressions.String.Models;
@@ -37,11 +37,10 @@ namespace Triggernometry.Expressions.String.Parsers
                     {
                         return BridgeFFXIV.PlayerHexId;
                     }
-                    else
-                    {
-                        var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
-                        return string.Join(", ", evaluator(Entity.GetMyself()));
-                    }
+                {
+                    var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
+                    return string.Join(", ", evaluator(Entity.GetMyself()));
+                }
 
                 case "_tgt": // ${_tgt.prop}
                     {
@@ -128,7 +127,7 @@ namespace Triggernometry.Expressions.String.Parsers
                     }
 
                 case "_jsonresponse":
-                    if (ctx.isContextJsonParsed == false)
+                    if (!ctx.isContextJsonParsed)
                     {
                         ctx.contextJsonResponse = JsonSerializer.Deserialize<dynamic>(ctx.contextResponse);
                         ctx.isContextJsonParsed = true;
@@ -226,29 +225,26 @@ namespace Triggernometry.Expressions.String.Parsers
                                 }
                             }
                         }
-                        else
-                        {
-                            // lock (plug.imageauras)
-                            // {
-                            //     if (!plug.imageauras.TryGetValue(expr.Index, out UI.Forms.AuraContainerForm acf))
-                            //         return "";
-                            //     switch (expr.Member.Name.ToLowerInvariant())
-                            //     {
-                            //         case "x":
-                            //             return I18n.ThingToString(acf.Left);
-                            //         case "y":
-                            //             return I18n.ThingToString(acf.Top);
-                            //         case "w":
-                            //         case "width":
-                            //             return I18n.ThingToString(acf.Width);
-                            //         case "h":
-                            //         case "height":
-                            //             return I18n.ThingToString(acf.Height);
-                            //         case "opacity":
-                            //             return I18n.ThingToString(acf.PresentableOpacity);
-                            //     }
-                            // }
-                        }
+                        // lock (plug.imageauras)
+                        // {
+                        //     if (!plug.imageauras.TryGetValue(expr.Index, out UI.Forms.AuraContainerForm acf))
+                        //         return "";
+                        //     switch (expr.Member.Name.ToLowerInvariant())
+                        //     {
+                        //         case "x":
+                        //             return I18n.ThingToString(acf.Left);
+                        //         case "y":
+                        //             return I18n.ThingToString(acf.Top);
+                        //         case "w":
+                        //         case "width":
+                        //             return I18n.ThingToString(acf.Width);
+                        //         case "h":
+                        //         case "height":
+                        //             return I18n.ThingToString(acf.Height);
+                        //         case "opacity":
+                        //             return I18n.ThingToString(acf.PresentableOpacity);
+                        //     }
+                        // }
                         return "";
                     }
             }

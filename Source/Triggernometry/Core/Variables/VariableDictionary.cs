@@ -33,7 +33,7 @@ namespace Triggernometry.Core.Variables
                 List<KeyValue> list = new List<KeyValue>();
                 foreach (KeyValuePair<string, Variable> pair in Values)
                 {
-                    list.Add(new KeyValue() { Key = pair.Key, Value = pair.Value });
+                    list.Add(new KeyValue { Key = pair.Key, Value = pair.Value });
                 }
                 return list.ToArray();
             }
@@ -79,7 +79,7 @@ namespace Triggernometry.Core.Variables
 
         public override int CompareTo(object o)
         {
-            if (o is Variable == false)
+            if (!(o is Variable))
             {
                 throw new InvalidOperationException();
             }
@@ -144,22 +144,22 @@ namespace Triggernometry.Core.Variables
 
         public void SetValue(string id, int val, string changer = DEFAULTCHANGER)
         {
-            InternalSetValue(id, new VariableScalar() { Value = I18n.ThingToString(val) }, changer);
+            InternalSetValue(id, new VariableScalar { Value = I18n.ThingToString(val) }, changer);
         }
 
         public void SetValue(string id, float val, string changer = DEFAULTCHANGER)
         {
-            InternalSetValue(id, new VariableScalar() { Value = I18n.ThingToString(val) }, changer);
+            InternalSetValue(id, new VariableScalar { Value = I18n.ThingToString(val) }, changer);
         }
 
         public void SetValue(string id, double val, string changer = DEFAULTCHANGER)
         {
-            InternalSetValue(id, new VariableScalar() { Value = I18n.ThingToString(val) }, changer);
+            InternalSetValue(id, new VariableScalar { Value = I18n.ThingToString(val) }, changer);
         }
 
         public void SetValue(string id, string val, string changer = DEFAULTCHANGER)
         {
-            InternalSetValue(id, new VariableScalar() { Value = val }, changer);
+            InternalSetValue(id, new VariableScalar { Value = val }, changer);
         }
 
         public void SetValue(string id, Variable val, string changer = DEFAULTCHANGER)
@@ -310,7 +310,7 @@ namespace Triggernometry.Core.Variables
             foreach (string pair in pairs)
             {
                 string[] kv = ArgHelper.SplitArguments(pair + "=", separator: "="); // in case only a key was given
-                vd.Values[kv[0]] = new VariableScalar() { Value = kv[1] };
+                vd.Values[kv[0]] = new VariableScalar { Value = kv[1] };
             }
             return vd;
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -416,10 +417,7 @@ namespace Triggernometry.Core
                 {
                     return _DictVariableOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -605,7 +603,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_DiscordTts == false)
+                if (!_DiscordTts)
                 {
                     return null;
                 }
@@ -630,10 +628,7 @@ namespace Triggernometry.Core
                 {
                     return _DiskFileOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -682,7 +677,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_DiskFileCache == false)
+                if (!_DiskFileCache)
                 {
                     return null;
                 }
@@ -700,7 +695,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_DiskPersist == false)
+                if (!_DiskPersist)
                 {
                     return null;
                 }
@@ -764,10 +759,7 @@ namespace Triggernometry.Core
                 {
                     return _FolderOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -785,10 +777,7 @@ namespace Triggernometry.Core
                 {
                     return _FolderId.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -809,10 +798,7 @@ namespace Triggernometry.Core
                 {
                     return _AuraOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -830,10 +816,7 @@ namespace Triggernometry.Core
                 {
                     return _AuraImageMode.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1102,7 +1085,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_JsonCacheRequest == false)
+                if (!_JsonCacheRequest)
                 {
                     return null;
                 }
@@ -1210,7 +1193,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_JsonResultVariablePersist == false)
+                if (!_JsonResultVariablePersist)
                 {
                     return null;
                 }
@@ -1235,10 +1218,7 @@ namespace Triggernometry.Core
                 {
                     return _KeypressType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1321,24 +1301,21 @@ namespace Triggernometry.Core
         #endregion
         #region Action specific properties - Launch process
 
-        internal System.Diagnostics.ProcessWindowStyle _LaunchProcessWindowStyle { get; set; } = System.Diagnostics.ProcessWindowStyle.Normal;
+        internal ProcessWindowStyle _LaunchProcessWindowStyle { get; set; } = ProcessWindowStyle.Normal;
         [XmlAttribute]
         public string? LaunchProcessWindowStyle
         {
             get
             {
-                if (_LaunchProcessWindowStyle != System.Diagnostics.ProcessWindowStyle.Normal)
+                if (_LaunchProcessWindowStyle != ProcessWindowStyle.Normal)
                 {
                     return _LaunchProcessWindowStyle.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
-                _LaunchProcessWindowStyle = (System.Diagnostics.ProcessWindowStyle)Enum.Parse(typeof(System.Diagnostics.ProcessWindowStyle), value);
+                _LaunchProcessWindowStyle = (ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), value);
             }
         }
 
@@ -1430,10 +1407,7 @@ namespace Triggernometry.Core
                 {
                     return _ListVariableExpressionType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1519,7 +1493,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_ListSourcePersist == false)
+                if (!_ListSourcePersist)
                 {
                     return null;
                 }
@@ -1537,7 +1511,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_ListTargetPersist == false)
+                if (!_ListTargetPersist)
                 {
                     return null;
                 }
@@ -1562,10 +1536,7 @@ namespace Triggernometry.Core
                 {
                     return _LogMessageTarget.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1597,7 +1568,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_LogProcess == false)
+                if (!_LogProcess)
                 {
                     return null;
                 }
@@ -1615,7 +1586,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_LogProcessACT == false)
+                if (!_LogProcessACT)
                 {
                     return null;
                 }
@@ -1637,10 +1608,7 @@ namespace Triggernometry.Core
                 {
                     return _LogLevel.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1736,10 +1704,7 @@ namespace Triggernometry.Core
                 {
                     return _MessageBoxIconType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1778,10 +1743,7 @@ namespace Triggernometry.Core
                 {
                     return _MouseOpType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1799,10 +1761,7 @@ namespace Triggernometry.Core
                 {
                     return _MouseCoordType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1820,7 +1779,7 @@ namespace Triggernometry.Core
                 {
                     return null;
                 }
-                return _MouseX.ToString();
+                return _MouseX;
             }
             set
             {
@@ -1838,7 +1797,7 @@ namespace Triggernometry.Core
                 {
                     return null;
                 }
-                return _MouseY.ToString();
+                return _MouseY;
             }
             set
             {
@@ -1859,10 +1818,7 @@ namespace Triggernometry.Core
                 {
                     return _MutexOpType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -1940,10 +1896,7 @@ namespace Triggernometry.Core
                 {
                     return _OBSControlType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2053,10 +2006,7 @@ namespace Triggernometry.Core
                 {
                     return _LSControlType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2081,8 +2031,7 @@ namespace Triggernometry.Core
             }
         }
         #endregion
-        #region Action specific properties - Placeholder
-        #endregion
+
         #region Action specific properties - Play sound
 
         internal string _PlaySoundFileExpression = "";
@@ -2127,7 +2076,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_PlaySoundExclusive == true)
+                if (_PlaySoundExclusive)
                 {
                     return null;
                 }
@@ -2250,7 +2199,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_UseTTSExclusive == true)
+                if (_UseTTSExclusive)
                 {
                     return null;
                 }
@@ -2275,10 +2224,7 @@ namespace Triggernometry.Core
                 {
                     return _RepositoryOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2296,10 +2242,7 @@ namespace Triggernometry.Core
                 {
                     return _RepositoryId.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2320,10 +2263,7 @@ namespace Triggernometry.Core
                 {
                     return _VariableOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2391,7 +2331,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_VariableTargetPersist == false)
+                if (!_VariableTargetPersist)
                 {
                     return null;
                 }
@@ -2409,7 +2349,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_VariablePersist == false)
+                if (!_VariablePersist)
                 {
                     return null;
                 }
@@ -2434,10 +2374,7 @@ namespace Triggernometry.Core
                 {
                     return _TableVariableOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2455,10 +2392,7 @@ namespace Triggernometry.Core
                 {
                     return _TableVariableExpressionType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2562,7 +2496,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_TableSourcePersist == false)
+                if (!_TableSourcePersist)
                 {
                     return null;
                 }
@@ -2580,7 +2514,7 @@ namespace Triggernometry.Core
         {
             get
             {
-                if (_TableTargetPersist == false)
+                if (!_TableTargetPersist)
                 {
                     return null;
                 }
@@ -2605,10 +2539,7 @@ namespace Triggernometry.Core
                 {
                     return _TextAuraOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2626,10 +2557,7 @@ namespace Triggernometry.Core
                 {
                     return _TextAuraAlignment.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2647,10 +2575,7 @@ namespace Triggernometry.Core
                 {
                     return _TextAuraEffect.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2674,10 +2599,7 @@ namespace Triggernometry.Core
                 {
                     return null;
                 }
-                else
-                {
-                    return I18n.ThingToString(_TextAuraFontSize);
-                }
+                return I18n.ThingToString(_TextAuraFontSize);
             }
             set
             {
@@ -2695,10 +2617,7 @@ namespace Triggernometry.Core
                 {
                     return _TextAuraForegroundClInt;
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2716,10 +2635,7 @@ namespace Triggernometry.Core
                 {
                     return _TextAuraBackgroundClInt;
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -2737,10 +2653,7 @@ namespace Triggernometry.Core
                 {
                     return _TextAuraOutlineClInt;
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -3013,10 +2926,7 @@ namespace Triggernometry.Core
                 {
                     return _TriggerZoneType.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -3034,10 +2944,7 @@ namespace Triggernometry.Core
                 {
                     return _TriggerOp.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -3055,10 +2962,7 @@ namespace Triggernometry.Core
                 {
                     return _TriggerId.ToString();
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             set
             {
@@ -3154,7 +3058,7 @@ namespace Triggernometry.Core
             }
             set
             {
-                string[] exx = value != null ? value.Split(",".ToCharArray()) : new string[] { "" };
+                string[] exx = value != null ? value.Split(",".ToCharArray()) : new[] { "" };
                 TriggerForceTypeEnum newval = TriggerForceTypeEnum.NoSkip;
                 foreach (string ex in exx)
                 {
@@ -3163,7 +3067,7 @@ namespace Triggernometry.Core
                         newval = TriggerForceTypeEnum.SkipAll;
                         break;
                     }
-                    else if (string.Compare(ex, "false", true) == 0)
+                    if (string.Compare(ex, "false", true) == 0)
                     {
                         newval = TriggerForceTypeEnum.NoSkip;
                         break;

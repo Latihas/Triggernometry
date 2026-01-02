@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
 
@@ -104,29 +105,29 @@ namespace Triggernometry.Core.Conditions
                         bool actives = false;
                         foreach (ConditionComponent cc in Children)
                         {
-                            if (cc.Enabled == false)
+                            if (!cc.Enabled)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("AND: Condition '" + cc.ToString() + "' not enabled");
+                                    Debug.WriteLine("AND: Condition '" + cc + "' not enabled");
                                 }
                                 continue;
                             }
                             actives = true;
-                            if (cc.CheckCondition(ctx, logger, o) == false)
+                            if (!cc.CheckCondition(ctx, logger, o))
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("AND: Condition '" + cc.ToString() + "' was false");
+                                    Debug.WriteLine("AND: Condition '" + cc + "' was false");
                                 }
                                 return false;
                             }
                         }
-                        if (actives == false)
+                        if (!actives)
                         {
-                            if (System.Diagnostics.Debugger.IsAttached == true)
+                            if (Debugger.IsAttached)
                             {
-                                System.Diagnostics.Debug.WriteLine("AND: No actives found");
+                                Debug.WriteLine("AND: No actives found");
                             }
                             return false;
                         }
@@ -136,19 +137,19 @@ namespace Triggernometry.Core.Conditions
                     {
                         foreach (ConditionComponent cc in Children)
                         {
-                            if (cc.Enabled == false)
+                            if (!cc.Enabled)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("OR: Condition '" + cc.ToString() + "' not enabled");
+                                    Debug.WriteLine("OR: Condition '" + cc + "' not enabled");
                                 }
                                 continue;
                             }
-                            if (cc.CheckCondition(ctx, logger, o) == true)
+                            if (cc.CheckCondition(ctx, logger, o))
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("OR: Condition '" + cc.ToString() + "' was true");
+                                    Debug.WriteLine("OR: Condition '" + cc + "' was true");
                                 }
                                 return true;
                             }
@@ -160,34 +161,34 @@ namespace Triggernometry.Core.Conditions
                         bool truefound = false;
                         foreach (ConditionComponent cc in Children)
                         {
-                            if (cc.Enabled == false)
+                            if (!cc.Enabled)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("XOR: Condition '" + cc.ToString() + "' not enabled");
+                                    Debug.WriteLine("XOR: Condition '" + cc + "' not enabled");
                                 }
                                 continue;
                             }
-                            if (cc.CheckCondition(ctx, logger, o) == true)
+                            if (cc.CheckCondition(ctx, logger, o))
                             {
-                                if (truefound == true)
+                                if (truefound)
                                 {
-                                    if (System.Diagnostics.Debugger.IsAttached == true)
+                                    if (Debugger.IsAttached)
                                     {
-                                        System.Diagnostics.Debug.WriteLine("XOR: Condition '" + cc.ToString() + "' was true as well");
+                                        Debug.WriteLine("XOR: Condition '" + cc + "' was true as well");
                                     }
                                     return false;
                                 }
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("XOR: Condition '" + cc.ToString() + "' was true");
+                                    Debug.WriteLine("XOR: Condition '" + cc + "' was true");
                                 }
                                 truefound = true;
                             }
                         }
-                        if (System.Diagnostics.Debugger.IsAttached == true)
+                        if (Debugger.IsAttached)
                         {
-                            System.Diagnostics.Debug.WriteLine("XOR: Condition on '" + ToString() + "' " + (truefound == true ? "passed" : "did not pass"));
+                            Debug.WriteLine("XOR: Condition on '" + ToString() + "' " + (truefound ? "passed" : "did not pass"));
                         }
                         return truefound;
                     }
@@ -195,33 +196,33 @@ namespace Triggernometry.Core.Conditions
                     {
                         foreach (ConditionComponent cc in Children)
                         {
-                            if (cc.Enabled == false)
+                            if (!cc.Enabled)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("NOT: Condition '" + cc.ToString() + "' not enabled");
+                                    Debug.WriteLine("NOT: Condition '" + cc + "' not enabled");
                                 }
                                 continue;
                             }
-                            if (cc.CheckCondition(ctx, logger, o) == true)
+                            if (cc.CheckCondition(ctx, logger, o))
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("NOT: Condition '" + cc.ToString() + "' was true");
+                                    Debug.WriteLine("NOT: Condition '" + cc + "' was true");
                                 }
                                 return false;
                             }
                         }
-                        if (System.Diagnostics.Debugger.IsAttached == true)
+                        if (Debugger.IsAttached)
                         {
-                            System.Diagnostics.Debug.WriteLine("NOT: Condition on '" + ToString() + "' passed");
+                            Debug.WriteLine("NOT: Condition on '" + ToString() + "' passed");
                         }
                         return true;
                     }
             }
-            if (System.Diagnostics.Debugger.IsAttached == true)
+            if (Debugger.IsAttached)
             {
-                System.Diagnostics.Debug.WriteLine("GENERAL: Condition on '" + ToString() + "' " + (Children.Count > 0 && Grouping == CndGroupingEnum.And ? "passed" : "did not pass"));
+                Debug.WriteLine("GENERAL: Condition on '" + ToString() + "' " + (Children.Count > 0 && Grouping == CndGroupingEnum.And ? "passed" : "did not pass"));
             }
             return Children.Count > 0 && Grouping == CndGroupingEnum.And; 
         }

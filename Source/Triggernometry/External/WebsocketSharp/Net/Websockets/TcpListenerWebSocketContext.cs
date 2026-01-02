@@ -37,6 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Principal;
@@ -57,11 +58,11 @@ namespace WebSocketSharp.Net.Websockets
     private HttpRequest         _request;
     private Uri                 _requestUri;
     private bool                _secure;
-    private System.Net.EndPoint _serverEndPoint;
+    private EndPoint _serverEndPoint;
     private Stream              _stream;
     private TcpClient           _tcpClient;
     private IPrincipal          _user;
-    private System.Net.EndPoint _userEndPoint;
+    private EndPoint _userEndPoint;
     private WebSocket           _websocket;
 
     #endregion
@@ -378,9 +379,9 @@ namespace WebSocketSharp.Net.Websockets
     /// A <see cref="System.Net.IPEndPoint"/> that represents the server IP
     /// address and port number.
     /// </value>
-    public override System.Net.IPEndPoint ServerEndPoint {
+    public override IPEndPoint ServerEndPoint {
       get {
-        return (System.Net.IPEndPoint) _serverEndPoint;
+        return (IPEndPoint) _serverEndPoint;
       }
     }
 
@@ -409,9 +410,9 @@ namespace WebSocketSharp.Net.Websockets
     /// A <see cref="System.Net.IPEndPoint"/> that represents the client IP
     /// address and port number.
     /// </value>
-    public override System.Net.IPEndPoint UserEndPoint {
+    public override IPEndPoint UserEndPoint {
       get {
-        return (System.Net.IPEndPoint) _userEndPoint;
+        return (IPEndPoint) _userEndPoint;
       }
     }
 

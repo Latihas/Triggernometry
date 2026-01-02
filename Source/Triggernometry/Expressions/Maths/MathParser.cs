@@ -1,21 +1,22 @@
-/* 
+/*
  * Copyright (C) 2012-2016 Mathos Project,
  * All rights reserved.
- * 
+ *
  * Please see the license file in the project folder,
  * or go to https://github.com/MathosProject/Mathos-Parser/blob/master/LICENSE.
- * 
+ *
  * Please feel free to ask me directly at my email!
  *  artem@artemlos.net
  */
 
 using System;
-using System.Linq;
-using System.Globalization;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Triggernometry.Expressions.String.Utils;
+using Triggernometry.FFXIV;
 using Triggernometry.Localization;
 
 namespace Triggernometry.Expressions.Maths
@@ -187,8 +188,7 @@ namespace Triggernometry.Expressions.Maths
         {
             if (x > 0)
                 return (long)(x + tolerance);
-            else
-                return (long)(x - tolerance);
+            return (long)(x - tolerance);
         }
 
         public static double ModFunction(double a, double b)
@@ -467,7 +467,7 @@ namespace Triggernometry.Expressions.Maths
         {
             int bytesArray = int.Parse(x[0], NumberStyles.HexNumber, CultureInfo);
             float f = BitConverter.ToSingle(BitConverter.GetBytes(bytesArray), 0);
-            return (double)f;
+            return f;
         }
 
         public static double Hex2DoubleFunction(string[] x)
@@ -527,7 +527,7 @@ namespace Triggernometry.Expressions.Maths
                 // A4 = 57 semitones relative to C0
                 return 440 * Math.Pow(2, (semitones - 57) / 12.0);
             }
-            else { return 0; }
+            return 0;
         }
         /// <summary> returns the time (ms) to the next given ET.</summary>
         public static double NextETms(string[] input)
@@ -554,7 +554,7 @@ namespace Triggernometry.Expressions.Maths
                 throw ErrorHelper.ParseTypeError(I18n.TranslateWord("string"), etString, I18n.TranslateWord("time"), $"nextETms({string.Join(", ", input)})");
             }
 
-            TimeSpan ez = FFXIV.EorzeanTime.Now;
+            TimeSpan ez = EorzeanTime.Now;
             return Math.Round((totalMin - ez.TotalMinutes + 1440) % 1440 * ETmin2sec * 1000);
         }
 
@@ -756,8 +756,6 @@ namespace Triggernometry.Expressions.Maths
                         if (regexOctNumber.Match(tokens[i]).Success)
                             tokens[i] = Convert.ToInt64(tokens[i].Substring(2), 8).ToString(CultureInfo);
                         break;
-                    default:
-                        break;
                 }
             }
             
@@ -843,7 +841,7 @@ namespace Triggernometry.Expressions.Maths
                     {
                         // but if we only have one argument, then we pass it directly to the function
                         string argExpr = string.Join("", exprTokens);
-                        tmpResult = LocalStringFunctions[functionName](new string[] { argExpr });
+                        tmpResult = LocalStringFunctions[functionName](new[] { argExpr });
                     }
                 }
                 else
@@ -900,18 +898,15 @@ namespace Triggernometry.Expressions.Maths
                             ApplyPlusMinusToNumber(tokens, 0);
                             return double.Parse(tokens[0], CultureInfo);
                         }
-                        else if (tokens.Contains("=="))
+                        if (tokens.Contains("=="))
                         {
                             return 0;
                         }
-                        else if (tokens[0] == "??")
+                        if (tokens[0] == "??")
                         {
                             return double.Parse(tokens[1], CultureInfo);
                         }
-                        else
-                        {
-                            return UnaryOperation[tokens[0]](double.Parse(tokens[1], CultureInfo));
-                        }
+                        return UnaryOperation[tokens[0]](double.Parse(tokens[1], CultureInfo));
                 }
             }
             catch
@@ -1049,14 +1044,15 @@ namespace Triggernometry.Expressions.Maths
         }
 
         private static void ApplyStringCoalescing(List<string> tokens, int opIndex, string[] originalTokens)
-        {   // a ?? b  means  (a is numeric) ? a : b
+        {
+            // a ?? b  means  (a is numeric) ? a : b
             if (opIndex == tokens.Count - 1)        // [..., "??"]
             {
                 throw new ArithmeticException(I18n.Translate("internal/MathParser/basicMathExprOpError",
                     "The operation '{0}' from the basic math expression: '{1}' could not be applied. Original expression: '{2}'",
                     "??", string.Join(" ", tokens), string.Join(" ", originalTokens)));
             }
-            else if (opIndex == 0)                  // ["??", ...]
+            if (opIndex == 0)                  // ["??", ...]
             {
                 tokens.RemoveRange(opIndex, 1);
             }

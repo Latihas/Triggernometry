@@ -41,6 +41,7 @@ using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -362,7 +363,7 @@ namespace WebSocketSharp.Net
     /// A <see cref="System.Net.IPEndPoint"/> that represents the server IP
     /// address and port number.
     /// </value>
-    public System.Net.IPEndPoint LocalEndPoint {
+    public IPEndPoint LocalEndPoint {
       get {
         return _connection.LocalEndPoint;
       }
@@ -427,7 +428,7 @@ namespace WebSocketSharp.Net
     /// A <see cref="System.Net.IPEndPoint"/> that represents the client IP
     /// address and port number.
     /// </value>
-    public System.Net.IPEndPoint RemoteEndPoint {
+    public IPEndPoint RemoteEndPoint {
       get {
         return _connection.RemoteEndPoint;
       }
@@ -594,7 +595,6 @@ namespace WebSocketSharp.Net
 
         if (_contentLength == 0) {
           _context.ErrorMessage = "Invalid Content-Length header";
-          return;
         }
       }
     }
@@ -682,7 +682,6 @@ namespace WebSocketSharp.Net
         }
 
         _contentLength = len;
-        return;
       }
     }
 
@@ -899,7 +898,7 @@ namespace WebSocketSharp.Net
       .AppendFormat (
         "{0} {1} HTTP/{2}\r\n", _httpMethod, _rawUrl, _protocolVersion
       )
-      .Append (_headers.ToString ());
+      .Append (_headers);
 
       return buff.ToString ();
     }

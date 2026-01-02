@@ -53,7 +53,6 @@ public abstract class ModuleBase
         RealPlugin.Instance.RegisterNamedCallback(
             callBackName,
             new Action<object, string>((_, cmd) => callBackAction(cmd)),
-            null,
             registrant: $"[鲶鱼精邮差扩展] {GetType().Name}"
         );
     }
@@ -146,11 +145,8 @@ public abstract class ModuleBase
         {
             return Expression.GetActionType(paramTypes.ToArray());
         }
-        else
-        {
-            paramTypes.Add(method.ReturnType);
-            return Expression.GetFuncType(paramTypes.ToArray());
-        }
+        paramTypes.Add(method.ReturnType);
+        return Expression.GetFuncType(paramTypes.ToArray());
     }
 
     public static T GetConfigOrSetDefault<T>(string key, T defaultValue)

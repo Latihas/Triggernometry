@@ -18,18 +18,15 @@ namespace Triggernometry.Common.Maths
 
             if (Δ < -eps)
                 return null;
-            else if (Abs(Δ) <= eps)
+            if (Abs(Δ) <= eps)
             {
                 var x = -B / (2 * A);
                 return (x, x);
             }
-            else
-            {
-                var sqrtΔ = Sqrt(Δ);
-                var x1 = (-B + sqrtΔ) / (2 * A);
-                var x2 = (-B - sqrtΔ) / (2 * A);
-                return (x2, x1);
-            }
+            var sqrtΔ = Sqrt(Δ);
+            var x1 = (-B + sqrtΔ) / (2 * A);
+            var x2 = (-B - sqrtΔ) / (2 * A);
+            return (x2, x1);
         }
 
 
@@ -45,7 +42,7 @@ namespace Triggernometry.Common.Maths
             if (Abs(a) > Abs(b))
             {
                 // 直线偏向竖直方向，交换 x 和 y 复用代码
-                var result = CircleLineIntersections(y0, x0, r, b, a, c, null);
+                var result = CircleLineIntersections(y0, x0, r, b, a, c);
                 if (result == null) return null;
                 var p1 = new Vector2(result.Value.Item1.Y, result.Value.Item1.X);
                 var p2 = new Vector2(result.Value.Item2.Y, result.Value.Item2.X);
@@ -65,7 +62,7 @@ namespace Triggernometry.Common.Maths
             {
                 return null;
             }
-            else // 1-2 个交点
+            // 1-2 个交点
             {
                 var x1 = x12.Value.Item1;
                 var y1 = -a / b * x1 - c / b;

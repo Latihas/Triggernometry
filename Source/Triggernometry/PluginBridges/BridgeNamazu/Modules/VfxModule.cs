@@ -26,9 +26,7 @@ public class VfxModule : ModuleBase
         get
         {
             lock (_actorVfxs)
-            {
                 return new Dictionary<IntPtr, ActorVfx>(_actorVfxs);
-            }
         }
     }
 
@@ -36,17 +34,15 @@ public class VfxModule : ModuleBase
     {
         get
         {
-            lock (_actorVfxs)
-            {
+            lock (_staticVfxs)
                 return new Dictionary<IntPtr, StaticVfx>(_staticVfxs);
-            }
         }
     }
 
     public static void ClearVfxCache()
     {
-        _actorVfxs.Clear();
-        _staticVfxs.Clear();
+        lock (_actorVfxs) _actorVfxs.Clear();
+        lock (_staticVfxs) _staticVfxs.Clear();
     }
 
     public VfxModule()
@@ -133,7 +129,7 @@ public class VfxModule : ModuleBase
         return ProxyPlugin.ActorVfxRemoveHook.Original(vfxPtr, a2);
     }
 
-    public unsafe delegate IntPtr StaticVfxCreateDelegate(string path, string pool);
+    public delegate IntPtr StaticVfxCreateDelegate(string path, string pool);
 
     public static StaticVfxCreateDelegate? StaticVfxCreateD;
 
@@ -145,7 +141,7 @@ public class VfxModule : ModuleBase
 
     public ActorVfxRemoveDelegate ActorVfxRemoveD;
 
-    public unsafe delegate IntPtr ActorVfxCreateDelegate(string path, IntPtr a2, IntPtr a3, float a4, char a5, ushort a6, char a7);
+    public delegate IntPtr ActorVfxCreateDelegate(string path, IntPtr a2, IntPtr a3, float a4, char a5, ushort a6, char a7);
 
     public ActorVfxCreateDelegate ActorVfxCreateD;
 

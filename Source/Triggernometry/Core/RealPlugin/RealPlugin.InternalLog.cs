@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Advanced_Combat_Tracker;
 
@@ -63,7 +64,7 @@ public partial class RealPlugin
             case DebugLevelEnum.Inherit:
             default: Log.Info(dl); break;
         }
-        InternalLog il = new InternalLog()
+        InternalLog il = new InternalLog
         {
             Timestamp = DateTime.Now,
             Level = level,
@@ -71,9 +72,9 @@ public partial class RealPlugin
             SourceTrigger = trig,
             SourceAction = action
         };
-        if (DisableLogging == false && System.Diagnostics.Debugger.IsAttached == true)
+        if (!DisableLogging && Debugger.IsAttached)
         {
-            System.Diagnostics.Debug.WriteLine(il.ToString());
+            Debug.WriteLine(il.ToString());
         }
         if (level == DebugLevelEnum.Error)
         {

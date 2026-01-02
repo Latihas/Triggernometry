@@ -5,7 +5,6 @@ using System.Threading;
 using Dalamud;
 using Triggernometry.Core;
 
-
 namespace Triggernometry.PluginBridges.BridgeNamazu;
 
 /// <summary>

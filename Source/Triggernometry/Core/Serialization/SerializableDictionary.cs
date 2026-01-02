@@ -16,7 +16,7 @@ namespace Triggernometry.Core.Serialization
 
         public void ReadXml(XmlReader x)
         {
-            if (x.IsEmptyElement == true)
+            if (x.IsEmptyElement)
             {
                 return;
             }

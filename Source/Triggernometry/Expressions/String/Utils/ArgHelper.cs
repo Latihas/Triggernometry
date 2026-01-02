@@ -162,8 +162,7 @@ namespace Triggernometry.Expressions.String.Utils
         {
             if (index >= args.Length || args[index] == "" && setEmptyToDefault)
                 return defaultValue;
-            else
-                return args[index];
+            return args[index];
         }
 
         /// <summary> Parse the slices expression to a list of indices (starts from 0). </summary>
@@ -205,31 +204,28 @@ namespace Triggernometry.Expressions.String.Utils
                             indices.Add(start);
                         }
                         continue;
+                    }  // sliceArgs.Length = 3:  a:b:c, a:b:, a::c, :b:c, a::, :b:, ::c, ::
+                    // sliceArgs.Length = 2:  a:b, a:, :b, :
+                    // sliceArgs.Length = 0:  "" (= ":")
+                    step = int.Parse(stepStr, InvClt);
+                    if (step == 0) { throw ErrorHelper.InvalidValueError(I18n.TranslateWord("slice"), "step", "0"); }
+                    if (startStr != "")
+                    {   // `start` value given: apply the negative-index and startIndex logics
+                        start = int.Parse(startStr, InvClt);
+                        start = start >= 0 ? start - startIndex : start + totalLength;
                     }
                     else
-                    {   // sliceArgs.Length = 3:  a:b:c, a:b:, a::c, :b:c, a::, :b:, ::c, ::
-                        // sliceArgs.Length = 2:  a:b, a:, :b, :
-                        // sliceArgs.Length = 0:  "" (= ":")
-                        step = int.Parse(stepStr, InvClt);
-                        if (step == 0) { throw ErrorHelper.InvalidValueError(I18n.TranslateWord("slice"), "step", "0"); }
-                        if (startStr != "")
-                        {   // `start` value given: apply the negative-index and startIndex logics
-                            start = int.Parse(startStr, InvClt);
-                            start = start >= 0 ? start - startIndex : start + totalLength;
-                        }
-                        else
-                        {   // `start` value not given: set init value based on the sign of `step`
-                            start = step > 0 ? int.MinValue : int.MaxValue;
-                        }
-                        if (endStr != "") // logic similar to `start`
-                        {
-                            end = int.Parse(endStr, InvClt);
-                            end = end >= 0 ? end - startIndex : end + totalLength;
-                        }
-                        else
-                        {
-                            end = step > 0 ? int.MaxValue : int.MinValue;
-                        }
+                    {   // `start` value not given: set init value based on the sign of `step`
+                        start = step > 0 ? int.MinValue : int.MaxValue;
+                    }
+                    if (endStr != "") // logic similar to `start`
+                    {
+                        end = int.Parse(endStr, InvClt);
+                        end = end >= 0 ? end - startIndex : end + totalLength;
+                    }
+                    else
+                    {
+                        end = step > 0 ? int.MaxValue : int.MinValue;
                     }
                 }
                 catch 

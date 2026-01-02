@@ -103,12 +103,9 @@ namespace Triggernometry.Expressions.String.Evaluators
                             // joinvalues(joiner = ",")
                             return vd => vd.JoinValues(joiner);
                         }
-                        else
-                        {
-                            // joinvalues(joiner, params keys)
-                            string[] keys = args.Skip(1).ToArray();
-                            return vd => vd.JoinValues(joiner, keys);
-                        }
+                        // joinvalues(joiner, params keys)
+                        string[] keys = args.Skip(1).ToArray();
+                        return vd => vd.JoinValues(joiner, keys);
                     }
 
                 case "joinall":
@@ -121,12 +118,9 @@ namespace Triggernometry.Expressions.String.Evaluators
                             // joinall(kvjoiner = "=", pairjoiner = ",")
                             return vd => vd.JoinAll(kvjoiner, pairjoiner);
                         }
-                        else
-                        {
-                            // joinall(kvjoiner, pairjoiner, params keys)
-                            string[] keys = args.Skip(2).ToArray();
-                            return vd => vd.JoinAll(kvjoiner, pairjoiner, keys);
-                        }
+                        // joinall(kvjoiner, pairjoiner, params keys)
+                        string[] keys = args.Skip(2).ToArray();
+                        return vd => vd.JoinAll(kvjoiner, pairjoiner, keys);
                     }
 
                 case "sumkeys":

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Xml.Serialization;
 using Triggernometry.Expressions.String.Utils;
+using Triggernometry.PluginBridges;
 
 namespace Triggernometry.Core.Variables
 {
@@ -31,7 +32,7 @@ namespace Triggernometry.Core.Variables
         {
             foreach (object obj in objs)
             {
-                Values.Add(new VariableScalar() { Value = obj.ToString() });
+                Values.Add(new VariableScalar { Value = obj.ToString() });
             }
         }
 
@@ -42,7 +43,7 @@ namespace Triggernometry.Core.Variables
 
         public override int CompareTo(object o)
         {
-            if (o is Variable == false)
+            if (!(o is Variable))
             {
                 throw new InvalidOperationException();
             }
@@ -109,7 +110,7 @@ namespace Triggernometry.Core.Variables
                 LastChanger = changer;
                 return x;
             }
-            else return new VariableScalar();
+            return new VariableScalar();
         }
         
         public void Insert(int rawIndex, Variable value, string changer)
@@ -121,7 +122,7 @@ namespace Triggernometry.Core.Variables
                 int needcre = idx - Values.Count;
                 while (needcre > 0)
                 {
-                    Push(new VariableScalar() { Value = "" }, changer);
+                    Push(new VariableScalar { Value = "" }, changer);
                     needcre--;
                 }                
             }
@@ -132,7 +133,7 @@ namespace Triggernometry.Core.Variables
 
         public void Insert(int rawIndex, string value, string changer)
         {
-            Insert(rawIndex, new VariableScalar() { Value = value }, changer);
+            Insert(rawIndex, new VariableScalar { Value = value }, changer);
         }
 
         public void InsertList(int rawIndex, VariableList srcList, string changer)
@@ -144,7 +145,7 @@ namespace Triggernometry.Core.Variables
                 int needcre = idx - Values.Count;
                 while (needcre > 0)
                 {
-                    Push(new VariableScalar() { Value = "" }, changer);
+                    Push(new VariableScalar { Value = "" }, changer);
                     needcre--;
                 }
             }
@@ -168,7 +169,7 @@ namespace Triggernometry.Core.Variables
                 int needcre = idx - Values.Count + 1;
                 while (needcre > 0)
                 {
-                    Push(new VariableScalar() { Value = "" }, changer);
+                    Push(new VariableScalar { Value = "" }, changer);
                     needcre--;
                 }
             }
@@ -179,7 +180,7 @@ namespace Triggernometry.Core.Variables
 
         public void Set(int rawIndex, string value, string changer)
         {
-            Set(rawIndex, new VariableScalar() { Value = value }, changer);
+            Set(rawIndex, new VariableScalar { Value = value }, changer);
         }
 
         public void Remove(int rawIndex, string changer)
@@ -224,7 +225,7 @@ namespace Triggernometry.Core.Variables
 
         public int IndexOf(string value)
         {
-            return IndexOf(new VariableScalar() { Value = value });
+            return IndexOf(new VariableScalar { Value = value });
         }
 
         public int LastIndexOf(Variable value)
@@ -241,7 +242,7 @@ namespace Triggernometry.Core.Variables
 
         public int LastIndexOf(string value)
         {
-            return LastIndexOf(new VariableScalar() { Value = value });
+            return LastIndexOf(new VariableScalar { Value = value });
         }
 
         public string IndicesOf(string targetStr, string joiner, List<int> indices)
@@ -308,11 +309,11 @@ namespace Triggernometry.Core.Variables
         {
             Values.Sort((a, b) =>
             {
-                VariableDictionary pa = PluginBridges.BridgeFFXIV.GetNamedPartyMember(a.ToString());
-                VariableDictionary pb = PluginBridges.BridgeFFXIV.GetNamedPartyMember(b.ToString());
+                VariableDictionary pa = BridgeFFXIV.GetNamedPartyMember(a.ToString());
+                VariableDictionary pb = BridgeFFXIV.GetNamedPartyMember(b.ToString());
                 if (cfg.FfxivPartyOrdering == Configuration.FfxivPartyOrderingEnum.CustomSelfFirst)
                 {
-                    VariableDictionary se = PluginBridges.BridgeFFXIV.GetMyself();
+                    VariableDictionary se = BridgeFFXIV.GetMyself();
                     if (se == pa)
                     {
                         return -1;
@@ -340,11 +341,11 @@ namespace Triggernometry.Core.Variables
         {
             Values.Sort((a, b) =>
             {
-                VariableDictionary pa = PluginBridges.BridgeFFXIV.GetNamedPartyMember(a.ToString());
-                VariableDictionary pb = PluginBridges.BridgeFFXIV.GetNamedPartyMember(b.ToString());
+                VariableDictionary pa = BridgeFFXIV.GetNamedPartyMember(a.ToString());
+                VariableDictionary pb = BridgeFFXIV.GetNamedPartyMember(b.ToString());
                 if (cfg.FfxivPartyOrdering == Configuration.FfxivPartyOrderingEnum.CustomSelfFirst)
                 {
-                    VariableDictionary se = PluginBridges.BridgeFFXIV.GetMyself();
+                    VariableDictionary se = BridgeFFXIV.GetMyself();
                     if (se == pa)
                     {
                         return 1;

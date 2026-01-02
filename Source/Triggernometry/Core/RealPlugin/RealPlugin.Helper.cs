@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using System.Windows.Forms;
+
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
 
@@ -16,7 +18,7 @@ public partial class RealPlugin
 
     internal static string GenerateHash(string addy)
     {
-        using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+        using (MD5 md5 = MD5.Create())
         {
             byte[] inputBytes = Encoding.UTF8.GetBytes(addy);
             byte[] hashBytes = md5.ComputeHash(inputBytes);
@@ -36,7 +38,7 @@ public partial class RealPlugin
         {
             var principal = new WindowsPrincipal(identity);
             ret = principal.IsInRole(WindowsBuiltInRole.Administrator);
-            if (ret == false && warnIfNotAdmin == true)
+            if (!ret && warnIfNotAdmin)
             {
                 // CustomControls.Toast t = new CustomControls.Toast();
                 // t.ToastText = I18n.Translate("internal/Plugin/notadministrator", "You are not running ACT as an administrator - this might prevent some triggers from working.");
@@ -151,10 +153,7 @@ public partial class RealPlugin
         {
             return RecursiveFolderSearch(repo.Root, id, repo);
         }
-        else
-        {
-            return RecursiveFolderSearch(cfg.Root, id, repo);
-        }
+        return RecursiveFolderSearch(cfg.Root, id, repo);
     }
 
     internal Folder RecursiveFolderSearch(Folder f, Guid id, Repository repo)

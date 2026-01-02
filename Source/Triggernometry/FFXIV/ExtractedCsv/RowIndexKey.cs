@@ -51,10 +51,7 @@ namespace Triggernometry.FFXIV.ExtractedCsv
             {
                 return Main.ToString(CultureInfo.InvariantCulture);
             }
-            else
-            { 
-                return Main.ToString(CultureInfo.InvariantCulture) +  "." + Sub.Value.ToString(CultureInfo.InvariantCulture);
-            }
+            return Main.ToString(CultureInfo.InvariantCulture) +  "." + Sub.Value.ToString(CultureInfo.InvariantCulture);
         }
 
         public static explicit operator int(RowIndexKey key)

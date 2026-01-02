@@ -19,7 +19,7 @@ public class LocalEntityModule : ModuleBase
 
     public EntityModule entityModule => BridgeNamazu.GetModule<EntityModule>();
 
-    public unsafe LocalEntityModule()
+    public LocalEntityModule()
     {
         ScanMethod = () =>
         {

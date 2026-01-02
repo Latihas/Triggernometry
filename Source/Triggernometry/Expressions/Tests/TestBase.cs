@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Triggernometry.Core;
 using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.Expressions.Tests
@@ -75,8 +76,8 @@ namespace Triggernometry.Expressions.Tests
         {
             _ = testItems ?? throw new ArgumentNullException(nameof(testItems), $"Should initiate test data in the ctor of {GetType().Name}");
 
-            var ctxRealValue = new Core.Context(null);
-            var ctxPlaceholder = new Core.Context(null) { testByPlaceholder = true };
+            var ctxRealValue = new Context(null);
+            var ctxPlaceholder = new Context(null) { testByPlaceholder = true };
 
             return testItems.Select(testItem =>
             {

@@ -86,9 +86,7 @@ namespace WebSocketSharp.Net
     /// <summary>
     /// Initializes a new instance of the <see cref="CookieException"/> class.
     /// </summary>
-    public CookieException ()
-      : base ()
-    {
+    public CookieException () {
     }
 
     #endregion

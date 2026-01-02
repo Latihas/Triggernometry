@@ -40,7 +40,7 @@ public partial class RealPlugin
         List<Configuration.APIUsage> l = new List<Configuration.APIUsage>();
         foreach (Configuration.APIUsage a in DefaultAPIUsages)
         {
-            l.Add(new Configuration.APIUsage() { Name = a.Name, AllowLocal = a.AllowLocal, AllowRemote = a.AllowRemote, AllowAdmin = a.AllowAdmin });
+            l.Add(new Configuration.APIUsage { Name = a.Name, AllowLocal = a.AllowLocal, AllowRemote = a.AllowRemote, AllowAdmin = a.AllowAdmin });
         }
         return l;
     }

@@ -312,7 +312,7 @@ namespace WebSocketSharp.Net
     {
       var schm = Scheme;
       return schm == AuthenticationSchemes.Basic
-             ? new HttpBasicIdentity (Parameters["username"], Parameters["password"]) as IIdentity
+             ? new HttpBasicIdentity (Parameters["username"], Parameters["password"])
              : schm == AuthenticationSchemes.Digest
                ? new HttpDigestIdentity (Parameters)
                : null;

@@ -5,7 +5,7 @@ namespace Triggernometry.Expressions.Tests
     public class FunctionTest : TestBase
     {
         
-        public FunctionTest() : base()
+        public FunctionTest()
         {
             testItems = new List<TestItem>
             {

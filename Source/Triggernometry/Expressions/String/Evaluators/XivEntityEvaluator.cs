@@ -75,7 +75,7 @@ namespace Triggernometry.Expressions.String.Evaluators
             {
                 return entity => propAccessor(entity);
             }
-            else return null;
+            return null;
         }
 
         private static Func<Entity, object> TryGetSingleMethodAccessor(string methodName, string[] args)
@@ -84,7 +84,7 @@ namespace Triggernometry.Expressions.String.Evaluators
             {
                 return entity => methodAccessor(entity, args);
             }
-            else return null;
+            return null;
         }
 
     }

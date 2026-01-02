@@ -45,7 +45,7 @@ namespace Triggernometry.Core
             lock (Triggers)
             {
                 if (!Triggers.Contains(t)) Triggers.Add(t);
-                if (t.Enabled == true && parentEnabled == true && activeTriggers != null)
+                if (t.Enabled && parentEnabled && activeTriggers != null)
                 {
                     lock (activeTriggers)
                     {
@@ -60,7 +60,7 @@ namespace Triggernometry.Core
             if (oldSource == newSource)
                 return;
 
-            if (t.Enabled == false || t.Parent?.ParentsEnabled() != true)
+            if (!t.Enabled || t.Parent?.ParentsEnabled() != true)
                 return;
 
             var oldList = GetActiveTriggers(oldSource);
@@ -159,14 +159,11 @@ namespace Triggernometry.Core
                     {
                         return;
                     }
-                    else
-                    {
-                        trigger.AddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trigmatches", "Trigger '{0}' matches log line '{1}'", trigger.LogName, logEvent.Text));
-                    }
+                    trigger.AddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trigmatches", "Trigger '{0}' matches log line '{1}'", trigger.LogName, logEvent.Text));
                 }
                 if ((forceType & ActionOld.TriggerForceTypeEnum.SkipActive) == 0)
                 {
-                    if (trigger.Enabled == false)
+                    if (!trigger.Enabled)
                     {
                         trigger.AddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trignotactive", "Trigger '{0}' is not active for firing", trigger.LogName));
                         return;
@@ -204,12 +201,12 @@ namespace Triggernometry.Core
 
                 ctx.zoneName = logEvent.ZoneName;
                 ctx.triggeredText = logEvent.Text;
-                if (logEvent.TestMode == true && logEvent.ZoneId != "")
+                if (logEvent.TestMode && logEvent.ZoneId != "")
                 {
                     ctx.zoneIdOverride = logEvent.ZoneId;
                 }
                 ctx.forceType = forceType;
-                trigger.Fire(ctx, null);
+                trigger.Fire(ctx);
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 using Triggernometry.Core.Variables;
+using Triggernometry.Utilities;
 
 namespace Triggernometry.Core.Scripting
 {
@@ -147,8 +148,8 @@ namespace Triggernometry.Core.Scripting
             => JsonSerializer.Serialize(o, new JsonSerializerOptions { WriteIndented = indent });
         public static T Deserialize<T>(string s) => JsonSerializer.Deserialize<T>(s);
 
-        public static Process XivProcess => Utilities.Memory.XivProc;
+        public static Process XivProcess => Memory.XivProc;
         public static void RegisterXivProcessUpdatedAction(string key, Action action)
-            => Utilities.Memory.RegisterXivProcUpdatedAction(key, action);
+            => Memory.RegisterXivProcUpdatedAction(key, action);
     }
 }

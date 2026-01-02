@@ -47,7 +47,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="sbyte"/>, or <see langword="null" /> if failed. </returns>
         public static sbyte? TryParseSByte(this string s)
-            => sbyte.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : (sbyte?)null;
+            => sbyte.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to an <see cref="sbyte"/>.  <br />
@@ -97,7 +97,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="byte"/>, or <see langword="null" /> if failed. </returns>
         public static byte? TryParseByte(this string s)
-            => byte.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : (byte?)null;
+            => byte.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to a <see cref="byte"/>.  <br />
@@ -148,7 +148,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="short"/>, or <see langword="null" /> if failed. </returns>
         public static short? TryParseShort(this string s)
-            => short.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : (short?)null;
+            => short.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to a <see cref="short"/>.  <br />
@@ -199,7 +199,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="ushort"/>, or <see langword="null" /> if failed. </returns>
         public static ushort? TryParseUShort(this string s)
-            => ushort.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : (ushort?)null;
+            => ushort.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to an <see cref="ushort"/>.  <br />
@@ -250,7 +250,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="int"/>, or <see langword="null" /> if failed. </returns>
         public static int? TryParseInt(this string s)
-            => int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : (int?)null;
+            => int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to an <see cref="int"/>.  <br />
@@ -301,7 +301,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="uint"/>, or <see langword="null" /> if failed. </returns>
         public static uint? TryParseUInt(this string s)
-            => uint.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : (uint?)null;
+            => uint.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to an <see cref="uint"/>.  <br />
@@ -352,7 +352,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="long"/>, or <see langword="null" /> if failed. </returns>
         public static long? TryParseLong(this string s)
-            => long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : (long?)null;
+            => long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to a <see cref="long"/>.  <br />
@@ -403,7 +403,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="ulong"/>, or <see langword="null" /> if failed. </returns>
         public static ulong? TryParseULong(this string s)
-            => ulong.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : (ulong?)null;
+            => ulong.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to an <see cref="ulong"/>.  <br />
@@ -454,7 +454,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="float"/>, or <see langword="null" /> if failed. </returns>
         public static float? TryParseFloat(this string s)
-            => float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var result) ? result : (float?)null;
+            => float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to a <see cref="float"/>.  <br />
@@ -505,7 +505,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="double"/>, or <see langword="null" /> if failed. </returns>
         public static double? TryParseDouble(this string s)
-            => double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var result) ? result : (double?)null;
+            => double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to a <see cref="double"/>.  <br />
@@ -556,7 +556,7 @@ namespace Triggernometry.Expressions.String.Utils
         /// </summary>
         /// <returns> The parsed <see cref="decimal"/>, or <see langword="null" /> if failed. </returns>
         public static decimal? TryParseDecimal(this string s)
-            => decimal.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var result) ? result : (decimal?)null;
+            => decimal.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var result) ? result : null;
 
         /// <summary> 
         /// Attempt to convert a <see cref="string"/> to a <see cref="decimal"/>.  <br />

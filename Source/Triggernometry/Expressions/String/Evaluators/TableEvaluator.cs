@@ -56,8 +56,8 @@ namespace Triggernometry.Expressions.String.Evaluators
                 case "vjoin": // .vjoin(joiner1 = ",", joiner2 = LINEBREAK_PLACEHOLDER, colSlices = ":", rowSlices = ":")
                     CheckArgCountLocal("0-4");
                     {
-                        string joiner1 = GetArgument(args, 0, ",", false);
-                        string joiner2 = GetArgument(args, 1, LINEBREAK_STR, false);
+                        string joiner1 = GetArgument(args, 0, ",");
+                        string joiner2 = GetArgument(args, 1, LINEBREAK_STR);
                         string colSlicesStr = GetArgument(args, 2, ":");
                         string rowSlicesStr = GetArgument(args, 3, ":");
 
@@ -68,8 +68,7 @@ namespace Triggernometry.Expressions.String.Evaluators
 
                             if (methodName.StartsWith("hj")) // hjoin / hjoin(...)
                                 return vt.HJoin(joiner1, joiner2, colIndices, rowIndices);
-                            else
-                                return vt.VJoin(joiner1, joiner2, colIndices, rowIndices);
+                            return vt.VJoin(joiner1, joiner2, colIndices, rowIndices);
                         };
                     }
 
