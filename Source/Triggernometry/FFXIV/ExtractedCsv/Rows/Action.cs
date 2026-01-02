@@ -76,7 +76,7 @@ namespace Triggernometry.FFXIV.ExtractedCsv.Rows
             Triangle
         }
 
-        public static Dictionary<byte, ShapeEnum> ShapeMap = new Dictionary<byte, ShapeEnum>()
+        public static Dictionary<byte, ShapeEnum> ShapeMap = new Dictionary<byte, ShapeEnum>
         {
             [0] = ShapeEnum.None,
             [1] = ShapeEnum.None,

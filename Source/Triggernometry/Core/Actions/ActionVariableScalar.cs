@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using JsonPath;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Core.Variables;
 using Triggernometry.Localization;
+using Triggernometry.Utilities;
 
 namespace Triggernometry.Core.Actions
 {
@@ -257,14 +259,14 @@ namespace Triggernometry.Core.Actions
                     {
                         vs.UnsetAllVariables(vs.Scalar);
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarunsetall",
-                            "All {0}scalar variables unset", sPersist));
+                                                                                        "All {0}scalar variables unset", sPersist));
                         break;
                     }
                 case OperationEnum.UnsetRegex:
                     {
                         vs.UnsetVariableRegex(vs.Scalar, Name);
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarunsetregex",
-                            "All {1}scalar variables matching ({0}) unset", Name, sPersist));
+                                                                                        "All {1}scalar variables matching ({0}) unset", Name, sPersist));
                         break;
                     }
                 case OperationEnum.UnsetRegexUniversal:
@@ -275,14 +277,14 @@ namespace Triggernometry.Core.Actions
                         vs.UnsetVariableRegex(vs.Table, rx);
                         vs.UnsetVariableRegex(vs.Dict, rx);
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarunsetregexuniversal",
-                            "All {1}variables matching ({0}) unset", Name, sPersist));
+                                                                                        "All {1}variables matching ({0}) unset", Name, sPersist));
                         break;
                     }
                 case OperationEnum.Unset:
                     {
                         vs.UnsetVariable(vs.Scalar, varname);
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarunset",
-                            "{1}Scalar variable ({0}) unset", varname, sPersist));
+                                                                                        "{1}Scalar variable ({0}) unset", varname, sPersist));
                         break;
                     }
                 case OperationEnum.SetString:
@@ -306,7 +308,7 @@ namespace Triggernometry.Core.Actions
                             vs.Scalar[varname] = x;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarset",
-                            "{2}Scalar variable ({0}) value set to ({1})", varname, newval, sPersist));
+                                                                                        "{2}Scalar variable ({0}) value set to ({1})", varname, newval, sPersist));
                         break;
                     }
                 case OperationEnum.Increment:
@@ -327,7 +329,7 @@ namespace Triggernometry.Core.Actions
                             x.Value = I18n.ThingToString(original + increment);
                             vs.Scalar[varname] = x;
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarset",
-                                "{2}Scalar variable ({0}) value set to ({1})", varname, x.Value, sPersist));
+                                                                                            "{2}Scalar variable ({0}) value set to ({1})", varname, x.Value, sPersist));
                         }
                         break;
                     }
@@ -346,7 +348,7 @@ namespace Triggernometry.Core.Actions
                         }
                         ActionOld.ClipboardSetText(text); // todo
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarclipboard",
-                            "Set text ({0}) to clipboard", text));
+                                                                                        "Set text ({0}) to clipboard", text));
                         break;
                     }
                 case OperationEnum.QueryJsonPath:
@@ -355,8 +357,8 @@ namespace Triggernometry.Core.Actions
                         string tgtname = ctx.EvaluateStringExpression(ActionContextLogger, ctx, JsonTargetName);
                         VariableStore vs2 = plug.GetVariableStore(JsonTargetPersistent);
                         string query = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Value);
-                        JsonPath.JsonPathContext pc = new JsonPath.JsonPathContext();
-                        Dictionary<string, object> p = new Utilities.JsonParser().Parse(newval);
+                        JsonPathContext pc = new JsonPathContext();
+                        Dictionary<string, object> p = new JsonParser().Parse(newval);
                         object[] result = pc.Select(p, query).ToArray();
 
                         VariableScalar x = new VariableScalar();
@@ -374,7 +376,7 @@ namespace Triggernometry.Core.Actions
                             vs2.Scalar[tgtname] = x;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/scalarset",
-                            "{2}Scalar variable ({0}) value set to ({1})", tgtname, x.Value, tPersist));
+                                                                                        "{2}Scalar variable ({0}) value set to ({1})", tgtname, x.Value, tPersist));
                     }
                     break;
                 case OperationEnum.QueryJsonPathList:
@@ -383,8 +385,8 @@ namespace Triggernometry.Core.Actions
                         string tgtname = ctx.EvaluateStringExpression(ActionContextLogger, ctx, JsonTargetName);
                         VariableStore vs2 = plug.GetVariableStore(JsonTargetPersistent);
                         string query = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Value);
-                        JsonPath.JsonPathContext pc = new JsonPath.JsonPathContext();
-                        Dictionary<string, object> p = new Utilities.JsonParser().Parse(newval);
+                        JsonPathContext pc = new JsonPathContext();
+                        Dictionary<string, object> p = new JsonParser().Parse(newval);
                         object[] result = pc.Select(p, query).ToArray();
 
                         VariableList x = new VariableList();
@@ -407,7 +409,7 @@ namespace Triggernometry.Core.Actions
                                     }
                                     else
                                     {
-                                        x.Push(new VariableScalar() { Value = o.ToString(), LastChanged = x.LastChanged, LastChanger = changer }, changer);
+                                        x.Push(new VariableScalar { Value = o.ToString(), LastChanged = x.LastChanged, LastChanger = changer }, changer);
                                     }
                                 }
                                 break;
@@ -417,7 +419,7 @@ namespace Triggernometry.Core.Actions
                             vs2.List[tgtname] = x;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listset",
-                            "{2}List variable ({0}) value set with ({1}) items", tgtname, x.Size, tPersist));
+                                                                                        "{2}List variable ({0}) value set with ({1}) items", tgtname, x.Size, tPersist));
                     }
                     break;
                 default:

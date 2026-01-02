@@ -50,9 +50,14 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using WebSocketSharp.Net;
+using CookieCollection = WebSocketSharp.Net.CookieCollection;
+using HttpListenerResponse = WebSocketSharp.Net.HttpListenerResponse;
+using HttpStatusCode = WebSocketSharp.Net.HttpStatusCode;
+using HttpVersion = WebSocketSharp.Net.HttpVersion;
 
 namespace WebSocketSharp
 {
@@ -905,7 +910,6 @@ namespace WebSocketSharp
           yield return buff.ToString ();
 
           buff.Length = 0;
-          continue;
         }
       }
 
@@ -948,17 +952,17 @@ namespace WebSocketSharp
              : name;
     }
 
-    internal static System.Net.IPAddress ToIPAddress (this string value)
+    internal static IPAddress ToIPAddress (this string value)
     {
       if (value == null || value.Length == 0)
         return null;
 
-      System.Net.IPAddress addr;
-      if (System.Net.IPAddress.TryParse (value, out addr))
+      IPAddress addr;
+      if (IPAddress.TryParse (value, out addr))
         return addr;
 
       try {
-        var addrs = System.Net.Dns.GetHostAddresses (value);
+        var addrs = Dns.GetHostAddresses (value);
         return addrs[0];
       }
       catch {
@@ -972,7 +976,7 @@ namespace WebSocketSharp
     }
 
     internal static string ToString (
-      this System.Net.IPAddress address, bool bracketIPv6
+      this IPAddress address, bool bracketIPv6
     )
     {
       return bracketIPv6 && address.AddressFamily == AddressFamily.InterNetworkV6
@@ -1424,27 +1428,27 @@ namespace WebSocketSharp
     /// <exception cref="ArgumentNullException">
     /// <paramref name="address"/> is <see langword="null"/>.
     /// </exception>
-    public static bool IsLocal (this System.Net.IPAddress address)
+    public static bool IsLocal (this IPAddress address)
     {
       if (address == null)
         throw new ArgumentNullException ("address");
 
-      if (address.Equals (System.Net.IPAddress.Any))
+      if (address.Equals (IPAddress.Any))
         return true;
 
-      if (address.Equals (System.Net.IPAddress.Loopback))
+      if (address.Equals (IPAddress.Loopback))
         return true;
 
       if (Socket.OSSupportsIPv6) {
-        if (address.Equals (System.Net.IPAddress.IPv6Any))
+        if (address.Equals (IPAddress.IPv6Any))
           return true;
 
-        if (address.Equals (System.Net.IPAddress.IPv6Loopback))
+        if (address.Equals (IPAddress.IPv6Loopback))
           return true;
       }
 
-      var host = System.Net.Dns.GetHostName ();
-      var addrs = System.Net.Dns.GetHostAddresses (host);
+      var host = Dns.GetHostName ();
+      var addrs = Dns.GetHostAddresses (host);
       foreach (var addr in addrs) {
         if (address.Equals (addr))
           return true;
@@ -1826,7 +1830,7 @@ namespace WebSocketSharp
       var bytes = type == typeof (bool)
                   ? BitConverter.GetBytes ((bool)(object) value)
                   : type == typeof (byte)
-                    ? new byte[] { (byte)(object) value }
+                    ? new[] { (byte)(object) value }
                     : type == typeof (char)
                       ? BitConverter.GetBytes ((char)(object) value)
                       : type == typeof (double)
@@ -1935,7 +1939,7 @@ namespace WebSocketSharp
       for (var i = 0; i < len - 1; i++)
         buff.AppendFormat ("{0}{1}", array[i], separator);
 
-      buff.Append (array[len - 1].ToString ());
+      buff.Append (array[len - 1]);
       return buff.ToString ();
     }
 

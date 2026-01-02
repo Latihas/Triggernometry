@@ -24,7 +24,7 @@ namespace Triggernometry.Core.Variables
 
         public override int CompareTo(object o)
         {
-            if (o is Variable == false)
+            if (!(o is Variable))
             {
                 throw new InvalidOperationException();
             }

@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Net;
 using System.Security.Principal;
 
 namespace WebSocketSharp.Net.Websockets
@@ -190,7 +191,7 @@ namespace WebSocketSharp.Net.Websockets
     /// A <see cref="System.Net.IPEndPoint"/> that represents the server IP
     /// address and port number.
     /// </value>
-    public abstract System.Net.IPEndPoint ServerEndPoint { get; }
+    public abstract IPEndPoint ServerEndPoint { get; }
 
     /// <summary>
     /// Gets the client information.
@@ -208,7 +209,7 @@ namespace WebSocketSharp.Net.Websockets
     /// A <see cref="System.Net.IPEndPoint"/> that represents the client IP
     /// address and port number.
     /// </value>
-    public abstract System.Net.IPEndPoint UserEndPoint { get; }
+    public abstract IPEndPoint UserEndPoint { get; }
 
     /// <summary>
     /// Gets the WebSocket instance used for two-way communication between

@@ -104,7 +104,7 @@ namespace Triggernometry.Core.Actions
 
             lock (livesplitController)
             {
-                if (LiveSplitConnector(ctx) != true)
+                if (!LiveSplitConnector(ctx))
                 {
                     AddToLog(ctx, DebugLevelEnum.Warning, I18n.Translate("internal/Action/lscontrolerror", "Can't execute LiveSplit control action due to error"));
                     return;
@@ -155,7 +155,7 @@ namespace Triggernometry.Core.Actions
             var liveSplitController = ctx.Plugin._livesplit;
             lock (liveSplitController)
             {
-                if (liveSplitController.IsConnected == true)
+                if (liveSplitController.IsConnected)
                 {
                     return true;
                 }

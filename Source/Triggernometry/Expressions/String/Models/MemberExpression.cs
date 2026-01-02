@@ -92,7 +92,6 @@ namespace Triggernometry.Expressions.String.Models
                 if (c == ')')
                 {
                     rParenPos = i;
-                    break;
                 }
                 break;
             }

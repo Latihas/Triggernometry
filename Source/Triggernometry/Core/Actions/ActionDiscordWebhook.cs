@@ -72,7 +72,7 @@ namespace Triggernometry.Core.Actions
 
         internal override string DescribeImplementation()
         {
-            if (UseTTS == true)
+            if (UseTTS)
             {
                 return I18n.Translate("internal/Action/descdiscordttsmsg", "send TTS message ({0}) to Discord webhook ({1})", Message, WebhookURL);
             }
@@ -86,7 +86,7 @@ namespace Triggernometry.Core.Actions
 
             string msg = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Message);
             string url = ctx.EvaluateStringExpression(ActionContextLogger, ctx, WebhookURL);
-            if (UseTTS == true)
+            if (UseTTS)
             {
                 if (msg.Length > 1970)
                 {

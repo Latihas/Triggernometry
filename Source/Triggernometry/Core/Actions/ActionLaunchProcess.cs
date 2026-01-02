@@ -117,7 +117,7 @@ namespace Triggernometry.Core.Actions
             psi.FileName = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Path);
             p.StartInfo = psi;
             p.Start();
-            if (Asynchronous == false)
+            if (!Asynchronous)
             {
                 AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/waitingprocexit", "Waiting for process to exit"));
                 p.WaitForExit();

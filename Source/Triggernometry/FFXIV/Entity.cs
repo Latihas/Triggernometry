@@ -76,8 +76,7 @@ namespace Triggernometry.FFXIV
         public Vector2 PosXY => new Vector2(PosX, PosY);
         public Vector3 Pos => new Vector3(PosX, PosY, PosZ);
 
-        public Entity() { }
-        public static Entity NullEntity() => new Entity() { Exist = false };
+        public static Entity NullEntity() => new Entity { Exist = false };
         public virtual Entity Snapshot() => new Entity
         {
             Exist = Exist, PluginSource = PluginSource.None,
@@ -407,7 +406,7 @@ namespace Triggernometry.FFXIV
         /// Aliases are NOT included.
         /// </summary>
         internal static readonly HashSet<string> RecommendedEntityPropNames
-            = new HashSet<string>(ValidEntityPropNames.Except(new string[] {
+            = new HashSet<string>(ValidEntityPropNames.Except(new[] {
                 "Exist", "PluginSource", "EffectiveDistance",
                 "PosX", "PosY", "PosZ", "XY", "PosXY", "XYZ", "Pos",
                 "HP", "MP", "CP", "GP",
@@ -480,7 +479,7 @@ namespace Triggernometry.FFXIV
     }
 
     // OverlayPlugin/OverlayPlugin.Core/MemoryProcessors/Combatant/Common.cs
-    public enum ModelStatus : int
+    public enum ModelStatus
     {
         Visible = 0,
         Unloaded = 2048,

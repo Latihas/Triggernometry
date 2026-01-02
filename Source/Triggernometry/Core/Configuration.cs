@@ -13,7 +13,7 @@ using Triggernometry.Localization;
 namespace Triggernometry.Core;
 
 
-    public partial class Configuration
+    public class Configuration
     {
         // Configuration Form
 
@@ -166,7 +166,7 @@ namespace Triggernometry.Core;
             set
             {
                 bool temp = bool.Parse(value);
-                if (temp == true)
+                if (temp)
                 {
                     SoundMethod = AudioRoutingMethodEnum.ACT;
                 }
@@ -187,7 +187,7 @@ namespace Triggernometry.Core;
             set
             {
                 bool temp = bool.Parse(value);
-                if (temp == true)
+                if (temp)
                 {
                     TtsMethod = AudioRoutingMethodEnum.ACT;
                 }
@@ -298,9 +298,9 @@ namespace Triggernometry.Core;
                 {
                     string et = e.Trim();
                     int valn = 0;
-                    if (int.TryParse(et, out valn) == true)
+                    if (int.TryParse(et, out valn))
                     {
-                        if (_FfxivCustomPartyOrderLookup.ContainsKey(valn) == false)
+                        if (!_FfxivCustomPartyOrderLookup.ContainsKey(valn))
                         {
                             _FfxivCustomPartyOrderLookup[valn] = subn;
                             subn++;
@@ -312,7 +312,7 @@ namespace Triggernometry.Core;
 
         internal int GetPartyOrderValue(int job)
         {
-            if (_FfxivCustomPartyOrderLookup.ContainsKey(job) == true)
+            if (_FfxivCustomPartyOrderLookup.ContainsKey(job))
             {
                 return _FfxivCustomPartyOrderLookup[job];
             }
@@ -322,7 +322,7 @@ namespace Triggernometry.Core;
         internal int GetPartyOrderValue(string job)
         {
             int ex = 0;
-            if (int.TryParse(job, out ex) == true)
+            if (int.TryParse(job, out ex))
             {
                 return GetPartyOrderValue(ex);
             }
@@ -437,10 +437,10 @@ namespace Triggernometry.Core;
         private List<APIUsage> _APIUsages { get; set; } = new List<APIUsage>();
         public List<APIUsage> APIUsages
         {
-            get => SecuritySettingsLocked == false ? _APIUsages : null;
+            get => !SecuritySettingsLocked ? _APIUsages : null;
             set
             {
-                if (SecuritySettingsLocked == false) _APIUsages = value;
+                if (!SecuritySettingsLocked) _APIUsages = value;
             }
         }
 
@@ -451,7 +451,7 @@ namespace Triggernometry.Core;
             get => _UnsafeUsage;
             set
             {
-                if (SecuritySettingsLocked == false) _UnsafeUsage = value;
+                if (!SecuritySettingsLocked) _UnsafeUsage = value;
             }
         }
 
@@ -461,7 +461,7 @@ namespace Triggernometry.Core;
             get => _DynamicUsage;
             set
             {
-                if (SecuritySettingsLocked == false) _DynamicUsage = value;
+                if (!SecuritySettingsLocked) _DynamicUsage = value;
             }
         }
 
@@ -470,7 +470,7 @@ namespace Triggernometry.Core;
             List<APIUsage> l = new List<APIUsage>();
             foreach (APIUsage a in _APIUsages)
             {
-                l.Add(new APIUsage() { Name = a.Name, AllowLocal = a.AllowLocal, AllowRemote = a.AllowRemote, AllowAdmin = a.AllowAdmin });
+                l.Add(new APIUsage { Name = a.Name, AllowLocal = a.AllowLocal, AllowRemote = a.AllowRemote, AllowAdmin = a.AllowAdmin });
             }
             return l;
         }
@@ -482,7 +482,7 @@ namespace Triggernometry.Core;
             {
                 _APIUsages.Add(au);
             }
-            else if (overwrite == true)
+            else if (overwrite)
             {
                 ax.AllowLocal = au.AllowLocal;
                 ax.AllowRemote = au.AllowRemote;
@@ -506,7 +506,7 @@ namespace Triggernometry.Core;
 
         // Default Settings
 
-        public Trigger TemplateTrigger = new Trigger() { Enabled = true, Condition = new ConditionGroup() { Grouping = ConditionGroup.CndGroupingEnum.Or, Enabled = false } };
+        public Trigger TemplateTrigger = new Trigger { Enabled = true, Condition = new ConditionGroup { Grouping = ConditionGroup.CndGroupingEnum.Or, Enabled = false } };
 
         [XmlAttribute]
         public bool UseTemplateTrigger { get; set; }

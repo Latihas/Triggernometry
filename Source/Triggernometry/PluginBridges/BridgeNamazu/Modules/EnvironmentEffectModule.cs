@@ -76,7 +76,6 @@ public class EnvironmentEffectModule : ModuleBase
             catch (Exception ex)
             {
                 ErrorLog($"[鲶鱼精邮差扩展] MapEffect 参数错误：{ex.Message}");
-                continue;
             }
         }
         GreyMagicMemoryBase.ExecuteWithLock(() =>
@@ -101,7 +100,7 @@ public class EnvironmentEffectModule : ModuleBase
 
     /// <summary> MapEffect 底层函数。 </summary>
     /// <returns> 是否调用成功。</returns>
-    public unsafe bool MapEffect(uint index, ushort flag)
+    public bool MapEffect(uint index, ushort flag)
     {
         CheckIfAnyZeroPtr();
         var contentDirectorPtr = ContentDirectorPtr;
@@ -116,11 +115,8 @@ public class EnvironmentEffectModule : ModuleBase
             }
             return success;
         }
-        else
-        {
-            ErrorLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 不存在 Director，无法调用 MapEffect ({index}, {flag})。");
-            return false;
-        }
+        ErrorLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 不存在 Director，无法调用 MapEffect ({index}, {flag})。");
+        return false;
     }
 
     /// <summary> <see cref="MapEffect" /> 的上一层函数，第二个参数并未实际使用。 </summary>

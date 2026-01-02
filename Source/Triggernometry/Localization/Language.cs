@@ -31,11 +31,6 @@ namespace Triggernometry.Localization
             public string Key { get; set; }
             [XmlAttribute]
             public string Translation { get; set; }
-
-            public TranslationEntry()
-            {
-            }
-
         }
 
         public List<TranslationEntry> Translations = new List<TranslationEntry>();
@@ -62,14 +57,14 @@ namespace Triggernometry.Localization
             Translations.Clear();
             foreach (KeyValuePair<string, string> kp in TranslationsLookup)
             {
-                Translations.Add(new TranslationEntry() { Key = kp.Key, Translation = kp.Value });
+                Translations.Add(new TranslationEntry { Key = kp.Key, Translation = kp.Value });
             }
             Translations.Sort((a, b) => { return a.Key.CompareTo(b.Key); });
         }
 
         public string Lookup(string key)
         {
-            if (TranslationsLookup.ContainsKey(key) == true)
+            if (TranslationsLookup.ContainsKey(key))
             {
                 return TranslationsLookup[key];
             }
@@ -80,14 +75,14 @@ namespace Triggernometry.Localization
 
         public string Translate(string key, string text, params object[] args)
         {
-            if (IsDefault == true)
+            if (IsDefault)
             {
-                if (TranslationsLookup.ContainsKey(key) == false)
+                if (!TranslationsLookup.ContainsKey(key))
                 {
                     TranslationsLookup[key] = text;
                 }
             }
-            if (TranslationsLookup.ContainsKey(key) == true)
+            if (TranslationsLookup.ContainsKey(key))
             {
                 string data = TranslationsLookup[key];
                 return string.Format(data, args);
@@ -102,16 +97,13 @@ namespace Triggernometry.Localization
             switch (MissingKeyHandling)
             {
                 case MissingHandlingEnum.DefaultString:
-                    {
-                        if (TranslationsLookup.ContainsKey("internal/default") == true)
+                {
+                    if (TranslationsLookup.ContainsKey("internal/default"))
                         {
                             return string.Format(TranslationsLookup["internal/default"], key);
                         }
-                        else
-                        {
-                            return string.Format(text, args);
-                        }
-                    }
+                    return string.Format(text, args);
+                }
                 case MissingHandlingEnum.OutputKey:
                     return key;
             }

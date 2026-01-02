@@ -61,7 +61,7 @@ namespace Triggernometry.Core.Actions
 
             string scp = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Script);
             string assy = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Assemblies);
-            while (plug.scriptingInited == false)
+            while (!plug.scriptingInited)
             {
                 Thread.Sleep(10);
             }

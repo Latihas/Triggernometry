@@ -52,9 +52,9 @@ public class NamazuPlugin
     public object GetOriginalModuleByName(string moduleName)
     {
         var modulesField = _plugin.GetType().GetField("Modules", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                           ?? throw new Exception($"[鲶鱼精邮差扩展] 未找到 Modules 列表。");
+                           ?? throw new Exception("[鲶鱼精邮差扩展] 未找到 Modules 列表。");
         var modules = modulesField.GetValue(_plugin) as IList
-                      ?? throw new Exception($"[鲶鱼精邮差扩展] Modules 实例不是列表。");
+                      ?? throw new Exception("[鲶鱼精邮差扩展] Modules 实例不是列表。");
         return modules.Cast<object>().FirstOrDefault(m => m.GetType().Name.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
     }
 

@@ -104,7 +104,7 @@ namespace Triggernometry.Core.Actions
             {
                 ctx.loopIterator += (int)ctx.EvaluateNumericExpression(ActionContextLogger, ctx, IncrExpression);
             }
-            if (LoopCondition.Enabled == true && LoopCondition.CheckCondition(ctx, ActionContextLogger, ctx) == true)
+            if (LoopCondition.Enabled && LoopCondition.CheckCondition(ctx, ActionContextLogger, ctx))
             {
                 bool continuing = false;
                 if (ctx.loopActionId != Id)
@@ -125,7 +125,7 @@ namespace Triggernometry.Core.Actions
                 DateTime curTime = DateTime.Now;
                 ActionOld lastAction = plug.QueueActions(ctx, curTime, null /* todo Actions proper type */, ctx.Trigger.Sequential, ai?.mutex, ActionContextLogger);
                 lastAction.LoopAction = null; // todo supposed to be a reference to this action
-                if (continuing == true)
+                if (continuing)
                 {
                     return;
                 }

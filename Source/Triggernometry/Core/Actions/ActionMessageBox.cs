@@ -67,7 +67,7 @@ namespace Triggernometry.Core.Actions
 
         internal override string DescribeImplementation()
         {
-            return I18n.Translate($"internal/Action/descmsgbox{Icon}", "show a message box saying ({0}) with icon (" + Icon.ToString() + ")", Text);
+            return I18n.Translate($"internal/Action/descmsgbox{Icon}", "show a message box saying ({0}) with icon (" + Icon + ")", Text);
         }
 
         internal override void ExecuteImplementation(ActionInstance ai)

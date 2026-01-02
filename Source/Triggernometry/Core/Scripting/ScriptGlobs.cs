@@ -6,7 +6,7 @@
 
         internal ScriptGlobs(Context ctx)
         {
-            TriggernometryHelpers = new ScriptContextHelper()
+            TriggernometryHelpers = new ScriptContextHelper
             {
                 CurrentContext = ctx
             };

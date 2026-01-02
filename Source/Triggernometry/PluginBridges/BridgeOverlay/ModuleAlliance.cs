@@ -3,8 +3,6 @@ using RainbowMage.OverlayPlugin.MemoryProcessors.Party;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 
-
-
 namespace Triggernometry.PluginBridges
 {
     [OverlayModule]
@@ -17,7 +15,7 @@ namespace Triggernometry.PluginBridges
         {
             try
             {
-                _partyMemoryManager = BridgeOverlay.Container.Resolve<RainbowMage.OverlayPlugin.MemoryProcessors.Party.IPartyMemory>();
+                _partyMemoryManager = BridgeOverlay.Container.Resolve<IPartyMemory>();
                 Ready = true;
             }
             catch (Exception ex)

@@ -105,7 +105,7 @@ public static class BridgeNamazu
             module.RegisterAnnotatedMethods(methodTags);
         }
         if (methodTags.Length == 0)
-            methodTags = new string[] { "Basic" };
+            methodTags = new[] { "Basic" };
         foreach (var tag in methodTags)
         {
             // 生成日志

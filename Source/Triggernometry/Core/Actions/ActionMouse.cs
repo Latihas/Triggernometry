@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;
@@ -160,9 +161,9 @@ namespace Triggernometry.Core.Actions
                     Task.Run(() =>
                     {
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-                        System.Threading.Thread.Sleep(10);
+                        Thread.Sleep(10);
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.LEFTDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-                        System.Threading.Thread.Sleep(10);
+                        Thread.Sleep(10);
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.LEFTUP, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
                     });
                     break;
@@ -170,9 +171,9 @@ namespace Triggernometry.Core.Actions
                     Task.Run(() =>
                     {
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-                        System.Threading.Thread.Sleep(10);
+                        Thread.Sleep(10);
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MIDDLEDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-                        System.Threading.Thread.Sleep(10);
+                        Thread.Sleep(10);
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MIDDLEUP, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
                     });
                     break;
@@ -180,9 +181,9 @@ namespace Triggernometry.Core.Actions
                     Task.Run(() =>
                     {
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-                        System.Threading.Thread.Sleep(10);
+                        Thread.Sleep(10);
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.RIGHTDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-                        System.Threading.Thread.Sleep(10);
+                        Thread.Sleep(10);
                         WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.RIGHTUP, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
                     });
                     break;

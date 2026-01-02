@@ -1,10 +1,10 @@
-﻿using CsvHelper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Xml.Serialization;
+using CsvHelper;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Core.Variables;
 using Triggernometry.Localization;
@@ -160,17 +160,17 @@ namespace Triggernometry.Core.Actions
                 Operation == OperationEnum.ReadIntoVariable)
             {
                 Uri u = new Uri(filename);
-                if (u.IsFile == false)
+                if (!u.IsFile)
                 {
                     string fn = Path.Combine(plug.ConfigPath, "TriggernometryFileCache");
-                    if (Directory.Exists(fn) == false)
+                    if (!Directory.Exists(fn))
                     {
                         Directory.CreateDirectory(fn);
                     }
                     string ext = Path.GetExtension(u.LocalPath);
                     fn = Path.Combine(fn, RealPlugin.GenerateHash(u.AbsoluteUri) + Path.GetExtension(u.LocalPath));
                     bool fromcache = false;
-                    if (File.Exists(fn) == true && UseCache == true)
+                    if (File.Exists(fn) && UseCache)
                     {
                         FileInfo fi = new FileInfo(fn);
                         DateTime dt = DateTime.Now.AddMinutes(0 - plug.cfg.CacheFileExpiry);
@@ -180,7 +180,7 @@ namespace Triggernometry.Core.Actions
                             fromcache = true;
                         }
                     }
-                    if (fromcache == false)
+                    if (!fromcache)
                     {
                         using (WebClient wc = new WebClient())
                         {
@@ -201,7 +201,7 @@ namespace Triggernometry.Core.Actions
                         using (StreamReader sr = new StreamReader(filename))
                         using (CsvReader csv = new CsvReader(sr, CultureInfo.InvariantCulture))
                         {
-                            while (csv.Parser.Read() == true)
+                            while (csv.Parser.Read())
                             {
                                 string[] x = csv.Parser.Record;
                                 if (x.Length > datawidth)
@@ -235,7 +235,7 @@ namespace Triggernometry.Core.Actions
                             }
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/filetableset",
-                            "{2}Table variable ({0}) value read from CSV file ({1})", varname, filename, persist));
+                                                                                        "{2}Table variable ({0}) value read from CSV file ({1})", varname, filename, persist));
                     }
                     break;
                 case OperationEnum.ReadIntoListVariable:
@@ -243,14 +243,14 @@ namespace Triggernometry.Core.Actions
                         string[] data = File.ReadAllLines(filename);
                         lock (vs.List) // verified
                         {
-                            if (vs.List.ContainsKey(varname) == false)
+                            if (!vs.List.ContainsKey(varname))
                             {
                                 vs.List[varname] = new VariableList();
                             }
                             VariableList x = vs.List[varname];
                             foreach (string dat in data)
                             {
-                                x.Push(new VariableScalar() { Value = dat }, "");
+                                x.Push(new VariableScalar { Value = dat }, "");
                             }
                             if (ctx.Trigger != null)
                             {
@@ -263,7 +263,7 @@ namespace Triggernometry.Core.Actions
                             x.LastChanged = DateTime.Now;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/filelistset",
-                            "{2}List variable ({0}) value read from file ({1})", varname, filename, persist));
+                                                                                        "{2}List variable ({0}) value read from file ({1})", varname, filename, persist));
                     }
                     break;
                 case OperationEnum.ReadIntoVariable:
@@ -271,7 +271,7 @@ namespace Triggernometry.Core.Actions
                         string data = File.ReadAllText(filename);
                         lock (vs.Scalar) // verified
                         {
-                            if (vs.Scalar.ContainsKey(varname) == false)
+                            if (!vs.Scalar.ContainsKey(varname))
                             {
                                 vs.Scalar[varname] = new VariableScalar();
                             }
@@ -288,8 +288,8 @@ namespace Triggernometry.Core.Actions
                             x.LastChanged = DateTime.Now;
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/filescalarset",
-                            "{2}Scalar variable ({0}) value read from file ({1})",
-                            varname, filename, persist));
+                                                                                        "{2}Scalar variable ({0}) value read from file ({1})",
+                                                                                        varname, filename, persist));
                     }
                     break;
                 default:

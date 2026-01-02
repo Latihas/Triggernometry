@@ -6,6 +6,7 @@ using Triggernometry.Core.Variables;
 using Triggernometry.Expressions.Maths;
 using Triggernometry.Expressions.String.Parsers;
 using Triggernometry.Expressions.String.Utils;
+using Triggernometry.FFXIV;
 using Triggernometry.Localization;
 
 namespace Triggernometry.Core.Actions
@@ -319,16 +320,14 @@ namespace Triggernometry.Core.Actions
             {
                 if (KeyType == ExpressionTypeEnum.String)
                     return ctx.EvaluateStringExpression(ActionContextLogger, ctx, Key);
-                else
-                    return I18n.ThingToString(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, Key));
+                return I18n.ThingToString(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, Key));
 
             }
             string ParseValue()
             {
                 if (ValueType == ExpressionTypeEnum.String)
                     return ctx.EvaluateStringExpression(ActionContextLogger, ctx, Value);
-                else
-                    return I18n.ThingToString(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, Value));
+                return I18n.ThingToString(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, Value));
             }
 
             string vdchanger;
@@ -345,17 +344,17 @@ namespace Triggernometry.Core.Actions
                         svs.Dict.Clear();
                     }
                     AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictunsetall",
-                        "All {0}dict variables unset", sPersist));
+                                                                                    "All {0}dict variables unset", sPersist));
                     break;
                 case OperationEnum.UnsetRegex:                    
                     svs.UnsetVariableRegex(svs.Dict, Name);
                     AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictunsetregex",
-                        "All {0}dict variables matching ({1}) unset", sPersist, Name));
+                                                                                    "All {0}dict variables matching ({1}) unset", sPersist, Name));
                     break;
                 case OperationEnum.Unset:
                     svs.UnsetVariable(svs.Dict, sourcename);
                     AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictunset",
-                        "Unset {1}dict variable ({0})", sourcename, sPersist));
+                                                                                    "Unset {1}dict variable ({0})", sourcename, sPersist));
                     break;
                 case OperationEnum.Set:
                     {
@@ -372,7 +371,7 @@ namespace Triggernometry.Core.Actions
                             vd.SetValue(key, value, vdchanger);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictset",
-                            "Value of key ({2}) in {1}dict variable ({0}) set to ({3})", sourcename, sPersist, key, value));
+                                                                                        "Value of key ({2}) in {1}dict variable ({0}) set to ({3})", sourcename, sPersist, key, value));
                     }
                     break;
                 case OperationEnum.Remove:
@@ -384,7 +383,7 @@ namespace Triggernometry.Core.Actions
                             vd.RemoveKey(key, vdchanger);
                         }
                         AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictremove",
-                            "Removed key ({2}) from {1}dict variable ({0})", sourcename, sPersist, key));
+                                                                                        "Removed key ({2}) from {1}dict variable ({0})", sourcename, sPersist, key));
                     }
                     break;
                 case OperationEnum.Merge:
@@ -403,12 +402,12 @@ namespace Triggernometry.Core.Actions
                         }
                         if (shouldOverwrite)
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictmergehard",
-                                "Merged {1}dict variable ({0}) into {3}dict variable ({2}) (overwrite repeated keys)",
-                                sourcename, sPersist, targetname, tPersist));
+                                                                                            "Merged {1}dict variable ({0}) into {3}dict variable ({2}) (overwrite repeated keys)",
+                                                                                            sourcename, sPersist, targetname, tPersist));
                         else
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictmerge",
-                                "Merged {1}dict variable ({0}) into {3}dict variable ({2}) (keep repeated keys)",
-                                sourcename, sPersist, targetname, tPersist));
+                                                                                            "Merged {1}dict variable ({0}) into {3}dict variable ({2}) (keep repeated keys)",
+                                                                                            sourcename, sPersist, targetname, tPersist));
                     }
                     break;
                 case OperationEnum.GetEntity:
@@ -417,7 +416,7 @@ namespace Triggernometry.Core.Actions
                         var entity = XivEntityParser.GetEntityFromUserInput(filterExpr);
 
                         var memberExprs = string.IsNullOrWhiteSpace(Key)
-                            ? FFXIV.Entity.RecommendedEntityPropNames.Concat(FFXIV.Job.LegalJobPropNames)
+                            ? Entity.RecommendedEntityPropNames.Concat(Job.LegalJobPropNames)
                             : ArgHelper.SplitArguments(ParseKey(), false);
 
                         var vd = new VariableDictionary(memberExprs.ToDictionary(
@@ -431,12 +430,12 @@ namespace Triggernometry.Core.Actions
                         }
                         if (entity.Exist)
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictgetentity",
-                                "Saved the data of entity ({2}) into {1}dict variable ({0})",
-                                sourcename, sPersist, filterExpr));
+                                                                                            "Saved the data of entity ({2}) into {1}dict variable ({0})",
+                                                                                            sourcename, sPersist, filterExpr));
                         else
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/dictgetentityfail",
-                                "Entity ({2}) not found when trying to save into {1}dict variable ({0})",
-                                sourcename, sPersist, filterExpr));
+                                                                                            "Entity ({2}) not found when trying to save into {1}dict variable ({0})",
+                                                                                            sourcename, sPersist, filterExpr));
                     }
                     break;
                 case OperationEnum.Build:
@@ -453,14 +452,14 @@ namespace Triggernometry.Core.Actions
                             string splitval = expr.Substring(2);
                             vt = VariableDictionary.Build(splitval, kvSeparator, pairSeparator, vdchanger);
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictbuild",
-                                "{1}Dictionary ({0}) built from expression ({2}) splitted by ({3}) ({4})",
-                                targetname, tPersist, splitval, kvSeparator, pairSeparator));
+                                                                                            "{1}Dictionary ({0}) built from expression ({2}) splitted by ({3}) ({4})",
+                                                                                            targetname, tPersist, splitval, kvSeparator, pairSeparator));
                         }
                         else
                         {
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/dictbuildfail",
-                                "{1}Dictionary ({0}) cannot be built since expression ({2}) length < 2",
-                                targetname, tPersist, expr));
+                                                                                            "{1}Dictionary ({0}) cannot be built since expression ({2}) length < 2",
+                                                                                            targetname, tPersist, expr));
                         }
                         lock (tvs.Dict)
                         {
@@ -493,8 +492,8 @@ namespace Triggernometry.Core.Actions
                         {
                             tvs.Dict[targetname] = vdResult;
                             AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictfilter",
-                                "Filtered {4} key-value pairs from {1}dict ({0}) into {3}dict ({2})",
-                                sourcename, sPersist, targetname, tPersist, vdResult.Size));
+                                                                                            "Filtered {4} key-value pairs from {1}dict ({0}) into {3}dict ({2})",
+                                                                                            sourcename, sPersist, targetname, tPersist, vdResult.Size));
                         }
                     }
                     break;
@@ -523,8 +522,8 @@ namespace Triggernometry.Core.Actions
                                     vdNew.SetValue(k, v, vdchanger);
                                 }
                                 AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictsetallbyindex",
-                                    "{4} key value pairs in {1}dictionary ({0}) set to ({2}): ({3})",
-                                    sourcename, sPersist, Key, Value, length));
+                                                                                                "{4} key value pairs in {1}dictionary ({0}) set to ({2}): ({3})",
+                                                                                                sourcename, sPersist, Key, Value, length));
                             }
                             else
                             {   // should only use ${_key} and ${_val} to rewrite the list
@@ -537,8 +536,8 @@ namespace Triggernometry.Core.Actions
                                     vdNew.SetValue(k, v, vdchanger);
                                 }
                                 AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictsetall",
-                                    "All key value pairs in {1}dictionary ({0}) set to ({2}): ({3})",
-                                    sourcename, sPersist, Key, Value));
+                                                                                                "All key value pairs in {1}dictionary ({0}) set to ({2}): ({3})",
+                                                                                                sourcename, sPersist, Key, Value));
                             }
                             svs.Dict[sourcename] = vdNew;
                         }

@@ -101,7 +101,7 @@ namespace Triggernometry.Core.Actions
 
         internal override string DescribeImplementation()
         {
-            if (ProcessAsLogline == true)
+            if (ProcessAsLogline)
             {
                 string srcType = "";
                 switch (Target)

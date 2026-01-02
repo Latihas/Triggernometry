@@ -2,8 +2,8 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
-using Triggernometry.Localization;
 using Triggernometry.Expressions.Maths;
+using Triggernometry.Localization;
 
 namespace Triggernometry.Core.Conditions
 {
@@ -267,7 +267,7 @@ namespace Triggernometry.Core.Conditions
         {
             try
             {
-                if (Enabled == false)
+                if (!Enabled)
                 {
                     return false;
                 }
@@ -333,13 +333,13 @@ namespace Triggernometry.Core.Conditions
                         }
                     case CndTypeEnum.RegexNotMatch:
                         {
-                            return Regex.IsMatch(lval, rval) == false;
+                            return !Regex.IsMatch(lval, rval);
                         }
                     case CndTypeEnum.ListContains:
                         {
                             lock (ctx.Plugin.GetVariableStore(false).List)
                             {
-                                if (ctx.Plugin.GetVariableStore(false).List.ContainsKey(lval) == true)
+                                if (ctx.Plugin.GetVariableStore(false).List.ContainsKey(lval))
                                 {
                                     if (ctx.Plugin.GetVariableStore(false).List[lval].IndexOf(rval) > 0)
                                     {
@@ -353,7 +353,7 @@ namespace Triggernometry.Core.Conditions
                         {
                             lock (ctx.Plugin.GetVariableStore(false).List)
                             {
-                                if (ctx.Plugin.GetVariableStore(false).List.ContainsKey(lval) == true)
+                                if (ctx.Plugin.GetVariableStore(false).List.ContainsKey(lval))
                                 {
                                     if (ctx.Plugin.GetVariableStore(false).List[lval].IndexOf(rval) > 0)
                                     {

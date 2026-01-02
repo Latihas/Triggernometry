@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
 
@@ -19,7 +20,7 @@ public partial class RealPlugin
 
         public void Invoke(string val)
         {
-            Callback.DynamicInvoke(new object[] { Obj, val });
+            Callback.DynamicInvoke(Obj, val);
             LastInvoked = DateTime.Now;
         }
 
@@ -33,7 +34,7 @@ public partial class RealPlugin
         List<NamedCallback> cbs = new List<NamedCallback>();
         lock (callbacksByName)
         {
-            if (callbacksByName.ContainsKey(name) == true)
+            if (callbacksByName.ContainsKey(name))
             {
                 cbs.AddRange(callbacksByName[name]);
             }
@@ -74,7 +75,7 @@ public partial class RealPlugin
         lock (callbacksById)
         {
             callbacksById[id] = nc;
-            if (callbacksByName.ContainsKey(name) == false)
+            if (!callbacksByName.ContainsKey(name))
             {
                 callbacksByName[name] = new List<NamedCallback>();
             }
@@ -109,7 +110,7 @@ public partial class RealPlugin
         lock (callbacksById)
         {
             NamedCallback nc = null;
-            if (callbacksById.ContainsKey(id) == false)
+            if (!callbacksById.ContainsKey(id))
             {
                 return;
             }

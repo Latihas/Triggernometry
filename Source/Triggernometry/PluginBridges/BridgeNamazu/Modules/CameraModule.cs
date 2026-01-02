@@ -54,11 +54,8 @@ public class CameraModule : ModuleBase
         {
             return GreyMagicMemoryBase.Read<float>(CameraPtr + offset);
         }
-        else
-        {
-            ErrorLog($"[鲶鱼精邮差扩展] 错误的相机参数 ({param})。");
-            return default;
-        }
+        ErrorLog($"[鲶鱼精邮差扩展] 错误的相机参数 ({param})。");
+        return default;
     }
 
     public void SetParam(string param, float newValue)
@@ -117,7 +114,7 @@ public class CameraModule : ModuleBase
                 }
                 break;
             default:
-                var kvps = cmd.Split('\n').Select(data => data.Split(new char[] { '=', ':' }, 2)).Where(data => data.Length == 2);
+                var kvps = cmd.Split('\n').Select(data => data.Split(new[] { '=', ':' }, 2)).Where(data => data.Length == 2);
                 foreach (var kvp in kvps)
                 {
                     var key = kvp[0].Trim();

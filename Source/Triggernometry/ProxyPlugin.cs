@@ -23,45 +23,16 @@ namespace Triggernometry;
 public class ProxyPlugin : IActPluginV1
 {
     public RealPlugin Instance;
-
-    // private ActPluginData ActPluginPrevious = null;
-
-    private readonly object CornerLock = new object();
-    private bool CornerPopupVisible = false;
-    // private Control CornerPopup = null;
-    private bool complained;
     private int callbackIdCounter;
-    private List<Tuple<int, string, CustomCallbackDelegate, object, string>> queuedRegs = new List<Tuple<int, string, CustomCallbackDelegate, object, string>>();
+    private List<Tuple<int, string, CustomCallbackDelegate, object, string>> queuedRegs = new();
 
     public delegate void CustomCallbackDelegate(object o, string param);
 
-    public ProxyPlugin()
-    {
-        // CosturaUtility.Initialize();
-    }
-
     public int RegisterNamedCallback(string name, CustomCallbackDelegate callback, object o, string registrant)
     {
-        if (name == null)
-        {
-            throw new ArgumentNullException("name");
-        }
-        if (callback == null)
-        {
-            throw new ArgumentNullException("callback");
-        }
         lock (this)
         {
-            if (Instance != null)
-            {
-                return Instance.RegisterNamedCallback(name, callback, o, true, registrant);
-            }
-            else
-            {
-                int newid = Interlocked.Decrement(ref callbackIdCounter); // negative IDs for queued registrations to avoid conflict
-                queuedRegs.Add(new Tuple<int, string, CustomCallbackDelegate, object, string>(newid, name, callback, o, registrant));
-                return newid;
-            }
+            return Instance.RegisterNamedCallback(name, callback, o, true, registrant);
         }
     }
 
@@ -86,17 +57,7 @@ public class ProxyPlugin : IActPluginV1
     {
         lock (this)
         {
-            if (Instance != null)
-            {
-                Instance.UnregisterNamedCallback(id);
-            }
-            else
-            {
-                foreach (var tuple in queuedRegs.Where(tuple => tuple.Item1 == id).ToList())
-                {
-                    queuedRegs.Remove(tuple);
-                }
-            }
+            Instance.UnregisterNamedCallback(id);
         }
     }
 
@@ -116,19 +77,7 @@ public class ProxyPlugin : IActPluginV1
         {
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"FailsafeRegisterHook Failed: {hookname} {methodname}");
         }
-        ComplainAboutReload();
     }
-
-    private void ComplainAboutReload()
-    {
-        if (complained == true)
-        {
-            return;
-        }
-        complained = true;
-        Instance.IfYouSeeThisErrorYouNeedToRestartACT();
-    }
-
     public static dynamic DalamudPlugin;
     public static IDalamudPluginInterface PluginInterface;
     public static IClientState ClientState;
@@ -168,13 +117,6 @@ public class ProxyPlugin : IActPluginV1
                 }
                 queuedRegs.Clear();
             }
-        }
-        // Instance.mainform = ActGlobals.oFormActMain;
-        Version iv = typeof(RealPlugin).Assembly.GetName().Version;
-        Version ip = typeof(ProxyPlugin).Assembly.GetName().Version;
-        if (iv.CompareTo(ip) != 0)
-        {
-            ComplainAboutReload();
         }
         FailsafeRegisterHook("InCombatHook", "InCombat");
         FailsafeRegisterHook("SetCombatStateHook", "SetCombatState");
@@ -252,7 +194,10 @@ public class ProxyPlugin : IActPluginV1
                 }
             }
             if (BDLClearCount > 100)
+            {
                 ScriptDrawList = ScriptDrawList.Where(i => !i.toRecycle).ToList();
+                BDLClearCount = 0;
+            }
         }
     }
 
@@ -313,7 +258,7 @@ public class ProxyPlugin : IActPluginV1
     {
         if (inCombat)
         {
-            string myName = PluginBridges.BridgeFFXIV.GetMyself()?.GetValue("name").ToString() ?? "Player";
+            string myName = PluginBridges.BridgeFFXIV.GetMyself().GetValue("name").ToString() ?? "Player";
             ActGlobals.oFormActMain.SetEncounter(DateTime.Now, myName, myName);
         }
         else
@@ -435,7 +380,6 @@ public class ProxyPlugin : IActPluginV1
 
     public void CheckForUpdates()
     {
-        //
     }
 
     /// <summary>

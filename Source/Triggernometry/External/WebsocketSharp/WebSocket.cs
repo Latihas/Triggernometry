@@ -2052,9 +2052,9 @@ namespace WebSocketSharp
     // As client
     private HttpResponse sendHttpRequest (HttpRequest request, int millisecondsTimeout)
     {
-      _logger.Debug ("A request to the server:\n" + request.ToString ());
+      _logger.Debug ("A request to the server:\n" + request);
       var res = request.GetResponse (_stream, millisecondsTimeout);
-      _logger.Debug ("A response to this request:\n" + res.ToString ());
+      _logger.Debug ("A response to this request:\n" + res);
 
       return res;
     }

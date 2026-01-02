@@ -1,9 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
-using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 
 namespace Triggernometry.Core
 {
@@ -69,7 +69,7 @@ namespace Triggernometry.Core
             {
                 Regex rexVersion = new Regex(@"TriggernometryExport[^>]+PluginVersion *= *(?<version>\d+\.\d+\.\d+\.\d+)");
                 string version = rexVersion.Match(src.Length > 100 ? src.Substring(0, 100) : src).Groups["version"].Value;
-                return new TriggernometryExport() { PluginVersion = version, Corrupted = true };
+                return new TriggernometryExport { PluginVersion = version, Corrupted = true };
             }
         }
 

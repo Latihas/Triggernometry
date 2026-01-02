@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using Triggernometry.Core;
 
 namespace Triggernometry.PluginBridges

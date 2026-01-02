@@ -304,23 +304,16 @@ namespace Triggernometry.Core
             {
                 return I18n.Translate("internal/Action/descwindowtargetsingle", "the first window whose title match ({0})", titleRegex);
             }
-            else if (parsedProcId < 0)
+            if (parsedProcId < 0)
             {
                 return I18n.Translate("internal/Action/descwindowtargetall", "all windows whose titles match ({0})", titleRegex);
             }
-            else
-            {
-                return I18n.Translate("internal/Action/descwindowtargetid", "windows in the process with id ({0}) whose titles match ({1})", procid, titleRegex);
-            }
+            return I18n.Translate("internal/Action/descwindowtargetid", "windows in the process with id ({0}) whose titles match ({1})", procid, titleRegex);
         }
 
         public string GetDescription(Context ctx)
             => ConvertToNewAction().Describe();
 
-
-        public ActionOld()
-        {
-        }
 
         private DebugLevelEnum GetDebugLevel(Context ctx)
         {
@@ -328,10 +321,7 @@ namespace Triggernometry.Core
             {
                 return ctx?.Trigger?.GetDebugLevel(Instance) ?? DebugLevelEnum.Verbose;
             }
-            else
-            {
-                return DebugLevel;
-            }
+            return DebugLevel;
         }
 
         internal void AddToLog(Context ctx, DebugLevelEnum level, string message)
@@ -349,7 +339,7 @@ namespace Triggernometry.Core
             try
             {
                 if ((ctx.forceType & TriggerForceTypeEnum.SkipConditions) == 0 && !ctx.testByPlaceholder &&
-                    Condition?.Enabled == true && Condition.CheckCondition(ctx, ActionContextLogger, ctx) == false)
+                    Condition?.Enabled == true && !Condition.CheckCondition(ctx, ActionContextLogger, ctx))
                 {
                     ctx.PushActionResult(0);
                     AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/actionnotfired", "Action #{0} on trigger '{1}' not fired, condition not met", OrderNumber, ctx.Trigger?.LogName ?? "(null)"));
@@ -414,7 +404,7 @@ namespace Triggernometry.Core
             if (loopActionIdOld == Id)
                 ctx.loopIterator += (int)ctx.EvaluateNumericExpression(ActionContextLogger, ctx, _LoopIncrExpression);
 
-            if (!LoopCondition.Enabled || LoopCondition.CheckCondition(ctx, ActionContextLogger, ctx) != true)
+            if (!LoopCondition.Enabled || !LoopCondition.CheckCondition(ctx, ActionContextLogger, ctx))
                 return;
 
             bool continuing = false;
@@ -437,7 +427,7 @@ namespace Triggernometry.Core
             ActionOld lastAction = Instance.QueueActions(ctx, curTime, LoopActions, ctx.Trigger.Sequential, qa?.mutex, ActionContextLogger);
             lastAction.LoopAction = this;
 
-            shouldReturn = continuing == true;
+            shouldReturn = continuing;
         }
 
         private void ExecutionCore(QueuedAction qa, Context ctx)
@@ -465,7 +455,7 @@ namespace Triggernometry.Core
 
         internal void Execute(QueuedAction qa, Context ctx)
         {
-            if (Asynchronous == true)
+            if (Asynchronous)
             {
                 CancellationToken? ct = ctx.Plugin?.GetCancellationToken();
                 Task.Run(() =>

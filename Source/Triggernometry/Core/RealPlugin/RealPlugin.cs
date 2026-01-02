@@ -247,11 +247,6 @@ public partial class RealPlugin
         }
     }
 
-    public void IfYouSeeThisErrorYouNeedToRestartACT()
-    {
-        complainAboutReload = true;
-    }
-
     public void InitPlugin()
     {
         InitLanguage();

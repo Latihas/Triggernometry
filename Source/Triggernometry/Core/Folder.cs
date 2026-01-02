@@ -6,6 +6,7 @@ using Triggernometry.Core.Serialization;
 using Triggernometry.Core.Variables;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Localization;
+using Triggernometry.PluginBridges;
 
 namespace Triggernometry.Core
 {
@@ -217,8 +218,8 @@ namespace Triggernometry.Core
                 if (kvp.Length > 2)
                 {
                     RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/Folder/envvariablekvptoolong",
-                        "The raw environment variable key-value pair expression contains more than 2 parts. \n Folder: {0}; \n Expression: {1}",
-                        FullPath, string.Join(" = ", kvp)));
+                                                                                                           "The raw environment variable key-value pair expression contains more than 2 parts. \n Folder: {0}; \n Expression: {1}",
+                                                                                                           FullPath, string.Join(" = ", kvp)));
                 }
             }
         }
@@ -291,10 +292,6 @@ namespace Triggernometry.Core
         }
 
 
-        public Folder()
-        {
-        }
-
         public enum FilterFailReason
         {
             Passed,
@@ -308,7 +305,7 @@ namespace Triggernometry.Core
             Folder f = this;
             while (f != null)
             {
-                if (f.Enabled == false)
+                if (!f.Enabled)
                 {
                     return false;
                 }
@@ -327,15 +324,15 @@ namespace Triggernometry.Core
             }
             bool ret = true;
             Folder f = this;
-            while (f != null && ret == true)
+            while (f != null && ret)
             {
-                if (ret == true && f.ZoneFilterEnabled == true)
+                if (ret && f.ZoneFilterEnabled)
                 {
                     ret = f._regexCacheZone != null && f._regexCacheZone.IsMatch(zone);
                 }
-                if (ret == true && f.FFXIVZoneFilterEnabled == true)
+                if (ret && f.FFXIVZoneFilterEnabled)
                 {
-                    ret = f._regexCacheFfxivZoneId != null && f._regexCacheFfxivZoneId.IsMatch(PluginBridges.BridgeFFXIV.ZoneID.ToString());
+                    ret = f._regexCacheFfxivZoneId != null && f._regexCacheFfxivZoneId.IsMatch(BridgeFFXIV.ZoneID.ToString());
                 }
                 f = f.Parent;
             }
@@ -346,28 +343,28 @@ namespace Triggernometry.Core
 		{
 			bool ret = true;
 			Folder f = this;
-            while (f != null && ret == true)
+            while (f != null && ret)
 			{
-                if (f.Enabled == false)
+                if (!f.Enabled)
                 {
                     return FilterFailReason.NotEnabled;
                 }
-                if (ret == true && f.ZoneFilterEnabled == true)
+                if (ret && f.ZoneFilterEnabled)
 				{
 					ret = f._regexCacheZone != null && f._regexCacheZone.IsMatch(le.ZoneName);
 				}		
-				if (ret == true && f.EventFilterEnabled == true)
+				if (ret && f.EventFilterEnabled)
 				{
 					ret = f._regexCacheEvent != null && f._regexCacheEvent.IsMatch(le.Text);
 				}
-                if (ret == true && f.FFXIVZoneFilterEnabled == true)
+                if (ret && f.FFXIVZoneFilterEnabled)
                 {
-                    string zId = le.ZoneId ?? PluginBridges.BridgeFFXIV.ZoneID.ToString();
+                    string zId = le.ZoneId ?? BridgeFFXIV.ZoneID.ToString();
                     ret = f._regexCacheFfxivZoneId != null && f._regexCacheFfxivZoneId.IsMatch(zId);
                 }
-                if (ret == true && f.FFXIVJobFilterEnabled == true)
+                if (ret && f.FFXIVJobFilterEnabled)
                 {
-                    VariableDictionary vc = PluginBridges.BridgeFFXIV.GetMyself();
+                    VariableDictionary vc = BridgeFFXIV.GetMyself();
                     if (vc != null)
                     {
                         long.TryParse(vc.GetValue("jobid").ToString(), out long currentJob);
@@ -381,7 +378,7 @@ namespace Triggernometry.Core
                 }
                 f = f.Parent;
 			}
-			return ret == true ? FilterFailReason.Passed : FilterFailReason.Failed;
+			return ret ? FilterFailReason.Passed : FilterFailReason.Failed;
 		}
 
         public Dictionary<string, string> RecursiveGetEnvironmentVariables()

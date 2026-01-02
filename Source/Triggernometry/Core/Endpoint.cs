@@ -59,7 +59,7 @@ namespace Triggernometry.Core
                 StatusDescription = string.Format("[{0}] {1}", DateTime.Now, desc);
                 notify = true;
             }
-            if (notify == true)
+            if (notify)
             {
                 if (OnStatusChange != null)
                 {
@@ -78,10 +78,10 @@ namespace Triggernometry.Core
                 http.Prefixes.Add(plug.cfg.HttpEndpoint);
                 lock (plug.cfg.Constants)
                 {
-                    plug.cfg.Constants["TriggernometryEndpoint"] = new VariableScalar() { Value = plug.cfg.HttpEndpoint };
+                    plug.cfg.Constants["TriggernometryEndpoint"] = new VariableScalar { Value = plug.cfg.HttpEndpoint };
                 }
-                Thread th = new Thread(new ParameterizedThreadStart(ThreadProc));
-                Context ctx = new Context() { Endpoint = plug.cfg.HttpEndpoint, Running = true, CtxThread = th, Listener = http };
+                Thread th = new Thread(ThreadProc);
+                Context ctx = new Context { Endpoint = plug.cfg.HttpEndpoint, Running = true, CtxThread = th, Listener = http };
                 lock (this)
                 {
                     if (curctx != null)
@@ -128,7 +128,7 @@ namespace Triggernometry.Core
             Context ctx = (Context)o;
             HttpListener http = ctx.Listener;
             SetStatus(StatusEnum.Started, string.Format("Waiting for connections on {0}", ctx.Endpoint));
-            while (ctx.Running == true && http.IsListening == true)
+            while (ctx.Running && http.IsListening)
             {
                 try
                 {
@@ -145,7 +145,7 @@ namespace Triggernometry.Core
                             HttpListenerRequest req = hctx.Request;
                             if (req.HttpMethod != "POST")
                             {
-                                throw new InvalidOperationException(string.Format("Received request was not HTTP POST"));
+                                throw new InvalidOperationException("Received request was not HTTP POST");
                             }
                             string body;
                             using (StreamReader sr = new StreamReader(req.InputStream, req.ContentEncoding))

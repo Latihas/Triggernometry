@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Speech.Synthesis;
+using Advanced_Combat_Tracker;
 using Triggernometry.Localization;
 
 // ReSharper disable once CheckNamespace
@@ -40,7 +41,7 @@ public partial class RealPlugin
     {
         lock (SoundRepetitions)
         {
-            if (RegisterRepetition(SoundRepetitions, cfg.SoundRepCooldown, filename) == false)
+            if (!RegisterRepetition(SoundRepetitions, cfg.SoundRepCooldown, filename))
             {
                 return;
             }
@@ -73,20 +74,20 @@ public partial class RealPlugin
         string text = TtsPlaybackGetTextFromAction(ctx, a);
         lock (TtsRepetitions)
         {
-            if (RegisterRepetition(TtsRepetitions, cfg.TtsRepCooldown, text) == false)
+            if (!RegisterRepetition(TtsRepetitions, cfg.TtsRepCooldown, text))
             {
                 return;
             }
         }
        
-        Advanced_Combat_Tracker.ActGlobals.oFormActMain.TTS(text);
+        ActGlobals.oFormActMain.TTS(text);
     }
 
     internal void SoundPlaybackSelf(Context ctx, ActionOld a, string filename)
     {
         lock (SoundRepetitions)
         {
-            if (RegisterRepetition(SoundRepetitions, cfg.SoundRepCooldown, filename) == false)
+            if (!RegisterRepetition(SoundRepetitions, cfg.SoundRepCooldown, filename))
             {
                 return;
             }
@@ -113,7 +114,7 @@ public partial class RealPlugin
         string text = TtsPlaybackGetTextFromAction(ctx, a);
         lock (TtsRepetitions)
         {
-            if (RegisterRepetition(TtsRepetitions, cfg.TtsRepCooldown, text) == false)
+            if (!RegisterRepetition(TtsRepetitions, cfg.TtsRepCooldown, text))
             {
                 return;
             }
@@ -127,7 +128,7 @@ public partial class RealPlugin
     {
         lock (SoundRepetitions)
         {
-            if (RegisterRepetition(SoundRepetitions, cfg.SoundRepCooldown, filename) == false)
+            if (!RegisterRepetition(SoundRepetitions, cfg.SoundRepCooldown, filename))
             {
                 return;
             }
@@ -148,7 +149,7 @@ public partial class RealPlugin
         {
             return true;
         }
-        if (repstore.TryGetValue(item, out DateTime last) == true)
+        if (repstore.TryGetValue(item, out DateTime last))
         {
             if (last.AddMilliseconds(cooldown) > DateTime.Now)
             {
@@ -196,17 +197,17 @@ public partial class RealPlugin
     {
         string filename = ctx.EvaluateStringExpression(a.ActionContextLogger, ctx, a._PlaySoundFileExpression);
         Uri u = new Uri(filename);
-        if (u.IsFile == false)
+        if (!u.IsFile)
         {
             string fn = Path.Combine(ConfigPath, "TriggernometryRemoteSounds");
-            if (Directory.Exists(fn) == false)
+            if (!Directory.Exists(fn))
             {
                 Directory.CreateDirectory(fn);
             }
             string ext = Path.GetExtension(u.LocalPath);
             fn = Path.Combine(fn, GenerateHash(u.AbsoluteUri) + Path.GetExtension(u.LocalPath));
             bool fromcache = false;
-            if (File.Exists(fn) == true)
+            if (File.Exists(fn))
             {
                 FileInfo fi = new FileInfo(fn);
                 DateTime dt = DateTime.Now.AddMinutes(0 - cfg.CacheSoundExpiry);
@@ -216,7 +217,7 @@ public partial class RealPlugin
                     fromcache = true;
                 }
             }
-            if (fromcache == false)
+            if (!fromcache)
             {
                 using (WebClient wc = new WebClient())
                 {
@@ -234,7 +235,7 @@ public partial class RealPlugin
                 {
                     SoundPlaybackExternal(ctx, a, filename);
                 }
-                else if (WMPUnavailable == true || cfg.SoundMethod == Configuration.AudioRoutingMethodEnum.ACT)
+                else if (WMPUnavailable || cfg.SoundMethod == Configuration.AudioRoutingMethodEnum.ACT)
                 {
                     SoundPlaybackAct(ctx, a, filename);
                 }

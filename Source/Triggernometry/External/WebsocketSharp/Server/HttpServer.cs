@@ -39,11 +39,18 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using WebSocketSharp.Net;
 using WebSocketSharp.Net.Websockets;
+using AuthenticationSchemes = WebSocketSharp.Net.AuthenticationSchemes;
+using HttpListener = WebSocketSharp.Net.HttpListener;
+using HttpListenerContext = WebSocketSharp.Net.HttpListenerContext;
+using HttpListenerException = WebSocketSharp.Net.HttpListenerException;
+using HttpStatusCode = WebSocketSharp.Net.HttpStatusCode;
+using NetworkCredential = WebSocketSharp.Net.NetworkCredential;
 
 namespace WebSocketSharp.Server
 {
@@ -58,7 +65,7 @@ namespace WebSocketSharp.Server
   {
     #region Private Fields
 
-    private System.Net.IPAddress    _address;
+    private IPAddress    _address;
     private string                  _docRootPath;
     private string                  _hostname;
     private HttpListener            _listener;
@@ -83,7 +90,7 @@ namespace WebSocketSharp.Server
     /// </remarks>
     public HttpServer ()
     {
-      init ("*", System.Net.IPAddress.Any, 80, false);
+      init ("*", IPAddress.Any, 80, false);
     }
 
     /// <summary>
@@ -202,7 +209,7 @@ namespace WebSocketSharp.Server
         throw new ArgumentOutOfRangeException ("port", msg);
       }
 
-      init ("*", System.Net.IPAddress.Any, port, secure);
+      init ("*", IPAddress.Any, port, secure);
     }
 
     /// <summary>
@@ -235,7 +242,7 @@ namespace WebSocketSharp.Server
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="port"/> is less than 1 or greater than 65535.
     /// </exception>
-    public HttpServer (System.Net.IPAddress address, int port)
+    public HttpServer (IPAddress address, int port)
       : this (address, port, port == 443)
     {
     }
@@ -270,7 +277,7 @@ namespace WebSocketSharp.Server
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="port"/> is less than 1 or greater than 65535.
     /// </exception>
-    public HttpServer (System.Net.IPAddress address, int port, bool secure)
+    public HttpServer (IPAddress address, int port, bool secure)
     {
       if (address == null)
         throw new ArgumentNullException ("address");
@@ -297,7 +304,7 @@ namespace WebSocketSharp.Server
     /// A <see cref="System.Net.IPAddress"/> that represents the local
     /// IP address on which to listen for incoming requests.
     /// </value>
-    public System.Net.IPAddress Address {
+    public IPAddress Address {
       get {
         return _address;
       }
@@ -320,7 +327,7 @@ namespace WebSocketSharp.Server
         ///   </para>
         ///   <para>
         ///   The default value is
-        ///   <see cref="AuthenticationSchemes.Anonymous"/>.
+        ///   <see cref="Net.AuthenticationSchemes.Anonymous"/>.
         ///   </para>
         /// </value>
         public AuthenticationSchemes AuthenticationSchemes {
@@ -655,7 +662,7 @@ namespace WebSocketSharp.Server
     /// <value>
     ///   <para>
     ///   A <c>Func&lt;<see cref="IIdentity"/>,
-    ///   <see cref="NetworkCredential"/>&gt;</c> delegate or
+    ///   <see cref="Net.NetworkCredential"/>&gt;</c> delegate or
     ///   <see langword="null"/> if not needed.
     ///   </para>
     ///   <para>
@@ -867,7 +874,7 @@ namespace WebSocketSharp.Server
     }
 
     private void init (
-      string hostname, System.Net.IPAddress address, int port, bool secure
+      string hostname, IPAddress address, int port, bool secure
     )
     {
       _hostname = hostname;
@@ -1025,7 +1032,7 @@ namespace WebSocketSharp.Server
         throw new InvalidOperationException (msg, ex);
       }
 
-      _receiveThread = new Thread (new ThreadStart (receiveRequest));
+      _receiveThread = new Thread (receiveRequest);
       _receiveThread.IsBackground = true;
       _receiveThread.Start ();
     }

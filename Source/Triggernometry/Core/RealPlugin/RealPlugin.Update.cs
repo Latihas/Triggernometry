@@ -11,7 +11,7 @@ namespace Triggernometry.Core;
 
 public partial class RealPlugin
 {
-    private static readonly HttpClient client = new HttpClient()
+    private static readonly HttpClient client = new HttpClient
     {
         Timeout = TimeSpan.FromSeconds(10)
     };

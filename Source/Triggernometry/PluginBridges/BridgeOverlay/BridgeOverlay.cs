@@ -3,7 +3,6 @@ using RainbowMage.OverlayPlugin;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 
-
 namespace Triggernometry.PluginBridges;
 
 public static class BridgeOverlay
@@ -43,7 +42,6 @@ public static class BridgeOverlay
                                                                   "OverlayPlugin-related initialization failed due to: {0}", ex.ToString())
             );
             Ready = false;
-            return;
         }
     }
 

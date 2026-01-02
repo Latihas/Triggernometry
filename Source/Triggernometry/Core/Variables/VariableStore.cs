@@ -27,7 +27,7 @@ namespace Triggernometry.Core.Variables
                     return existing;
                 }
                 TValue vl = new TValue();
-                if (storeNew == true)
+                if (storeNew)
                 {
                     variables[name] = vl;
                 }
@@ -93,7 +93,7 @@ namespace Triggernometry.Core.Variables
         {
             lock (variables)
             {
-                if (variables.ContainsKey(name) == true)
+                if (variables.ContainsKey(name))
                 {
                     variables.Remove(name);
                 }

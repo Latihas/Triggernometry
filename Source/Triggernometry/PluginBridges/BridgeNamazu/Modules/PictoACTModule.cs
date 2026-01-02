@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Triggernometry.Expressions.String.Models;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
-using static System.Math;
 using Triggernometry.Utilities.Maths;
+using static System.Math;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using static DataStringHelper;
@@ -502,15 +502,14 @@ public class PictoACTModule : ModuleBase
     {
         if (data.TryGet("Tag", out string tag))
         {
-            return (str) => string.Equals(str, tag, StringComparison.OrdinalIgnoreCase);
+            return str => string.Equals(str, tag, StringComparison.OrdinalIgnoreCase);
         }
         if (data.TryGet("Regex", out string regex))
         {
             var re = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
             return str => str != null && re.IsMatch(str);
         }
-        else
-            return vfx => true; // 不提供时不过滤
+        return vfx => true;     // 不提供时不过滤
     }
 
     private IEnumerable<Action<ActorVfx>> ParseActorVfxModifiers(MultiLineRawArgs data, bool isCreate)

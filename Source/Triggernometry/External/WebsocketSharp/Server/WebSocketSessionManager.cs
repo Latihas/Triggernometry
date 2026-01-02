@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Timer = System.Timers.Timer;
 
 namespace WebSocketSharp.Server
 {
@@ -52,7 +53,7 @@ namespace WebSocketSharp.Server
     private Dictionary<string, IWebSocketSession> _sessions;
     private volatile ServerState                  _state;
     private volatile bool                         _sweeping;
-    private System.Timers.Timer                   _sweepTimer;
+    private Timer                   _sweepTimer;
     private object                                _sync;
     private TimeSpan                              _waitTime;
 
@@ -421,7 +422,7 @@ namespace WebSocketSharp.Server
 
     private void setSweepTimer (double interval)
     {
-      _sweepTimer = new System.Timers.Timer (interval);
+      _sweepTimer = new Timer (interval);
       _sweepTimer.Elapsed += (sender, e) => Sweep ();
     }
 

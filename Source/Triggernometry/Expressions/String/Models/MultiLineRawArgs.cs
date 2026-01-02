@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.Expressions.String.Models
@@ -89,7 +90,7 @@ namespace Triggernometry.Expressions.String.Models
             var newData = new Dictionary<string, string>(_data, StringComparer.OrdinalIgnoreCase);
             var copy = (MultiLineRawArgs)MemberwiseClone();
             typeof(MultiLineRawArgs)
-                .GetField("_data", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .GetField("_data", BindingFlags.NonPublic | BindingFlags.Instance)
                 .SetValue(copy, newData);
             return copy;
         }

@@ -3,7 +3,6 @@ using RainbowMage.OverlayPlugin.MemoryProcessors.AtkStage;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 
-
 namespace Triggernometry.PluginBridges
 {
     [OverlayModule]
@@ -16,7 +15,7 @@ namespace Triggernometry.PluginBridges
         {
             try
             {
-                AtkStageMemoryManager = BridgeOverlay.Container.Resolve<RainbowMage.OverlayPlugin.MemoryProcessors.AtkStage.IAtkStageMemory>();
+                AtkStageMemoryManager = BridgeOverlay.Container.Resolve<IAtkStageMemory>();
                 Ready = true;
             }
             catch (Exception ex)

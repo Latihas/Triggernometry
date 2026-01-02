@@ -1,7 +1,7 @@
 ﻿using System.Xml.Serialization;
-using Triggernometry.PluginBridges;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;
+using Triggernometry.PluginBridges;
 
 namespace Triggernometry.Core.Actions
 {
@@ -83,7 +83,7 @@ namespace Triggernometry.Core.Actions
             switch (Operation)
             {
                 case OperationEnum.SetCombatState:
-                    return BoolParam == false 
+                    return !BoolParam 
                         ? I18n.Translate("internal/Action/descactcombatend", "end ACT encounter")
                         : I18n.Translate("internal/Action/descactcombatstart", "start ACT encounter");                    
                 case OperationEnum.LogAllNetwork:

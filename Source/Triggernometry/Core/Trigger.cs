@@ -423,11 +423,6 @@ namespace Triggernometry.Core
         #endregion
 
 
-        public Trigger()
-        {
-        }
-
-
         #region Logging
 
         /// <summary>
@@ -441,10 +436,7 @@ namespace Triggernometry.Core
                 {
                     return p.cfg.DebugLevel;
                 }
-                else
-                {
-                    return RealPlugin.DebugLevelEnum.Verbose;
-                }
+                return RealPlugin.DebugLevelEnum.Verbose;
             }
             return DebugLevel;
         }
@@ -519,8 +511,8 @@ namespace Triggernometry.Core
                 .ToArray();
 
             AddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/Trigger/restricted",
-                "Trigger '{1}' was not executed because the following repository permission(s) are disabled: \n[{0}] \nYou can enable these permissions for the remote repository, or disable this trigger to prevent this error.",
-                string.Join(", ", restrictionNames), FullPath));
+                                                                     "Trigger '{1}' was not executed because the following repository permission(s) are disabled: \n[{0}] \nYou can enable these permissions for the remote repository, or disable this trigger to prevent this error.",
+                                                                     string.Join(", ", restrictionNames), FullPath));
             return true;
         }
 
@@ -565,7 +557,7 @@ namespace Triggernometry.Core
             using (m)
             {
                 mi.Acquire(ctx, m);
-                if (Fire(ctx, mi) == false)
+                if (!Fire(ctx, mi))
                 {
                     mi.Release(ctx);
                 }
@@ -581,7 +573,7 @@ namespace Triggernometry.Core
             if (Condition?.Enabled != true)
                 return false;
 
-            if (Condition.CheckCondition(ctx, TriggerContextLogger, ctx.Plugin) == true)
+            if (Condition.CheckCondition(ctx, TriggerContextLogger, ctx.Plugin))
                 return false;
 
             AddToLog(RealPlugin.DebugLevelEnum.Info, I18n.Translate("internal/Trigger/trignotfired", "Trigger '{0}' not fired, condition not met", LogName));
