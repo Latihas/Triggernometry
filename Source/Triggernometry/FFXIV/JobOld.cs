@@ -43,7 +43,7 @@ namespace Triggernometry
             StrengthMelee  = DPS | 1,
             DexterityMelee = DPS | 2,
             PhysicalRanged = DPS | 4,
-            MagicalRanged  = DPS | 6,
+            MagicalRanged  = DPS | 6
         }
 
         private static void InitializeJobs() 
@@ -133,7 +133,7 @@ namespace Triggernometry
                 {"jobEN",  jobEN},
                 {"jobFR",  jobFR},
                 {"jobJP",  jobJP},
-                {"jobKR",  jobKR},
+                {"jobKR",  jobKR}
             };
 
             jobNameToIdMap[id] = id;

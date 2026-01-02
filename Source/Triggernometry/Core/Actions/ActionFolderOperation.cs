@@ -24,7 +24,7 @@ namespace Triggernometry.Core.Actions
         {
             Enable,
             Disable,
-            CancelTriggers,
+            CancelTriggers
         }
 
         /// <summary>

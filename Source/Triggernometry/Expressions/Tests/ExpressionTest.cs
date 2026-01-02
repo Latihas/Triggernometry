@@ -112,7 +112,7 @@ namespace Triggernometry.Expressions.Tests
                 new TestItem("${f:format(System.Int32,X4):1234}", "04D2"),
 
                 new TestItem("${f:utctime(yyyy-MM-dd HH:mm:ss):0}", "1970-01-01 00:00:00"),
-                new TestItem("${f:localtime(yyyy-MM-dd HH:mm:ss):0}", "1970-01-01 08:00:00"),
+                new TestItem("${f:localtime(yyyy-MM-dd HH:mm:ss):0}", "1970-01-01 08:00:00")
             };
         }
     }

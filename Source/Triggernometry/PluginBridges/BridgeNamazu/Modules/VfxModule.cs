@@ -72,7 +72,7 @@ public class VfxModule : ModuleBase
             StaticVfxRunPtr = Scanner.TryScanMultiple(new string[]
             {
                 "e8 * * * * 0f ? ? ? ? ? ? 66 ? ? ? 74 ?", // 7.3
-                "E8 * * * * 8B 4B 7C 85 C9",               // 7.0
+                "E8 * * * * 8B 4B 7C 85 C9"                // 7.0
             }, nameof(StaticVfxRunPtr));
 
             // 40 53 48 81 EC D0 01 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 C0 01 00 00 80 A1 88 00 00 00 FB 48 8B D9 80 A1 89 ?? ?? ?? ??

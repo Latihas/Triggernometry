@@ -60,7 +60,7 @@ namespace Triggernometry.FFXIV.ExtractedCsv.Rows
             LimitBreak2 = 15,
             unk_16 = 16,
             Artillery = 17,
-            Fashion = 18,
+            Fashion = 18
         }
 
         public enum ShapeEnum : byte
@@ -73,7 +73,7 @@ namespace Triggernometry.FFXIV.ExtractedCsv.Rows
             RectThrough, // y = 0, 截至 7.3 只有 PVP 技能 必杀剑·早天
             Ring,
             Cross,
-            Triangle,
+            Triangle
         }
 
         public static Dictionary<byte, ShapeEnum> ShapeMap = new Dictionary<byte, ShapeEnum>()
@@ -93,7 +93,7 @@ namespace Triggernometry.FFXIV.ExtractedCsv.Rows
             [12] = ShapeEnum.Rect,
             [13] = ShapeEnum.Fan,
             [14] = ShapeEnum.Triangle,
-            [15] = ShapeEnum.RectThrough,
+            [15] = ShapeEnum.RectThrough
         };
 
         public enum AttackTypeEnum : sbyte
@@ -119,7 +119,7 @@ namespace Triggernometry.FFXIV.ExtractedCsv.Rows
             Earth = 4,
             Thunder = 5,
             Water = 6,
-            None = 7, // specified as None
+            None = 7 // specified as None
         }
 
     }

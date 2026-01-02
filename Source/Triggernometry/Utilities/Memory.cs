@@ -447,7 +447,7 @@ namespace Triggernometry.Utilities
             Bind1 = 5, Bind2 = 6, Bind3 = 7,
             Stop1 = 8, Stop2 = 9,
             Square = 10, Circle = 11, Cross = 12, Triangle = 13,
-            Attack6 = 14, Attack7 = 15, Attack8 = 16,
+            Attack6 = 14, Attack7 = 15, Attack8 = 16
         }
 
         public static uint? EntityIdByTargetMarker(string rawType)

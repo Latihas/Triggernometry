@@ -32,7 +32,7 @@ namespace Triggernometry.Core.Actions
             /// <summary>
             /// Toggle Deucalion usage
             /// </summary>
-            UseDeucalion,
+            UseDeucalion
         }
 
         /// <summary>

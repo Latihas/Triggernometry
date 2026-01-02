@@ -247,7 +247,7 @@ namespace Triggernometry.PluginBridges
             internal new static Entity NullEntity() => new Entity
             { 
                 Exist = false,
-                PluginSource = PluginSource.OverlayPlugin,
+                PluginSource = PluginSource.OverlayPlugin
             };
 
         }

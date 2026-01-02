@@ -25,14 +25,14 @@ namespace Triggernometry.Utilities
             //XUP = 0x00000100,
             //WHEEL = 0x00000800,
             MOVE = 0x00000001,
-            ABSOLUTE = 0x00008000,
+            ABSOLUTE = 0x00008000
         }
 
         public enum MouseEventDataXButtons : uint
         {
             NONE = 0x00000000,
             XBUTTON1 = 0x00000001,
-            XBUTTON2 = 0x00000002,
+            XBUTTON2 = 0x00000002
         }
 
         const uint WM_KEYUP = 0x101;

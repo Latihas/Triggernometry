@@ -97,7 +97,7 @@ namespace Triggernometry.FFXIV
             Statuses = Statuses.Select(s => s.Snapshot()).ToList(),
             IsCasting = IsCasting, CastType = CastType, CastID = CastID, CastTargetID = CastTargetID,
             CastPosX = CastPosX, CastPosY = CastPosY, CastPosZ = CastPosZ,
-            CastTime = CastTime, MaxCastTime = MaxCastTime,
+            CastTime = CastTime, MaxCastTime = MaxCastTime
         };
 
         #endregion Basic Properties
@@ -244,7 +244,7 @@ namespace Triggernometry.FFXIV
             { "StatusHexIDs",   e => e.Statuses.Select(s => s.StatusHexID) },
             { "StatusCount",    e => e.Statuses.Count },
             { "Marker",         e => Memory.TargetMarkerOnEntity(e.ID) },
-            { "MarkerID",       e => (int)Memory.TargetMarkerOnEntity(e.ID) },
+            { "MarkerID",       e => (int)Memory.TargetMarkerOnEntity(e.ID) }
         };
 
         internal readonly static Dictionary<string, Func<Entity, string[], object>> _methodAccessors
@@ -268,7 +268,7 @@ namespace Triggernometry.FFXIV
                 ["PercentHP"] = (e, args) => PercentXP("PercentHP", e.CurrentHP, e.MaxHP, args),
                 ["PercentMP"] = (e, args) => PercentXP("PercentMP", e.CurrentMP, e.MaxMP, args),
                 ["PercentCP"] = (e, args) => PercentXP("PercentCP", e.CurrentCP, e.MaxCP, args),
-                ["PercentGP"] = (e, args) => PercentXP("PercentGP", e.CurrentGP, e.MaxGP, args),
+                ["PercentGP"] = (e, args) => PercentXP("PercentGP", e.CurrentGP, e.MaxGP, args)
             };
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace Triggernometry.FFXIV
     {
         Friendly = 0,
         Enemy = 4,
-        Enemy2 = 10, // Observed, temp name
+        Enemy2 = 10 // Observed, temp name
     }
 
     // OverlayPlugin/OverlayPlugin.Core/MemoryProcessors/Combatant/Common.cs
@@ -368,7 +368,7 @@ namespace Triggernometry.FFXIV
     {
         Visible = 0,
         Unloaded = 2048,
-        Hidden = 16384,
+        Hidden = 16384
     }
 
     // OverlayPlugin/OverlayPlugin.Core/MemoryProcessors/Combatant/Common.cs
@@ -376,7 +376,7 @@ namespace Triggernometry.FFXIV
     public enum AggressionFlag : byte
     {
         IsAggressive = 0x1,
-        IsInCombat = 0x2,
+        IsInCombat = 0x2
     }
     
     #endregion Enums

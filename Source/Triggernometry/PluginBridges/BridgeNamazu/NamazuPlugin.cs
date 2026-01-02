@@ -123,7 +123,7 @@ public class NamazuPlugin
             { "DoQueueActions", "Queue" },
             { "sendkey", "DoSendKey" },
             { "place", "WayMark" },
-            { "DoWaymarks", "WayMark" },
+            { "DoWaymarks", "WayMark" }
         };
 
     // Region detection

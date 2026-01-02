@@ -17,7 +17,7 @@
             Stack = Stack,
             Timer = Timer,
             SourceID = SourceID,
-            Target = Target,
+            Target = Target
         };
     }
 

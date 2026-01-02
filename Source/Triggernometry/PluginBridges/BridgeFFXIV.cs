@@ -748,7 +748,7 @@ public static class BridgeFFXIV
         internal new static Entity NullEntity() => new Entity()
         {
             Exist = false,
-            PluginSource = PluginSource.XivPlugin,
+            PluginSource = PluginSource.XivPlugin
         };
 
         /* example:

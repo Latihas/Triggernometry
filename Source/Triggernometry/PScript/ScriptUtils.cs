@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Interface.Colors;
 using Triggernometry.Core;
 
 namespace Triggernometry.PScript;
@@ -11,8 +14,8 @@ namespace Triggernometry.PScript;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static partial class ScriptUtils
 {
-    public static IPlayerCharacter Me => ProxyPlugin.ClientState.LocalPlayer;
-    public static string MeHexID => Me.GameObjectId.ToString("X");
+    public static IPlayerCharacter Me => ProxyPlugin.ObjectTable.LocalPlayer;
+    public static int MeHexID => (int)Me.GameObjectId;
 
     #region TargetIcon
 
@@ -25,21 +28,17 @@ public static partial class ScriptUtils
     {
         var match = LogRegexTargetIcon.Match(log);
         if (match.Success)
-        {
             foreach (var d in dat)
-            {
-                if ((d.targetId == null || d.targetId == match.Groups["targetId"].Value) &&
-                    (d.id == null || d.id == match.Groups["id"].Value))
+                if ((d.targetId == null || d.targetId == Convert.ToInt32(match.Groups["targetId"].Value, 16)) &&
+                    (d.id == null || d.id == Convert.ToInt32(match.Groups["id"].Value, 16)))
                     d.Action();
-            }
-        }
     }
 
     public record TargetIcon
     {
-        public string? targetId;
-        public string? id;
-        public Action<string?, string?>? actionF;
+        public int? targetId;
+        public int? id;
+        public Action<int?, int?>? actionF;
         private Action? actionN;
 
         public void Action()
@@ -48,14 +47,14 @@ public static partial class ScriptUtils
             else actionF!(targetId, id);
         }
 
-        public TargetIcon(Action<string?, string?> Action, string? TargetId = null, string? Id = null)
+        public TargetIcon(Action<int?, int?> Action, int? TargetId = null, int? Id = null)
         {
             targetId = TargetId;
             id = Id;
             actionF = Action;
         }
 
-        public TargetIcon(Action Action, string? TargetId = null, string? Id = null)
+        public TargetIcon(Action Action, int? TargetId = null, int? Id = null)
         {
             targetId = TargetId;
             id = Id;
@@ -76,26 +75,21 @@ public static partial class ScriptUtils
     {
         var match = LogRegexStatusAdd.Match(log);
         if (match.Success)
-        {
             foreach (var d in dat)
-            {
-                if (
-                    (d.effectId == null || d.effectId == match.Groups["effectId"].Value) &&
-                    (d.sourceId == null || d.sourceId == match.Groups["sourceId"].Value) &&
-                    (d.targetId == null || d.targetId == match.Groups["targetId"].Value) &&
-                    (d.count == null || d.count == match.Groups["count"].Value))
+                if ((d.effectId == null || d.effectId == Convert.ToInt32(match.Groups["effectId"].Value, 16)) &&
+                    (d.sourceId == null || d.sourceId == Convert.ToInt32(match.Groups["sourceId"].Value, 16)) &&
+                    (d.targetId == null || d.targetId == Convert.ToInt32(match.Groups["targetId"].Value, 16)) &&
+                    (d.count == null || d.count == Convert.ToInt32(match.Groups["count"].Value, 16)))
                     d.Action();
-            }
-        }
     }
 
     public record StatusAdd
     {
-        public string? effectId;
-        public string? sourceId;
-        public string? targetId;
-        public string? count;
-        private Action<string?, string?, string?, string?>? actionF;
+        public int? effectId;
+        public int? sourceId;
+        public int? targetId;
+        public int? count;
+        private Action<int?, int?, int?, int?>? actionF;
         private Action? actionN;
 
         public void Action()
@@ -104,7 +98,7 @@ public static partial class ScriptUtils
             else actionF!(effectId, sourceId, targetId, count);
         }
 
-        public StatusAdd(Action<string?, string?, string?, string?> Action, string? EffectId = null, string? SourceId = null, string? TargetId = null, string? Count = null)
+        public StatusAdd(Action<int?, int?, int?, int?> Action, int? EffectId = null, int? SourceId = null, int? TargetId = null, int? Count = null)
         {
             effectId = EffectId;
             sourceId = SourceId;
@@ -113,7 +107,7 @@ public static partial class ScriptUtils
             actionF = Action;
         }
 
-        public StatusAdd(Action Action, string? EffectId = null, string? SourceId = null, string? TargetId = null, string? Count = null)
+        public StatusAdd(Action Action, int? EffectId = null, int? SourceId = null, int? TargetId = null, int? Count = null)
         {
             effectId = EffectId;
             sourceId = SourceId;
@@ -136,19 +130,15 @@ public static partial class ScriptUtils
     {
         var match = LogRegexStartsCasting.Match(log);
         if (match.Success)
-        {
             foreach (var d in dat)
-            { 
-                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,$"{d.id}.{match.Groups["id"].Value}");
-                if (d.id == null || d.id == match.Groups["id"].Value) d.Action();
-            }
-        }
+                if (d.id == null || d.id == Convert.ToInt32(match.Groups["id"].Value, 16))
+                    d.Action();
     }
 
     public record StartsCasting
     {
-        public string? id;
-        private Action<string?>? actionF;
+        public int? id;
+        private Action<int?>? actionF;
         private Action? actionN;
 
         public void Action()
@@ -157,13 +147,13 @@ public static partial class ScriptUtils
             else actionF!(id);
         }
 
-        public StartsCasting(Action<string?> Action, string? Id = null)
+        public StartsCasting(Action<int?> Action, int? Id = null)
         {
             id = Id;
             actionF = Action;
         }
 
-        public StartsCasting(Action Action, string? Id = null)
+        public StartsCasting(Action Action, int? Id = null)
         {
             id = Id;
             actionN = Action;
@@ -177,19 +167,55 @@ public static partial class ScriptUtils
         MatchTargetIcon(logLine, scriptBase.TargetIconList);
         MatchStartsCasting(logLine, scriptBase.StartsCastingList);
         MatchStatusAdd(logLine, scriptBase.StatusAddList);
+
+        if (BattleFailedRegex().IsMatch(logLine)) scriptBase.DrawList.Clear();
     }
 
     public static Action TTS(string text, int delay = 0) => () =>
     {
         if (delay > 0)
-        {
             Task.Run(async () =>
             {
                 await Task.Delay(delay);
                 Advanced_Combat_Tracker.ActGlobals.oFormActMain.TTS(text);
             });
-        }
         else
             Advanced_Combat_Tracker.ActGlobals.oFormActMain.TTS(text);
     };
+
+    public class IGCircle(Vector3 position, float r, long duration = long.MaxValue, uint? color = null)
+        : IGBase(duration, ShapeType.Circle)
+    {
+        public Vector3 Position = position;
+        public float R = r;
+        public uint Color = color ?? 0xFF0000FFu;
+    }
+    public class IGCone(Vector3 position, float r, float rotation,float angleRad, long duration = long.MaxValue, uint? color = null)
+        : IGBase(duration, ShapeType.Circle)
+    {
+        public Vector3 Position = position;
+        public float R = r;
+        public float Rotation = rotation;
+        public float AngleRad = angleRad;
+        public uint Color = color ?? 0xFF0000FFu;
+    }
+    public class IGBase(long duration, ShapeType shapeType)
+    {
+        public long Duration = duration;
+        public ShapeType ShapeType = shapeType;
+    }
+
+    public enum ShapeType
+    {
+        Circle,
+        Cone,
+        Line
+    }
+
+    public static long LastMs;
+    public const int CircleSegments=50;
+    public static ImDrawListPtr BDL => ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
+
+    [GeneratedRegex("^.{14} Director 21:.{8}:40000011:00:00:00:00$")]
+    private static partial Regex BattleFailedRegex();
 }

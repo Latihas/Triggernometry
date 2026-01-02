@@ -4,11 +4,13 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Advanced_Combat_Tracker;
 using Dalamud.Plugin.Services;
+using Scarborough.Drawing;
 using Triggernometry.UI.CustomControls;
 using Triggernometry.Localization;
 using Triggernometry.Utilities;
@@ -16,6 +18,8 @@ using Triggernometry.Core.Variables;
 using Triggernometry.PluginBridges;
 using Triggernometry.PluginBridges.ExternalTools;
 using Triggernometry.PScript;
+using static Triggernometry.PScript.ScriptUtils;
+using Font = System.Drawing.Font;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
@@ -731,22 +735,59 @@ public partial class RealPlugin
         {
             if (logLine != "" && (logLine.Length < 5 || logLine.Substring(logLine.Length - 5) != "] FB:"))
             {
-                if (cfg.LogNormalEvents == true)
+                if (cfg.LogNormalEvents)
                 {
                     logFlattenACT.Enqueue(logLine);
                     if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.Dequeue();
-                    // FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/logline", "Log line: ({0})", logLine));
                 }
+                var now = DateTime.Now.Ticks / 10000;
+                if (LastMs == 0) LastMs = now;
+                var deltaMs = now - LastMs;
                 var szone = BridgeFFXIV.ZoneID.ToString();
-                foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i=>i.isIScriptBase) .Select(i=>i.pluginObj as IScriptBase))
+                foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
                     if (script!.TerritoryIds() == null || script.TerritoryIds()!.Contains(szone))
+                    {
                         script.MatchAll(logLine);
+                        foreach (var shape in script.DrawList)
+                        {
+                            shape.Duration -= deltaMs;
+                            if (shape.Duration > 0)
+                            {
+                                switch (shape.ShapeType)
+                                {
+                                    case ShapeType.Circle:
+                                        var circle = (IGCircle)shape;
+                                        ProxyPlugin.GameGui.WorldToScreen(circle.Position, out var vcircle);
+                                        BDL.AddCircle(vcircle, circle.R, circle.Color);
+                                        break;
+                                    case ShapeType.Cone:
+                                        var cone = (IGCone)shape;
+                                        var position = cone.Position;
+                                        var rotation = cone.Rotation + (MathF.PI / 4);
+                                        var partialCircleSegmentRotation = cone.AngleRad / CircleSegments;
+                                        ProxyPlugin.GameGui.WorldToScreen(cone.Position, out var originPositionOnScreen);
+                                        BDL.PathLineTo(originPositionOnScreen);
+                                        for (var i = 0; i <= CircleSegments; i++)
+                                        {
+                                            var currentRotation = rotation - (i * partialCircleSegmentRotation);
+                                            var xValue = cone.R * MathF.Sin(currentRotation);
+                                            var yValue = cone.R * MathF.Cos(currentRotation);
+                                            ProxyPlugin.GameGui.WorldToScreen(new Vector3(position.X + xValue, position.Y, position.Z + yValue),
+                                                                              out var segmentVectorOnCircle);
+                                            BDL.PathLineTo(segmentVectorOnCircle);
+                                        }
+                                        BDL.PathFillConvex(cone.Color);
+                                        BDL.PathClear(); //TODO necessary?
+                                        break;
+                                }
+                            }
+                        }
+                    }
                 LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
             }
         }
         catch (Exception ex)
         {
-            //TODO Test
             FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/procex", "Exception ({0}) when processing log line ({1}) in zone ({2})", ex.Message, logLine, detectedZone));
         }
     }

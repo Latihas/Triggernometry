@@ -49,7 +49,7 @@ namespace Triggernometry.Core.Actions
             SortFfxivPartyDesc,
             SortByKeys,
             UnsetAll,
-            UnsetRegex,
+            UnsetRegex
         }
 
         /// <summary>

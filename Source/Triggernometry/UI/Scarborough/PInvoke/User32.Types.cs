@@ -104,7 +104,7 @@ namespace Scarborough.PInvoke
         NoReposition = 0x0200,
         NoSendChanging = 0x0400,
         DeferErase = 0x2000,
-        AsyncWindowPos = 0x4000,
+        AsyncWindowPos = 0x4000
     }
 
     // Window Styles

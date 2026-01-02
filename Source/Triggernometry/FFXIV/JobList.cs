@@ -10,7 +10,7 @@ namespace Triggernometry.FFXIV
         MIN = 16, BTN = 17, FSH = 18, PLD = 19, MNK = 20, WAR = 21, DRG = 22, BRD = 23,
         WHM = 24, BLM = 25, ACN = 26, SMN = 27, SCH = 28, ROG = 29, NIN = 30, MCH = 31,
         DRK = 32, AST = 33, SAM = 34, RDM = 35, BLU = 36, GNB = 37, DNC = 38, RPR = 39,
-        SGE = 40, VPR = 41, PCT = 42, _43 = 43, _44 = 44,
+        SGE = 40, VPR = 41, PCT = 42, _43 = 43, _44 = 44
     }
 
     public partial class Job
@@ -80,7 +80,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Aventurier",
                     NameJP = "冒険者",
                     NameKR = "모험가",
-                    NameTCN = "冒險者",
+                    NameTCN = "冒險者"
                 },
                 #region Other Jobs
                 new Job {
@@ -97,7 +97,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Gladiateur",
                     NameJP = "剣術士",
                     NameKR = "검술사",
-                    NameTCN = "劍術師",
+                    NameTCN = "劍術師"
                 },
                 new Job {
                     JobType = JobEnum.PGL,
@@ -113,7 +113,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Pugiliste",
                     NameJP = "格闘士",
                     NameKR = "격투사",
-                    NameTCN = "格斗家",
+                    NameTCN = "格斗家"
                 },
                 new Job {
                     JobType = JobEnum.MRD,
@@ -129,7 +129,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Maraudeur",
                     NameJP = "斧術士",
                     NameKR = "도끼술사",
-                    NameTCN = "斧術師",
+                    NameTCN = "斧術師"
                 },
                 new Job {
                     JobType = JobEnum.LNC,
@@ -145,7 +145,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Maître d'hast",
                     NameJP = "槍術士",
                     NameKR = "창술사",
-                    NameTCN = "槍術師",
+                    NameTCN = "槍術師"
                 },
                 new Job {
                     JobType = JobEnum.ARC,
@@ -161,7 +161,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Archer",
                     NameJP = "弓術士",
                     NameKR = "궁술사",
-                    NameTCN = "弓箭手",
+                    NameTCN = "弓箭手"
                 },
                 new Job {
                     JobType = JobEnum.CNJ,
@@ -177,7 +177,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Élémentaliste",
                     NameJP = "幻術士",
                     NameKR = "환술사",
-                    NameTCN = "幻術師",
+                    NameTCN = "幻術師"
                 },
                 new Job {
                     JobType = JobEnum.THM,
@@ -193,7 +193,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Occultiste",
                     NameJP = "呪術士",
                     NameKR = "주술사",
-                    NameTCN = "咒術師",
+                    NameTCN = "咒術師"
                 },
                 new Job {
                     JobType = JobEnum.CRP,
@@ -209,7 +209,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Menuisier",
                     NameJP = "木工師",
                     NameKR = "목수",
-                    NameTCN = "刻木匠",
+                    NameTCN = "刻木匠"
                 },
                 new Job {
                     JobType = JobEnum.BSM,
@@ -225,7 +225,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Forgeron",
                     NameJP = "鍛冶師",
                     NameKR = "대장장이",
-                    NameTCN = "鍛鐵匠",
+                    NameTCN = "鍛鐵匠"
                 },
                 new Job {
                     JobType = JobEnum.ARM,
@@ -241,7 +241,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Armurier",
                     NameJP = "甲冑師",
                     NameKR = "갑주제작사",
-                    NameTCN = "鑄甲匠",
+                    NameTCN = "鑄甲匠"
                 },
                 new Job {
                     JobType = JobEnum.GSM,
@@ -257,7 +257,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Orfèvre",
                     NameJP = "彫金師",
                     NameKR = "보석공예가",
-                    NameTCN = "雕金匠",
+                    NameTCN = "雕金匠"
                 },
                 new Job {
                     JobType = JobEnum.LTW,
@@ -273,7 +273,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Tanneur",
                     NameJP = "革細工師",
                     NameKR = "가죽공예가",
-                    NameTCN = "制革匠",
+                    NameTCN = "制革匠"
                 },
                 new Job {
                     JobType = JobEnum.WVR,
@@ -289,7 +289,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Couturier",
                     NameJP = "裁縫師",
                     NameKR = "재봉사",
-                    NameTCN = "裁衣匠",
+                    NameTCN = "裁衣匠"
                 },
                 new Job {
                     JobType = JobEnum.ALC,
@@ -305,7 +305,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Alchimiste",
                     NameJP = "錬金術師",
                     NameKR = "연금술사",
-                    NameTCN = "煉金術士",
+                    NameTCN = "煉金術士"
                 },
                 new Job {
                     JobType = JobEnum.CUL,
@@ -321,7 +321,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Cuisinier",
                     NameJP = "調理師",
                     NameKR = "요리사",
-                    NameTCN = "烹調師",
+                    NameTCN = "烹調師"
                 },
                 new Job {
                     JobType = JobEnum.MIN,
@@ -337,7 +337,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Mineur",
                     NameJP = "採掘師",
                     NameKR = "광부",
-                    NameTCN = "采礦工",
+                    NameTCN = "采礦工"
                 },
                 new Job {
                     JobType = JobEnum.BTN,
@@ -353,7 +353,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Botaniste",
                     NameJP = "園芸師",
                     NameKR = "원예가",
-                    NameTCN = "園藝工",
+                    NameTCN = "園藝工"
                 },
                 new Job {
                     JobType = JobEnum.FSH,
@@ -369,7 +369,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Pêcheur",
                     NameJP = "漁師",
                     NameKR = "어부",
-                    NameTCN = "捕魚人",
+                    NameTCN = "捕魚人"
                 },
                 new Job {
                     JobType = JobEnum.PLD,
@@ -385,7 +385,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Paladin",
                     NameJP = "ナイト",
                     NameKR = "나이트",
-                    NameTCN = "騎士",
+                    NameTCN = "騎士"
                 },
                 new Job {
                     JobType = JobEnum.MNK,
@@ -401,7 +401,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Moine",
                     NameJP = "モンク",
                     NameKR = "몽크",
-                    NameTCN = "武僧",
+                    NameTCN = "武僧"
                 },
                 new Job {
                     JobType = JobEnum.WAR,
@@ -417,7 +417,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Guerrier",
                     NameJP = "戦士",
                     NameKR = "전사",
-                    NameTCN = "戰士",
+                    NameTCN = "戰士"
                 },
                 new Job {
                     JobType = JobEnum.DRG,
@@ -433,7 +433,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Chevalier dragon",
                     NameJP = "竜騎士",
                     NameKR = "용기사",
-                    NameTCN = "龍騎士",
+                    NameTCN = "龍騎士"
                 },
                 new Job {
                     JobType = JobEnum.BRD,
@@ -449,7 +449,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Barde",
                     NameJP = "吟遊詩人",
                     NameKR = "음유시인",
-                    NameTCN = "吟游詩人",
+                    NameTCN = "吟游詩人"
                 },
                 new Job {
                     JobType = JobEnum.WHM,
@@ -465,7 +465,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Mage blanc",
                     NameJP = "白魔道士",
                     NameKR = "백마도사",
-                    NameTCN = "白魔法師",
+                    NameTCN = "白魔法師"
                 },
                 new Job {
                     JobType = JobEnum.BLM,
@@ -481,7 +481,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Mage noir",
                     NameJP = "黒魔道士",
                     NameKR = "흑마도사",
-                    NameTCN = "黒魔法師",
+                    NameTCN = "黒魔法師"
                 },
                 new Job {
                     JobType = JobEnum.ACN,
@@ -497,7 +497,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Arcaniste",
                     NameJP = "巴術士",
                     NameKR = "비술사",
-                    NameTCN = "秘術師",
+                    NameTCN = "秘術師"
                 },
                 new Job {
                     JobType = JobEnum.SMN,
@@ -513,7 +513,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Invocateur",
                     NameJP = "召喚士",
                     NameKR = "소환사",
-                    NameTCN = "召喚師",
+                    NameTCN = "召喚師"
                 },
                 new Job {
                     JobType = JobEnum.SCH,
@@ -529,7 +529,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Érudit",
                     NameJP = "学者",
                     NameKR = "학자",
-                    NameTCN = "学者",
+                    NameTCN = "学者"
                 },
                 new Job {
                     JobType = JobEnum.ROG,
@@ -545,7 +545,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Surineur",
                     NameJP = "双剣士",
                     NameKR = "쌍검사",
-                    NameTCN = "双劍師",
+                    NameTCN = "双劍師"
                 },
                 new Job {
                     JobType = JobEnum.NIN,
@@ -561,7 +561,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Ninja",
                     NameJP = "忍者",
                     NameKR = "닌자",
-                    NameTCN = "忍者",
+                    NameTCN = "忍者"
                 },
                 new Job {
                     JobType = JobEnum.MCH,
@@ -577,7 +577,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Machiniste",
                     NameJP = "機工士",
                     NameKR = "기공사",
-                    NameTCN = "机工士",
+                    NameTCN = "机工士"
                 },
                 new Job {
                     JobType = JobEnum.DRK,
@@ -593,7 +593,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Chevalier noir",
                     NameJP = "暗黒騎士",
                     NameKR = "암흑기사",
-                    NameTCN = "暗黒騎士",
+                    NameTCN = "暗黒騎士"
                 },
                 new Job {
                     JobType = JobEnum.AST,
@@ -609,7 +609,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Astromancien",
                     NameJP = "占星術士",
                     NameKR = "점성술사",
-                    NameTCN = "占星術士",
+                    NameTCN = "占星術士"
                 },
                 new Job {
                     JobType = JobEnum.SAM,
@@ -625,7 +625,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Samouraï",
                     NameJP = "侍",
                     NameKR = "사무라이",
-                    NameTCN = "武士",
+                    NameTCN = "武士"
                 },
                 new Job {
                     JobType = JobEnum.RDM,
@@ -641,7 +641,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Mage rouge",
                     NameJP = "赤魔道士",
                     NameKR = "적마도사",
-                    NameTCN = "赤魔法師",
+                    NameTCN = "赤魔法師"
                 },
                 new Job {
                     JobType = JobEnum.BLU,
@@ -657,7 +657,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Mage bleu",
                     NameJP = "青魔道士",
                     NameKR = "청마도사",
-                    NameTCN = "青魔法師",
+                    NameTCN = "青魔法師"
                 },
                 new Job {
                     JobType = JobEnum.GNB,
@@ -673,7 +673,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Pisto-sabreur",
                     NameJP = "ガンブレイカー",
                     NameKR = "건브레이커",
-                    NameTCN = "絶槍戰士",
+                    NameTCN = "絶槍戰士"
                 },
                 new Job {
                     JobType = JobEnum.DNC,
@@ -689,7 +689,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Danseur",
                     NameJP = "踊り子",
                     NameKR = "무도가",
-                    NameTCN = "舞者",
+                    NameTCN = "舞者"
                 },
                 new Job {
                     JobType = JobEnum.RPR,
@@ -705,7 +705,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Faucheur",
                     NameJP = "リーパー",
                     NameKR = "리퍼",
-                    NameTCN = "钐鎌客",
+                    NameTCN = "钐鎌客"
                 },
                 new Job {
                     JobType = JobEnum.SGE,
@@ -721,7 +721,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Sage",
                     NameJP = "賢者",
                     NameKR = "현자",
-                    NameTCN = "賢者",
+                    NameTCN = "賢者"
                 },
                 new Job {
                     JobType = JobEnum.VPR,
@@ -737,7 +737,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Vipère",
                     NameJP = "ヴァイパー",
                     NameKR = "Viper",
-                    NameTCN = "蝰蛇劍士",
+                    NameTCN = "蝰蛇劍士"
                 },
                 new Job {
                     JobType = JobEnum.PCT,
@@ -753,7 +753,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "Pictomancien",
                     NameJP = "ピクトマンサー",
                     NameKR = "Pictomancien",
-                    NameTCN = "繪靈法師",
+                    NameTCN = "繪靈法師"
                 },
                 new Job {
                     JobType = JobEnum._43,
@@ -769,7 +769,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "job_43",
                     NameJP = "job_43",
                     NameKR = "job_43",
-                    NameTCN = "job_43",
+                    NameTCN = "job_43"
                 },
                 new Job {
                     JobType = JobEnum._44,
@@ -785,7 +785,7 @@ namespace Triggernometry.FFXIV
                     NameFR = "job_44",
                     NameJP = "job_44",
                     NameKR = "job_44",
-                    NameTCN = "job_44",
+                    NameTCN = "job_44"
                 },
                 #endregion Other Jobs
             };
@@ -807,7 +807,7 @@ namespace Triggernometry.FFXIV
                 BLM, THM, SMN, ACN, RDM, PCT, BLU,
                 CRP, BSM, ARM, GSM, LTW, WVR, ALC, CUL,
                 MIN, BTN, FSH, 
-                ADV,
+                ADV
             };
 
             for (var i = 0; i < XivDefaultOrder.Count; i++)

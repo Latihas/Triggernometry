@@ -44,7 +44,7 @@ namespace Triggernometry.Core
             Trigger,
             Folder,
             Repository,
-            Placeholder,
+            Placeholder
             // Old actions:
             // EndEncounter => ActInteraction
         }
@@ -82,7 +82,7 @@ namespace Triggernometry.Core
             SortLine,
             GetAllEntities,
             UnsetAll,
-            UnsetRegex,
+            UnsetRegex
         }
 
         public enum TableVariableExpTypeEnum
@@ -105,7 +105,7 @@ namespace Triggernometry.Core
             UnsetAll,
             UnsetRegex,
             [Obsolete] GetEntityByName, // => GetEntity
-            [Obsolete] GetEntityById, // => GetEntity
+            [Obsolete] GetEntityById    // => GetEntity
         }
 
         public enum DictVariableExpTypeEnum
@@ -134,7 +134,7 @@ namespace Triggernometry.Core
         {
             EnableFolder,
             DisableFolder,
-            CancelFolder,
+            CancelFolder
         }
 
         public enum AuraOpEnum
@@ -193,7 +193,7 @@ namespace Triggernometry.Core
             SortFfxivPartyDesc,
             SortByKeys,
             UnsetAll,
-            UnsetRegex,
+            UnsetRegex
             // Old
             // PopLast => PopFirst
         }
@@ -260,7 +260,7 @@ namespace Triggernometry.Core
             Custom,
             Custom2,
             Info,
-            Verbose,
+            Verbose
         }
 
         [Flags]
@@ -324,7 +324,7 @@ namespace Triggernometry.Core
         {
             SetCombatState,
             LogAllNetwork,
-            UseDeucalion,
+            UseDeucalion
         }
 
         #endregion

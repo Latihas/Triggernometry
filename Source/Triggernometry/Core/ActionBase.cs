@@ -105,7 +105,7 @@ namespace Triggernometry.Core
                 /// <summary>
                 /// Input types (keypress, mouse, ..)
                 /// </summary>
-                Input,
+                Input
             }
 
             internal CategoryTypeEnum _categoryType;

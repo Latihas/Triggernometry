@@ -152,7 +152,7 @@ public enum ActionType : byte
     ChocoboRaceItem = 17,
     Unk_18 = 18, // Not in UseActionHelper (?)
     BgcArmyAction = 0x19,
-    Ornament = 0x20,
+    Ornament = 0x20
 }
 
 public enum UseActionMode
@@ -160,5 +160,5 @@ public enum UseActionMode
     None = 0,  // usual action execution, e.g. a hotbar button press
     Queue = 1, // previously queued action is now ready and is being executed (=> will ignore queue)
     Macro = 2, // action execution originating from a macro (=> won't be queued)
-    Combo = 3, // action execution is from a single-button combo
+    Combo = 3  // action execution is from a single-button combo
 }
