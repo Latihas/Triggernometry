@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
-using Scarborough.Drawing;
 using Scarborough.Windows;
 using Triggernometry.Core;
+using Color = Scarborough.Drawing.Color;
+using Graphics = Scarborough.Drawing.Graphics;
+using Image = Scarborough.Drawing.Image;
 
 namespace Triggernometry.UI.Aura.Renderer;
 
-sealed internal class Scarborough : RendererBase
-{
-
+internal sealed class Scarborough : RendererBase {
     #region Generic properties
 
     private OverlayWindow _window = null;
@@ -19,7 +21,7 @@ sealed internal class Scarborough : RendererBase
     internal bool NeedRender { get; set; } = true;
     internal bool WasHidden { get; set; } = false;
 
-    internal Int64 Ordinal { get; set; }
+    internal long Ordinal { get; set; }
 
     #endregion
 
@@ -41,15 +43,8 @@ sealed internal class Scarborough : RendererBase
 
     #endregion
 
-    #region Text specific properties
-
-
-    #endregion
-
-    public override void Dispose()
-    {
-        if (OriginalImage != null)
-        {
+    public override void Dispose() {
+        if (OriginalImage != null) {
             OriginalImage.Dispose();
             OriginalImage = null;
         }
@@ -57,24 +52,19 @@ sealed internal class Scarborough : RendererBase
 
     #region Generic methods
 
-    internal override void Initialize(Aura a)
-    {
+    internal override void Initialize(Aura a) {
     }
 
-    internal override void Render(Aura a)
-    {
-        if (a is AuraImage)
-        {
+    internal override void Render(Aura a) {
+        if (a is AuraImage) {
             RenderImage((AuraImage)a);
         }
-        if (a is AuraText)
-        {
+        if (a is AuraText) {
             RenderText((AuraText)a);
         }
     }
 
-    private void AdjustSurface()
-    {
+    private void AdjustSurface() {
         /*
         if (_window == null)
         {
@@ -112,18 +102,14 @@ sealed internal class Scarborough : RendererBase
         }*/
     }
 
-    internal void Show()
-    {
-        if (_window != null)
-        {
+    internal void Show() {
+        if (_window != null) {
             _window.Show();
         }
     }
 
-    internal void Hide()
-    {
-        if (_window != null)
-        {
+    internal void Hide() {
+        if (_window != null) {
             _window.Hide();
         }
     }
@@ -132,67 +118,51 @@ sealed internal class Scarborough : RendererBase
 
     #region Image specific methods
 
-    internal sealed class GifData
-    {
-
+    internal sealed class GifData {
         public int TransparencyIndex { get; set; } = -1;
         public int BackgroundColor { get; set; } = -1;
         public bool HasGCTF { get; set; }
         public int GCTFSize { get; set; } = -1;
         public int GCTFColors { get; set; } = -1;
         public Color[] Palette { get; set; }
-
     }
 
-    private byte[] ImageToByte(System.Drawing.Image img)
-    {
-        System.Drawing.ImageConverter converter = new System.Drawing.ImageConverter();
+    private byte[] ImageToByte(System.Drawing.Image img) {
+        var converter = new ImageConverter();
         return (byte[])converter.ConvertTo(img, typeof(byte[]));
     }
 
-    internal GifData GetGifData(byte[] data)
-    {
-        if ((data[0] == 71) || (data[1] == 73) || (data[2] == 70))
-        {
-            GifData g = new GifData();
+    internal GifData GetGifData(byte[] data) {
+        if (data[0] == 71 || data[1] == 73 || data[2] == 70) {
+            var g = new GifData();
             g.BackgroundColor = data[11];
-            int ii = 10;
-            g.HasGCTF = ((data[ii] & 0x80) > 0);
-            if (g.HasGCTF == true)
-            {
+            var ii = 10;
+            g.HasGCTF = (data[ii] & 0x80) > 0;
+            if (g.HasGCTF) {
                 // if we have a GCTF
                 g.GCTFColors = (int)Math.Pow(2, (data[ii] & 0x07) + 1);
                 g.GCTFSize = 3 * g.GCTFColors;
                 g.Palette = new Color[g.GCTFColors];
                 ii += 3;
-                for (int c = 0; c < g.GCTFColors; c++)
-                {
+                for (var c = 0; c < g.GCTFColors; c++) {
                     g.Palette[c] = new Color(data[ii], data[ii + 1], data[ii + 2]);
                     ii += 3;
                 }
             }
-            while (ii < data.Length)
-            {
-                if (data[ii] == 0x21)
-                {
-                    if (data[ii + 1] == 0xf9)
-                    {
+            while (ii < data.Length) {
+                if (data[ii] == 0x21) {
+                    if (data[ii + 1] == 0xf9) {
                         g.TransparencyIndex = data[ii + 6];
                         break;
                     }
-                    else
-                    {
-                        int bsize = data[ii + 2];
-                        ii += bsize + 3;
-                        while (data[ii] != 0)
-                        {
-                            ii += data[ii] + 1;
-                        }
-                        ii++;
+                    int bsize = data[ii + 2];
+                    ii += bsize + 3;
+                    while (data[ii] != 0) {
+                        ii += data[ii] + 1;
                     }
+                    ii++;
                 }
-                else
-                {
+                else {
                     // out of blocks
                     break;
                 }
@@ -202,83 +172,65 @@ sealed internal class Scarborough : RendererBase
         return null;
     }
 
-    internal void SetTransparencyIndex(byte[] data, byte idx)
-    {
-        if ((data[0] == 71) || (data[1] == 73) || (data[2] == 70))
-        {
-            int ii = 10;
-            if ((data[ii] & 0x80) > 0)
-            {
+    internal void SetTransparencyIndex(byte[] data, byte idx) {
+        if (data[0] == 71 || data[1] == 73 || data[2] == 70) {
+            var ii = 10;
+            if ((data[ii] & 0x80) > 0) {
                 // if we have a GCTF
-                int gctfsize = 3 * (int)Math.Pow(2, (data[ii] & 0x07) + 1);
+                var gctfsize = 3 * (int)Math.Pow(2, (data[ii] & 0x07) + 1);
                 ii += gctfsize;
             }
             ii += 3;
             // should have application block here now
-            if (data[ii] == 0x21 && data[ii + 1] == 0xff)
-            {
+            if (data[ii] == 0x21 && data[ii + 1] == 0xff) {
                 ii += 19;
-                if (data[ii] == 0x21 && data[ii + 1] == 0xf9)
-                {
+                if (data[ii] == 0x21 && data[ii + 1] == 0xf9) {
                     data[ii + 6] = idx;
                 }
             }
         }
     }
 
-    internal void LoadImageDataFromFile(RealPlugin plug, Graphics g, string fn)
-    {
-        byte[] data = File.ReadAllBytes(fn);
+    internal void LoadImageDataFromFile(RealPlugin plug, Graphics g, string fn) {
+        var data = File.ReadAllBytes(fn);
         LoadImageDataFromByte(plug, g, data);
     }
 
-    internal void LoadImageDataFromByte(RealPlugin plug, Graphics g, byte[] data)
-    {
-        GifData gif = GetGifData(data);
-        using (MemoryStream ms = new MemoryStream(data))
-        {
-            using (System.Drawing.Image i = System.Drawing.Image.FromStream(ms))
-            {
-                System.Drawing.Bitmap b = (System.Drawing.Bitmap)i;
-                System.Drawing.Imaging.FrameDimension CurrentFd = new System.Drawing.Imaging.FrameDimension(i.FrameDimensionsList[0]);
+    internal void LoadImageDataFromByte(RealPlugin plug, Graphics g, byte[] data) {
+        var gif = GetGifData(data);
+        using (var ms = new MemoryStream(data)) {
+            using (var i = System.Drawing.Image.FromStream(ms)) {
+                var b = (Bitmap)i;
+                var CurrentFd = new FrameDimension(i.FrameDimensionsList[0]);
                 NumberOfFrames = i.GetFrameCount(CurrentFd);
-                IsAnimated = (NumberOfFrames > 1);
-                if (IsAnimated == true)
-                {
-                    Frames = new List<Image>();
-                    FrameDelays = new List<int>();
-                    System.Drawing.Imaging.PropertyItem delay = i.GetPropertyItem(0x5100);
+                IsAnimated = NumberOfFrames > 1;
+                if (IsAnimated) {
+                    Frames = [];
+                    FrameDelays = [];
+                    var delay = i.GetPropertyItem(0x5100);
                     Color tc;
-                    bool hastc = false;
-                    if (gif.TransparencyIndex >= 0)
-                    {
+                    var hastc = false;
+                    if (gif.TransparencyIndex >= 0) {
                         tc = gif.Palette[gif.TransparencyIndex];
                         hastc = true;
                     }
-                    else
-                    {
+                    else {
                         tc = gif.Palette[0];
                     }
-                    for (int h = 0; h < NumberOfFrames; h++)
-                    {
-                        int delayn = (delay.Value[h * 4] + (delay.Value[(h * 4) + 1] * 256)) * 10;
+                    for (var h = 0; h < NumberOfFrames; h++) {
+                        var delayn = (delay.Value[h * 4] + delay.Value[h * 4 + 1] * 256) * 10;
                         FrameDelays.Add(delayn);
                         i.SelectActiveFrame(CurrentFd, h);
-                        System.Drawing.Image ifa = ((System.Drawing.Image)i.Clone());
-                        byte[] idata = ImageToByte(ifa);
-                        if (hastc == true)
-                        {
-                            if (gif.TransparencyIndex != gif.BackgroundColor)
-                            {
+                        var ifa = (System.Drawing.Image)i.Clone();
+                        var idata = ImageToByte(ifa);
+                        if (hastc) {
+                            if (gif.TransparencyIndex != gif.BackgroundColor) {
                                 // hack in case transparency color is different from bgcolor (some gifs have this shit)
                                 SetTransparencyIndex(idata, (byte)gif.BackgroundColor);
                             }
-                            else
-                            {
-                                for (int j = 0; j < gif.TransparencyIndex; j++)
-                                {
-                                    if ((gif.Palette[j].R == tc.R) && (gif.Palette[j].R == tc.G) && (gif.Palette[j].R == tc.B))
-                                    {
+                            else {
+                                for (var j = 0; j < gif.TransparencyIndex; j++) {
+                                    if (gif.Palette[j].R == tc.R && gif.Palette[j].R == tc.G && gif.Palette[j].R == tc.B) {
                                         // net itself might have selected an earlier color as new transparency color
                                         // hack to reset transparency index to match if so
                                         SetTransparencyIndex(idata, (byte)j);
@@ -292,23 +244,20 @@ sealed internal class Scarborough : RendererBase
                     CurrentFrame = -1;
                     AdvanceFrame();
                 }
-                else
-                {
+                else {
                     OriginalImage = g.CreateImage(data);
                 }
             }
         }
     }
 
-    internal void LoadImageData(RealPlugin plug, Graphics g, string ifn)
-    {
-        string fn = AuraImage.GetImageFilename(plug, ifn);
-        byte[] data = File.ReadAllBytes(fn);
+    internal void LoadImageData(RealPlugin plug, Graphics g, string ifn) {
+        var fn = AuraImage.GetImageFilename(plug, ifn);
+        var data = File.ReadAllBytes(fn);
         LoadImageDataFromByte(plug, g, data);
     }
 
-    internal void RenderImage(AuraImage a)
-    {
+    internal void RenderImage(AuraImage a) {
         /*
         if (NeedImage == true)
         {
@@ -473,46 +422,39 @@ sealed internal class Scarborough : RendererBase
         _graphics.EndScene();*/
     }
 
-    public bool AdvanceFrame()
-    {
-        int prev = CurrentFrame;
-        if (CurrentFrame == -1)
-        {
+    public bool AdvanceFrame() {
+        var prev = CurrentFrame;
+        if (CurrentFrame == -1) {
             LastAdvance = DateTime.Now;
             TimeAccumulator = 0.0;
             CurrentFrame = 0;
             CurrentFrameDelay = FrameDelays[0];
             OriginalImage = Frames[CurrentFrame];
         }
-        else
-        {
+        else {
             TimeAccumulator += (DateTime.Now - LastAdvance).TotalMilliseconds;
             LastAdvance = DateTime.Now;
-            while (TimeAccumulator >= CurrentFrameDelay)
-            {
+            while (TimeAccumulator >= CurrentFrameDelay) {
                 CurrentFrame++;
-                if (CurrentFrame >= NumberOfFrames)
-                {
+                if (CurrentFrame >= NumberOfFrames) {
                     CurrentFrame = 0;
                 }
                 TimeAccumulator -= CurrentFrameDelay;
                 CurrentFrameDelay = FrameDelays[CurrentFrame];
-                if (CurrentFrameDelay <= 0)
-                {
+                if (CurrentFrameDelay <= 0) {
                     break;
                 }
             }
             OriginalImage = Frames[CurrentFrame];
         }
-        return (prev != CurrentFrame);
+        return prev != CurrentFrame;
     }
 
     #endregion
 
     #region Text specific methods
 
-    internal void RenderText(AuraText a)
-    {
+    internal void RenderText(AuraText a) {
         /*
         if (NeedFont == true)
         {
@@ -608,5 +550,4 @@ sealed internal class Scarborough : RendererBase
     }
 
     #endregion
-
 }

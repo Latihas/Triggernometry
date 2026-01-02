@@ -6,8 +6,7 @@ using System.Runtime.InteropServices;
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
 [StructLayout(LayoutKind.Explicit)]
-public unsafe struct _VfxStruct
-{
+public unsafe struct _VfxStruct {
     [FieldOffset(0x38)] public byte Flags;
     [FieldOffset(0x50)] public Vector3 Position;
     [FieldOffset(0x60)] public Quaternion Rotation;

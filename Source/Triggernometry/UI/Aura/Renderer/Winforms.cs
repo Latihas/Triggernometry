@@ -1,17 +1,13 @@
 ﻿namespace Triggernometry.UI.Aura.Renderer;
 
-sealed internal class Winforms : RendererBase
-{
-
+internal sealed class Winforms : RendererBase {
     // Forms.AuraContainerForm acf = null;
 
-    public override void Dispose()
-    {
+    public override void Dispose() {
         CloseForm();
     }
 
-    private void CloseForm()
-    {
+    private void CloseForm() {
         // if (acf != null)
         // {
         //     acf.Close();
@@ -20,8 +16,7 @@ sealed internal class Winforms : RendererBase
         // }
     }
 
-    internal override void Initialize(Aura a)
-    {
+    internal override void Initialize(Aura a) {
         // if (a is AuraImage)
         // {                
         //     acf = new Forms.AuraContainerForm(Forms.AuraContainerForm.AuraTypeEnum.Image);
@@ -36,8 +31,6 @@ sealed internal class Winforms : RendererBase
         // acf.ctx = a.ctx;
     }
 
-    internal override void Render(Aura a)
-    {
+    internal override void Render(Aura a) {
     }
-
 }

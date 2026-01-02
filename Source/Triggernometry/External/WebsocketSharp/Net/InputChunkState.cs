@@ -1,4 +1,5 @@
 #region License
+
 /*
  * InputChunkState.cs
  *
@@ -28,23 +29,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 #endregion
 
 #region Authors
+
 /*
  * Authors:
  * - Gonzalo Paniagua Javier <gonzalo@ximian.com>
  */
+
 #endregion
 
-namespace WebSocketSharp.Net
-{
-  internal enum InputChunkState
-  {
+namespace WebSocketSharp.Net;
+
+internal enum InputChunkState {
     None,
     Data,
     DataEnded,
     Trailer,
     End
-  }
 }

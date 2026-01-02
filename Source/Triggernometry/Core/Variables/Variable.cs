@@ -1,25 +1,19 @@
 ﻿using System;
 using System.Xml.Serialization;
 
-namespace Triggernometry.Core.Variables
-{
+namespace Triggernometry.Core.Variables;
 
-    [XmlInclude(typeof(VariableScalar))]
-    [XmlInclude(typeof(VariableList))]
-    [XmlInclude(typeof(VariableTable))]    
-    public abstract class Variable : IComparable
-    {
+[XmlInclude(typeof(VariableScalar))]
+[XmlInclude(typeof(VariableList))]
+[XmlInclude(typeof(VariableTable))]
+public abstract class Variable : IComparable {
+    [XmlAttribute(AttributeName = "LastChanger")]
+    public string LastChanger { get; set; } = "N/A";
 
-        [XmlAttribute(AttributeName = "LastChanger")]
-        public string LastChanger { get; set; } = "N/A";
+    [XmlAttribute(AttributeName = "LastChanged")]
+    public DateTime LastChanged { get; set; } = DateTime.Now;
 
-        [XmlAttribute(AttributeName = "LastChanged")]
-        public DateTime LastChanged { get; set; } = DateTime.Now;
+    public abstract int CompareTo(object o);
 
-        public abstract int CompareTo(object o);
-
-        public abstract Variable Duplicate();
-
-    }
-
+    public abstract Variable Duplicate();
 }

@@ -8,10 +8,9 @@ using Triggernometry.Core;
 namespace Triggernometry.PluginBridges.BridgeNamazu;
 
 /// <summary>
-/// Wrapper for GreyMagic.MemoryBase
+///     Wrapper for GreyMagic.MemoryBase
 /// </summary>
-public class GreyMagicMemoryBase
-{
+public class GreyMagicMemoryBase {
     public static void ExecuteWithLock(Action a) => ProxyPlugin.Framework.RunOnTick(a);
     public static T ExecuteWithLock<T>(Func<T> a) => ProxyPlugin.Framework.RunOnTick(a).Result;
 
@@ -26,8 +25,7 @@ public class GreyMagicMemoryBase
     //     => _memory.ReadBytes<T>(addr);
     // public byte[] ReadBytes(IntPtr addr, int count, bool isRelative)
     //     => _memory.ReadBytes(addr, count, isRelative);
-    public static byte[] ReadBytes(IntPtr addr, int count)
-    {
+    public static byte[] ReadBytes(IntPtr addr, int count) {
         SafeMemory.ReadBytes(addr, count, out var buffer);
         return buffer;
     }
@@ -36,8 +34,7 @@ public class GreyMagicMemoryBase
     //     => _memory.Read<T>(isRelative, addrs);
     // public T Read<T>(IntPtr addr, bool isRelative) where T : struct
     //     => _memory.Read<T>(addr, isRelative);
-    public static T Read<T>(IntPtr addr) where T : struct
-    {
+    public static T Read<T>(IntPtr addr) where T : struct {
         SafeMemory.Read<T>(addr, out var res);
         return res;
     }
@@ -61,25 +58,21 @@ public class GreyMagicMemoryBase
     //     => _memory.WriteBytes<T>(addr, bytes, isRelative);
     private static Lock WriteLock = new();
 
-    public static void WriteBytes(IntPtr addr, byte[] bytes)
-    {
-        ExecuteWithLock(() =>
-        {
-            lock (WriteLock)
-            {
+    public static void WriteBytes(IntPtr addr, byte[] bytes) {
+        ExecuteWithLock(() => {
+            lock (WriteLock) {
                 RealPlugin._instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing MemoryBytes {addr} {ToMemoryView(bytes)}");
                 SafeMemory.WriteBytes(addr, bytes);
             }
         });
     }
+
     [DllImport("kernel32.dll")]
     public static extern bool IsBadWritePtr(IntPtr lp, uint ucb);
-    public static void Write<T>(IntPtr addr, T value) where T : struct
-    {
-        ExecuteWithLock(() =>
-        {
-            lock (WriteLock)
-            {
+
+    public static void Write<T>(IntPtr addr, T value) where T : struct {
+        ExecuteWithLock(() => {
+            lock (WriteLock) {
                 RealPlugin._instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing Memory {addr} {value}");
                 if (addr == IntPtr.Zero || IsBadWritePtr(addr, (uint)Marshal.SizeOf<T>()))
                     RealPlugin._instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Bad Memory {addr} {value}");
@@ -88,31 +81,27 @@ public class GreyMagicMemoryBase
         });
     }
 
-    public static string ToMemoryView(byte[] bytes, int bytesPerLine = 16)
-    {
+    public static string ToMemoryView(byte[] bytes, int bytesPerLine = 16) {
         if (bytes == null)
             return "byte[] is null";
         if (bytes.Length == 0)
             return "byte[] is empty";
         var result = new StringBuilder();
-        int totalLines = (bytes.Length + bytesPerLine - 1) / bytesPerLine;
+        var totalLines = (bytes.Length + bytesPerLine - 1) / bytesPerLine;
 
-        for (int line = 0; line < totalLines; line++)
-        {
-            int startIndex = line * bytesPerLine;
-            int endIndex = Math.Min(startIndex + bytesPerLine, bytes.Length);
-            int currentLineByteCount = endIndex - startIndex;
+        for (var line = 0; line < totalLines; line++) {
+            var startIndex = line * bytesPerLine;
+            var endIndex = Math.Min(startIndex + bytesPerLine, bytes.Length);
+            var currentLineByteCount = endIndex - startIndex;
             result.AppendFormat("{0:X8}  ", startIndex);
-            for (int i = 0; i < bytesPerLine; i++)
-            {
+            for (var i = 0; i < bytesPerLine; i++) {
                 if (i < currentLineByteCount) result.AppendFormat("{0:X2} ", bytes[startIndex + i]);
                 else result.Append("   ");
             }
             result.Append(" ");
-            for (int i = 0; i < currentLineByteCount; i++)
-            {
-                byte b = bytes[startIndex + i];
-                char asciiChar = (b >= 32 && b <= 126) ? (char)b : '.';
+            for (var i = 0; i < currentLineByteCount; i++) {
+                var b = bytes[startIndex + i];
+                var asciiChar = b >= 32 && b <= 126 ? (char)b : '.';
                 result.Append(asciiChar);
             }
             result.AppendLine();

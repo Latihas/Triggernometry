@@ -1,4 +1,5 @@
 #region License
+
 /*
  * ErrorEventArgs.cs
  *
@@ -24,55 +25,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 #endregion
 
 #region Contributors
+
 /*
  * Contributors:
  * - Frank Razenberg <frank@zzattack.org>
  */
+
 #endregion
 
 using System;
 
-namespace WebSocketSharp
-{
-    /// <summary>
-    /// Represents the event data for the <see cref="WebSocket.OnError"/> event.
-    /// </summary>
-    /// <remarks>
-    ///   <para>
-    ///   That event occurs when the <see cref="WebSocket"/> gets an error.
-    ///   </para>
-    ///   <para>
-    ///   If you would like to get the error message, you should access
-    ///   the <see cref="Message"/> property.
-    ///   </para>
-    ///   <para>
-    ///   And if the error is due to an exception, you can get it by accessing
-    ///   the <see cref="Exception"/> property.
-    ///   </para>
-    /// </remarks>
-    public class ErrorEventArgs : EventArgs
-  {
+namespace WebSocketSharp;
+
+/// <summary>
+///     Represents the event data for the <see cref="WebSocket.OnError" /> event.
+/// </summary>
+/// <remarks>
+///     <para>
+///         That event occurs when the <see cref="WebSocket" /> gets an error.
+///     </para>
+///     <para>
+///         If you would like to get the error message, you should access
+///         the <see cref="Message" /> property.
+///     </para>
+///     <para>
+///         And if the error is due to an exception, you can get it by accessing
+///         the <see cref="Exception" /> property.
+///     </para>
+/// </remarks>
+public class ErrorEventArgs : EventArgs {
     #region Private Fields
 
     private Exception _exception;
-    private string    _message;
+    private string _message;
 
     #endregion
 
     #region Internal Constructors
 
-    internal ErrorEventArgs (string message)
-      : this (message, null)
-    {
+    internal ErrorEventArgs(string message)
+        : this(message, null) {
     }
 
-    internal ErrorEventArgs (string message, Exception exception)
-    {
-      _message = message;
-      _exception = exception;
+    internal ErrorEventArgs(string message, Exception exception) {
+        _message = message;
+        _exception = exception;
     }
 
     #endregion
@@ -80,30 +81,21 @@ namespace WebSocketSharp
     #region Public Properties
 
     /// <summary>
-    /// Gets the exception that caused the error.
+    ///     Gets the exception that caused the error.
     /// </summary>
     /// <value>
-    /// An <see cref="System.Exception"/> instance that represents the cause of
-    /// the error if it is due to an exception; otherwise, <see langword="null"/>.
+    ///     An <see cref="System.Exception" /> instance that represents the cause of
+    ///     the error if it is due to an exception; otherwise, <see langword="null" />.
     /// </value>
-    public Exception Exception {
-      get {
-        return _exception;
-      }
-    }
+    public Exception Exception => _exception;
 
     /// <summary>
-    /// Gets the error message.
+    ///     Gets the error message.
     /// </summary>
     /// <value>
-    /// A <see cref="string"/> that represents the error message.
+    ///     A <see cref="string" /> that represents the error message.
     /// </value>
-    public string Message {
-      get {
-        return _message;
-      }
-    }
+    public string Message => _message;
 
     #endregion
-  }
 }

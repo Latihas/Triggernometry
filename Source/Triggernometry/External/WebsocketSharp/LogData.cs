@@ -1,4 +1,5 @@
 #region License
+
 /*
  * LogData.cs
  *
@@ -24,36 +25,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 #endregion
 
 using System;
 using System.Diagnostics;
 using System.Text;
 
-namespace WebSocketSharp
-{
-  /// <summary>
-  /// Represents a log data used by the <see cref="Logger"/> class.
-  /// </summary>
-  public class LogData
-  {
+namespace WebSocketSharp;
+
+/// <summary>
+///     Represents a log data used by the <see cref="Logger" /> class.
+/// </summary>
+public class LogData {
     #region Private Fields
 
     private StackFrame _caller;
-    private DateTime   _date;
-    private LogLevel   _level;
-    private string     _message;
+    private DateTime _date;
+    private LogLevel _level;
+    private string _message;
 
     #endregion
 
     #region Internal Constructors
 
-    internal LogData (LogLevel level, StackFrame caller, string message)
-    {
-      _level = level;
-      _caller = caller;
-      _message = message ?? string.Empty;
-      _date = DateTime.Now;
+    internal LogData(LogLevel level, StackFrame caller, string message) {
+        _level = level;
+        _caller = caller;
+        _message = message ?? string.Empty;
+        _date = DateTime.Now;
     }
 
     #endregion
@@ -61,89 +61,71 @@ namespace WebSocketSharp
     #region Public Properties
 
     /// <summary>
-    /// Gets the information of the logging method caller.
+    ///     Gets the information of the logging method caller.
     /// </summary>
     /// <value>
-    /// A <see cref="StackFrame"/> that provides the information of the logging method caller.
+    ///     A <see cref="StackFrame" /> that provides the information of the logging method caller.
     /// </value>
-    public StackFrame Caller {
-      get {
-        return _caller;
-      }
-    }
+    public StackFrame Caller => _caller;
 
     /// <summary>
-    /// Gets the date and time when the log data was created.
+    ///     Gets the date and time when the log data was created.
     /// </summary>
     /// <value>
-    /// A <see cref="DateTime"/> that represents the date and time when the log data was created.
+    ///     A <see cref="DateTime" /> that represents the date and time when the log data was created.
     /// </value>
-    public DateTime Date {
-      get {
-        return _date;
-      }
-    }
+    public DateTime Date => _date;
 
     /// <summary>
-    /// Gets the logging level of the log data.
+    ///     Gets the logging level of the log data.
     /// </summary>
     /// <value>
-    /// One of the <see cref="LogLevel"/> enum values, indicates the logging level of the log data.
+    ///     One of the <see cref="LogLevel" /> enum values, indicates the logging level of the log data.
     /// </value>
-    public LogLevel Level {
-      get {
-        return _level;
-      }
-    }
+    public LogLevel Level => _level;
 
     /// <summary>
-    /// Gets the message of the log data.
+    ///     Gets the message of the log data.
     /// </summary>
     /// <value>
-    /// A <see cref="string"/> that represents the message of the log data.
+    ///     A <see cref="string" /> that represents the message of the log data.
     /// </value>
-    public string Message {
-      get {
-        return _message;
-      }
-    }
+    public string Message => _message;
 
     #endregion
 
     #region Public Methods
 
     /// <summary>
-    /// Returns a <see cref="string"/> that represents the current <see cref="LogData"/>.
+    ///     Returns a <see cref="string" /> that represents the current <see cref="LogData" />.
     /// </summary>
     /// <returns>
-    /// A <see cref="string"/> that represents the current <see cref="LogData"/>.
+    ///     A <see cref="string" /> that represents the current <see cref="LogData" />.
     /// </returns>
-    public override string ToString ()
-    {
-      var header = string.Format ("{0}|{1,-5}|", _date, _level);
-      var method = _caller.GetMethod ();
-      var type = method.DeclaringType;
+    public override string ToString() {
+        var header = string.Format("{0}|{1,-5}|", _date, _level);
+        var method = _caller.GetMethod();
+        var type = method.DeclaringType;
 #if DEBUG
       var lineNum = _caller.GetFileLineNumber ();
       var headerAndCaller =
         String.Format ("{0}{1}.{2}:{3}|", header, type.Name, method.Name, lineNum);
 #else
-      var headerAndCaller = string.Format ("{0}{1}.{2}|", header, type.Name, method.Name);
+        var headerAndCaller = string.Format("{0}{1}.{2}|", header, type.Name, method.Name);
 #endif
-      var msgs = _message.Replace ("\r\n", "\n").TrimEnd ('\n').Split ('\n');
-      if (msgs.Length <= 1)
-        return string.Format ("{0}{1}", headerAndCaller, _message);
+        var msgs = _message.Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
+        if (msgs.Length <= 1)
+            return string.Format("{0}{1}", headerAndCaller, _message);
 
-      var buff = new StringBuilder (string.Format ("{0}{1}\n", headerAndCaller, msgs[0]), 64);
+        var buff = new StringBuilder(string.Format("{0}{1}\n", headerAndCaller, msgs[0]), 64);
 
-      var fmt = string.Format ("{{0,{0}}}{{1}}\n", header.Length);
-      for (var i = 1; i < msgs.Length; i++)
-        buff.AppendFormat (fmt, "", msgs[i]);
+        var fmt = string.Format("{{0,{0}}}{{1}}\n", header.Length);
+        for (var i = 1; i < msgs.Length; i++)
+            buff.AppendFormat(fmt, "", msgs[i]);
 
-      buff.Length--;
-      return buff.ToString ();
+        buff.Length--;
+        return buff.ToString();
     }
 
     #endregion
-  }
 }

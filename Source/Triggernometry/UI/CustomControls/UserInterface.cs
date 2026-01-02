@@ -13,10 +13,8 @@ using static Triggernometry.Core.ActionOld;
 
 namespace Triggernometry.UI.CustomControls;
 
-public class UserInterface
-{
-    public enum ImageIndices
-    {
+public class UserInterface {
+    public enum ImageIndices {
         FolderClosed = 0,
         FolderOpen = 1,
         Bolt = 2,
@@ -52,53 +50,32 @@ public class UserInterface
     // internal delegate void VoidDelegate(object sender, EventArgs e);
     // internal delegate bool BoolDelegate(object sender, EventArgs e);
 
-    public static ImageIndices GetImageIndexForClosedFolder(Folder f)
-    {
-        return f.IsLimited() ? ImageIndices.LimitedFolderClosed : ImageIndices.FolderClosed;
-    }
+    public static ImageIndices GetImageIndexForClosedFolder(Folder f) => f.IsLimited() ? ImageIndices.LimitedFolderClosed : ImageIndices.FolderClosed;
 
-    public static ImageIndices GetImageIndexForOpenFolder(Folder f)
-    {
-        return f.IsLimited() ? ImageIndices.LimitedFolderOpen : ImageIndices.FolderOpen;
-    }
+    public static ImageIndices GetImageIndexForOpenFolder(Folder f) => f.IsLimited() ? ImageIndices.LimitedFolderOpen : ImageIndices.FolderOpen;
 
-    public static ImageIndices GetImageIndexForClosedFolder(RepositoryFolder f)
-    {
-        return f.IsLimited() ? ImageIndices.LimitedFolderClosed : ImageIndices.FolderClosed;
-    }
+    public static ImageIndices GetImageIndexForClosedFolder(RepositoryFolder f) => f.IsLimited() ? ImageIndices.LimitedFolderClosed : ImageIndices.FolderClosed;
 
-    public static ImageIndices GetImageIndexForOpenFolder(RepositoryFolder f)
-    {
-        return f.IsLimited() ? ImageIndices.LimitedFolderOpen : ImageIndices.FolderOpen;
-    }
+    public static ImageIndices GetImageIndexForOpenFolder(RepositoryFolder f) => f.IsLimited() ? ImageIndices.LimitedFolderOpen : ImageIndices.FolderOpen;
 
     // Create a node sorter that implements the IComparer interface.
-    public class NodeSorter : IComparer
-    {
-        private bool DetermineSortOrder(TreeNode parent)
-        {
-            if (parent?.Tag is Folder folder)
-            {
+    public class NodeSorter : IComparer {
+        private bool DetermineSortOrder(TreeNode parent) {
+            if (parent?.Tag is Folder folder) {
                 return folder.DescendingSort;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         // Compare the length of the strings, or the strings
         // themselves, if they are the same length.
-        public int Compare(object x, object y)
-        {
+        public int Compare(object x, object y) {
             var tx = x as TreeNode;
             var ty = y as TreeNode;
-            if (tx.Tag is Folder && ty.Tag is Trigger)
-            {
+            if (tx.Tag is Folder && ty.Tag is Trigger) {
                 return -1;
             }
-            if (ty.Tag is Folder && tx.Tag is Trigger)
-            {
+            if (ty.Tag is Folder && tx.Tag is Trigger) {
                 return 1;
             }
             // Both folders / triggers:
@@ -141,8 +118,7 @@ public class UserInterface
     //     }            
     // }
 
-    private bool ContainsNode(TreeNode node1, TreeNode node2)
-    {
+    private bool ContainsNode(TreeNode node1, TreeNode node2) {
         if (node2.Parent == null) return false;
         if (node2.Parent.Equals(node1)) return true;
         return ContainsNode(node1, node2.Parent);
@@ -171,8 +147,7 @@ public class UserInterface
     //     }
     // }
 
-    internal void TreeView1_DragEnter(object sender, DragEventArgs e)
-    {
+    internal void TreeView1_DragEnter(object sender, DragEventArgs e) {
         e.Effect = e.AllowedEffect;
     }
 
@@ -862,14 +837,11 @@ public class UserInterface
     //     }
     // }
     //
-    public static void RemoveAllTriggers(Folder f)
-    {
-        foreach (var t in f.Triggers)
-        {
+    public static void RemoveAllTriggers(Folder f) {
+        foreach (var t in f.Triggers) {
             RealPlugin.Instance.RemoveTrigger(t);
         }
-        foreach (var fx in f.Folders)
-        {
+        foreach (var fx in f.Folders) {
             RemoveAllTriggers(fx);
         }
     }
@@ -893,8 +865,7 @@ public class UserInterface
     //     }
     // }
     //
-    internal static void ClearRepository(Repository r)
-    {
+    internal static void ClearRepository(Repository r) {
         RemoveAllTriggers(r.Root);
         r.Root.Triggers.Clear();
         r.Root.Folders.Clear();
@@ -1995,14 +1966,11 @@ public class UserInterface
     //     }
     // }
     //
-    private static void ForceUpdateRepository(object tnupdate)
-    {
-        if (tnupdate == null)
-        {
+    private static void ForceUpdateRepository(object tnupdate) {
+        if (tnupdate == null) {
             return;
         }
-        if (tnupdate is RepositoryFolder)
-        {
+        if (tnupdate is RepositoryFolder) {
             var rfo = (RepositoryFolder)tnupdate;
             // foreach (TreeNode tn in tnupdate.Nodes)
             // {
@@ -2011,8 +1979,7 @@ public class UserInterface
             // }
             RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
         }
-        if (tnupdate is Repository)
-        {
+        if (tnupdate is Repository) {
             var rfo = (Repository)tnupdate;
             // tnupdate.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
             // tnupdate.SelectedImageIndex = tnupdate.ImageIndex;
@@ -2020,8 +1987,7 @@ public class UserInterface
         }
     }
 
-    private static void ForceFireTrigger(Trigger t, TriggerForceTypeEnum force)
-    {
+    private static void ForceFireTrigger(Trigger t, TriggerForceTypeEnum force) {
         var ctx = new Context(t);
         ctx.testByPlaceholder = false;
         ctx.soundhook = RealPlugin.Instance.SoundPlaybackSmart;
@@ -2030,16 +1996,13 @@ public class UserInterface
         ctx.forceType = force;
         if ((t.TestInput?.Length ?? 0) == 0)
             t.Fire(ctx);
-        else
-        {
-            var lines = ctx.EvaluateStringExpression(t.TriggerContextLogger, RealPlugin.Instance, t.TestInput).Split(new[]
-            {
+        else {
+            var lines = ctx.EvaluateStringExpression(t.TriggerContextLogger, RealPlugin.Instance, t.TestInput).Split([
                 "\r\n", "\r", "\n"
-            }, StringSplitOptions.None);
+            ], StringSplitOptions.None);
             force = TriggerForceTypeEnum.SkipActive | TriggerForceTypeEnum.SkipRefire | TriggerForceTypeEnum.SkipParent;
             LogEvent.SourceEnum source;
-            switch (t.Source)
-            {
+            switch (t.Source) {
                 case Trigger.TriggerSourceEnum.ACT:
                     source = LogEvent.SourceEnum.ACT;
                     break;
@@ -2058,10 +2021,8 @@ public class UserInterface
                     source = LogEvent.SourceEnum.Log;
                     break;
             }
-            foreach (var line in lines)
-            {
-                var le = new LogEvent
-                {
+            foreach (var line in lines) {
+                var le = new LogEvent {
                     Text = line,
                     Timestamp = DateTime.Now,
                     TestMode = true,
@@ -2074,14 +2035,11 @@ public class UserInterface
         }
     }
 
-    internal static TriggernometryExport ExportSelection(object Tag)
-    {
-        var exp = new TriggernometryExport
-        {
+    internal static TriggernometryExport ExportSelection(object Tag) {
+        var exp = new TriggernometryExport {
             PluginVersion = RealPlugin.Instance.cfg.PluginVersion
         };
-        switch (Tag)
-        {
+        switch (Tag) {
             case Trigger trigger:
                 exp.ExportedTrigger = trigger;
                 break;
@@ -2191,8 +2149,7 @@ public class UserInterface
     //     "https://vip.123pan.cn/1824544011/"
     // };
     //
-    public static void AddRepo(Repository r, bool shouldUpdate)
-    {
+    public static void AddRepo(Repository r, bool shouldUpdate) {
         // if (InvokeRequired)
         // {
         //     Invoke(new System.Action(() => AddRepo(r, shouldUpdate)));
@@ -2210,11 +2167,10 @@ public class UserInterface
 
         var rfo = RealPlugin.Instance.cfg.RepositoryRoot;
         var tn = rfo.Repositories
-                    .Where(repo => repo.Address == r.Address)
-                    // .Select(repo => treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
-                    .FirstOrDefault();
-        if (tn != null)
-        {
+            .Where(repo => repo.Address == r.Address)
+            // .Select(repo => treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
+            .FirstOrDefault();
+        if (tn != null) {
             var existingRepo = tn;
             existingRepo.Name = r.Name;
             // existingRepo.Enabled = r.Enabled;
@@ -2232,10 +2188,8 @@ public class UserInterface
             // tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
             // tn.SelectedImageIndex = tn.ImageIndex;
         }
-        else
-        {
-            tn = new Repository()
-            {
+        else {
+            tn = new Repository {
                 // Text = r.Name,
                 // Tag = r,
                 // Checked = r.Enabled,
@@ -2249,22 +2203,18 @@ public class UserInterface
         }
         // RecolorStartingFromNode(tn.Parent, tn.Parent.Checked, true);
         // treeView1.Sort();
-        if (shouldUpdate)
-        {
+        if (shouldUpdate) {
             ForceUpdateRepository(tn);
         }
     }
 
-    public static void AddRepos(IEnumerable<Repository> repos, bool shouldUpdate)
-    {
-        foreach (var r in repos)
-        {
+    public static void AddRepos(IEnumerable<Repository> repos, bool shouldUpdate) {
+        foreach (var r in repos) {
             AddRepo(r, shouldUpdate);
         }
     }
 
-    public static void RemoveRepo(string partialUrl)
-    {
+    public static void RemoveRepo(string partialUrl) {
         // if (InvokeRequired)
         // {
         //     Invoke(new System.Action(() => RemoveRepo(partialUrl)));
@@ -2273,12 +2223,11 @@ public class UserInterface
         partialUrl = partialUrl.Trim().ToLower();
         var rfo = RealPlugin.Instance.cfg.RepositoryRoot;
         var nodes = rfo.Repositories
-                       .Where(repo => repo.Address.IsNullOrEmpty() || repo.Address.ToLower().Contains(partialUrl))
-                       // .Select(repo => treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
-                       .ToList();
+            .Where(repo => repo.Address.IsNullOrEmpty() || repo.Address.ToLower().Contains(partialUrl))
+            // .Select(repo => treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
+            .ToList();
 
-        for (var i = 0; i < nodes.Count; i++)
-        {
+        for (var i = 0; i < nodes.Count; i++) {
             var tn = nodes[i];
             if (tn == null) continue;
             var r = tn;
@@ -2288,10 +2237,8 @@ public class UserInterface
         }
     }
 
-    public static void AddDefaultRepoCN(bool shouldUpdate = false)
-    {
-        var selfTest = new Repository
-        {
+    public static void AddDefaultRepoCN(bool shouldUpdate = false) {
+        var selfTest = new Repository {
             Enabled = true,
             Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/SelfTest.xml",
             AllowProcessLaunch = true,
@@ -2302,8 +2249,7 @@ public class UserInterface
             UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
             AudioOutput = Repository.AudioOutputEnum.NeverOverride
         };
-        var utils = new Repository
-        {
+        var utils = new Repository {
             Enabled = true,
             Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/Utils.xml",
             AllowProcessLaunch = true,
@@ -2314,8 +2260,7 @@ public class UserInterface
             UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
             AudioOutput = Repository.AudioOutputEnum.NeverOverride
         };
-        var s7a = new Repository
-        {
+        var s7a = new Repository {
             Enabled = true,
             Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/S7a.xml",
             AllowProcessLaunch = true,
@@ -2326,8 +2271,7 @@ public class UserInterface
             UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
             AudioOutput = Repository.AudioOutputEnum.NeverOverride
         };
-        var s7b = new Repository
-        {
+        var s7b = new Repository {
             Enabled = true,
             Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/S7b.xml",
             AllowProcessLaunch = true,
@@ -2338,8 +2282,7 @@ public class UserInterface
             UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
             AudioOutput = Repository.AudioOutputEnum.NeverOverride
         };
-        var ex7 = new Repository
-        {
+        var ex7 = new Repository {
             Enabled = true,
             Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/Ex7.xml",
             AllowProcessLaunch = true,
@@ -2350,8 +2293,7 @@ public class UserInterface
             UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
             AudioOutput = Repository.AudioOutputEnum.NeverOverride
         };
-        var temp = new Repository
-        {
+        var temp = new Repository {
             Enabled = true,
             Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/temp.xml",
             AllowProcessLaunch = true,
@@ -2362,8 +2304,7 @@ public class UserInterface
             UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
             AudioOutput = Repository.AudioOutputEnum.NeverOverride
         };
-        var u7a = new Repository
-        {
+        var u7a = new Repository {
             Enabled = true,
             Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/U7a.xml",
             AllowProcessLaunch = true,
@@ -2374,8 +2315,7 @@ public class UserInterface
             UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
             AudioOutput = Repository.AudioOutputEnum.NeverOverride
         };
-        var field = new Repository
-        {
+        var field = new Repository {
             Enabled = true,
             Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/field.xml",
             AllowProcessLaunch = true,
@@ -2387,8 +2327,7 @@ public class UserInterface
             AudioOutput = Repository.AudioOutputEnum.NeverOverride
         };
         RemoveRepo("vip.123pan.cn/1824544011/Remote_Triggers/AdvWm.xml");
-        AddRepos(new List<Repository>
-        {
+        AddRepos(new List<Repository> {
             selfTest,
             utils,
             s7a,
@@ -2400,10 +2339,8 @@ public class UserInterface
         }, false);
     }
 
-    public static void BuildTriggerTreeFromConfiguration(object? parentTag, Folder? parentfolder)
-    {
-        if (parentTag == null || parentfolder == null)
-        {
+    public static void BuildTriggerTreeFromConfiguration(object? parentTag, Folder? parentfolder) {
+        if (parentTag == null || parentfolder == null) {
             lock (RealPlugin.Instance.Triggers) RealPlugin.Instance.Triggers.Clear();
             lock (RealPlugin.Instance.ActiveTextTriggers) RealPlugin.Instance.ActiveTextTriggers.Clear();
             lock (RealPlugin.Instance.ActiveFFXIVNetworkTriggers) RealPlugin.Instance.ActiveFFXIVNetworkTriggers.Clear();
@@ -2411,22 +2348,19 @@ public class UserInterface
             lock (RealPlugin.Instance.ActiveEndpointTriggers) RealPlugin.Instance.ActiveEndpointTriggers.Clear();
             lock (RealPlugin.Instance.ActionQueue) RealPlugin.Instance.ActionQueue.Clear();
             BuildTriggerTreeFromConfiguration(RealPlugin.Instance.cfg.Root, RealPlugin.Instance.cfg.Root);
-            foreach (var r in RealPlugin.Instance.cfg.RepositoryRoot.Repositories)
-            {
+            foreach (var r in RealPlugin.Instance.cfg.RepositoryRoot.Repositories) {
                 r.Parent = RealPlugin.Instance.cfg.RepositoryRoot;
                 BuildTriggerTreeFromConfiguration(r.Root, r.Root);
             }
             return;
         }
         var sortedFolders = parentfolder.Folders.OrderBy(fx => fx.Name);
-        foreach (var fx in sortedFolders)
-        {
+        foreach (var fx in sortedFolders) {
             fx.Parent = parentfolder;
             BuildTriggerTreeFromConfiguration(fx, fx);
         }
         var sortedTriggers = parentfolder.Triggers.OrderBy(tx => tx.Name);
-        foreach (var tx in sortedTriggers)
-        {
+        foreach (var tx in sortedTriggers) {
             tx.Parent = parentfolder;
             RealPlugin.Instance.AddTrigger(tx, tx.Parent.ParentsEnabled());
             if (tx.Condition != null) ConditionGroup.RebuildParentage(tx.Condition);
@@ -2436,12 +2370,9 @@ public class UserInterface
         }
     }
 
-    public static void BuildRenderTreeFromConfiguration(object? parentTag, Folder? parentfolder, bool parentDisabled)
-    {
-        try
-        {
-            if (parentTag == null || parentfolder == null)
-            {
+    public static void BuildRenderTreeFromConfiguration(object? parentTag, Folder? parentfolder, bool parentDisabled) {
+        try {
+            if (parentTag == null || parentfolder == null) {
                 RenderTreeNode(
                     "本地触发器",
                     RealPlugin.Instance.cfg.Root,
@@ -2451,10 +2382,8 @@ public class UserInterface
                     I18n.Translate("internal/UserInterface/remote", "Remote triggers"),
                     RealPlugin.Instance.cfg.RepositoryRoot,
                     parentDisabled,
-                    () =>
-                    {
-                        foreach (var r in RealPlugin.Instance.cfg.RepositoryRoot.Repositories)
-                        {
+                    () => {
+                        foreach (var r in RealPlugin.Instance.cfg.RepositoryRoot.Repositories) {
                             r.Parent = RealPlugin.Instance.cfg.RepositoryRoot;
                             var isRepoDisabled = !RealPlugin.Instance.cfg.RepositoryRoot.Enabled || !r.Enabled;
                             RenderTreeNode(
@@ -2469,8 +2398,7 @@ public class UserInterface
                 return;
             }
             var sortedFolders = parentfolder.Folders.OrderBy(fx => fx.Name);
-            foreach (var fx in sortedFolders)
-            {
+            foreach (var fx in sortedFolders) {
                 fx.Parent = parentfolder;
                 var isFolderDisabled = parentDisabled || !fx.Enabled;
                 RenderTreeNode(
@@ -2481,8 +2409,7 @@ public class UserInterface
                 );
             }
             var sortedTriggers = parentfolder.Triggers.OrderBy(tx => tx.Name);
-            foreach (var tx in sortedTriggers)
-            {
+            foreach (var tx in sortedTriggers) {
                 tx.Parent = parentfolder;
                 var isTriggerDisabled = parentDisabled || !tx.Enabled;
                 RenderTreeNode(
@@ -2493,21 +2420,20 @@ public class UserInterface
                 );
             }
         }
-        catch (Exception) { }
+        catch (Exception) {
+        }
     }
 
     private static Dictionary<object, bool> _nodeExpandedStates = new();
     private static Dictionary<object, bool> _nodeCheckedStates = new();
     private static readonly Vector4 ColorGrey = new(0.5f, 0.5f, 0.5f, 1.0f);
 
-    public static void ImportResultsFromForm(object tag, string content)
-    {
+    public static void ImportResultsFromForm(object tag, string content) {
         var ser = TriggernometryExport.Unserialize(content);
         if (ser == null || ser.ExportedFolder == null && ser.ExportedTrigger == null)
             return;
         Folder df;
-        switch (tag)
-        {
+        switch (tag) {
             case Folder tagFolder:
                 df = tagFolder;
                 break;
@@ -2518,20 +2444,18 @@ public class UserInterface
                 return;
         }
         Dictionary<Guid, Guid> renamedFolders = new();
-        if (ser.ExportedFolder != null)
-        {
+        if (ser.ExportedFolder != null) {
             var importedFolders = ConstructFolderList(null, ser.ExportedFolder);
             var existingFolders = ConstructFolderList(null, RealPlugin.Instance.cfg.Root);
             foreach (var importedFolder in importedFolders)
-                if (existingFolders.Any(existing => existing.Id == importedFolder.Id))
-                {
+                if (existingFolders.Any(existing => existing.Id == importedFolder.Id)) {
                     var oldId = importedFolder.Id;
                     importedFolder.Id = Guid.NewGuid();
                     renamedFolders[oldId] = importedFolder.Id;
                     RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
-                                                         I18n.Translate("internal/UserInterface/folderidreassign",
-                                                                        "Reassigning new id ({0}) for folder ({1}) due to already assigned id ({2})",
-                                                                        importedFolder.Id, importedFolder.Name, oldId));
+                        I18n.Translate("internal/UserInterface/folderidreassign",
+                            "Reassigning new id ({0}) for folder ({1}) due to already assigned id ({2})",
+                            importedFolder.Id, importedFolder.Name, oldId));
                 }
         }
         List<Trigger> importedTriggers = [];
@@ -2540,61 +2464,50 @@ public class UserInterface
         else if (ser.ExportedTrigger != null)
             importedTriggers.Add(ser.ExportedTrigger);
         Dictionary<Guid, Guid> renamedTriggers = new();
-        lock (RealPlugin.Instance.Triggers)
-        {
-            foreach (var importedTrigger in importedTriggers)
-            {
-                if (RealPlugin.Instance.Triggers.Any(existing => existing.Id == importedTrigger.Id && existing.Repo == null))
-                {
+        lock (RealPlugin.Instance.Triggers) {
+            foreach (var importedTrigger in importedTriggers) {
+                if (RealPlugin.Instance.Triggers.Any(existing => existing.Id == importedTrigger.Id && existing.Repo == null)) {
                     var oldId = importedTrigger.Id;
                     importedTrigger.Id = Guid.NewGuid();
                     renamedTriggers[oldId] = importedTrigger.Id;
                     RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
-                                                         I18n.Translate("internal/UserInterface/idreassign",
-                                                                        "Reassigning new id ({0}) for trigger ({1}) due to already assigned id ({2})",
-                                                                        importedTrigger.Id, importedTrigger.Name, oldId));
+                        I18n.Translate("internal/UserInterface/idreassign",
+                            "Reassigning new id ({0}) for trigger ({1}) due to already assigned id ({2})",
+                            importedTrigger.Id, importedTrigger.Name, oldId));
                 }
             }
         }
         var updatedActionTriggerRefs = 0;
         var updatedActionFolderRefs = 0;
-        foreach (var trigger in importedTriggers)
-        {
-            foreach (var action in trigger.Actions)
-            {
-                if (renamedTriggers.TryGetValue(action._TriggerId, out var value))
-                {
+        foreach (var trigger in importedTriggers) {
+            foreach (var action in trigger.Actions) {
+                if (renamedTriggers.TryGetValue(action._TriggerId, out var value)) {
                     action._TriggerId = value;
                     updatedActionTriggerRefs++;
                 }
-                if (renamedFolders.TryGetValue(action._FolderId, out var folder))
-                {
+                if (renamedFolders.TryGetValue(action._FolderId, out var folder)) {
                     action._FolderId = folder;
                     updatedActionFolderRefs++;
                 }
             }
         }
-        if (updatedActionTriggerRefs > 0 || updatedActionFolderRefs > 0)
-        {
+        if (updatedActionTriggerRefs > 0 || updatedActionFolderRefs > 0) {
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
-                                                 I18n.Translate("internal/UserInterface/idreassigncount",
-                                                                "Adjusted {0} trigger and {1} folder references on actions due to collisions",
-                                                                updatedActionTriggerRefs, updatedActionFolderRefs));
+                I18n.Translate("internal/UserInterface/idreassigncount",
+                    "Adjusted {0} trigger and {1} folder references on actions due to collisions",
+                    updatedActionTriggerRefs, updatedActionFolderRefs));
         }
-        if (ser.ExportedFolder != null)
-        {
+        if (ser.ExportedFolder != null) {
             ser.ExportedFolder.Parent = df;
             df.Folders.Add(ser.ExportedFolder);
             _nodeExpandedStates[ser.ExportedFolder] = true;
         }
-        if (ser.ExportedTrigger != null)
-        {
+        if (ser.ExportedTrigger != null) {
             ser.ExportedTrigger.Parent = df;
             df.Triggers.Add(ser.ExportedTrigger);
             _nodeExpandedStates[ser.ExportedTrigger] = true;
         }
-        foreach (var trigger in importedTriggers)
-        {
+        foreach (var trigger in importedTriggers) {
             RealPlugin.Instance.AddTrigger(trigger, trigger.Parent.ParentsEnabled());
             if (trigger.Condition != null)
                 ConditionGroup.RebuildParentage(trigger.Condition);
@@ -2604,12 +2517,10 @@ public class UserInterface
         }
     }
 
-    private static List<Folder> ConstructFolderList(List<Folder> cur, Folder f)
-    {
+    private static List<Folder> ConstructFolderList(List<Folder> cur, Folder f) {
         var isRootCall = false;
-        if (cur == null)
-        {
-            cur = new List<Folder>();
+        if (cur == null) {
+            cur = [];
             isRootCall = true;
         }
         cur.Add(f);
@@ -2617,17 +2528,14 @@ public class UserInterface
         return isRootCall ? cur : null;
     }
 
-    private static void AddAllTriggersFromFolder(Folder f, ref List<Trigger> trigs)
-    {
+    private static void AddAllTriggersFromFolder(Folder f, ref List<Trigger> trigs) {
         foreach (var subFolder in f.Folders) AddAllTriggersFromFolder(subFolder, ref trigs);
         foreach (var trigger in f.Triggers) trigs.Add(trigger);
     }
 
-    private static void RenderTreeNode(string text, object tag, bool isDisabled, Action? renderChildren)
-    {
+    private static void RenderTreeNode(string text, object tag, bool isDisabled, Action? renderChildren) {
         _nodeExpandedStates.TryAdd(tag, false);
-        _nodeCheckedStates[tag] = tag switch
-        {
+        _nodeCheckedStates[tag] = tag switch {
             Folder folder => folder.Enabled,
             Trigger trigger => trigger.Enabled,
             Repository repo => repo.Enabled,
@@ -2638,10 +2546,8 @@ public class UserInterface
         var flags = ImGuiTreeNodeFlags.None;
         if (renderChildren == null) flags |= ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
         var isChecked = _nodeCheckedStates[tag];
-        if (ImGui.Checkbox($"##check_{tag.GetHashCode()}", ref isChecked))
-        {
-            switch (tag)
-            {
+        if (ImGui.Checkbox($"##check_{tag.GetHashCode()}", ref isChecked)) {
+            switch (tag) {
                 case Folder folder:
                     folder.Enabled = isChecked;
                     break;
@@ -2664,28 +2570,22 @@ public class UserInterface
             flags
         );
         if (ImGui.IsItemClicked(ImGuiMouseButton.Right)) ImGui.OpenPopup($"context_menu_{tag.GetHashCode()}");
-        if (ImGui.BeginPopup($"context_menu_{tag.GetHashCode()}"))
-        {
+        if (ImGui.BeginPopup($"context_menu_{tag.GetHashCode()}")) {
             var tempStylePopped = false;
-            if (isDisabled)
-            {
+            if (isDisabled) {
                 ImGui.PopStyleColor();
                 tempStylePopped = true;
             }
-            switch (tag)
-            {
-                case Repository repo:
-                {
+            switch (tag) {
+                case Repository repo: {
                     if (ImGui.MenuItem("更新"))
                         RealPlugin.Instance.UpdateRepositoriesAsync([repo], false);
                     if (ImGui.MenuItem("编辑"))
                         ProxyPlugin.DalamudPlugin.RepoWindow.Open(repo);
                     break;
                 }
-                case RepositoryFolder:
-                {
-                    if (ImGui.MenuItem("添加"))
-                    {
+                case RepositoryFolder: {
+                    if (ImGui.MenuItem("添加")) {
                         var repos = new Repository();
                         AddRepo(repos, false);
                         ProxyPlugin.DalamudPlugin.RepoWindow.Open(repos);
@@ -2693,8 +2593,7 @@ public class UserInterface
                     if (ImGui.MenuItem("全部更新")) RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
                     break;
                 }
-                case Trigger trigger:
-                {
+                case Trigger trigger: {
                     if (ImGui.MenuItem("执行(忽略条件)"))
                         ForceFireTrigger(trigger, TriggerForceTypeEnum.SkipAll);
                     if (ImGui.MenuItem("执行(考虑条件)"))
@@ -2703,39 +2602,32 @@ public class UserInterface
                         ProxyPlugin.DalamudPlugin.TriggerWindow.Open(trigger);
                     break;
                 }
-                case Folder folder:
-                {
+                case Folder folder: {
                     if (ImGui.MenuItem("编辑"))
                         ProxyPlugin.DalamudPlugin.FolderWindow.Open(folder);
                     break;
                 }
             }
             ImGui.Separator();
-            if (ImGui.MenuItem("新建分组"))
-            {
-                var target = tag switch
-                {
+            if (ImGui.MenuItem("新建分组")) {
+                var target = tag switch {
                     Trigger trigger => trigger.Parent,
                     Folder folder => folder,
                     _ => null
                 };
-                if (target != null)
-                {
+                if (target != null) {
                     var f = new Folder();
                     target.Folders.Add(f);
                     ProxyPlugin.DalamudPlugin.FolderWindow.Open(f);
                 }
             }
-            if (ImGui.MenuItem("新建触发器"))
-            {
-                var target = tag switch
-                {
+            if (ImGui.MenuItem("新建触发器")) {
+                var target = tag switch {
                     Trigger trigger => trigger.Parent,
                     Folder folder => folder,
                     _ => null
                 };
-                if (target != null)
-                {
+                if (target != null) {
                     var t = new Trigger();
                     target.Triggers.Add(t);
                     ProxyPlugin.DalamudPlugin.TriggerWindow.Open(t);
@@ -2749,12 +2641,9 @@ public class UserInterface
             if (ImGui.MenuItem("导出(复制到剪切板)"))
                 ImGui.SetClipboardText(ExportSelection(tag).Serialize());
             ImGui.Separator();
-            if (ImGui.MenuItem("移除"))
-            {
-                lock (RealPlugin.Instance)
-                {
-                    switch (tag)
-                    {
+            if (ImGui.MenuItem("移除")) {
+                lock (RealPlugin.Instance) {
+                    switch (tag) {
                         case Trigger triggerx:
                             RealPlugin.Instance.RemoveTrigger(triggerx);
                             triggerx.Parent.Triggers.Remove(triggerx);
@@ -2777,11 +2666,9 @@ public class UserInterface
             if (tempStylePopped) ImGui.PushStyleColor(ImGuiCol.Text, ColorGrey);
         }
 
-        if (_nodeCheckedStates[tag] != isChecked)
-        {
+        if (_nodeCheckedStates[tag] != isChecked) {
             _nodeCheckedStates[tag] = isChecked;
-            switch (tag)
-            {
+            switch (tag) {
                 case Folder folder:
                     folder.Enabled = isChecked;
                     break;
@@ -2794,8 +2681,7 @@ public class UserInterface
             }
         }
         _nodeExpandedStates[tag] = isExpanded;
-        if (isExpanded && renderChildren != null)
-        {
+        if (isExpanded && renderChildren != null) {
             ImGui.Indent();
             renderChildren();
             ImGui.Unindent();

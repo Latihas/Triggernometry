@@ -1,23 +1,18 @@
-﻿using Triggernometry.Core;
+﻿using System.Drawing;
+using Triggernometry.Core;
 
 namespace Triggernometry.UI.Aura;
 
-internal sealed class AuraText : Aura
-{
-
+internal sealed class AuraText : Aura {
     internal string TextExpression { get; set; }
 
     private string _Text;
     internal string Text
     {
-        get
-        {
-            return _Text;
-        }
+        get => _Text;
         set
         {
-            if (value != _Text)
-            {
+            if (value != _Text) {
                 Changed = true;
                 _Text = value;
             }
@@ -27,14 +22,10 @@ internal sealed class AuraText : Aura
     private ActionOld.TextAuraAlignmentEnum _TextAlignment;
     internal ActionOld.TextAuraAlignmentEnum TextAlignment
     {
-        get
-        {
-            return _TextAlignment;
-        }
+        get => _TextAlignment;
         set
         {
-            if (value != _TextAlignment)
-            {
+            if (value != _TextAlignment) {
                 Changed = true;
                 _TextAlignment = value;
             }
@@ -44,14 +35,10 @@ internal sealed class AuraText : Aura
     private bool _UseOutline;
     internal bool UseOutline
     {
-        get
-        {
-            return _UseOutline;
-        }
+        get => _UseOutline;
         set
         {
-            if (value != _UseOutline)
-            {
+            if (value != _UseOutline) {
                 Changed = true;
                 _UseOutline = value;
             }
@@ -61,65 +48,49 @@ internal sealed class AuraText : Aura
     private float _FontSize;
     internal float FontSize
     {
-        get
-        {
-            return _FontSize;
-        }
+        get => _FontSize;
         set
         {
-            if (value != _FontSize)
-            {
+            if (value != _FontSize) {
                 Changed = true;
                 _FontSize = value;
             }
         }
     }
 
-    private System.Drawing.Color _TextColor;
-    internal System.Drawing.Color TextColor
+    private Color _TextColor;
+    internal Color TextColor
     {
-        get
-        {
-            return _TextColor;
-        }
+        get => _TextColor;
         set
         {
-            if (value != _TextColor)
-            {
+            if (value != _TextColor) {
                 Changed = true;
                 _TextColor = value;
             }
         }
     }
 
-    private System.Drawing.Color _OutlineColor;
-    internal System.Drawing.Color OutlineColor
+    private Color _OutlineColor;
+    internal Color OutlineColor
     {
-        get
-        {
-            return _OutlineColor;
-        }
+        get => _OutlineColor;
         set
         {
-            if (value != _OutlineColor)
-            {
+            if (value != _OutlineColor) {
                 Changed = true;
                 _OutlineColor = value;
             }
         }
     }
 
-    private System.Drawing.Color _BackgroundColor;
-    internal System.Drawing.Color BackgroundColor
+    private Color _BackgroundColor;
+    internal Color BackgroundColor
     {
-        get
-        {
-            return _BackgroundColor;
-        }
+        get => _BackgroundColor;
         set
         {
-            if (value != _BackgroundColor)
-            {
+            if (value != _BackgroundColor) {
                 Changed = true;
                 _BackgroundColor = value;
                 /* tododoo
@@ -137,36 +108,28 @@ internal sealed class AuraText : Aura
         }
     }
 
-    private System.Drawing.FontStyle _FontStyle;
-    internal System.Drawing.FontStyle FontStyle
+    private FontStyle _FontStyle;
+    internal FontStyle FontStyle
     {
-        get
-        {
-            return _FontStyle;
-        }
+        get => _FontStyle;
         set
         {
-            if (value != _FontStyle)
-            {
+            if (value != _FontStyle) {
                 Changed = true;
                 _FontStyle = value;
             }
         }
     }
 
-    public override void Dispose()
-    {
+    public override void Dispose() {
         base.Dispose();
     }
 
-    internal override bool InternalLogic(int numTicks)
-    {
-        if (base.InternalLogic(numTicks) == false)
-        {
+    internal override bool InternalLogic(int numTicks) {
+        if (!base.InternalLogic(numTicks)) {
             return false;
         }
         Text = EvaluateStringExpression(ctx, TextExpression);
         return true;
     }
-
 }

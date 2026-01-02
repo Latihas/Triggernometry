@@ -1,11 +1,6 @@
-﻿namespace Triggernometry.FFXIV.ExtractedCsv.Rows
-{
-    public class LockOn : TypedCsvRow
-    {
+﻿namespace Triggernometry.FFXIV.ExtractedCsv.Rows;
 
-        /// <summary> VFX name (path), e.g. "dk01rf_atk0h" </summary>
-        public override string Name => Get(1);
-
-    }
-
+public class LockOn : TypedCsvRow {
+    /// <summary> VFX name (path), e.g. "dk01rf_atk0h" </summary>
+    public override string Name => Get(1);
 }

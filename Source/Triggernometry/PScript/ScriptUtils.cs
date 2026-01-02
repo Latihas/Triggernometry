@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Advanced_Combat_Tracker;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using static Triggernometry.PScript.ScriptUtils.ShapeType;
@@ -12,8 +13,7 @@ using static Triggernometry.PScript.ScriptUtils.ShapeType;
 namespace Triggernometry.PScript;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public static partial class ScriptUtils
-{
+public static partial class ScriptUtils {
     public static IPlayerCharacter Me => ProxyPlugin.ObjectTable.LocalPlayer;
     public static ulong Me_HexID() => Me.GameObjectId;
     public static Vector3 Me_Position() => Me.Position;
@@ -26,12 +26,10 @@ public static partial class ScriptUtils
 
     public static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();
 
-    public static void MatchTargetIcon(string log, List<TargetIcon> dat)
-    {
+    public static void MatchTargetIcon(string log, List<TargetIcon> dat) {
         var match = LogRegexTargetIcon.Match(log);
         if (match.Success)
-            foreach (var d in dat)
-            {
+            foreach (var d in dat) {
                 var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
                 var id = Convert.ToInt32(match.Groups["id"].Value, 16);
                 if ((d._targetId == null || d._targetId() == targetId) && (d._id == null || d._id == id))
@@ -39,28 +37,24 @@ public static partial class ScriptUtils
             }
     }
 
-    public record TargetIcon
-    {
+    public record TargetIcon {
         internal readonly Func<ulong>? _targetId;
         internal int? _id;
         public readonly Action<ulong, int>? actionF;
         private readonly Action? actionN;
 
-        public void Action(ulong targetId, int id)
-        {
+        public void Action(ulong targetId, int id) {
             if (actionN != null) actionN();
             else actionF!(targetId, id);
         }
 
-        public TargetIcon(Action<ulong, int> Action, Func<ulong>? TargetId = null, int? Id = null)
-        {
+        public TargetIcon(Action<ulong, int> Action, Func<ulong>? TargetId = null, int? Id = null) {
             _targetId = TargetId;
             _id = Id;
             actionF = Action;
         }
 
-        public TargetIcon(Action Action, Func<ulong>? TargetId = null, int? Id = null)
-        {
+        public TargetIcon(Action Action, Func<ulong>? TargetId = null, int? Id = null) {
             _targetId = TargetId;
             _id = Id;
             actionN = Action;
@@ -76,12 +70,10 @@ public static partial class ScriptUtils
 
     public static readonly Regex LogRegexStatusAdd = _LogRegexStatusAdd();
 
-    public static void MatchStatusAdd(string log, List<StatusAdd> dat)
-    {
+    public static void MatchStatusAdd(string log, List<StatusAdd> dat) {
         var match = LogRegexStatusAdd.Match(log);
         if (match.Success)
-            foreach (var d in dat)
-            {
+            foreach (var d in dat) {
                 var effectId = Convert.ToInt32(match.Groups["effectId"].Value, 16);
                 var sourceId = Convert.ToUInt64(match.Groups["sourceId"].Value, 16);
                 var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
@@ -92,8 +84,7 @@ public static partial class ScriptUtils
             }
     }
 
-    public record StatusAdd
-    {
+    public record StatusAdd {
         public int? _effectId;
         public readonly Func<ulong>? _sourceId;
         public readonly Func<ulong>? _targetId;
@@ -101,14 +92,12 @@ public static partial class ScriptUtils
         private readonly Action<int, ulong, ulong, int>? actionF;
         private readonly Action? actionN;
 
-        public void Action(int effectId, ulong sourceId, ulong targetId, int count)
-        {
+        public void Action(int effectId, ulong sourceId, ulong targetId, int count) {
             if (actionN != null) actionN();
             else actionF!(effectId, sourceId, targetId, count);
         }
 
-        public StatusAdd(Action<int, ulong, ulong, int> Action, int? EffectId = null, Func<ulong>? SourceId = null, Func<ulong>? TargetId = null, int? Count = null)
-        {
+        public StatusAdd(Action<int, ulong, ulong, int> Action, int? EffectId = null, Func<ulong>? SourceId = null, Func<ulong>? TargetId = null, int? Count = null) {
             _effectId = EffectId;
             _sourceId = SourceId;
             _targetId = TargetId;
@@ -116,8 +105,7 @@ public static partial class ScriptUtils
             actionF = Action;
         }
 
-        public StatusAdd(Action Action, int? EffectId = null, Func<ulong>? SourceId = null, Func<ulong>? TargetId = null, int? Count = null)
-        {
+        public StatusAdd(Action Action, int? EffectId = null, Func<ulong>? SourceId = null, Func<ulong>? TargetId = null, int? Count = null) {
             _effectId = EffectId;
             _sourceId = SourceId;
             _targetId = TargetId;
@@ -135,38 +123,32 @@ public static partial class ScriptUtils
 
     public static readonly Regex LogRegexStartsCasting = _LogRegexStartsCasting();
 
-    public static void MatchStartsCasting(string log, List<StartsCasting> dat)
-    {
+    public static void MatchStartsCasting(string log, List<StartsCasting> dat) {
         var match = LogRegexStartsCasting.Match(log);
         if (match.Success)
-            foreach (var d in dat)
-            {
+            foreach (var d in dat) {
                 var id = Convert.ToInt32(match.Groups["id"].Value, 16);
                 if (d._id == null || d._id == id)
                     d.Action(id);
             }
     }
 
-    public record StartsCasting
-    {
+    public record StartsCasting {
         public int? _id;
         private readonly Action<int>? actionF;
         private readonly Action? actionN;
 
-        public void Action(int id)
-        {
+        public void Action(int id) {
             if (actionN != null) actionN();
             else actionF!(id);
         }
 
-        public StartsCasting(Action<int> Action, int? Id = null)
-        {
+        public StartsCasting(Action<int> Action, int? Id = null) {
             _id = Id;
             actionF = Action;
         }
 
-        public StartsCasting(Action Action, int? Id = null)
-        {
+        public StartsCasting(Action Action, int? Id = null) {
             _id = Id;
             actionN = Action;
         }
@@ -174,41 +156,35 @@ public static partial class ScriptUtils
 
     #endregion StartsCasting
 
-    public static void MatchAll(this IScriptBase scriptBase, string logLine)
-    {
+    public static void MatchAll(this IScriptBase scriptBase, string logLine) {
         MatchTargetIcon(logLine, scriptBase.TargetIconList);
         MatchStartsCasting(logLine, scriptBase.StartsCastingList);
         MatchStatusAdd(logLine, scriptBase.StatusAddList);
     }
 
-    public static void ClearAllIGShape()
-    {
+    public static void ClearAllIGShape() {
         lock (ScriptDrawList)
             foreach (var c in ScriptDrawList)
                 c.toRecycle = true;
     }
 
-    public static Action TTS(string text, int delay = 0) => () =>
-    {
+    public static Action TTS(string text, int delay = 0) => () => {
         if (delay > 0)
-            Task.Run(async () =>
-            {
+            Task.Run(async () => {
                 await Task.Delay(delay);
-                Advanced_Combat_Tracker.ActGlobals.oFormActMain.TTS(text);
+                ActGlobals.oFormActMain.TTS(text);
             });
         else
-            Advanced_Combat_Tracker.ActGlobals.oFormActMain.TTS(text);
+            ActGlobals.oFormActMain.TTS(text);
     };
 
     public class IGCircle(Func<Vector3> position, float r, long duration, uint? color = null)
-        : IGBase(position, duration, Circle, color)
-    {
+        : IGBase(position, duration, Circle, color) {
         public readonly float R = r;
     }
 
     public class IGCone(Func<Vector3> position, float r, float rotation, float angleRad, long duration, int circleSegments = 50, uint? color = null)
-        : IGBase(position, duration, Cone, color)
-    {
+        : IGBase(position, duration, Cone, color) {
         public readonly float R = r;
         public readonly float Rotation = rotation;
         public readonly float AngleRad = angleRad;
@@ -216,14 +192,12 @@ public static partial class ScriptUtils
     }
 
     public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 2, uint? color = null)
-        : IGBase(position, duration, Line, color)
-    {
+        : IGBase(position, duration, Line, color) {
         public Vector3 Position2 => position2();
         public int Thickness = thickness;
     }
 
-    public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint? color)
-    {
+    public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint? color) {
         public Vector3 Position => position();
         public readonly long EndTime = DateTime.Now.Ticks / 10000 + duration;
         public readonly ShapeType ShapeType = shapeType;
@@ -231,11 +205,10 @@ public static partial class ScriptUtils
         public bool toRecycle;
     }
 
-    public enum ShapeType
-    {
+    public enum ShapeType {
         Circle,
         Cone,
-        Line,
+        Line
     }
 
     public static IGameObject? GetGameObjectById(ulong id) => ProxyPlugin.ObjectTable.SearchById(id);

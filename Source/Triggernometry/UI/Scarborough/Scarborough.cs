@@ -12,12 +12,9 @@ using Triggernometry.Localization;
 
 namespace Triggernometry.UI;
 
-class Scarborough : IDisposable
-{
-    public class ItemAction
-    {
-        public enum ActionTypeEnum
-        {
+internal class Scarborough : IDisposable {
+    public class ItemAction {
+        public enum ActionTypeEnum {
             Activate,
             Deactivate,
             DeactivateAll,
@@ -27,8 +24,7 @@ class Scarborough : IDisposable
             DeactivateTrigger
         }
 
-        public enum ItemTypeEnum
-        {
+        public enum ItemTypeEnum {
             Image,
             Text
         }
@@ -40,26 +36,23 @@ class Scarborough : IDisposable
         public string Id { get; set; }
     }
 
-    private Int64 CurOrdinal = 1;
+    private long CurOrdinal = 1;
     internal bool RenderingActive { get; set; }
     internal RealPlugin plug { get; set; }
-    private Queue<ItemAction> ItemActions { get; set; } = new Queue<ItemAction>();
+    private Queue<ItemAction> ItemActions { get; set; } = new();
 
-    public Dictionary<string, ScarboroughImage> imageitems = new Dictionary<string, ScarboroughImage>();
-    public Dictionary<string, ScarboroughText> textitems = new Dictionary<string, ScarboroughText>();
+    public Dictionary<string, ScarboroughImage> imageitems = new();
+    public Dictionary<string, ScarboroughText> textitems = new();
 
-    public Scarborough()
-    {
+    public Scarborough() {
         User32.InitializeWindowClass();
         RenderingActive = true;
         ProxyPlugin.Framework.Update += Render;
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         ProxyPlugin.Framework.Update -= Render;
-        foreach (var text in textitems)
-        {
+        foreach (var text in textitems) {
             text.Value._graphics.BeginScene();
             text.Value._graphics.ClearScene(new Color());
             text.Value._graphics.EndScene();
@@ -68,78 +61,62 @@ class Scarborough : IDisposable
         DeactivateAllText();
     }
 
-    private void ExecuteActions()
-    {
-        lock (ItemActions)
-        {
-            while (ItemActions.Count > 0)
-            {
-                try
-                {
-                    ItemAction ia = ItemActions.Dequeue();
+    private void ExecuteActions() {
+        lock (ItemActions) {
+            while (ItemActions.Count > 0) {
+                try {
+                    var ia = ItemActions.Dequeue();
                     ExecuteAction(ia);
                     ia.Completed?.Set();
                 }
-                catch (Exception) { }
+                catch (Exception) {
+                }
             }
         }
     }
 
-    internal void ExecuteAction(ItemAction ia)
-    {
-        switch (ia.Action)
-        {
+    internal void ExecuteAction(ItemAction ia) {
+        switch (ia.Action) {
             case ItemAction.ActionTypeEnum.RenderingOn:
                 RenderingActive = true;
                 break;
             case ItemAction.ActionTypeEnum.RenderingOff:
                 RenderingActive = false;
                 break;
-            case ItemAction.ActionTypeEnum.Activate:
-            {
-                if (ia.Item is ScarboroughImage)
-                {
+            case ItemAction.ActionTypeEnum.Activate: {
+                if (ia.Item is ScarboroughImage) {
                     ia.Item.Name = ia.Id;
                     ActivateImage(ia.Id, (ScarboroughImage)ia.Item);
                 }
-                else if (ia.Item is ScarboroughText)
-                {
+                else if (ia.Item is ScarboroughText) {
                     ia.Item.Name = ia.Id;
                     ActivateText(ia.Id, (ScarboroughText)ia.Item);
                 }
             }
                 break;
-            case ItemAction.ActionTypeEnum.DeactivateRegex:
-            {
-                Regex rex = new Regex(ia.Id);
-                List<string> toRem = new List<string>();
-                switch (ia.ItemType)
-                {
-                    case ItemAction.ItemTypeEnum.Image:
-                    {
+            case ItemAction.ActionTypeEnum.DeactivateRegex: {
+                var rex = new Regex(ia.Id);
+                var toRem = new List<string>();
+                switch (ia.ItemType) {
+                    case ItemAction.ItemTypeEnum.Image: {
                         toRem.AddRange(from sx in imageitems where rex.IsMatch(sx.Key) select sx.Key);
-                        foreach (string rem in toRem)
-                        {
+                        foreach (var rem in toRem) {
                             ScarboroughImage si = null;
                             si = imageitems[rem];
                             imageitems.Remove(rem);
-                            if (si != null)
-                            {
+                            if (si != null) {
                                 si.Dispose();
                             }
                         }
                     }
                         break;
-                    case ItemAction.ItemTypeEnum.Text:
-                    {
+                    case ItemAction.ItemTypeEnum.Text: {
                         toRem.AddRange(from sx in textitems where rex.IsMatch(sx.Key) select sx.Key);
-                        foreach (string rem in toRem)
-                        {
+                        foreach (var rem in toRem) {
                             ScarboroughText si = null;
                             si = textitems[rem];
                             textitems.Remove(rem);
-                            if (si != null)
-                            {
+                            if (si != null) {
                                 si.Dispose();
                             }
                         }
@@ -148,36 +125,28 @@ class Scarborough : IDisposable
                 }
             }
                 break;
-            case ItemAction.ActionTypeEnum.DeactivateTrigger:
-            {
-                List<string> toRem = new List<string>();
-                switch (ia.ItemType)
-                {
-                    case ItemAction.ItemTypeEnum.Image:
-                    {
+            case ItemAction.ActionTypeEnum.DeactivateTrigger: {
+                var toRem = new List<string>();
+                switch (ia.ItemType) {
+                    case ItemAction.ItemTypeEnum.Image: {
                         toRem.AddRange(from sx in imageitems where sx.Value.ctx.Trigger.Id.ToString() == ia.Id select sx.Key);
-                        foreach (string rem in toRem)
-                        {
+                        foreach (var rem in toRem) {
                             ScarboroughImage si = null;
                             si = imageitems[rem];
                             imageitems.Remove(rem);
-                            if (si != null)
-                            {
+                            if (si != null) {
                                 si.Dispose();
                             }
                         }
                     }
                         break;
-                    case ItemAction.ItemTypeEnum.Text:
-                    {
+                    case ItemAction.ItemTypeEnum.Text: {
                         toRem.AddRange(from sx in textitems where sx.Value.ctx.Trigger.Id.ToString() == ia.Id select sx.Key);
-                        foreach (string rem in toRem)
-                        {
+                        foreach (var rem in toRem) {
                             ScarboroughText si = null;
                             si = textitems[rem];
                             textitems.Remove(rem);
-                            if (si != null)
-                            {
+                            if (si != null) {
                                 si.Dispose();
                             }
                         }
@@ -186,34 +155,26 @@ class Scarborough : IDisposable
                 }
             }
                 break;
-            case ItemAction.ActionTypeEnum.Deactivate:
-            {
-                switch (ia.ItemType)
-                {
-                    case ItemAction.ItemTypeEnum.Image:
-                    {
+            case ItemAction.ActionTypeEnum.Deactivate: {
+                switch (ia.ItemType) {
+                    case ItemAction.ItemTypeEnum.Image: {
                         ScarboroughImage si = null;
-                        if (imageitems.ContainsKey(ia.Id) == true)
-                        {
+                        if (imageitems.ContainsKey(ia.Id)) {
                             si = imageitems[ia.Id];
                             imageitems.Remove(ia.Id);
                         }
-                        if (si != null)
-                        {
+                        if (si != null) {
                             si.Dispose();
                         }
                     }
                         break;
-                    case ItemAction.ItemTypeEnum.Text:
-                    {
+                    case ItemAction.ItemTypeEnum.Text: {
                         ScarboroughText si = null;
-                        if (textitems.ContainsKey(ia.Id) == true)
-                        {
+                        if (textitems.ContainsKey(ia.Id)) {
                             si = textitems[ia.Id];
                             textitems.Remove(ia.Id);
                         }
-                        if (si != null)
-                        {
+                        if (si != null) {
                             si.Dispose();
                         }
                     }
@@ -221,34 +182,26 @@ class Scarborough : IDisposable
                 }
             }
                 break;
-            case ItemAction.ActionTypeEnum.DeactivateAll:
-            {
-                switch (ia.ItemType)
-                {
-                    case ItemAction.ItemTypeEnum.Image:
-                    {
-                        List<ScarboroughImage> toRem = new List<ScarboroughImage>();
-                        foreach (KeyValuePair<string, ScarboroughImage> si in imageitems)
-                        {
+            case ItemAction.ActionTypeEnum.DeactivateAll: {
+                switch (ia.ItemType) {
+                    case ItemAction.ItemTypeEnum.Image: {
+                        var toRem = new List<ScarboroughImage>();
+                        foreach (var si in imageitems) {
                             toRem.Add(si.Value);
                         }
                         imageitems.Clear();
-                        foreach (ScarboroughImage si in toRem)
-                        {
+                        foreach (var si in toRem) {
                             si.Dispose();
                         }
                     }
                         break;
-                    case ItemAction.ItemTypeEnum.Text:
-                    {
-                        List<ScarboroughText> toRem = new List<ScarboroughText>();
-                        foreach (KeyValuePair<string, ScarboroughText> si in textitems)
-                        {
+                    case ItemAction.ItemTypeEnum.Text: {
+                        var toRem = new List<ScarboroughText>();
+                        foreach (var si in textitems) {
                             toRem.Add(si.Value);
                         }
                         textitems.Clear();
-                        foreach (ScarboroughText si in toRem)
-                        {
+                        foreach (var si in toRem) {
                             si.Dispose();
                         }
                     }
@@ -259,48 +212,51 @@ class Scarborough : IDisposable
         }
     }
 
-    public void Activate(string id, ScarboroughItem si)
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.Activate, Id = id, Item = si });
+    public void Activate(string id, ScarboroughItem si) {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.Activate,
+                Id = id,
+                Item = si
+            });
         }
     }
 
-    public void Deactivate(string id, ItemAction.ItemTypeEnum it)
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.Deactivate, Id = id, ItemType = it });
+    public void Deactivate(string id, ItemAction.ItemTypeEnum it) {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.Deactivate,
+                Id = id,
+                ItemType = it
+            });
         }
     }
 
-    public void DeactivateRegex(string rex, ItemAction.ItemTypeEnum it)
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.DeactivateRegex, Id = rex, ItemType = it });
+    public void DeactivateRegex(string rex, ItemAction.ItemTypeEnum it) {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.DeactivateRegex,
+                Id = rex,
+                ItemType = it
+            });
         }
     }
 
-    public void DeactivateTrigger(Trigger t, ItemAction.ItemTypeEnum it)
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.DeactivateTrigger, Id = t.Id.ToString(), ItemType = it });
+    public void DeactivateTrigger(Trigger t, ItemAction.ItemTypeEnum it) {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.DeactivateTrigger,
+                Id = t.Id.ToString(),
+                ItemType = it
+            });
         }
     }
 
-    private Int64 GetNextOrdinal()
-    {
-        return Interlocked.Increment(ref CurOrdinal);
-    }
+    private long GetNextOrdinal() => Interlocked.Increment(ref CurOrdinal);
 
-    private void ActivateImage(string id, ScarboroughImage si)
-    {
-        ScarboroughImage existing = GetImage(id);
-        if (existing != null)
-        {
+    private void ActivateImage(string id, ScarboroughImage si) {
+        var existing = GetImage(id);
+        if (existing != null) {
             existing.Ordinal = GetNextOrdinal();
             existing.Left = si.EvaluateNumericExpression(si.ctx, si.InitXExpression);
             existing.Top = si.EvaluateNumericExpression(si.ctx, si.InitYExpression);
@@ -316,14 +272,12 @@ class Scarborough : IDisposable
             existing.Display = si.Display;
             existing.ctx = si.ctx;
             si.ImageFilename = si.EvaluateStringExpression(si.ctx, si.ImageExpression);
-            if (existing.ImageFilename != si.ImageFilename)
-            {
+            if (existing.ImageFilename != si.ImageFilename) {
                 existing.ImageFilename = si.ImageFilename;
                 existing.NeedImage = true;
             }
         }
-        else
-        {
+        else {
             si.Ordinal = GetNextOrdinal();
             si.NeedImage = true;
             si.plug = plug;
@@ -337,11 +291,9 @@ class Scarborough : IDisposable
         }
     }
 
-    private void ActivateText(string id, ScarboroughText si)
-    {
-        ScarboroughText existing = GetText(id);
-        if (existing != null)
-        {
+    private void ActivateText(string id, ScarboroughText si) {
+        var existing = GetText(id);
+        if (existing != null) {
             existing.Ordinal = GetNextOrdinal();
             existing.Left = si.EvaluateNumericExpression(si.ctx, si.InitXExpression);
             existing.Top = si.EvaluateNumericExpression(si.ctx, si.InitYExpression);
@@ -367,8 +319,7 @@ class Scarborough : IDisposable
             existing.ctx = si.ctx;
             existing.NeedFont = true;
         }
-        else
-        {
+        else {
             si.Ordinal = GetNextOrdinal();
             si.plug = plug;
             si.Left = si.EvaluateNumericExpression(si.ctx, si.InitXExpression);
@@ -382,122 +333,100 @@ class Scarborough : IDisposable
         }
     }
 
-    public ScarboroughImage GetImage(string id)
-    {
-        if (imageitems.ContainsKey(id) == true)
-        {
-            return imageitems[id];
+    public ScarboroughImage GetImage(string id) {
+        if (imageitems.TryGetValue(id, out var image)) {
+            return image;
         }
         return null;
     }
 
-    public ScarboroughText GetText(string id)
-    {
-        if (textitems.ContainsKey(id) == true)
-        {
-            return textitems[id];
+    public ScarboroughText GetText(string id) {
+        if (textitems.TryGetValue(id, out var text)) {
+            return text;
         }
         return null;
     }
 
-    public void DeactivateAllImages()
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.DeactivateAll, ItemType = ItemAction.ItemTypeEnum.Image });
+    public void DeactivateAllImages() {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.DeactivateAll,
+                ItemType = ItemAction.ItemTypeEnum.Image
+            });
         }
     }
 
-    public void DeactivateAllText()
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.DeactivateAll, ItemType = ItemAction.ItemTypeEnum.Text });
+    public void DeactivateAllText() {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.DeactivateAll,
+                ItemType = ItemAction.ItemTypeEnum.Text
+            });
         }
     }
 
-    public class DeferredMessage
-    {
+    public class DeferredMessage {
         public Context ctx { get; set; }
         public RealPlugin plug { get; set; }
         public RealPlugin.DebugLevelEnum level { get; set; } = RealPlugin.DebugLevelEnum.None;
         public string Message { get; set; } = "";
     }
 
-    private void ProcessMessages(IEnumerable<DeferredMessage> msgs)
-    {
-        foreach (DeferredMessage msg in msgs)
-        {
-            if (msg.ctx != null)
-            {
-                msg.ctx.Trigger.AddToLog( msg.level, msg.Message);
+    private void ProcessMessages(IEnumerable<DeferredMessage> msgs) {
+        foreach (var msg in msgs) {
+            if (msg.ctx != null) {
+                msg.ctx.Trigger.AddToLog(msg.level, msg.Message);
             }
-            else
-            {
+            else {
                 plug.FilteredAddToLog(msg.level, msg.Message);
             }
         }
     }
 
-    private void UpdateImages(int numTicks, ref RenderCollection rc)
-    {
-        List<string> toRem = new List<string>();
-        List<DeferredMessage> messages = new List<DeferredMessage>();
+    private void UpdateImages(int numTicks, ref RenderCollection rc) {
+        var toRem = new List<string>();
+        var messages = new List<DeferredMessage>();
         toRem.Clear();
-        foreach (KeyValuePair<string, ScarboroughImage> si in imageitems)
-        {
-            try
-            {
-                if (si.Value.Logic(numTicks) == false)
-                {
+        foreach (var si in imageitems) {
+            try {
+                if (!si.Value.Logic(numTicks)) {
                     toRem.Add(si.Key);
                 }
-                else
-                {
-                    if (si.Value.Changed == true)
-                    {
+                else {
+                    if (si.Value.Changed) {
                         si.Value.NeedRender = true;
                         si.Value.Changed = false;
                     }
                     rc.Add(si.Value);
                 }
             }
-            catch (Exception ex)
-            {
-                if (si.Value.ctx != null && si.Value.ctx.Trigger != null)
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+            catch (Exception ex) {
+                if (si.Value.ctx != null && si.Value.ctx.Trigger != null) {
+                    messages.Add(new DeferredMessage {
                             ctx = si.Value.ctx,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Error,
-                            Message = I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message))
+                            Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message))
                         }
                     );
                 }
-                else
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+                else {
+                    messages.Add(new DeferredMessage {
                             ctx = null,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Error,
-                            Message = I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message))
+                            Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message))
                         }
                     );
                 }
                 toRem.Add(si.Key);
             }
         }
-        if (toRem.Count > 0)
-        {
-            foreach (string si in toRem)
-            {
-                ScarboroughImage sit = imageitems[si];
-                if (sit.ctx != null && sit.ctx.Trigger != null)
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+        if (toRem.Count > 0) {
+            foreach (var si in toRem) {
+                var sit = imageitems[si];
+                if (sit.ctx != null && sit.ctx.Trigger != null) {
+                    messages.Add(new DeferredMessage {
                             ctx = sit.ctx,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Verbose,
@@ -505,10 +434,8 @@ class Scarborough : IDisposable
                         }
                     );
                 }
-                else
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+                else {
+                    messages.Add(new DeferredMessage {
                             ctx = null,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Verbose,
@@ -523,65 +450,50 @@ class Scarborough : IDisposable
         ProcessMessages(messages);
     }
 
-    private void UpdateText(int numTicks, ref RenderCollection rc)
-    {
-        List<string> toRem = new List<string>();
-        List<DeferredMessage> messages = new List<DeferredMessage>();
+    private void UpdateText(int numTicks, ref RenderCollection rc) {
+        var toRem = new List<string>();
+        var messages = new List<DeferredMessage>();
         toRem.Clear();
-        foreach (KeyValuePair<string, ScarboroughText> si in textitems)
-        {
-            try
-            {
-                if (si.Value.Logic(numTicks) == false)
-                {
+        foreach (var si in textitems) {
+            try {
+                if (!si.Value.Logic(numTicks)) {
                     toRem.Add(si.Key);
                 }
-                else
-                {
-                    if (si.Value.Changed == true)
-                    {
+                else {
+                    if (si.Value.Changed) {
                         si.Value.NeedRender = true;
                         si.Value.Changed = false;
                     }
                     rc.Add(si.Value);
                 }
             }
-            catch (Exception ex)
-            {
-                if (si.Value.ctx != null && si.Value.ctx.Trigger != null)
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+            catch (Exception ex) {
+                if (si.Value.ctx != null && si.Value.ctx.Trigger != null) {
+                    messages.Add(new DeferredMessage {
                             ctx = si.Value.ctx,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Error,
-                            Message = I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message))
+                            Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message))
                         }
                     );
                 }
-                else
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+                else {
+                    messages.Add(new DeferredMessage {
                             ctx = null,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Error,
-                            Message = I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message))
+                            Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message))
                         }
                     );
                 }
                 toRem.Add(si.Key);
             }
         }
-        if (toRem.Count > 0)
-        {
-            foreach (string si in toRem)
-            {
-                ScarboroughText sit = textitems[si];
-                if (sit.ctx != null && sit.ctx.Trigger != null)
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+        if (toRem.Count > 0) {
+            foreach (var si in toRem) {
+                var sit = textitems[si];
+                if (sit.ctx != null && sit.ctx.Trigger != null) {
+                    messages.Add(new DeferredMessage {
                             ctx = sit.ctx,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Verbose,
@@ -589,10 +501,8 @@ class Scarborough : IDisposable
                         }
                     );
                 }
-                else
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+                else {
+                    messages.Add(new DeferredMessage {
                             ctx = null,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Verbose,
@@ -607,68 +517,56 @@ class Scarborough : IDisposable
         ProcessMessages(messages);
     }
 
-    internal void HideAllItems()
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.RenderingOff });
+    internal void HideAllItems() {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.RenderingOff
+            });
         }
     }
 
-    internal void ShowAllItems()
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.RenderingOn });
+    internal void ShowAllItems() {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.RenderingOn
+            });
         }
     }
 
-    private void Render(RenderCollection rc)
-    {
-        List<ScarboroughItem> toRem = new List<ScarboroughItem>();
-        List<DeferredMessage> messages = new List<DeferredMessage>();
+    private void Render(RenderCollection rc) {
+        var toRem = new List<ScarboroughItem>();
+        var messages = new List<DeferredMessage>();
         rc.items.Sort((a, b) => a.Ordinal.CompareTo(b.Ordinal));
-        foreach (ScarboroughItem si in rc.items)
-        {
-            try
-            {
+        foreach (var si in rc.items) {
+            try {
                 si.Render();
             }
-            catch (Exception ex)
-            {
-                if (si.ctx != null && si.ctx.Trigger != null)
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+            catch (Exception ex) {
+                if (si.ctx != null && si.ctx.Trigger != null) {
+                    messages.Add(new DeferredMessage {
                             ctx = si.ctx,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Error,
-                            Message = I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Name, si.ctx.Trigger.LogName, ex.Message))
+                            Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Name, si.ctx.Trigger.LogName, ex.Message))
                         }
                     );
                 }
-                else
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+                else {
+                    messages.Add(new DeferredMessage {
                             ctx = null,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Error,
-                            Message = I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' due to update exception: {1}", si.Name, ex.Message))
+                            Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' due to update exception: {1}", si.Name, ex.Message))
                         }
                     );
                 }
                 toRem.Add(si);
             }
         }
-        if (toRem.Count > 0)
-        {
-            foreach (ScarboroughItem si in toRem)
-            {
-                if (si.ctx != null && si.ctx.Trigger != null)
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+        if (toRem.Count > 0) {
+            foreach (var si in toRem) {
+                if (si.ctx != null && si.ctx.Trigger != null) {
+                    messages.Add(new DeferredMessage {
                             ctx = si.ctx,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Verbose,
@@ -676,10 +574,8 @@ class Scarborough : IDisposable
                         }
                     );
                 }
-                else
-                {
-                    messages.Add(new DeferredMessage()
-                        {
+                else {
+                    messages.Add(new DeferredMessage {
                             ctx = null,
                             plug = plug,
                             level = RealPlugin.DebugLevelEnum.Verbose,
@@ -687,13 +583,11 @@ class Scarborough : IDisposable
                         }
                     );
                 }
-                if (si is ScarboroughImage)
-                {
+                if (si is ScarboroughImage) {
                     var myKey = imageitems.FirstOrDefault(x => x.Value == si).Key;
                     imageitems.Remove(myKey);
                 }
-                if (si is ScarboroughText)
-                {
+                if (si is ScarboroughText) {
                     var myKey = textitems.FirstOrDefault(x => x.Value == si).Key;
                     textitems.Remove(myKey);
                 }
@@ -703,12 +597,10 @@ class Scarborough : IDisposable
         ProcessMessages(messages);
     }
 
-    private class RenderCollection
-    {
+    private class RenderCollection {
         public List<ScarboroughItem> items = [];
 
-        public RenderCollection()
-        {
+        public RenderCollection() {
             Clear();
         }
 
@@ -717,19 +609,17 @@ class Scarborough : IDisposable
         public void Add(ScarboroughItem si) => items.Add(si);
     }
 
-    DateTime prevTick = DateTime.Now;
-    double lag;
-    RenderCollection rc = new();
+    private DateTime prevTick = DateTime.Now;
+    private double lag;
+    private RenderCollection rc = new();
 
-    public void Render(IFramework framework)
-    {
+    public void Render(IFramework framework) {
         var tickTime = DateTime.Now;
         var msSince = (tickTime - prevTick).TotalMilliseconds;
         var numTicks = (int)Math.Floor(msSince);
         lag = msSince - numTicks;
         prevTick = tickTime;
-        if (numTicks > 0)
-        {
+        if (numTicks > 0) {
             rc.Clear();
             ExecuteActions();
             // UpdateImages(numTicks, ref rc);

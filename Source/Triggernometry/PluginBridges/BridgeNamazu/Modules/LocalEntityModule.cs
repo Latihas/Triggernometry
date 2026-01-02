@@ -4,8 +4,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Object;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
-public class LocalEntityModule : ModuleBase
-{
+public class LocalEntityModule : ModuleBase {
     public IntPtr CreateBattleCharacterFuncPtr;
     public IntPtr GetObjectByIndexFuncPtr;
     public IntPtr DeleteObjectByIndexFuncPtr;
@@ -19,10 +18,8 @@ public class LocalEntityModule : ModuleBase
 
     public EntityModule entityModule => BridgeNamazu.GetModule<EntityModule>();
 
-    public LocalEntityModule()
-    {
-        ScanMethod = () =>
-        {
+    public LocalEntityModule() {
+        ScanMethod = () => {
             CreateBattleCharacterFuncPtr = Scanner.TryScan("E8 * * * * 41 89 44 FC ??", nameof(CreateBattleCharacterFuncPtr));
             GetObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * 4C 8B C0 4D 85 C0", nameof(GetObjectByIndexFuncPtr));
             DeleteObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * C6 43 49 00", nameof(DeleteObjectByIndexFuncPtr));
@@ -34,15 +31,9 @@ public class LocalEntityModule : ModuleBase
         };
     }
 
-    public unsafe int CreateBattleCharacter(int index = -1, byte param = 0)
-    {
-        return (int)ClientObjectManager.Instance()->CreateBattleCharacter((uint)index, param);
-    }
+    public unsafe int CreateBattleCharacter(int index = -1, byte param = 0) => (int)ClientObjectManager.Instance()->CreateBattleCharacter((uint)index, param);
 
-    public unsafe IntPtr GetObjectByIndex(int idx)
-    {
-        return (IntPtr)ClientObjectManager.Instance()->GetObjectByIndex((ushort)idx);
-    }
+    public unsafe IntPtr GetObjectByIndex(int idx) => (IntPtr)ClientObjectManager.Instance()->GetObjectByIndex((ushort)idx);
 
     // public unsafe IntPtr DeleteObjectByIndex(int idx, byte param)
     // {  ClientObjectManager.Instance()->DeleteObjectByIndex((ushort)idx,param);
@@ -60,8 +51,7 @@ public class LocalEntityModule : ModuleBase
     //     Memory.CallInjected64(SetupBNpcFuncPtr, characterSetupContainerPtr, bNpcBaseId, bNpcNameId);
     // }
 
-    public IntPtr CreateLocalEntity(Vector3 pos, float heading = 0)
-    {
+    public IntPtr CreateLocalEntity(Vector3 pos, float heading = 0) {
         var idx = CreateBattleCharacter();
         var entityPtr = GetObjectByIndex(idx);
         entityModule.SetPos(entityPtr, pos.X, pos.Y, pos.Z);
@@ -72,8 +62,7 @@ public class LocalEntityModule : ModuleBase
     }
 
     [Flags]
-    public enum CopyFlags : uint
-    {
+    public enum CopyFlags : uint {
         None = 0x00,
         Mode = 0x1, // emote loop etc
         Mount = 0x2,
@@ -87,5 +76,4 @@ public class LocalEntityModule : ModuleBase
         UseSecondaryCharaId = 0x200000,
         Ornament = 0x400000
     }
-
 }

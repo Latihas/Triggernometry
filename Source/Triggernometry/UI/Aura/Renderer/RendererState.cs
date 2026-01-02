@@ -2,9 +2,6 @@
 
 namespace Triggernometry.UI.Aura.Renderer;
 
-abstract internal class RendererState : IDisposable
-{
-
-    abstract public void Dispose();
-
+internal abstract class RendererState : IDisposable {
+    public abstract void Dispose();
 }

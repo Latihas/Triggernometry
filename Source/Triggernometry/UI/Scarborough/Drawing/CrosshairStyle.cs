@@ -1,33 +1,31 @@
-﻿namespace Scarborough.Drawing
-{
+﻿namespace Scarborough.Drawing;
+
+/// <summary>
+///     Offers different built-in styles for crosshairs
+/// </summary>
+public enum CrosshairStyle {
     /// <summary>
-    ///     Offers different built-in styles for crosshairs
+    ///     Draws a single dot
     /// </summary>
-    public enum CrosshairStyle
-    {
-        /// <summary>
-        ///     Draws a single dot
-        /// </summary>
-        Dot,
+    Dot,
 
-        /// <summary>
-        ///     Draws a +
-        /// </summary>
-        Plus,
+    /// <summary>
+    ///     Draws a +
+    /// </summary>
+    Plus,
 
-        /// <summary>
-        ///     Draws a cross
-        /// </summary>
-        Cross,
+    /// <summary>
+    ///     Draws a cross
+    /// </summary>
+    Cross,
 
-        /// <summary>
-        ///     Draws a + with a gap in the middle
-        /// </summary>
-        Gap,
+    /// <summary>
+    ///     Draws a + with a gap in the middle
+    /// </summary>
+    Gap,
 
-        /// <summary>
-        ///     Draws diagonal lines
-        /// </summary>
-        Diagonal
-    }
+    /// <summary>
+    ///     Draws diagonal lines
+    /// </summary>
+    Diagonal
 }
