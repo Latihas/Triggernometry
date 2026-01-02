@@ -2,21 +2,25 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Advanced_Combat_Tracker;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Hooking;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Triggernometry.Core;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
+using static Triggernometry.PScript.ScriptUtils;
+using static Triggernometry.PScript.ScriptUtils.ShapeType;
 
 // using Costura;
 
 namespace Triggernometry;
 
-public class ProxyPlugin:IActPluginV1
+public class ProxyPlugin : IActPluginV1
 {
     public RealPlugin Instance;
 
@@ -135,7 +139,7 @@ public class ProxyPlugin:IActPluginV1
     public static Hook<VfxModule.StaticVfxRemoveDelegate> StaticVfxRemoveHook;
     public static Hook<VfxModule.ActorVfxRemoveDelegate> ActorVfxRemoveHook;
 
-    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider,IObjectTable objectTable,IGameGui gameGui)
+    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui)
     {
         RealPlugin.ResetPlugin(log);
         DalamudPlugin = dalamudPlugin;
@@ -195,9 +199,63 @@ public class ProxyPlugin:IActPluginV1
         // ActGlobals.oFormActMain.OnCombatStart += OFormActMain_OnCombatStart;
         // ActGlobals.oFormActMain.OnCombatEnd += OFormActMain_OnCombatEnd;
         Instance.InitPlugin();
+        PluginInterface.UiBuilder.Draw += DrawScriptBdl;
     }
 
-   
+    private void DrawScriptBdl()
+    {
+        var bdl = ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
+        var now = DateTime.Now.Ticks / 10000;
+        lock (ScriptDrawList)
+        {
+            foreach (var shape in ScriptDrawList)
+            {
+                if (shape.toRecycle) continue;
+                if (now > shape.EndTime)
+                {
+                    shape.toRecycle = true;
+                    BDLClearCount++;
+                    continue;
+                }
+                switch (shape.ShapeType)
+                {
+                    case Circle:
+                        var circle = (IGCircle)shape;
+                        GameGui.WorldToScreen(circle.Position, out var vcircle);
+                        bdl.AddCircleFilled(vcircle, circle.R, circle.Color);
+                        break;
+                    case Line:
+                        var line = (IGLine)shape;
+                        GameGui.WorldToScreen(line.Position, out var vline);
+                        GameGui.WorldToScreen(line.Position2, out var vline2);
+                        bdl.AddLine(vline, vline2, line.Color);
+                        break;
+                    case Cone:
+                        var cone = (IGCone)shape;
+                        var position = cone.Position;
+                        var rotation = cone.Rotation + MathF.PI / 4;
+                        var partialCircleSegmentRotation = cone.AngleRad / cone.CircleSegments;
+                        GameGui.WorldToScreen(position, out var originPositionOnScreen);
+                        bdl.PathLineTo(originPositionOnScreen);
+                        for (var i = 0; i <= cone.CircleSegments; i++)
+                        {
+                            var currentRotation = rotation - i * partialCircleSegmentRotation;
+                            GameGui.WorldToScreen(new Vector3(position.X + cone.R * MathF.Sin(currentRotation),
+                                                              position.Y,
+                                                              position.Z + cone.R * MathF.Cos(currentRotation)),
+                                                  out var segmentVectorOnCircle);
+                            bdl.PathLineTo(segmentVectorOnCircle);
+                        }
+                        bdl.PathFillConvex(cone.Color);
+                        bdl.PathClear(); //TODO necessary?
+                        break;
+                }
+            }
+            if (BDLClearCount > 100)
+                ScriptDrawList = ScriptDrawList.Where(i => !i.toRecycle).ToList();
+        }
+    }
+
     // private void OFormActMain_OnCombatStart(bool isImport, CombatToggleEventArgs encounterInfo)
     // {
     //     ExtendedACTEvents(new string[] { "OnCombatStart" });
@@ -208,93 +266,7 @@ public class ProxyPlugin:IActPluginV1
     //     ExtendedACTEvents(new string[] { "OnCombatEnd" });
     // }
 
-    public void LocateTab(TabPage tp)
-    {
-        // try
-        // {
-        //     FieldInfo fi = ActGlobals.oFormActMain.GetType().GetField("tc1", BindingFlags.NonPublic | BindingFlags.Instance);
-        //     if (fi == null)
-        //     {
-        //         return;
-        //     }
-        //     TabControl tc1 = (TabControl)fi.GetValue(ActGlobals.oFormActMain);
-        //     foreach (TabPage tp1 in tc1.TabPages)
-        //     {
-        //         if (tp1.Text == "Plugins")
-        //         {
-        //             foreach (Control c in tp1.Controls)
-        //             {
-        //                 if (c.Name == "tcPlugins")
-        //                 {
-        //                     TabControl tc2 = (TabControl)c;
-        //                     foreach (TabPage tp2 in tc2.TabPages)
-        //                     {
-        //                         if (tp2 == tp)
-        //                         {
-        //                             tc2.SelectedTab = tp;
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //             tc1.SelectedTab = tp1;
-        //             return;
-        //         }
-        //     }
-        // }
-        // catch (Exception)
-        // {
-        // }
-    }
-
-    public void ShowCornerNotification()
-    {
-        // if (ActGlobals.oFormActMain.InvokeRequired == true)
-        // {
-        //     ActGlobals.oFormActMain.Invoke((MethodInvoker)delegate { ShowCornerNotification(); });
-        //     return;
-        // }
-        // lock (CornerLock)
-        // {
-        //     if (CornerPopupVisible == true)
-        //     {
-        //         return;
-        //     }         
-        //     MethodInfo mi = ActGlobals.oFormActMain.GetType().GetMethod("CornerControlAdd");
-        //     if (mi != null)
-        //     {
-        //         CornerPopup = Instance.GetCornerControl();
-        //         mi.Invoke(ActGlobals.oFormActMain, new object[] { CornerPopup });
-        //         CornerPopupVisible = true;
-        //     }
-        // }
-    }
-
-    public void HideCornerNotification()
-    {
-        // if (ActGlobals.oFormActMain.InvokeRequired == true)
-        // {
-        //     ActGlobals.oFormActMain.Invoke((MethodInvoker)delegate { HideCornerNotification(); });
-        //     return;
-        // }
-        // lock (CornerLock)
-        // {
-        //     if (CornerPopupVisible == false)
-        //     {
-        //         return;
-        //     }
-        //     MethodInfo mi = ActGlobals.oFormActMain.GetType().GetMethod("CornerControlRemove");
-        //     if (mi != null)
-        //     {
-        //         mi.Invoke(ActGlobals.oFormActMain, new object[] { CornerPopup });
-        //         CornerPopup = null;
-        //         CornerPopupVisible = false;
-        //     }
-        // }
-    }
-
-    public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
-    {
-    }
+    public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText) { }
 
     public void DeInitPlugin()
     {
@@ -302,18 +274,12 @@ public class ProxyPlugin:IActPluginV1
         // ActGlobals.oFormActMain.OnCombatStart -= OFormActMain_OnCombatStart;
         ActGlobals.oFormActMain.OnLogLineRead -= OFormActMain_OnLogLineRead;
         ActGlobals.oFormActMain.BeforeLogLineRead -= OFormActMain_BeforeLogLineRead;
+        PluginInterface.UiBuilder.Draw -= DrawScriptBdl;
         StaticVfxRemoveHook.Disable();
         StaticVfxRemoveHook.Dispose();
         ActorVfxRemoveHook.Disable();
         ActorVfxRemoveHook.Dispose();
         Instance.DeInitPlugin();
-        Instance = null;
-        // HideCornerNotification();
-    }
-
-    private void ExtendedACTEvents(string[] data)
-    {
-        Instance.ExtendedACTEvents(data);
     }
 
     private void OFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -330,21 +296,7 @@ public class ProxyPlugin:IActPluginV1
     {
         Instance.ConfigPath = PluginInterface.ConfigDirectory.ToString();
         Instance.pluginPath = Instance.ConfigPath;
-        string name = null;
-        // foreach (ActPluginData p in ActGlobals.oFormActMain.ActPlugins)
-        // {
-        //     if (p.pluginObj == this)
-        //     {
-        //         name = p.pluginFile.Name;
-        //         Instance.pluginPath = p.pluginFile.Directory.FullName;
-        //         break;
-        //     }
-        // }
-        if (name == null || name.Trim().Length == 0)
-        {
-            name = "Triggernometry";
-        }
-        Instance.pluginName = name;
+        Instance.pluginName = "Triggernometry";
     }
 
     public bool InCombat()
@@ -436,38 +388,11 @@ public class ProxyPlugin:IActPluginV1
 
     public bool HasCustomTriggers()
     {
-        // return (ActGlobals.oFormActMain.CustomTriggers.Count > 0);
         return false;
     }
 
-    public List<RealPlugin.CustomTriggerCategoryProxy> GetCustomTriggers()
-    {
-        List<RealPlugin.CustomTriggerCategoryProxy> alltrigs = new List<RealPlugin.CustomTriggerCategoryProxy>();
-        ;
-        // var trigs = from ix in ActGlobals.oFormActMain.CustomTriggers
-        //             group ix by new { ix.Value.Category, ix.Value.RestrictToCategoryZone } into ixs
-        //             select new { Key = ixs.Key, Items = ixs.ToList() };
-        // foreach (var trig in trigs)
-        // {
-        //     Triggernometry.RealPlugin.CustomTriggerCategoryProxy ctp = new Triggernometry.RealPlugin.CustomTriggerCategoryProxy();
-        //     ctp.Category = trig.Key.Category;
-        //     ctp.RestrictToCategoryZone = trig.Key.RestrictToCategoryZone;
-        //     foreach (var tx in trig.Items)
-        //     {
-        //         Triggernometry.RealPlugin.CustomTriggerProxy ct = new Triggernometry.RealPlugin.CustomTriggerProxy();
-        //         ct.Active = tx.Value.Active;
-        //         ct.ShortRegexString = tx.Value.ShortRegexString;
-        //         ct.SoundData = tx.Value.SoundData;
-        //         ct.SoundType = tx.Value.SoundType;
-        //         ct.TimerName = tx.Value.TimerName;
-        //         ct.Tabbed = tx.Value.Tabbed;
-        //         ct.Timer = tx.Value.Timer;
-        //         ctp.Items.Add(ct);
-        //     }
-        //     alltrigs.Add(ctp);
-        // }
-        return alltrigs;
-    }
+    public List<RealPlugin.CustomTriggerCategoryProxy> GetCustomTriggers()=> [];
+    
 
     public RealPlugin.PluginWrapper GetInstance(string ActPluginName, string ActPluginType)
     {

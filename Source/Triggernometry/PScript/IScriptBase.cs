@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
 using System.Windows.Forms;
 using Advanced_Combat_Tracker;
 using static Triggernometry.PScript.ScriptUtils;
@@ -15,7 +14,4 @@ public abstract class IScriptBase : IActPluginV1
     public virtual List<StatusAdd> StatusAddList => [];
     public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText) { }
     public void DeInitPlugin() { }
-    public List<IGBase> DrawList => [];
-    public void DrawCircle(IGCircle circle)=> DrawList.Add(circle);
-    
 }
