@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Numerics;
@@ -8,10 +8,8 @@ using Triggernometry.Localization;
 
 namespace Triggernometry.Forms;
 
-public class AuraContainerForm
-{
-    public enum AuraTypeEnum
-    {
+public class AuraContainerForm {
+    public enum AuraTypeEnum {
         Image,
         Text
     }
@@ -63,34 +61,29 @@ public class AuraContainerForm
     public Vector2 _position = Vector2.Zero;
     public Vector2 _size = Vector2.Zero;
 
-    public AuraContainerForm(AuraTypeEnum at)
-    {
+    public AuraContainerForm(AuraTypeEnum at) {
         AuraType = at;
         PresentableOpacity = 50;
         _position = Vector2.Zero;
         _size = new Vector2(100, 100);
     }
 
-    internal void AuraDeactivate()
-    {
+    internal void AuraDeactivate() {
         if (AuraType == AuraTypeEnum.Text)
             ctx.Plugin.textauras.Remove(AuraName);
     }
 
     private bool NextPending;
-    int NextLeft, NextTop, NextWidth, NextHeight;
-    double NextPresentableOpacity;
+    private int NextLeft, NextTop, NextWidth, NextHeight;
+    private double NextPresentableOpacity;
 
-    private string PreprocessExpression(string exp)
-    {
-        if (NextPending)
-        {
+    private string PreprocessExpression(string exp) {
+        if (NextPending) {
             exp = exp.Replace("${_x}", NextLeft.ToString());
             exp = exp.Replace("${_y}", NextTop.ToString());
             exp = exp.Replace("${_opacity}", NextPresentableOpacity.ToString());
         }
-        else
-        {
+        else {
             exp = exp.Replace("${_x}", _position.X.ToString());
             exp = exp.Replace("${_y}", _position.Y.ToString());
             exp = exp.Replace("${_opacity}", PresentableOpacity.ToString());
@@ -98,60 +91,46 @@ public class AuraContainerForm
         return exp;
     }
 
-    internal int EvaluateNumericExpression(Context c, string exp)
-    {
-        return (int)c.EvaluateNumericExpression((c.Trigger != null) ? c.Trigger.TriggerContextLogger : null, c.Plugin, PreprocessExpression(exp));
-    }
+    internal int EvaluateNumericExpression(Context c, string exp) => (int)c.EvaluateNumericExpression(c.Trigger != null ? c.Trigger.TriggerContextLogger : null, c.Plugin, PreprocessExpression(exp));
 
-    internal bool UpdateAura(int numTicks)
-    {
+    internal bool UpdateAura(int numTicks) {
         NextPending = false;
         bool chLeft = false, chTop = false, chWidth = false, chHeight = false, chOpacity = false;
-        try
-        {
-            while (numTicks > 0)
-            {
+        try {
+            while (numTicks > 0) {
                 int i;
-                if (!string.IsNullOrEmpty(XExpression))
-                {
+                if (!string.IsNullOrEmpty(XExpression)) {
                     NextLeft = EvaluateNumericExpression(ctx, XExpression);
                     chLeft = (int)_position.X != NextLeft;
                 }
-                if (!string.IsNullOrEmpty(YExpression))
-                {
+                if (!string.IsNullOrEmpty(YExpression)) {
                     NextTop = EvaluateNumericExpression(ctx, YExpression);
                     chTop = (int)_position.Y != NextTop;
                 }
-                if (!string.IsNullOrEmpty(WExpression))
-                {
+                if (!string.IsNullOrEmpty(WExpression)) {
                     i = EvaluateNumericExpression(ctx, WExpression);
                     i = Math.Max(0, i);
                     NextWidth = i;
                     chWidth = (int)_size.X != NextWidth;
                 }
-                if (!string.IsNullOrEmpty(HExpression))
-                {
+                if (!string.IsNullOrEmpty(HExpression)) {
                     i = EvaluateNumericExpression(ctx, HExpression);
                     i = Math.Max(0, i);
                     NextHeight = i;
                     chHeight = (int)_size.Y != NextHeight;
                 }
-                if (AuraType == AuraTypeEnum.Text && !string.IsNullOrEmpty(TextExpression))
-                {
+                if (AuraType == AuraTypeEnum.Text && !string.IsNullOrEmpty(TextExpression)) {
                     NewText = ctx.EvaluateStringExpression(ctx.Trigger != null ? ctx.Trigger.TriggerContextLogger : null, ctx.Plugin, TextExpression);
                     if (NewText != CurrentText) CurrentText = NewText;
                 }
-                if (!string.IsNullOrEmpty(OExpression))
-                {
+                if (!string.IsNullOrEmpty(OExpression)) {
                     i = EvaluateNumericExpression(ctx, OExpression);
                     i = Math.Clamp(i, 0, 100);
                     NextPresentableOpacity = i;
                     chOpacity = Math.Abs(PresentableOpacity - NextPresentableOpacity) > 0.1;
                 }
-                if (!string.IsNullOrEmpty(TTLExpression))
-                {
-                    if (EvaluateNumericExpression(ctx, TTLExpression) < 0)
-                    {
+                if (!string.IsNullOrEmpty(TTLExpression)) {
+                    if (EvaluateNumericExpression(ctx, TTLExpression) < 0) {
                         if (ctx.Trigger != null) ctx.Trigger.AddToLog(RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/AuraContainer/deactaurattl", "Deactivating aura due to TTL expression"));
                         else
                             plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/AuraContainer/deactaurattl", "Deactivating aura due to TTL expression"));
@@ -163,13 +142,12 @@ public class AuraContainerForm
                 NextPending = true;
             }
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             if (ctx.Trigger != null)
-                ctx.Trigger.AddToLog( RealPlugin.DebugLevelEnum.Error,
-                                     I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", AuraName, ctx.Trigger.LogName, ex.Message)));
+                ctx.Trigger.AddToLog(RealPlugin.DebugLevelEnum.Error,
+                    I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", AuraName, ctx.Trigger.LogName, ex.Message)));
             else
-                plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' due to update exception: {1}", AuraName, ex.Message)));
+                plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' due to update exception: {1}", AuraName, ex.Message)));
             AuraDeactivate();
             return false;
         }

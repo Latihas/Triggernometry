@@ -2,112 +2,89 @@
 using System.IO;
 using System.IO.Pipes;
 
-namespace Triggernometry.PluginBridges.ExternalTools
-{
+namespace Triggernometry.PluginBridges.ExternalTools;
 
-    internal class LiveSplitController : IDisposable
+internal class LiveSplitController : IDisposable {
+    internal bool IsConnected
     {
-
-        internal bool IsConnected
+        get
         {
-            get
-            {
-                lock (lockobj)
-                {
-                    if (client == null || clientWriter?.BaseStream == null)
-                        return false;
-                    return client.IsConnected;
-                }
+            lock (lockobj) {
+                if (client == null || clientWriter?.BaseStream == null)
+                    return false;
+                return client.IsConnected;
             }
         }
+    }
 
-        private NamedPipeClientStream client;
-        private StreamWriter clientWriter;
-        private object lockobj = new object();
+    private NamedPipeClientStream client;
+    private StreamWriter clientWriter;
+    private object lockobj = new();
 
-        internal LiveSplitController() { }
+    public void Dispose() {
+        clientWriter?.Dispose();
+        client?.Dispose();
+        clientWriter = null;
+        client = null;
+    }
 
-        public void Dispose()
-        {
-            clientWriter?.Dispose();
-            client?.Dispose();
-            clientWriter = null;
-            client = null;
-        }
-
-        internal void Connect()
-        {
-            lock (lockobj)
-            {
-                try
-                {
-                    if (IsConnected == true)
-                        return;
-                    Dispose();
-                    client = new NamedPipeClientStream(".", "LiveSplit", PipeDirection.Out, PipeOptions.Asynchronous);
-                    client.Connect(3000);
-                    clientWriter = new StreamWriter(client);
-                    clientWriter.AutoFlush = true;
-                }
-                catch (Exception)
-                {
-                    Dispose();
-                    throw;
-                }
+    internal void Connect() {
+        lock (lockobj) {
+            try {
+                if (IsConnected)
+                    return;
+                Dispose();
+                client = new NamedPipeClientStream(".", "LiveSplit", PipeDirection.Out, PipeOptions.Asynchronous);
+                client.Connect(3000);
+                clientWriter = new StreamWriter(client);
+                clientWriter.AutoFlush = true;
             }
-        }
-
-        internal void SendCommand(string command)
-        {
-            try
-            {
-                clientWriter.WriteLine(command);
-            }
-            catch (Exception)
-            {
+            catch (Exception) {
                 Dispose();
                 throw;
             }
         }
+    }
 
-        internal void StartOrSplit()
-        {
-            SendCommand("startorsplit");
+    internal void SendCommand(string command) {
+        try {
+            clientWriter.WriteLine(command);
         }
+        catch (Exception) {
+            Dispose();
+            throw;
+        }
+    }
 
-        internal void Start()
-        {
-            SendCommand("start");
-        }
+    internal void StartOrSplit() {
+        SendCommand("startorsplit");
+    }
 
-        internal void Split()
-        {
-            SendCommand("split");
-        }
+    internal void Start() {
+        SendCommand("start");
+    }
 
-        internal void UndoSplit()
-        {
-            SendCommand("undosplit");
-        }
+    internal void Split() {
+        SendCommand("split");
+    }
 
-        internal void SkipSplit()
-        {
-            SendCommand("skipsplit");
-        }
+    internal void UndoSplit() {
+        SendCommand("undosplit");
+    }
 
-        internal void Reset()
-        {
-            SendCommand("reset");
-        }
+    internal void SkipSplit() {
+        SendCommand("skipsplit");
+    }
 
-        internal void Pause()
-        {
-            SendCommand("pause");
-        }
+    internal void Reset() {
+        SendCommand("reset");
+    }
 
-        internal void Resume()
-        {
-            SendCommand("resume");
-        }
+    internal void Pause() {
+        SendCommand("pause");
+    }
+
+    internal void Resume() {
+        SendCommand("resume");
     }
 }

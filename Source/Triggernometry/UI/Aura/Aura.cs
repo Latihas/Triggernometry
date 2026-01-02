@@ -1,15 +1,14 @@
 ﻿using System;
 using Triggernometry.Core;
 using Triggernometry.Localization;
+using Triggernometry.UI.Aura.Renderer;
 
 namespace Triggernometry.UI.Aura;
 
-abstract class Aura : IDisposable
-{
-
+internal abstract class Aura : IDisposable {
     internal long Ordinal { get; set; }
 
-    internal Renderer.RendererBase Renderer { get; set; }
+    internal RendererBase Renderer { get; set; }
 
     internal string Name { get; set; }
     internal string InitXExpression { get; set; }
@@ -31,14 +30,10 @@ abstract class Aura : IDisposable
     private int _Left;
     internal int Left
     {
-        get
-        {
-            return _Left;
-        }
+        get => _Left;
         set
         {
-            if (value != _Left)
-            {
+            if (value != _Left) {
                 Changed = true;
                 _Left = value;
             }
@@ -48,14 +43,10 @@ abstract class Aura : IDisposable
     private int _Top;
     internal int Top
     {
-        get
-        {
-            return _Top;
-        }
+        get => _Top;
         set
         {
-            if (value != _Top)
-            {
+            if (value != _Top) {
                 Changed = true;
                 _Top = value;
             }
@@ -65,14 +56,10 @@ abstract class Aura : IDisposable
     private int _Width;
     internal int Width
     {
-        get
-        {
-            return _Width;
-        }
+        get => _Width;
         set
         {
-            if (value != _Width)
-            {
+            if (value != _Width) {
                 Changed = true;
                 _Width = value;
             }
@@ -82,14 +69,10 @@ abstract class Aura : IDisposable
     private int _Height;
     internal int Height
     {
-        get
-        {
-            return _Height;
-        }
+        get => _Height;
         set
         {
-            if (value != _Height)
-            {
+            if (value != _Height) {
                 Changed = true;
                 _Height = value;
             }
@@ -99,31 +82,24 @@ abstract class Aura : IDisposable
     private int _Opacity;
     internal int Opacity
     {
-        get
-        {
-            return _Opacity;
-        }
+        get => _Opacity;
         set
         {
-            if (value != _Opacity)
-            {
+            if (value != _Opacity) {
                 Changed = true;
                 _Opacity = value;
             }
         }
     }
 
-    virtual public void Dispose()
-    {
-        if (Renderer != null)
-        {
+    public virtual void Dispose() {
+        if (Renderer != null) {
             Renderer.Dispose();
             Renderer = null;
         }
     }
 
-    private string PreprocessExpression(string exp)
-    {
+    private string PreprocessExpression(string exp) {
         exp = exp.Replace("${_x}", Left.ToString());
         exp = exp.Replace("${_y}", Top.ToString());
         exp = exp.Replace("${_width}", Width.ToString());
@@ -132,75 +108,53 @@ abstract class Aura : IDisposable
         return exp;
     }
 
-    internal int EvaluateNumericExpression(Context c, string exp)
-    {
-        return (int)c.EvaluateNumericExpression((c.Trigger != null) ? c.Trigger.TriggerContextLogger : null, c.Plugin, PreprocessExpression(exp));
-    }
+    internal int EvaluateNumericExpression(Context c, string exp) => (int)c.EvaluateNumericExpression(c.Trigger != null ? c.Trigger.TriggerContextLogger : null, c.Plugin, PreprocessExpression(exp));
 
-    internal string EvaluateStringExpression(Context c, string exp)
-    {
-        return c.EvaluateStringExpression((c.Trigger != null) ? c.Trigger.TriggerContextLogger : null, c.Plugin, PreprocessExpression(exp));
-    }
+    internal string EvaluateStringExpression(Context c, string exp) => c.EvaluateStringExpression(c.Trigger != null ? c.Trigger.TriggerContextLogger : null, c.Plugin, PreprocessExpression(exp));
 
-    internal void Render()
-    {
-        if (Renderer != null)
-        {
+    internal void Render() {
+        if (Renderer != null) {
             Renderer.Render(this);
         }
     }
 
-    public bool GenericLogic()
-    {
-        if (UpdateXExpression != null && UpdateXExpression.Length > 0)
-        {
+    public bool GenericLogic() {
+        if (UpdateXExpression != null && UpdateXExpression.Length > 0) {
             Left = EvaluateNumericExpression(ctx, UpdateXExpression);
         }
-        if (UpdateYExpression != null && UpdateYExpression.Length > 0)
-        {
+        if (UpdateYExpression != null && UpdateYExpression.Length > 0) {
             Top = EvaluateNumericExpression(ctx, UpdateYExpression);
         }
-        if (UpdateWExpression != null && UpdateWExpression.Length > 0)
-        {
-            int newval = EvaluateNumericExpression(ctx, UpdateWExpression);
-            if (newval < 0)
-            {
+        if (UpdateWExpression != null && UpdateWExpression.Length > 0) {
+            var newval = EvaluateNumericExpression(ctx, UpdateWExpression);
+            if (newval < 0) {
                 newval = 0;
             }
             Width = newval;
         }
-        if (UpdateHExpression != null && UpdateHExpression.Length > 0)
-        {
-            int newval = EvaluateNumericExpression(ctx, UpdateHExpression);
-            if (newval < 0)
-            {
+        if (UpdateHExpression != null && UpdateHExpression.Length > 0) {
+            var newval = EvaluateNumericExpression(ctx, UpdateHExpression);
+            if (newval < 0) {
                 newval = 0;
             }
             Height = newval;
         }
-        if (UpdateOExpression != null && UpdateOExpression.Length > 0)
-        {
-            int newval = EvaluateNumericExpression(ctx, UpdateOExpression);
-            if (newval < 0)
-            {
+        if (UpdateOExpression != null && UpdateOExpression.Length > 0) {
+            var newval = EvaluateNumericExpression(ctx, UpdateOExpression);
+            if (newval < 0) {
                 newval = 0;
             }
-            if (newval > 100)
-            {
+            if (newval > 100) {
                 newval = 100;
             }
             Opacity = newval;
         }
-        if (TTLExpression != null && TTLExpression.Length > 0)
-        {
-            if (EvaluateNumericExpression(ctx, TTLExpression) < 0)
-            {
-                if (ctx.Trigger != null)
-                {
+        if (TTLExpression != null && TTLExpression.Length > 0) {
+            if (EvaluateNumericExpression(ctx, TTLExpression) < 0) {
+                if (ctx.Trigger != null) {
                     ctx.Trigger.AddToLog(RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/AuraContainer/deactaurattl", "Deactivating aura due to TTL expression"));
                 }
-                else
-                {
+                else {
                     plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/AuraContainer/deactaurattl", "Deactivating aura due to TTL expression"));
                 }
                 return false;
@@ -209,37 +163,28 @@ abstract class Aura : IDisposable
         return true;
     }
 
-    public bool Logic(int numTicks)
-    {
-        try
-        {
+    public bool Logic(int numTicks) {
+        try {
             return InternalLogic(numTicks);
         }
-        catch (Exception ex)
-        {
-            if (ctx.Trigger != null)
-            {
-                ctx.Trigger.AddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", Name, ctx.Trigger.LogName, ex.Message)));
+        catch (Exception ex) {
+            if (ctx.Trigger != null) {
+                ctx.Trigger.AddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", Name, ctx.Trigger.LogName, ex.Message)));
             }
-            else
-            {
-                plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerror", String.Format("Deactivating aura '{0}' due to update exception: {1}", Name, ex.Message)));
+            else {
+                plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' due to update exception: {1}", Name, ex.Message)));
             }
             return false;
         }
     }
 
-    virtual internal bool InternalLogic(int numTicks)
-    {
-        while (numTicks > 0)
-        {
-            if (GenericLogic() == false)
-            {
+    internal virtual bool InternalLogic(int numTicks) {
+        while (numTicks > 0) {
+            if (!GenericLogic()) {
                 return false;
             }
             numTicks--;
         }
         return true;
     }
-
 }

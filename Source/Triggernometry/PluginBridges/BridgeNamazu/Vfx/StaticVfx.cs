@@ -6,9 +6,7 @@ using Triggernometry.Utilities.Maths;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
-public class StaticVfx : Vfx
-{
-
+public class StaticVfx : Vfx {
     /// <summary> 上一次设置的坐标系中心 </summary>
     internal XIVCoord PrevCenter;
     /// <summary> 上一次设置的坐标系角度 </summary>
@@ -24,13 +22,12 @@ public class StaticVfx : Vfx
     /// <summary> 注意 lock </summary>
     public static IReadOnlyDictionary<IntPtr, StaticVfx> Storage => VfxModule.StaticVfxs;
 
-    public static StaticVfx Create(string fullPath, string tag = null) 
+    public static StaticVfx Create(string fullPath, string tag = null)
         => Module.StaticVfxCreate(fullPath, tag);
 
-    public void Run() 
+    public void Run()
         => Module.StaticVfxRun(Ptr);
 
     public override bool TryRemove()
         => Module.TryStaticVfxRemove(Ptr);
-
 }

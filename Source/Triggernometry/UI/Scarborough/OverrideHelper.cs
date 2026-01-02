@@ -1,70 +1,58 @@
 ﻿using System;
 using System.Text;
 
-namespace Scarborough
-{
-    internal static class OverrideHelper
-    {
-        public static int HashCodes(params int[] hashCodes)
-        {
-            if (hashCodes == null) throw new ArgumentNullException(nameof(hashCodes));
-            if (hashCodes.Length == 0) throw new ArgumentOutOfRangeException(nameof(hashCodes));
+namespace Scarborough;
 
-            unchecked
-            {
-                int hash = 17;
+internal static class OverrideHelper {
+    public static int HashCodes(params int[] hashCodes) {
+        if (hashCodes == null) throw new ArgumentNullException(nameof(hashCodes));
+        if (hashCodes.Length == 0) throw new ArgumentOutOfRangeException(nameof(hashCodes));
 
-                foreach (int code in hashCodes)
-                {
-                    hash = (hash * 23) + code;
-                }
+        unchecked {
+            var hash = 17;
 
-                return hash;
-            }
-        }
-
-        public static string ToString(params string[] strings)
-        {
-            if (strings == null) throw new ArgumentNullException(nameof(strings));
-            if (strings.Length == 0 || strings.Length % 2 != 0) throw new ArgumentOutOfRangeException(nameof(strings));
-
-            StringBuilder sb = new StringBuilder(16);
-
-            sb.Append("{ ");
-
-            for (int i = 0; i < strings.Length - 1; i += 2)
-            {
-                string name = strings[i];
-                string value = strings[i + 1];
-
-                if (name == null)
-                {
-                    if (value == null)
-                    {
-                        sb.Append("null");
-                    }
-                    else
-                    {
-                        sb.Append(value);
-                    }
-                }
-                else if (value == null)
-                {
-                    sb.Append(name).Append(": null");
-                }
-                else
-                {
-                    sb.Append(name).Append(": ").Append(value);
-                }
-
-                sb.Append(", ");
+            foreach (var code in hashCodes) {
+                hash = hash * 23 + code;
             }
 
-            sb.Length -= 2;
-
-            sb.Append(" }");
-
-            return sb.ToString();
+            return hash;
         }
+    }
+
+    public static string ToString(params string[] strings) {
+        if (strings == null) throw new ArgumentNullException(nameof(strings));
+        if (strings.Length == 0 || strings.Length % 2 != 0) throw new ArgumentOutOfRangeException(nameof(strings));
+
+        var sb = new StringBuilder(16);
+
+        sb.Append("{ ");
+
+        for (var i = 0; i < strings.Length - 1; i += 2) {
+            var name = strings[i];
+            var value = strings[i + 1];
+
+            if (name == null) {
+                if (value == null) {
+                    sb.Append("null");
+                }
+                else {
+                    sb.Append(value);
+                }
+            }
+            else if (value == null) {
+                sb.Append(name).Append(": null");
+            }
+            else {
+                sb.Append(name).Append(": ").Append(value);
+            }
+
+            sb.Append(", ");
+        }
+
+        sb.Length -= 2;
+
+        sb.Append(" }");
+
+        return sb.ToString();
     }
 }

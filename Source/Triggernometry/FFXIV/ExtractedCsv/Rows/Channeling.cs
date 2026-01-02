@@ -1,11 +1,7 @@
-﻿namespace Triggernometry.FFXIV.ExtractedCsv.Rows
-{
-    public class Channeling : TypedCsvRow
-    {
+﻿namespace Triggernometry.FFXIV.ExtractedCsv.Rows;
 
-        /// <summary> VFX name (path), e.g. "dk01rf_atk0h" </summary>
-        public override string Name => Get("File");
-        public byte WidthScale => Get<byte>("WidthScale");
-    }
-
+public class Channeling : TypedCsvRow {
+    /// <summary> VFX name (path), e.g. "dk01rf_atk0h" </summary>
+    public override string Name => Get("File");
+    public byte WidthScale => Get<byte>("WidthScale");
 }

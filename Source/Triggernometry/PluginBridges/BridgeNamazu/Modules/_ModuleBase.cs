@@ -10,21 +10,18 @@ using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
-public abstract class ModuleBase
-{
+public abstract class ModuleBase {
     public static NamazuPlugin Plugin => BridgeNamazu.NamazuPlugin;
     public static NamazuScanner Scanner => Plugin?.SigScanner;
 
     public Action ScanMethod;
 
-    public void Scan()
-    {
+    public void Scan() {
         _ = ScanMethod ?? throw new Exception($"[鲶鱼精邮差扩展] {GetType().Name} 扫描方法 ScanMethod 未设置。");
         ScanMethod();
     }
 
-    public void CheckBeforeExecution(string command)
-    {
+    public void CheckBeforeExecution(string command) {
         if (!RealPlugin.Instance.cfg.EnableModuleBase
             || RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(command)
             || RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(GetType().Name))
@@ -41,15 +38,13 @@ public abstract class ModuleBase
     public void WarningLog(string msg) => RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, msg);
     public void ErrorLog(string msg) => RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, msg);
 
-    public void Sideload(params string[] methodTags)
-    {
+    public void Sideload(params string[] methodTags) {
         BridgeNamazu.AddSideloadModule(this);
         Scan();
         CustomLog($"[鲶鱼精邮差扩展] 已初始化模块 {GetType().Name}。");
     }
 
-    public void RegisterCallback(string callBackName, Action<string> callBackAction)
-    {
+    public void RegisterCallback(string callBackName, Action<string> callBackAction) {
         RealPlugin.Instance.RegisterNamedCallback(
             callBackName,
             new Action<object, string>((_, cmd) => callBackAction(cmd)),
@@ -57,48 +52,43 @@ public abstract class ModuleBase
         );
     }
 
-    public void RegisterAnnotatedMethods(params string[] tags)
-    {
-        var tagsSet = (tags.Length == 0) ? new HashSet<string> { null } : new HashSet<string>(tags);
+    public void RegisterAnnotatedMethods(params string[] tags) {
+        var tagsSet = tags.Length == 0
+            ? new HashSet<string> {
+                null
+            }
+            : new HashSet<string>(tags);
         RegisterAnnotatedCallbackMethods(tagsSet);
         RegisterAnnotatedScriptingMethods(tagsSet);
     }
 
     private IEnumerable<(MethodInfo Method, TAttr Attribute)> GetAnnotatedMethods<TAttr>(HashSet<string> tagsSet)
-        where TAttr : MethodRegistrationAttribute
-    {
-        return this.GetType()
-                   .GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                   .SelectMany(m => m.GetCustomAttributes(typeof(TAttr), false).Cast<TAttr>()
-                                     .Where(attr => string.IsNullOrEmpty(attr.Tag) || tagsSet.Contains(attr.Tag))
-                                     .Select(attr => (m, attr)));
+        where TAttr : MethodRegistrationAttribute {
+        return GetType()
+            .GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+            .SelectMany(m => m.GetCustomAttributes(typeof(TAttr), false).Cast<TAttr>()
+                .Where(attr => string.IsNullOrEmpty(attr.Tag) || tagsSet.Contains(attr.Tag))
+                .Select(attr => (m, attr)));
     }
 
-    private void RegisterAnnotatedCallbackMethods(HashSet<string> tagsSet)
-    {
-        foreach (var (method, attr) in GetAnnotatedMethods<CallbackMethodAttribute>(tagsSet))
-        {
-            if (method.IsStatic)
-            {
+    private void RegisterAnnotatedCallbackMethods(HashSet<string> tagsSet) {
+        foreach (var (method, attr) in GetAnnotatedMethods<CallbackMethodAttribute>(tagsSet)) {
+            if (method.IsStatic) {
                 ErrorLog($"[鲶鱼精邮差扩展] 回调方法 {method.Name} 必须为实例方法。");
                 continue;
             }
 
             var parameters = method.GetParameters();
-            if (parameters.Length != 1 || parameters[0].ParameterType != typeof(string))
-            {
+            if (parameters.Length != 1 || parameters[0].ParameterType != typeof(string)) {
                 ErrorLog($"[鲶鱼精邮差扩展] 回调方法 {method.Name} 参数签名必须是 (string)。");
                 continue;
             }
 
-            var callback = new Action<object, string>((_, data) =>
-            {
-                try
-                {
-                    method.Invoke(this, new object[] { data });
+            var callback = new Action<object, string>((_, data) => {
+                try {
+                    method.Invoke(this, [data]);
                 }
-                catch (TargetInvocationException ex) when (ex.InnerException != null)
-                {
+                catch (TargetInvocationException ex) when (ex.InnerException != null) {
                     ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 }
             });
@@ -106,82 +96,66 @@ public abstract class ModuleBase
         }
     }
 
-    private void RegisterAnnotatedScriptingMethods(HashSet<string> tagsSet)
-    {
-        foreach (var (method, attr) in GetAnnotatedMethods<ScriptingMethodAttribute>(tagsSet))
-        {
-            if (method.IsStatic)
-            {
+    private void RegisterAnnotatedScriptingMethods(HashSet<string> tagsSet) {
+        foreach (var (method, attr) in GetAnnotatedMethods<ScriptingMethodAttribute>(tagsSet)) {
+            if (method.IsStatic) {
                 ErrorLog($"[鲶鱼精邮差扩展] 脚本方法 {method.Name} 必须为实例方法。");
                 continue;
             }
 
             var storage = RealPlugin.Instance.scriptingStorage;
-            lock (storage)
-            {
-                try
-                {
-                    Delegate del = Delegate.CreateDelegate(GetDelegateType(method), this, method);
+            lock (storage) {
+                try {
+                    var del = Delegate.CreateDelegate(GetDelegateType(method), this, method);
                     storage[attr.Name] = del;
                 }
-                catch (TargetInvocationException ex) when (ex.InnerException != null)
-                {
+                catch (TargetInvocationException ex) when (ex.InnerException != null) {
                     ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     ErrorLog($"[鲶鱼精邮差扩展] 方法 {method.Name} 无法生成 Delegate：{ex.Message}");
                 }
             }
         }
     }
 
-    private static Type GetDelegateType(MethodInfo method)
-    {
+    private static Type GetDelegateType(MethodInfo method) {
         var paramTypes = method.GetParameters().Select(p => p.ParameterType).ToList();
         if (paramTypes.Count >= 17)
             throw new NotSupportedException("不支持 17 个或以上参数的方法");
-        if (method.ReturnType == typeof(void))
-        {
+        if (method.ReturnType == typeof(void)) {
             return Expression.GetActionType(paramTypes.ToArray());
         }
         paramTypes.Add(method.ReturnType);
         return Expression.GetFuncType(paramTypes.ToArray());
     }
 
-    public static T GetConfigOrSetDefault<T>(string key, T defaultValue)
-    {
+    public static T GetConfigOrSetDefault<T>(string key, T defaultValue) {
         var cfg = GetConfigDict();
-        if (cfg.Values.TryGetValue(key, out var rawValue))
-        {
+        if (cfg.Values.TryGetValue(key, out var rawValue)) {
             return rawValue.ToString().ParseData<T>();
         }
         cfg.SetValue(key, defaultValue.ToDataString());
         return defaultValue;
     }
 
-    public static T? GetConfig<T>(string key) where T : struct
-    {
+    public static T? GetConfig<T>(string key) where T : struct {
         var cfg = GetConfigDict();
-        if (cfg.Values.TryGetValue(key, out var rawValue))
-        {
+        if (cfg.Values.TryGetValue(key, out var rawValue)) {
             return rawValue.ToString().ParseData<T>();
         }
         return null;
     }
 
-    public static void SetConfig<T>(string key, T data) where T : struct
-    {
+    public static void SetConfig<T>(string key, T data) where T : struct {
         GetConfigDict().SetValue(key, data.ToDataString());
     }
 
-    public static void RemoveConfig(string key)
-    {
+    public static void RemoveConfig(string key) {
         GetConfigDict().Values.Remove(key);
     }
 
-    public static VariableDictionary GetConfigDict()
-    {
+    public static VariableDictionary GetConfigDict() {
         var store = RealPlugin.Instance.GetVariableStore(true);
         var cfg = store.GetDictVariable("PNE_cfg", true);
         return cfg;
@@ -189,29 +163,27 @@ public abstract class ModuleBase
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public abstract class MethodRegistrationAttribute : Attribute
-{
+public abstract class MethodRegistrationAttribute : Attribute {
     /// <summary>
-    /// 脚本系统的标签，用于分组或筛选
+    ///     脚本系统的标签，用于分组或筛选
     /// </summary>
     public string Tag { get; }
     public string Name { get; }
 
-    public MethodRegistrationAttribute(string name, string tag = null)
-    {
+    public MethodRegistrationAttribute(string name, string tag = null) {
         Name = name;
         Tag = tag;
     }
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class CallbackMethodAttribute : MethodRegistrationAttribute
-{
-    public CallbackMethodAttribute(string name, string tag = null) : base(name, tag) { }
+public class CallbackMethodAttribute : MethodRegistrationAttribute {
+    public CallbackMethodAttribute(string name, string tag = null) : base(name, tag) {
+    }
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class ScriptingMethodAttribute : MethodRegistrationAttribute
-{
-    public ScriptingMethodAttribute(string name, string tag = null) : base(name, tag) { }
+public class ScriptingMethodAttribute : MethodRegistrationAttribute {
+    public ScriptingMethodAttribute(string name, string tag = null) : base(name, tag) {
+    }
 }

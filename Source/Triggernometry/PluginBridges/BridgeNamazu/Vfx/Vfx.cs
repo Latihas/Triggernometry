@@ -5,8 +5,7 @@ using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
-public abstract class Vfx
-{
+public abstract class Vfx {
     public IntPtr Ptr { get; set; }
     public string Path { get; set; }
     public string Tag { get; set; }
@@ -17,27 +16,21 @@ public abstract class Vfx
     public static GreyMagicExternalProcessMemory Memory => BridgeNamazu.NamazuPlugin.Memory;
     public abstract bool TryRemove();
 
-    public void ScheduleRemove(double duration)
-    {
-        if (duration > 0 && Ptr != IntPtr.Zero)
-        {
-            Task.Run(async () =>
-            {
-                try
-                {
+    public void ScheduleRemove(double duration) {
+        if (duration > 0 && Ptr != IntPtr.Zero) {
+            Task.Run(async () => {
+                try {
                     await Task.Delay(TimeSpan.FromSeconds(duration)).ConfigureAwait(false);
                     TryRemove();
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     Module.ErrorLog($"[PictoACT] 延迟移除时出错：\n{ex}");
                 }
             });
         }
     }
 
-    public void Update()
-    { 
+    public void Update() {
         if (Removed) return;
         Flag |= 0x2;
     }
@@ -79,24 +72,24 @@ public abstract class Vfx
             var raw = GreyMagicMemoryBase.Read<Vector4>(Ptr + 0x60);
             var q = new Quaternion(raw.X, raw.Z, raw.Y, raw.W);
 
-            float yaw, pitch, roll;
+            float yaw;
 
             // pitch (x‑axis rotation = θx)
-            float sinp = 2f * (q.W * q.X + q.Y * q.Z);
-            float cosp = 1f - 2f * (q.X * q.X + q.Y * q.Y);
-            pitch = (float)Math.Atan2(sinp, cosp);
+            var sinp = 2f * (q.W * q.X + q.Y * q.Z);
+            var cosp = 1f - 2f * (q.X * q.X + q.Y * q.Y);
+            var pitch = (float)Math.Atan2(sinp, cosp);
 
             // yaw (y‑axis rotation = θy)
-            float siny = 2f * (q.W * q.Y - q.Z * q.X);
+            var siny = 2f * (q.W * q.Y - q.Z * q.X);
             if (Math.Abs(siny) >= 1f)
                 yaw = (float)(Math.PI / 2 * Math.Sign(siny));
             else
                 yaw = (float)Math.Asin(siny);
 
             // roll (z‑axis rotation = θ)
-            float sinr = 2f * (q.W * q.Z + q.X * q.Y);
-            float cosr = 1f - 2f * (q.Y * q.Y + q.Z * q.Z);
-            roll = (float)Math.Atan2(sinr, cosr);
+            var sinr = 2f * (q.W * q.Z + q.X * q.Y);
+            var cosr = 1f - 2f * (q.Y * q.Y + q.Z * q.Z);
+            var roll = (float)Math.Atan2(sinr, cosr);
 
             return new Vector3(roll, pitch, yaw);
         }
@@ -181,6 +174,4 @@ public abstract class Vfx
             GreyMagicMemoryBase.Write(Ptr + 0x260, value);
         }
     }
-
-
 }

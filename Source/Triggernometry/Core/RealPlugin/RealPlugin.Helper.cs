@@ -8,38 +8,27 @@ using System.Windows.Forms;
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
 
-public partial class RealPlugin
-{
+public partial class RealPlugin {
+    internal static string FormatDateTime(DateTime dt) => dt.ToString("MM-dd HH:mm:ss.fff");
 
-    internal static string FormatDateTime(DateTime dt)
-    {
-        return dt.ToString("MM-dd HH:mm:ss.fff");
-    }
-
-    internal static string GenerateHash(string addy)
-    {
-        using (MD5 md5 = MD5.Create())
-        {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(addy);
-            byte[] hashBytes = md5.ComputeHash(inputBytes);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hashBytes.Length; i++)
-            {
+    internal static string GenerateHash(string addy) {
+        using (var md5 = MD5.Create()) {
+            var inputBytes = Encoding.UTF8.GetBytes(addy);
+            var hashBytes = md5.ComputeHash(inputBytes);
+            var sb = new StringBuilder();
+            for (var i = 0; i < hashBytes.Length; i++) {
                 sb.Append(hashBytes[i].ToString("X2"));
             }
             return sb.ToString().ToLower();
         }
     }
 
-    public bool CheckIfAdministrator(bool warnIfNotAdmin)
-    {
+    public bool CheckIfAdministrator(bool warnIfNotAdmin) {
         bool ret;
-        using (var identity = WindowsIdentity.GetCurrent())
-        {
+        using (var identity = WindowsIdentity.GetCurrent()) {
             var principal = new WindowsPrincipal(identity);
             ret = principal.IsInRole(WindowsBuiltInRole.Administrator);
-            if (!ret && warnIfNotAdmin)
-            {
+            if (!ret && warnIfNotAdmin) {
                 // CustomControls.Toast t = new CustomControls.Toast();
                 // t.ToastText = I18n.Translate("internal/Plugin/notadministrator", "You are not running ACT as an administrator - this might prevent some triggers from working.");
                 // t.ToastType = CustomControls.Toast.ToastTypeEnum.OK;
@@ -49,10 +38,9 @@ public partial class RealPlugin
         return ret;
     }
 
-        // to-do: These chars should not be kept in Regex textboxes.
-        // Better warn the user when they paste these invalid chars, or delete them directly.
-    internal static string SerializeInvalidXmlCharacters(string ex)
-    {
+    // to-do: These chars should not be kept in Regex textboxes.
+    // Better warn the user when they paste these invalid chars, or delete them directly.
+    internal static string SerializeInvalidXmlCharacters(string ex) {
         ex = ex.Replace("&#x0;", "␀");
         ex = ex.Replace("&#x1;", "␁");
         ex = ex.Replace("&#x2;", "␂");
@@ -89,10 +77,9 @@ public partial class RealPlugin
         return ex;
     }
 
-    internal static string UnserializeInvalidXmlCharacters(string ex)
-    {
-        char exx = '\x01';
-        string hex = ex;
+    internal static string UnserializeInvalidXmlCharacters(string ex) {
+        var exx = '\x01';
+        var hex = ex;
         ex = ex.Replace("␀", "\x00");
         ex = ex.Replace("␁", "" + exx);
         ex = ex.Replace("␂", "\x02");
@@ -129,141 +116,108 @@ public partial class RealPlugin
         return ex;
     }
 
-    internal Repository GetRepositoryById(Guid id)
-    {
-        return (from ix in cfg.RepositoryRoot.Repositories where ix.Id == id select ix).FirstOrDefault();
-    }
+    internal Repository GetRepositoryById(Guid id) => (from ix in cfg.RepositoryRoot.Repositories where ix.Id == id select ix).FirstOrDefault();
 
-    internal Trigger GetTriggerById(Guid id, Repository repo)
-    {
-            if (id == Guid.Empty) return null;
-        lock (Triggers)
-        {
+    internal Trigger GetTriggerById(Guid id, Repository repo) {
+        if (id == Guid.Empty) return null;
+        lock (Triggers) {
             var ix = from ax in Triggers
-                         where ax.Id == id && ax.Repo == repo
-                     select ax;
+                where ax.Id == id && ax.Repo == repo
+                select ax;
             return ix.FirstOrDefault();
         }
     }
 
-    internal Folder GetFolderById(Guid id, Repository repo)
-    {
-            if (id == Guid.Empty) return null;
-        if (repo != null)
-        {
+    internal Folder GetFolderById(Guid id, Repository repo) {
+        if (id == Guid.Empty) return null;
+        if (repo != null) {
             return RecursiveFolderSearch(repo.Root, id, repo);
         }
         return RecursiveFolderSearch(cfg.Root, id, repo);
     }
 
-    internal Folder RecursiveFolderSearch(Folder f, Guid id, Repository repo)
-    {
-        if (f.Id == id && f.Repo == repo)
-        {
+    internal Folder RecursiveFolderSearch(Folder f, Guid id, Repository repo) {
+        if (f.Id == id && f.Repo == repo) {
             return f;
         }
-        foreach (Folder c in f.Folders)
-        {
-            Folder ex = RecursiveFolderSearch(c, id, repo);
-            if (ex != null)
-            {
+        foreach (var c in f.Folders) {
+            var ex = RecursiveFolderSearch(c, id, repo);
+            if (ex != null) {
                 return ex;
             }
         }
         return null;
     }
 
-    internal TreeNode LocateNodeHostingTrigger(TreeNode tn, Trigger t)
-    {
-        if (tn.Tag == t)
-        {
+    internal TreeNode LocateNodeHostingTrigger(TreeNode tn, Trigger t) {
+        if (tn.Tag == t) {
             return tn;
         }
-        foreach (TreeNode tc in tn.Nodes)
-        {
-            TreeNode tp = LocateNodeHostingTrigger(tc, t);
-            if (tp != null)
-            {
+        foreach (TreeNode tc in tn.Nodes) {
+            var tp = LocateNodeHostingTrigger(tc, t);
+            if (tp != null) {
                 return tp;
             }
         }
         return null;
     }
 
-    internal TreeNode LocateNodeHostingRepository(TreeNode tn, Repository r)
-    {
-        foreach (TreeNode tc in tn.Nodes)
-        {
-            if (tc.Tag == r)
-            {
+    internal TreeNode LocateNodeHostingRepository(TreeNode tn, Repository r) {
+        foreach (TreeNode tc in tn.Nodes) {
+            if (tc.Tag == r) {
                 return tc;
             }
         }
         return null;
     }
 
-    internal TreeNode LocateNodeHostingFolder(TreeNode tn, Folder f)
-    {
-        if (tn.Tag == f)
-        {
+    internal TreeNode LocateNodeHostingFolder(TreeNode tn, Folder f) {
+        if (tn.Tag == f) {
             return tn;
         }
-        foreach (TreeNode tc in tn.Nodes)
-        {
-            TreeNode tp = LocateNodeHostingFolder(tc, f);
-            if (tp != null)
-            {
+        foreach (TreeNode tc in tn.Nodes) {
+            var tp = LocateNodeHostingFolder(tc, f);
+            if (tp != null) {
                 return tp;
             }
         }
         return null;
     }
 
-    internal TreeNode LocateNodeHostingTriggerId(TreeNode tn, Guid id, Repository repo)
-    {
-        Trigger t = GetTriggerById(id, repo);
-        if (t == null)
-        {
+    internal TreeNode LocateNodeHostingTriggerId(TreeNode tn, Guid id, Repository repo) {
+        var t = GetTriggerById(id, repo);
+        if (t == null) {
             return null;
         }
         return LocateNodeHostingTrigger(tn, t);
     }
 
-    internal TreeNode LocateNodeHostingRepositoryId(TreeNode tn, Guid id)
-    {
-        Repository r = GetRepositoryById(id);
-        if (r == null)
-        {
+    internal TreeNode LocateNodeHostingRepositoryId(TreeNode tn, Guid id) {
+        var r = GetRepositoryById(id);
+        if (r == null) {
             return null;
         }
         return LocateNodeHostingRepository(tn, r);
     }
 
-    internal TreeNode LocateNodeHostingFolderId(TreeNode tn, Guid id, Repository repo)
-    {
-        Folder f = GetFolderById(id, repo);
-        if (f == null)
-        {
+    internal TreeNode LocateNodeHostingFolderId(TreeNode tn, Guid id, Repository repo) {
+        var f = GetFolderById(id, repo);
+        if (f == null) {
             return null;
         }
         return LocateNodeHostingFolder(tn, f);
     }
 
-    public static bool IsAdmin()
-    {
-        using (var identity = WindowsIdentity.GetCurrent())
-        {
+    public static bool IsAdmin() {
+        using (var identity = WindowsIdentity.GetCurrent()) {
             var principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
     }
-
 }
 
-public static class Extensions
-{
-    public static string FullMessage(this Exception ex)
-    {
+public static class Extensions {
+    public static string FullMessage(this Exception ex) {
         if (ex == null)
             return string.Empty;
 
@@ -273,8 +227,7 @@ public static class Extensions
             sb.AppendLine(ex.StackTrace);
 
         var inner = ex.InnerException;
-        while (inner != null)
-        {
+        while (inner != null) {
             sb.AppendLine("---------");
             sb.AppendLine($"Inner: {inner.GetType().Name}: {inner.Message}");
             if (!string.IsNullOrEmpty(inner.StackTrace))

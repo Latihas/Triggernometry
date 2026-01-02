@@ -4,10 +4,8 @@ using System.Reflection;
 
 namespace Triggernometry.PluginBridges;
 
-public static class ActorControlPatcher
-{
-    public static void Patch()
-    {
+public static class ActorControlPatcher {
+    public static void Patch() {
         var asm = BridgeOverlay.OverlayPlugin.GetType().Assembly;
         var targetType = asm.GetType("RainbowMage.OverlayPlugin.NetworkProcessors.LineActorControlExtra")
                          ?? throw new Exception("LineActorControlExtra not found");

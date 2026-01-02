@@ -12,46 +12,40 @@ using ExpressionTextBox = Triggernometry.UI.CustomControls.ExpressionTextBox;
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
 
-public partial class RealPlugin
-{
+public partial class RealPlugin {
     internal UI.Scarborough sc;
     public Dictionary<string, AuraContainerForm> textauras = new();
 
-    public void InitAura()
-    {
+    public void InitAura() {
         ProxyPlugin.Framework.Update += AuraUpdateThreadProc;
-        sc = new UI.Scarborough( );
+        sc = new UI.Scarborough();
         sc.plug = this;
     }
 
-    public void DeInitAura()
-    {
+    public void DeInitAura() {
         ProxyPlugin.Framework.Update -= AuraUpdateThreadProc;
         sc?.Dispose();
         textauras.Clear();
     }
 
-    private void ProcessAuraControl(bool hideAuras)
-    {
+    private void ProcessAuraControl(bool hideAuras) {
         if (hideAuras) sc.HideAllItems();
         else sc.ShowAllItems();
     }
 
-    DateTime prevTick = DateTime.Now;
-    double lag;
+    private DateTime prevTick = DateTime.Now;
+    private double lag;
 
-    private void AuraUpdateThreadProc(IFramework framework)
-    {
+    private void AuraUpdateThreadProc(IFramework framework) {
         var tickTime = DateTime.Now;
         var msSince = (tickTime - prevTick).TotalMilliseconds + lag;
         var numTicks = (int)Math.Floor(msSince / 20.0);
-        lag = msSince - (numTicks * 20);
+        lag = msSince - numTicks * 20;
         prevTick = tickTime;
         UpdateAuras(numTicks);
     }
 
-    internal void UpdateAuras(int numTicks)
-    {
+    internal void UpdateAuras(int numTicks) {
         var toRem = new List<string>();
         foreach (var kp in textauras)
             if (!kp.Value.UpdateAura(numTicks))
@@ -59,16 +53,12 @@ public partial class RealPlugin
         foreach (var rem in toRem) textauras.Remove(rem);
     }
 
-    internal void TextAuraManagement(Context ctx, ActionOld a)
-    {
-        switch (a._TextAuraOp)
-        {
-            case ActionOld.AuraOpEnum.ActivateAura:
-            {
+    internal void TextAuraManagement(Context ctx, ActionOld a) {
+        switch (a._TextAuraOp) {
+            case ActionOld.AuraOpEnum.ActivateAura: {
                 var ax = ctx.EvaluateStringExpression(a.ActionContextLogger, ctx, a._TextAuraName);
                 FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/acttextaura", "Activating text aura '{0}'", ax));
-                try
-                {
+                try {
                     var si = new ScarboroughText(sc);
                     si.InitXExpression = a._TextAuraXIniExpression;
                     si.InitYExpression = a._TextAuraYIniExpression;
@@ -104,34 +94,29 @@ public partial class RealPlugin
                         Color.Transparent);
                     sc.Activate(ax, si);
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/exacttextaura", "Exception '{0}' when activating text aura '{1}'", ex.Message, ax));
                 }
             }
                 break;
-            case ActionOld.AuraOpEnum.DeactivateAura:
-            {
+            case ActionOld.AuraOpEnum.DeactivateAura: {
                 var ax = ctx.EvaluateStringExpression(a.ActionContextLogger, ctx, a._TextAuraName);
                 FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/deacttextaura", "Deactivating text aura '{0}'", ax));
                 sc.Deactivate(ax, ItemAction.ItemTypeEnum.Text);
             }
                 break;
-            case ActionOld.AuraOpEnum.DeactivateAllAura:
-            {
+            case ActionOld.AuraOpEnum.DeactivateAllAura: {
                 FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/deactalltextaura", "Deactivating all text auras"));
                 sc.DeactivateAllText();
             }
                 break;
-            case ActionOld.AuraOpEnum.DeactivateAuraRegex:
-            {
+            case ActionOld.AuraOpEnum.DeactivateAuraRegex: {
                 var ax = a._TextAuraName;
                 FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/deacttextaurarex", "Deactivating text auras matching '{0}'", ax));
                 sc.DeactivateRegex(ax, ItemAction.ItemTypeEnum.Text);
             }
                 break;
-            case ActionOld.AuraOpEnum.DeactivateAuraTrigger:
-            {
+            case ActionOld.AuraOpEnum.DeactivateAuraTrigger: {
                 FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/deacttextauratrig", "Deactivating text auras from trigger '{0}' ({1})", ctx.Trigger.LogName, ctx.Trigger.Id));
                 sc.DeactivateTrigger(ctx.Trigger, ItemAction.ItemTypeEnum.Text);
             }

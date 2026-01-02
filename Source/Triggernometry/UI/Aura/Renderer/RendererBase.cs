@@ -2,14 +2,11 @@
 
 namespace Triggernometry.UI.Aura.Renderer;
 
-abstract internal class RendererBase : IDisposable
-{
-
+internal abstract class RendererBase : IDisposable {
     internal Manager Owner { get; set; }
 
-    abstract public void Dispose();
+    public abstract void Dispose();
 
-    abstract internal void Initialize(Aura a);
-    abstract internal void Render(Aura a);
-
+    internal abstract void Initialize(Aura a);
+    internal abstract void Render(Aura a);
 }

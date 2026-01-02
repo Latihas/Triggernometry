@@ -4,10 +4,8 @@ using Triggernometry.Expressions.Maths;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
-public class ShowTextGimmickHintModule : ModuleBase
-{
-    public ShowTextGimmickHintModule()
-    {
+public class ShowTextGimmickHintModule : ModuleBase {
+    public ShowTextGimmickHintModule() {
         ScanMethod = () => { };
     }
 
@@ -17,22 +15,20 @@ public class ShowTextGimmickHintModule : ModuleBase
     [CallbackMethod("Warn")]
     internal void CbWarn(string command) => ShowTextGimmickHintRaw(false, command);
 
-    private void ShowTextGimmickHintRaw(bool isHint, string command)
-    {
+    private void ShowTextGimmickHintRaw(bool isHint, string command) {
         CheckBeforeExecution(command);
-        var lines = command.Split(new[] { '\n' }, 2);
-        string rawTime = lines[0].Trim();
-        string text = lines.Length > 1 ? lines[1] : "";
+        var lines = command.Split(['\n'], 2);
+        var rawTime = lines[0].Trim();
+        var text = lines.Length > 1 ? lines[1] : "";
 
-        int timeIn100Ms = Math.Max(0, (int)(MathParser.Parse(rawTime) * 10));
+        var timeIn100Ms = Math.Max(0, (int)(MathParser.Parse(rawTime) * 10));
         NamazuLog((isHint ? "[Hint]" : "[Warn]") + $": ({timeIn100Ms / 10.0:F1} s) {text}");
 
         GreyMagicMemoryBase.ExecuteWithLock(() => ShowTextGimmickHint(isHint, text, timeIn100Ms));
     }
 
-    public unsafe void ShowTextGimmickHint(bool isHint, string text, int timeIn100Ms)
-    {
+    public unsafe void ShowTextGimmickHint(bool isHint, string text, int timeIn100Ms) {
         CheckIfAnyZeroPtr();
-        RaptureAtkModule.Instance()->ShowTextGimmickHint(  text, ( RaptureAtkModule.TextGimmickHintStyle)(isHint ? 1 : 0), timeIn100Ms);
+        RaptureAtkModule.Instance()->ShowTextGimmickHint(text, (RaptureAtkModule.TextGimmickHintStyle)(isHint ? 1 : 0), timeIn100Ms);
     }
 }

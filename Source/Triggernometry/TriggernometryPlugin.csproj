@@ -1,74 +1,74 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Library</OutputType>
-        <RootNamespace>Triggernometry</RootNamespace>
-        <AssemblyName>Triggernometry</AssemblyName>
-        <FileAlignment>512</FileAlignment>
-        <UseWindowsForms>true</UseWindowsForms>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Version>2.99.99.99</Version>
-        <AssemblyVersion>2.99.99.99</AssemblyVersion>
-        <FileVersion>2.99.99.99</FileVersion>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\NotACT\NotACT.csproj" />
-        <ProjectReference Include="..\..\..\OverlayPlugin.Core\OverlayPlugin.Core.csproj" />
-        <ProjectReference Include="..\..\..\ChineseConverter\ChineseConverter.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="CsvHelper" Version="33.1.0"/>
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1">
-            <Private>True</Private>
-        </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.0.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.0.0"/>
-        <PackageReference Include="SharpDX" Version="4.2.0">
-            <SpecificVersion>False</SpecificVersion>
-            <Private>True</Private>
-            <EmbedInteropTypes>False</EmbedInteropTypes>
-        </PackageReference>
-        <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0">
-            <SpecificVersion>False</SpecificVersion>
-            <Private>True</Private>
-        </PackageReference>
-        <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0">
-            <SpecificVersion>False</SpecificVersion>
-            <Private>True</Private>
-        </PackageReference>
-        <PackageReference Include="SharpDX.DXGI" Version="4.2.0">
-            <SpecificVersion>False</SpecificVersion>
-            <Private>True</Private>
-        </PackageReference>
-        <Reference Include="FFXIVClientStructs">
-          <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
-        </Reference>
-        <Reference Include="FFXIV_ACT_Plugin">
-          <HintPath>..\..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
-        </Reference>
-        <PackageReference Include="System.Management" Version="10.0.1" />
-        <PackageReference Include="System.Speech" Version="10.0.1" />
-        <PackageReference Include="System.ValueTuple" Version="4.6.1"/>
-        <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7"/>
-        <Reference Include="Dalamud">
-            <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="Dalamud.Bindings.ImGui">
-            <HintPath>$(DalamudLibPath)Dalamud.Bindings.ImGui.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="InteropGenerator.Runtime">
-            <HintPath>$(DalamudLibPath)InteropGenerator.Runtime.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="Newtonsoft.Json">
-            <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-    </ItemGroup>
-    <ItemGroup>
-        <Content Include="Localization\newtranslations.txt" />
-    </ItemGroup>
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Triggernometry</RootNamespace>
+    <AssemblyName>Triggernometry</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Version>2.99.99.99</Version>
+    <AssemblyVersion>2.99.99.99</AssemblyVersion>
+    <FileVersion>2.99.99.99</FileVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\NotACT\NotACT.csproj"/>
+    <ProjectReference Include="..\..\..\OverlayPlugin.Core\OverlayPlugin.Core.csproj"/>
+    <ProjectReference Include="..\..\..\ChineseConverter\ChineseConverter.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0"/>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1">
+      <Private>True</Private>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.0.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.0.0"/>
+    <PackageReference Include="SharpDX" Version="4.2.0">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </PackageReference>
+    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </PackageReference>
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </PackageReference>
+    <PackageReference Include="SharpDX.DXGI" Version="4.2.0">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </PackageReference>
+    <Reference Include="FFXIVClientStructs">
+      <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+    </Reference>
+    <Reference Include="FFXIV_ACT_Plugin">
+      <HintPath>..\..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
+    </Reference>
+    <PackageReference Include="System.Management" Version="10.0.1"/>
+    <PackageReference Include="System.Speech" Version="10.0.1"/>
+    <PackageReference Include="System.ValueTuple" Version="4.6.1"/>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7"/>
+    <Reference Include="Dalamud">
+      <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Dalamud.Bindings.ImGui">
+      <HintPath>$(DalamudLibPath)Dalamud.Bindings.ImGui.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="InteropGenerator.Runtime">
+      <HintPath>$(DalamudLibPath)InteropGenerator.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Localization\newtranslations.txt"/>
+  </ItemGroup>
 </Project>

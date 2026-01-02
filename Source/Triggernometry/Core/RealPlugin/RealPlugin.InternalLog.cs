@@ -7,18 +7,16 @@ using Advanced_Combat_Tracker;
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
 
-public partial class RealPlugin
-{
+public partial class RealPlugin {
     internal bool DisableLogging = false;
 
     internal Dictionary<DebugLevelEnum, Queue<InternalLog>> log = Enum.GetValues(typeof(DebugLevelEnum))
-                                                                      .Cast<DebugLevelEnum>()
-                                                                      .ToDictionary(level => level, level => new Queue<InternalLog>());
+        .Cast<DebugLevelEnum>()
+        .ToDictionary(level => level, _ => new Queue<InternalLog>());
     public Queue<InternalLog> logFlattenTrn = [];
     public Queue<string> logFlattenACT = [];
 
-    public enum DebugLevelEnum
-    {
+    public enum DebugLevelEnum {
         None,
         Error,
         Warning,
@@ -29,12 +27,9 @@ public partial class RealPlugin
         Inherit
     }
 
-    public void ClearLog()
-    {
-        lock (log)
-        {
-            foreach (var pair in Instance.log)
-            {
+    public void ClearLog() {
+        lock (log) {
+            foreach (var pair in Instance.log) {
                 pair.Value.Clear();
             }
             logFlattenTrn.Clear();
@@ -49,11 +44,9 @@ public partial class RealPlugin
     internal void UnfilteredAddToLog(DebugLevelEnum level, string msg, ActionOld action)
         => UnfilteredAddToLog(level, msg, action?.ParentTrigger, action);
 
-    internal void UnfilteredAddToLog(DebugLevelEnum level, string msg, Trigger trig, ActionOld action)
-    {
+    internal void UnfilteredAddToLog(DebugLevelEnum level, string msg, Trigger trig, ActionOld action) {
         var dl = "[Triggernometry]: (U)" + msg;
-        switch (level)
-        {
+        switch (level) {
             case DebugLevelEnum.Error: Log.Error(dl); break;
             case DebugLevelEnum.Warning: Log.Warning(dl); break;
             case DebugLevelEnum.Verbose: Log.Verbose(dl); break;
@@ -64,25 +57,21 @@ public partial class RealPlugin
             case DebugLevelEnum.Inherit:
             default: Log.Info(dl); break;
         }
-        InternalLog il = new InternalLog
-        {
+        var il = new InternalLog {
             Timestamp = DateTime.Now,
             Level = level,
             Message = msg,
             SourceTrigger = trig,
             SourceAction = action
         };
-        if (!DisableLogging && Debugger.IsAttached)
-        {
+        if (!DisableLogging && Debugger.IsAttached) {
             Debug.WriteLine(il.ToString());
         }
-        if (level == DebugLevelEnum.Error)
-        {
+        if (level == DebugLevelEnum.Error) {
             // ui?.IncrementErrorCount();
         }
         var queue = log[level];
-        lock (queue)
-        {
+        lock (queue) {
             queue.Enqueue(il);
             if (queue.Count > 30000) queue.Dequeue();
             logFlattenTrn.Enqueue(il);
@@ -97,10 +86,8 @@ public partial class RealPlugin
     public void FilteredAddToLog(DebugLevelEnum level, string msg, ActionOld action)
         => FilteredAddToLog(level, msg, action?.ParentTrigger, action);
 
-    public void FilteredAddToLog(DebugLevelEnum level, string msg, Trigger trig, ActionOld action)
-    {
-        if (cfg != null && level > cfg.DebugLevel)
-        {
+    public void FilteredAddToLog(DebugLevelEnum level, string msg, Trigger trig, ActionOld action) {
+        if (cfg != null && level > cfg.DebugLevel) {
             return;
         }
         UnfilteredAddToLog(level, msg, trig, action);

@@ -3,42 +3,31 @@ using RainbowMage.OverlayPlugin.MemoryProcessors.AtkStage;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 
-namespace Triggernometry.PluginBridges
-{
-    [OverlayModule]
-    internal static class ModuleAtkStageMemory
-    {
-        public static bool Ready;
-        public static IAtkStageMemory AtkStageMemoryManager;
+namespace Triggernometry.PluginBridges;
 
-        static ModuleAtkStageMemory()
-        {
-            try
-            {
-                AtkStageMemoryManager = BridgeOverlay.Container.Resolve<IAtkStageMemory>();
-                Ready = true;
-            }
-            catch (Exception ex)
-            {
-                RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
-                    I18n.Translate("internal/BridgeOverlay/initfail", "OverlayPlugin initialization failed due to: {0}", ex.ToString())
-                );
-                Ready = false;
-            }
+[OverlayModule]
+internal static class ModuleAtkStageMemory {
+    public static bool Ready;
+    public static IAtkStageMemory AtkStageMemoryManager;
+
+    static ModuleAtkStageMemory() {
+        try {
+            AtkStageMemoryManager = BridgeOverlay.Container.Resolve<IAtkStageMemory>();
+            Ready = true;
         }
-
-        #region AtkStageMemory
-
-        public static IntPtr GetAddonAddress(string name)
-        {
-            return AtkStageMemoryManager.GetAddonAddress(name);
+        catch (Exception ex) {
+            RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
+                I18n.Translate("internal/BridgeOverlay/initfail", "OverlayPlugin initialization failed due to: {0}", ex.ToString())
+            );
+            Ready = false;
         }
-
-        public static object GetAddon(string name)
-        {
-            return AtkStageMemoryManager.GetAddon(name);
-        }
-
-        #endregion AtkStageMemory
     }
+
+    #region AtkStageMemory
+
+    public static IntPtr GetAddonAddress(string name) => AtkStageMemoryManager.GetAddonAddress(name);
+
+    public static object GetAddon(string name) => AtkStageMemoryManager.GetAddon(name);
+
+    #endregion AtkStageMemory
 }

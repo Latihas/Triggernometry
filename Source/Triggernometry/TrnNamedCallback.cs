@@ -1,6 +1,5 @@
 ﻿namespace Triggernometry;
 
-public interface ITrnNamedCallback
-{
+public interface ITrnNamedCallback {
     void Load();
 }

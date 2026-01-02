@@ -1,4 +1,5 @@
 #region License
+
 /*
  * HttpRequestHeader.cs
  *
@@ -28,206 +29,207 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 #endregion
 
 #region Authors
+
 /*
  * Authors:
  * - Gonzalo Paniagua Javier <gonzalo@novell.com>
  */
+
 #endregion
 
-namespace WebSocketSharp.Net
-{
-  /// <summary>
-  /// Contains the HTTP headers that may be specified in a client request.
-  /// </summary>
-  /// <remarks>
-  /// The HttpRequestHeader enumeration contains the HTTP request headers defined in
-  /// <see href="http://tools.ietf.org/html/rfc2616#section-14">RFC 2616</see> for the HTTP/1.1 and
-  /// <see href="http://tools.ietf.org/html/rfc6455#section-11.3">RFC 6455</see> for the WebSocket.
-  /// </remarks>
-  public enum HttpRequestHeader
-  {
+namespace WebSocketSharp.Net;
+
+/// <summary>
+///     Contains the HTTP headers that may be specified in a client request.
+/// </summary>
+/// <remarks>
+///     The HttpRequestHeader enumeration contains the HTTP request headers defined in
+///     <see href="http://tools.ietf.org/html/rfc2616#section-14">RFC 2616</see> for the HTTP/1.1 and
+///     <see href="http://tools.ietf.org/html/rfc6455#section-11.3">RFC 6455</see> for the WebSocket.
+/// </remarks>
+public enum HttpRequestHeader {
     /// <summary>
-    /// Indicates the Cache-Control header.
+    ///     Indicates the Cache-Control header.
     /// </summary>
     CacheControl,
     /// <summary>
-    /// Indicates the Connection header.
+    ///     Indicates the Connection header.
     /// </summary>
     Connection,
     /// <summary>
-    /// Indicates the Date header.
+    ///     Indicates the Date header.
     /// </summary>
     Date,
     /// <summary>
-    /// Indicates the Keep-Alive header.
+    ///     Indicates the Keep-Alive header.
     /// </summary>
     KeepAlive,
     /// <summary>
-    /// Indicates the Pragma header.
+    ///     Indicates the Pragma header.
     /// </summary>
     Pragma,
     /// <summary>
-    /// Indicates the Trailer header.
+    ///     Indicates the Trailer header.
     /// </summary>
     Trailer,
     /// <summary>
-    /// Indicates the Transfer-Encoding header.
+    ///     Indicates the Transfer-Encoding header.
     /// </summary>
     TransferEncoding,
     /// <summary>
-    /// Indicates the Upgrade header.
+    ///     Indicates the Upgrade header.
     /// </summary>
     Upgrade,
     /// <summary>
-    /// Indicates the Via header.
+    ///     Indicates the Via header.
     /// </summary>
     Via,
     /// <summary>
-    /// Indicates the Warning header.
+    ///     Indicates the Warning header.
     /// </summary>
     Warning,
     /// <summary>
-    /// Indicates the Allow header.
+    ///     Indicates the Allow header.
     /// </summary>
     Allow,
     /// <summary>
-    /// Indicates the Content-Length header.
+    ///     Indicates the Content-Length header.
     /// </summary>
     ContentLength,
     /// <summary>
-    /// Indicates the Content-Type header.
+    ///     Indicates the Content-Type header.
     /// </summary>
     ContentType,
     /// <summary>
-    /// Indicates the Content-Encoding header.
+    ///     Indicates the Content-Encoding header.
     /// </summary>
     ContentEncoding,
     /// <summary>
-    /// Indicates the Content-Language header.
+    ///     Indicates the Content-Language header.
     /// </summary>
     ContentLanguage,
     /// <summary>
-    /// Indicates the Content-Location header.
+    ///     Indicates the Content-Location header.
     /// </summary>
     ContentLocation,
     /// <summary>
-    /// Indicates the Content-MD5 header.
+    ///     Indicates the Content-MD5 header.
     /// </summary>
     ContentMd5,
     /// <summary>
-    /// Indicates the Content-Range header.
+    ///     Indicates the Content-Range header.
     /// </summary>
     ContentRange,
     /// <summary>
-    /// Indicates the Expires header.
+    ///     Indicates the Expires header.
     /// </summary>
     Expires,
     /// <summary>
-    /// Indicates the Last-Modified header.
+    ///     Indicates the Last-Modified header.
     /// </summary>
     LastModified,
     /// <summary>
-    /// Indicates the Accept header.
+    ///     Indicates the Accept header.
     /// </summary>
     Accept,
     /// <summary>
-    /// Indicates the Accept-Charset header.
+    ///     Indicates the Accept-Charset header.
     /// </summary>
     AcceptCharset,
     /// <summary>
-    /// Indicates the Accept-Encoding header.
+    ///     Indicates the Accept-Encoding header.
     /// </summary>
     AcceptEncoding,
     /// <summary>
-    /// Indicates the Accept-Language header.
+    ///     Indicates the Accept-Language header.
     /// </summary>
     AcceptLanguage,
     /// <summary>
-    /// Indicates the Authorization header.
+    ///     Indicates the Authorization header.
     /// </summary>
     Authorization,
     /// <summary>
-    /// Indicates the Cookie header.
+    ///     Indicates the Cookie header.
     /// </summary>
     Cookie,
     /// <summary>
-    /// Indicates the Expect header.
+    ///     Indicates the Expect header.
     /// </summary>
     Expect,
     /// <summary>
-    /// Indicates the From header.
+    ///     Indicates the From header.
     /// </summary>
     From,
     /// <summary>
-    /// Indicates the Host header.
+    ///     Indicates the Host header.
     /// </summary>
     Host,
     /// <summary>
-    /// Indicates the If-Match header.
+    ///     Indicates the If-Match header.
     /// </summary>
     IfMatch,
     /// <summary>
-    /// Indicates the If-Modified-Since header.
+    ///     Indicates the If-Modified-Since header.
     /// </summary>
     IfModifiedSince,
     /// <summary>
-    /// Indicates the If-None-Match header.
+    ///     Indicates the If-None-Match header.
     /// </summary>
     IfNoneMatch,
     /// <summary>
-    /// Indicates the If-Range header.
+    ///     Indicates the If-Range header.
     /// </summary>
     IfRange,
     /// <summary>
-    /// Indicates the If-Unmodified-Since header.
+    ///     Indicates the If-Unmodified-Since header.
     /// </summary>
     IfUnmodifiedSince,
     /// <summary>
-    /// Indicates the Max-Forwards header.
+    ///     Indicates the Max-Forwards header.
     /// </summary>
     MaxForwards,
     /// <summary>
-    /// Indicates the Proxy-Authorization header.
+    ///     Indicates the Proxy-Authorization header.
     /// </summary>
     ProxyAuthorization,
     /// <summary>
-    /// Indicates the Referer header.
+    ///     Indicates the Referer header.
     /// </summary>
     Referer,
     /// <summary>
-    /// Indicates the Range header.
+    ///     Indicates the Range header.
     /// </summary>
     Range,
     /// <summary>
-    /// Indicates the TE header.
+    ///     Indicates the TE header.
     /// </summary>
     Te,
     /// <summary>
-    /// Indicates the Translate header.
+    ///     Indicates the Translate header.
     /// </summary>
     Translate,
     /// <summary>
-    /// Indicates the User-Agent header.
+    ///     Indicates the User-Agent header.
     /// </summary>
     UserAgent,
     /// <summary>
-    /// Indicates the Sec-WebSocket-Key header.
+    ///     Indicates the Sec-WebSocket-Key header.
     /// </summary>
     SecWebSocketKey,
     /// <summary>
-    /// Indicates the Sec-WebSocket-Extensions header.
+    ///     Indicates the Sec-WebSocket-Extensions header.
     /// </summary>
     SecWebSocketExtensions,
     /// <summary>
-    /// Indicates the Sec-WebSocket-Protocol header.
+    ///     Indicates the Sec-WebSocket-Protocol header.
     /// </summary>
     SecWebSocketProtocol,
     /// <summary>
-    /// Indicates the Sec-WebSocket-Version header.
+    ///     Indicates the Sec-WebSocket-Version header.
     /// </summary>
     SecWebSocketVersion
-  }
 }

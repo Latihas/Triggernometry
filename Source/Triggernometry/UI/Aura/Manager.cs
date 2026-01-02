@@ -4,17 +4,13 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Triggernometry.Core;
+using Triggernometry.UI.Aura.Renderer;
 
 namespace Triggernometry.UI.Aura;
 
-class Manager : IDisposable
-{
-
-    public class ItemAction
-    {
-
-        public enum ActionTypeEnum
-        {
+internal class Manager : IDisposable {
+    public class ItemAction {
+        public enum ActionTypeEnum {
             Activate,
             Deactivate,
             DeactivateAll,
@@ -23,8 +19,7 @@ class Manager : IDisposable
             DeactivateRegex
         }
 
-        public enum ItemTypeEnum
-        {
+        public enum ItemTypeEnum {
             Image,
             Text
         }
@@ -34,11 +29,9 @@ class Manager : IDisposable
         public ItemTypeEnum ItemType { get; set; }
         public ManualResetEvent Completed { get; set; } = null;
         public string Id { get; set; }
-
     }
 
-    public enum RendererEnum
-    {
+    public enum RendererEnum {
         Winforms,
         Scarborough
     }
@@ -48,10 +41,10 @@ class Manager : IDisposable
     private Thread drawThread;
     internal bool RenderingActive { get; set; }
     internal RealPlugin plug { get; set; }
-    private Queue<ItemAction> ItemActions { get; set; } = new Queue<ItemAction>();
+    private Queue<ItemAction> ItemActions { get; set; } = new();
 
-    public Dictionary<string, AuraImage> imageitems = new Dictionary<string, AuraImage>();
-    public Dictionary<string, AuraText> textitems = new Dictionary<string, AuraText>();
+    public Dictionary<string, AuraImage> imageitems = new();
+    public Dictionary<string, AuraText> textitems = new();
 
     // public Manager()
     // {
@@ -60,93 +53,72 @@ class Manager : IDisposable
     //     drawThread.Start();
     // }
     //
-    public void Dispose()
-    {
+    public void Dispose() {
         // TriggernometryProxy.ProxyPlugin.Framework.Update-=ManagerThread;
     }
 
 
-    internal void ExecuteAction(Context ctx, ActionOld a)
-    {            
+    internal void ExecuteAction(Context ctx, ActionOld a) {
     }
 
-    private void ExecuteItemActions()
-    {
-        lock (ItemActions)
-        {
-            while (ItemActions.Count > 0)
-            {
-                try
-                {
-                    ItemAction ia = ItemActions.Dequeue();
+    private void ExecuteItemActions() {
+        lock (ItemActions) {
+            while (ItemActions.Count > 0) {
+                try {
+                    var ia = ItemActions.Dequeue();
                     ExecuteItemAction(ia);
-                    if (ia.Completed != null)
-                    {
+                    if (ia.Completed != null) {
                         ia.Completed.Set();
                     }
                 }
-                catch (Exception)
-                {
+                catch (Exception) {
                 }
             }
         }
     }
 
-    internal void ExecuteItemAction(ItemAction ia)
-    {
-        switch (ia.Action)
-        {
+    internal void ExecuteItemAction(ItemAction ia) {
+        switch (ia.Action) {
             case ItemAction.ActionTypeEnum.RenderingOn:
                 RenderingActive = true;
                 break;
             case ItemAction.ActionTypeEnum.RenderingOff:
                 RenderingActive = false;
                 break;
-            case ItemAction.ActionTypeEnum.Activate:
-            {
-                if (ia.Item is AuraImage)
-                {
+            case ItemAction.ActionTypeEnum.Activate: {
+                if (ia.Item is AuraImage) {
                     ia.Item.Name = ia.Id;
                     ActivateImage(ia.Id, (AuraImage)ia.Item);
                 }
-                else if (ia.Item is AuraText)
-                {
+                else if (ia.Item is AuraText) {
                     ia.Item.Name = ia.Id;
                     ActivateText(ia.Id, (AuraText)ia.Item);
                 }
             }
                 break;
-            case ItemAction.ActionTypeEnum.DeactivateRegex:
-            {
-                Regex rex = new Regex(ia.Id);
-                List<string> toRem = new List<string>();
-                switch (ia.ItemType)
-                {
-                    case ItemAction.ItemTypeEnum.Image:
-                    {
+            case ItemAction.ActionTypeEnum.DeactivateRegex: {
+                var rex = new Regex(ia.Id);
+                var toRem = new List<string>();
+                switch (ia.ItemType) {
+                    case ItemAction.ItemTypeEnum.Image: {
                         toRem.AddRange(from sx in imageitems where rex.IsMatch(sx.Key) select sx.Key);
-                        foreach (string rem in toRem)
-                        {
+                        foreach (var rem in toRem) {
                             AuraImage a = null;
                             a = imageitems[rem];
                             imageitems.Remove(rem);
-                            if (a != null)
-                            {
+                            if (a != null) {
                                 a.Dispose();
                             }
                         }
                     }
                         break;
-                    case ItemAction.ItemTypeEnum.Text:
-                    {
+                    case ItemAction.ItemTypeEnum.Text: {
                         toRem.AddRange(from sx in textitems where rex.IsMatch(sx.Key) select sx.Key);
-                        foreach (string rem in toRem)
-                        {
+                        foreach (var rem in toRem) {
                             AuraText a = null;
                             a = textitems[rem];
                             textitems.Remove(rem);
-                            if (a != null)
-                            {
+                            if (a != null) {
                                 a.Dispose();
                             }
                         }
@@ -155,34 +127,26 @@ class Manager : IDisposable
                 }
             }
                 break;
-            case ItemAction.ActionTypeEnum.Deactivate:
-            {
-                switch (ia.ItemType)
-                {
-                    case ItemAction.ItemTypeEnum.Image:
-                    {
+            case ItemAction.ActionTypeEnum.Deactivate: {
+                switch (ia.ItemType) {
+                    case ItemAction.ItemTypeEnum.Image: {
                         AuraImage a = null;
-                        if (imageitems.ContainsKey(ia.Id) == true)
-                        {
+                        if (imageitems.ContainsKey(ia.Id)) {
                             a = imageitems[ia.Id];
                             imageitems.Remove(ia.Id);
                         }
-                        if (a != null)
-                        {
+                        if (a != null) {
                             a.Dispose();
                         }
                     }
                         break;
-                    case ItemAction.ItemTypeEnum.Text:
-                    {
+                    case ItemAction.ItemTypeEnum.Text: {
                         AuraText a = null;
-                        if (textitems.ContainsKey(ia.Id) == true)
-                        {
+                        if (textitems.ContainsKey(ia.Id)) {
                             a = textitems[ia.Id];
                             textitems.Remove(ia.Id);
                         }
-                        if (a != null)
-                        {
+                        if (a != null) {
                             a.Dispose();
                         }
                     }
@@ -190,79 +154,71 @@ class Manager : IDisposable
                 }
             }
                 break;
-            case ItemAction.ActionTypeEnum.DeactivateAll:
-            {
-                switch (ia.ItemType)
-                {
-                    case ItemAction.ItemTypeEnum.Image:
-                    {
-                        List<AuraImage> toRem = new List<AuraImage>();
-                        foreach (KeyValuePair<string, AuraImage> si in imageitems)
-                        {
+            case ItemAction.ActionTypeEnum.DeactivateAll: {
+                switch (ia.ItemType) {
+                    case ItemAction.ItemTypeEnum.Image: {
+                        var toRem = new List<AuraImage>();
+                        foreach (var si in imageitems) {
                             toRem.Add(si.Value);
                         }
                         imageitems.Clear();
-                        foreach (AuraImage si in toRem)
-                        {
+                        foreach (var si in toRem) {
                             si.Dispose();
                         }
                     }
                         break;
-                    case ItemAction.ItemTypeEnum.Text:
-                    {
-                        List<AuraText> toRem = new List<AuraText>();
-                        foreach (KeyValuePair<string, AuraText> si in textitems)
-                        {
+                    case ItemAction.ItemTypeEnum.Text: {
+                        var toRem = new List<AuraText>();
+                        foreach (var si in textitems) {
                             toRem.Add(si.Value);
                         }
                         textitems.Clear();
-                        foreach (AuraText si in toRem)
-                        {
+                        foreach (var si in toRem) {
                             si.Dispose();
                         }
                     }
                         break;
-
                 }
             }
                 break;
         }
     }
 
-    public void Activate(string id, Aura a)
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.Activate, Id = id, Item = a });
+    public void Activate(string id, Aura a) {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.Activate,
+                Id = id,
+                Item = a
+            });
         }
     }
 
-    public void Deactivate(string id, ItemAction.ItemTypeEnum it)
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.Deactivate, Id = id, ItemType = it });
+    public void Deactivate(string id, ItemAction.ItemTypeEnum it) {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.Deactivate,
+                Id = id,
+                ItemType = it
+            });
         }
     }
 
-    public void DeactivateRegex(string rex, ItemAction.ItemTypeEnum it)
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.DeactivateRegex, Id = rex, ItemType = it });
+    public void DeactivateRegex(string rex, ItemAction.ItemTypeEnum it) {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.DeactivateRegex,
+                Id = rex,
+                ItemType = it
+            });
         }
     }
 
-    private Int64 GetNextOrdinal()
-    {
-        return Interlocked.Increment(ref CurOrdinal);
-    }
+    private long GetNextOrdinal() => Interlocked.Increment(ref CurOrdinal);
 
-    private void ActivateGeneric(Aura a, Aura copyFrom)
-    {
+    private void ActivateGeneric(Aura a, Aura copyFrom) {
         a.Ordinal = GetNextOrdinal();
-        if (copyFrom != null)
-        {
+        if (copyFrom != null) {
             a.ctx = copyFrom.ctx;
             a.InitXExpression = copyFrom.InitXExpression;
             a.InitYExpression = copyFrom.InitYExpression;
@@ -270,13 +226,11 @@ class Manager : IDisposable
             a.InitHExpression = copyFrom.InitHExpression;
             a.InitOExpression = copyFrom.InitOExpression;
         }
-        else
-        {
+        else {
             a.plug = plug;
-            switch (Renderer)
-            {
+            switch (Renderer) {
                 case RendererEnum.Winforms:
-                    a.Renderer = new Renderer.Winforms();
+                    a.Renderer = new Winforms();
                     break;
                 case RendererEnum.Scarborough:
                     a.Renderer = new Renderer.Scarborough();
@@ -288,8 +242,7 @@ class Manager : IDisposable
         a.Width = a.EvaluateNumericExpression(a.ctx, a.InitWExpression);
         a.Height = a.EvaluateNumericExpression(a.ctx, a.InitHExpression);
         a.Opacity = a.EvaluateNumericExpression(a.ctx, a.InitOExpression);
-        if (copyFrom != null)
-        {
+        if (copyFrom != null) {
             a.UpdateXExpression = copyFrom.UpdateXExpression;
             a.UpdateYExpression = copyFrom.UpdateYExpression;
             a.UpdateWExpression = copyFrom.UpdateWExpression;
@@ -299,88 +252,76 @@ class Manager : IDisposable
         }
     }
 
-    private AuraImage ActivateImage(string id, AuraImage a)
-    {
-        AuraImage existing = GetImage(id);
-        if (existing != null)
-        {
+    private AuraImage ActivateImage(string id, AuraImage a) {
+        var existing = GetImage(id);
+        if (existing != null) {
             ActivateGeneric(existing, a);
             return existing;
         }
-        else
-        {
-            ActivateGeneric(a, null);
-            imageitems[id] = a;
-            return a;
-        }
+        ActivateGeneric(a, null);
+        imageitems[id] = a;
+        return a;
     }
 
-    private AuraText ActivateText(string id, AuraText a)
-    {
-        AuraText existing = GetText(id);
-        if (existing != null)
-        {
+    private AuraText ActivateText(string id, AuraText a) {
+        var existing = GetText(id);
+        if (existing != null) {
             ActivateGeneric(existing, a);
             existing.TextExpression = a.TextExpression;
             existing.Text = a.EvaluateStringExpression(existing.ctx, existing.TextExpression);
             return existing;
         }
-        else
-        {
-            ActivateGeneric(a, null);
-            a.Text = a.EvaluateStringExpression(a.ctx, a.TextExpression);
-            textitems[id] = a;
-            return a;
-        }
+        ActivateGeneric(a, null);
+        a.Text = a.EvaluateStringExpression(a.ctx, a.TextExpression);
+        textitems[id] = a;
+        return a;
     }
 
-    public AuraImage GetImage(string id)
-    {
-        if (imageitems.ContainsKey(id) == true)
-        {
-            return imageitems[id];
+    public AuraImage GetImage(string id) {
+        if (imageitems.TryGetValue(id, out var image)) {
+            return image;
         }
         return null;
     }
 
-    public AuraText GetText(string id)
-    {
-        if (textitems.ContainsKey(id) == true)
-        {
-            return textitems[id];
+    public AuraText GetText(string id) {
+        if (textitems.TryGetValue(id, out var text)) {
+            return text;
         }
         return null;
     }
 
-    public void DeactivateAllImages()
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.DeactivateAll, ItemType = ItemAction.ItemTypeEnum.Image });
+    public void DeactivateAllImages() {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.DeactivateAll,
+                ItemType = ItemAction.ItemTypeEnum.Image
+            });
         }
     }
 
-    public void DeactivateAllText()
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.DeactivateAll, ItemType = ItemAction.ItemTypeEnum.Text });
+    public void DeactivateAllText() {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.DeactivateAll,
+                ItemType = ItemAction.ItemTypeEnum.Text
+            });
         }
     }
 
-    internal void HideAllItems()
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.RenderingOff });
+    internal void HideAllItems() {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.RenderingOff
+            });
         }
     }
 
-    internal void ShowAllItems()
-    {
-        lock (ItemActions)
-        {
-            ItemActions.Enqueue(new ItemAction() { Action = ItemAction.ActionTypeEnum.RenderingOn });
+    internal void ShowAllItems() {
+        lock (ItemActions) {
+            ItemActions.Enqueue(new ItemAction {
+                Action = ItemAction.ActionTypeEnum.RenderingOn
+            });
         }
     }
 
@@ -421,25 +362,19 @@ class Manager : IDisposable
     //     }
     // }
 
-    private void UpdateAura(int numTicks, Aura a, List<Aura> ac, List<string> toRem)
-    {
-        try
-        {
-            if (a.Logic(numTicks) == false)
-            {
+    private void UpdateAura(int numTicks, Aura a, List<Aura> ac, List<string> toRem) {
+        try {
+            if (!a.Logic(numTicks)) {
                 toRem.Add(a.Name);
             }
-            else
-            {
-                if (a.Changed == true)
-                {
+            else {
+                if (a.Changed) {
                     a.Changed = false;
                 }
                 ac.Add(a);
             }
         }
-        catch (Exception /*ex*/)
-        {
+        catch (Exception /*ex*/) {
             /* tododoo
             if (a.ctx != null && a.ctx.trig != null)
             {
@@ -467,8 +402,7 @@ class Manager : IDisposable
         }
     }
 
-    private void UpdateImages(int numTicks, List<Aura> ac)
-    {
+    private void UpdateImages(int numTicks, List<Aura> ac) {
         /* tododoo
         List<string> toRem = new List<string>();
         List<DeferredMessage> messages = new List<DeferredMessage>();
@@ -511,8 +445,7 @@ class Manager : IDisposable
         ProcessMessages(messages);*/
     }
 
-    private void UpdateText(int numTicks, List<Aura> ac)
-    {
+    private void UpdateText(int numTicks, List<Aura> ac) {
         /* tododoo
         List<string> toRem = new List<string>();
         List<DeferredMessage> messages = new List<DeferredMessage>();
@@ -555,18 +488,14 @@ class Manager : IDisposable
         ProcessMessages(messages);*/
     }
 
-    private void UpdateAuras(int numTicks, List<Aura> ac)
-    {
+    private void UpdateAuras(int numTicks, List<Aura> ac) {
         UpdateImages(numTicks, ac);
         UpdateText(numTicks, ac);
     }
 
-    private void Render(IEnumerable<Aura> ac)
-    {
-        foreach (Aura a in ac)
-        {
+    private void Render(IEnumerable<Aura> ac) {
+        foreach (var a in ac) {
             a.Render();
         }
     }
-
 }
