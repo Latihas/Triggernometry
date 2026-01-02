@@ -28,7 +28,7 @@ namespace Triggernometry.UI.Forms
                 Anchor = AnchorStyles.None,
                 Dock = DockStyle.Fill,
                 ExpressionType = exprType,
-                Text = defaultValue,
+                Text = defaultValue
             };
             expEditedValue.textBox1.MinimumSize = new Size(200, 0);
 

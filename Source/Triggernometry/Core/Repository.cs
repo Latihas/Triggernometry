@@ -221,7 +221,7 @@ namespace Triggernometry.Core
             ExecuteScript = 1 << 1,
             WindowMessage = 1 << 2,
             ObsControl    = 1 << 3,
-            DiskOperation = 1 << 4,
+            DiskOperation = 1 << 4
         }
 
         /// <summary>

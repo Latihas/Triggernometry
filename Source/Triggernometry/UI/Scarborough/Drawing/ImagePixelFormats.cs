@@ -118,7 +118,7 @@ namespace Scarborough.Drawing
             PixelFormat.Format32bpp3ChannelsAlpha,
             PixelFormat.Format32bppGrayFloat,
             PixelFormat.Format32bppCMYK,
-            PixelFormat.Format32bppGrayFixedPoint,
+            PixelFormat.Format32bppGrayFixedPoint
         };
 
         public static Guid GetBestPixelFormat(Guid[] supportedFormats)

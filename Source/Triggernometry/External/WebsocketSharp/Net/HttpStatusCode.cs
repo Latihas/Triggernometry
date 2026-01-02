@@ -354,6 +354,6 @@ namespace WebSocketSharp.Net
     /// Equivalent to status code 505.
     /// Indicates that the server doesn't support the HTTP version used in the client's request.
     /// </summary>
-    HttpVersionNotSupported = 505,
+    HttpVersionNotSupported = 505
   }
 }

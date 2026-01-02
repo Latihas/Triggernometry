@@ -490,7 +490,7 @@ namespace Triggernometry.PluginBridges.ExternalTools
             Request = 6,
             RequestResponse = 7,
             RequestBatch = 8,
-            RequestBatchResponse = 9,
+            RequestBatchResponse = 9
         }
 
         private enum RequestBatchExecutionType
@@ -498,7 +498,7 @@ namespace Triggernometry.PluginBridges.ExternalTools
             None = -1,
             SerialRealtime = 0,
             SerialFrame = 1,
-            Parallel = 2,
+            Parallel = 2
         }
     }
 }

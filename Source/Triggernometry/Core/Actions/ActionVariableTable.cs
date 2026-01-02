@@ -44,7 +44,7 @@ namespace Triggernometry.Core.Actions
             SortLine,
             GetAllEntities,
             UnsetAll,
-            UnsetRegex,
+            UnsetRegex
         }
 
         /// <summary>

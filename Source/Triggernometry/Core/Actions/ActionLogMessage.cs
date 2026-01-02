@@ -25,7 +25,7 @@ namespace Triggernometry.Core.Actions
             Custom,
             Custom2,
             Info,
-            Verbose,
+            Verbose
         }
 
         /// <summary>

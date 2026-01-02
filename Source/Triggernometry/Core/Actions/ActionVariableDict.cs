@@ -38,7 +38,7 @@ namespace Triggernometry.Core.Actions
             UnsetAll,
             UnsetRegex,
             [Obsolete] GetEntityByName, // => GetEntity
-            [Obsolete] GetEntityById, // => GetEntity
+            [Obsolete] GetEntityById    // => GetEntity
         }
 
         /// <summary>

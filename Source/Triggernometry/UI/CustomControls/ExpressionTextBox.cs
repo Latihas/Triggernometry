@@ -57,7 +57,7 @@ namespace Triggernometry.UI.CustomControls
 
             // numeric string func
             "hex2dec(hex)", "hex2float(hex)", "hex2double(hex)", "X8float(hex)", "parsedmg(hex)", "len(alphanumstr)",
-            "freq(note, semitones=0)", "nextETms(XX:XX)", "nextETms(ETmin)",
+            "freq(note, semitones=0)", "nextETms(XX:XX)", "nextETms(ETmin)"
         };
 
         public static List<string> prefixes = new List<string>() // right after "${"
@@ -87,7 +87,7 @@ namespace Triggernometry.UI.CustomControls
             "_ffxivversion", "_ffxivincombat", "_ffxivisglobal", "_ffxivlanguage", "_ffxivlanguageid",
             "_env[x]", "_const[x]", "_config[x]", "_storage[x]", "_actionhistory[i/previous]",
             "_this", "_idx", "_col", "_row", "_col[i]", "_row[i]", "_colrl[...]", "_rowcl[...]", "_key", "_val",
-            "_loopiterator", "_i",
+            "_loopiterator", "_i"
         };
 
         public static List<string> funcs = new List<string>()
@@ -115,7 +115,7 @@ namespace Triggernometry.UI.CustomControls
             "join(joiner=',', slices='::')",
             "randjoin(joiner=',', slices='::')",
             "contain(str, slices='::')", "ifcontain(str, t, f)",
-            "max(type='n', slices='::')", "min(type='n', slices='::')",
+            "max(type='n', slices='::')", "min(type='n', slices='::')"
         };
 
         public static List<string> tvarProps = new List<string>()
@@ -131,7 +131,7 @@ namespace Triggernometry.UI.CustomControls
             "sum(colSlices='::', rowSlices='::')",
             "max()", "max(type='n', colSlices='::', rowSlices='::')",
             "min()", "min(type='n', colSlices='::', rowSlices='::')",
-            "contain(str, colSlices='::', rowSlices='::')", "ifcontain(str, t, f)",
+            "contain(str, colSlices='::', rowSlices='::')", "ifcontain(str, t, f)"
         };
 
         public static List<string> dvarProps = new List<string>()
@@ -141,12 +141,12 @@ namespace Triggernometry.UI.CustomControls
             "joinall(kvjoiner='=', pairjoiner=',')", "joinall(kvjoiner='=', pairjoiner=',', selectedKeys...)",
             "joinkeys(joiner=',')", "joinvalues(joiner=',')", "joinvalues(joiner=',', selectedKeys...)",
             "sumkeys", "sum", "count(value)",
-            "max(type='n')", "min(type='n')", "maxkey(type='n')", "minkey(type='n')",
+            "max(type='n')", "min(type='n')", "maxkey(type='n')", "minkey(type='n')"
         };
 
         public static List<string> textAuraProps = new List<string>()
         {
-            "x", "y", "w", "h", "opacity", "text",
+            "x", "y", "w", "h", "opacity", "text"
         };
 
         public static List<string> imageAuraProps = new List<string>()
@@ -181,7 +181,7 @@ namespace Triggernometry.UI.CustomControls
             "DebugLevel", "UseACTForSound", "UseACTForTTS", "FfxivLogNetwork", "UseOsClipboard", "DeveloperMode", "Autosave", "Language", 
             "UnsafeUsage", "DynamicUsage",
             "Microsoft.CodeAnalysis", "Microsoft.Win32", "System.CodeDom.Compiler", "System.Diagnostics", "Triggernometry.Utilities",
-            "System.IO", "System.Net", "System.Reflection", "System.Runtime", "System.Security", "System.Web",
+            "System.IO", "System.Net", "System.Reflection", "System.Runtime", "System.Security", "System.Web"
         };
 
         // sfunc:FuncName(type argName, ...) : returnType
@@ -1047,7 +1047,7 @@ namespace Triggernometry.UI.CustomControls
             { "image",    AutofillTypeEnum.Image },
             { "text",     AutofillTypeEnum.Text },
             { "callback", AutofillTypeEnum.Callback },
-            { "storage",  AutofillTypeEnum.Storage },
+            { "storage",  AutofillTypeEnum.Storage }
         };
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1378,7 +1378,7 @@ namespace Triggernometry.UI.CustomControls
                 { '（', '）' }, { '［', '］' }, { '｛', '｝' }, 
                 { '【', '】' }, { '《', '》' }, { '<',  '>'  },
                 { '“',  '”'  }, { '‘',  '’'  }, { '「', '」' },
-                { '\"', '\"' }, { '\'', '\'' }, // too complicated to determine if a " or ' is left/right, so always consider it as left for now
+                { '\"', '\"' }, { '\'', '\'' } // too complicated to determine if a " or ' is left/right, so always consider it as left for now
             };
 
             private static Dictionary<char, char> _rightBracketChars = _leftBracketChars.ToDictionary(pair => pair.Value, pair => pair.Key);

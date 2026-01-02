@@ -117,13 +117,13 @@ public class PictoACTModule : ModuleBase
         { VfxType.Channeling,   "vfx/channeling/eff/{0}.avfx" },
         { VfxType.CastVfx,      "vfx/common/eff/{0}.avfx" },
         //{ VfxType.StatusLoopVfx, "" },
-        { VfxType.ActorVfx,     "{0}" },
+        { VfxType.ActorVfx,     "{0}" }
     };
 
     private static readonly Dictionary<VfxType, string> _staticCommandTemplates = new Dictionary<VfxType, string>
     {
         { VfxType.Omen, "vfx/omen/eff/{0}.avfx" },
-        { VfxType.StaticVfx, "{0}" },
+        { VfxType.StaticVfx, "{0}" }
     };
 
     private void Execute(MultiLineRawArgs data, Action<StaticVfx> createModifier = null)
@@ -738,7 +738,7 @@ public class PictoACTModule : ModuleBase
         { "Fan210", "gl_fan210_1bf" },
         { "Fan225", "gl_fan225_c0k1" },
         { "Fan240", "x6d3_b1_fan240_p1" },
-        { "Fan270", "gl_fan270_0100af" },
+        { "Fan270", "gl_fan270_0100af" }
     };
 
 }
@@ -751,5 +751,5 @@ public enum VfxType
     // StatusLoopVfx,
     ActorVfx,
     Omen,
-    StaticVfx,
+    StaticVfx
 }

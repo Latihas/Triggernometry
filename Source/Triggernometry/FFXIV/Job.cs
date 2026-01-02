@@ -51,7 +51,7 @@ namespace Triggernometry.FFXIV
             StrengthMelee = DPS | 1,
             DexterityMelee = DPS | 2,
             PhysicalRanged = DPS | 4,
-            MagicalRanged = DPS | 6,
+            MagicalRanged = DPS | 6
         }
 
         private static List<Job> _jobs = new List<Job>();

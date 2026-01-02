@@ -69,7 +69,7 @@ public partial class RealPlugin
             Obj = o,
             Name = name,
             Registrant = registrant,
-            RegistrationTime = DateTime.Now,
+            RegistrationTime = DateTime.Now
         };
         lock (callbacksById)
         {

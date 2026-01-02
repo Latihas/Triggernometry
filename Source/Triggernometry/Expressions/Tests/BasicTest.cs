@@ -10,7 +10,7 @@ namespace Triggernometry.Expressions.Tests
             testItems = new List<TestItem>
             {
                 new TestItem("", ""),
-                new TestItem("\nA\r\nB\rC\nD⏎E\n", "\r\nA\r\nB\r\nC\r\nD\r\nE\r\n"),
+                new TestItem("\nA\r\nB\rC\nD⏎E\n", "\r\nA\r\nB\r\nC\r\nD\r\nE\r\n")
             };
         }
     }

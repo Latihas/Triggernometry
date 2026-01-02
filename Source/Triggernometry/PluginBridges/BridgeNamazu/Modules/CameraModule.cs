@@ -140,7 +140,7 @@ public class CameraModule : ModuleBase
         { "AngleH", 0x140 }, // 这个角度似乎不是底层的数值，手动修改（增加或减少）时，改变量的绝对值 dθ 会变为 max(dθ - pi/40, 0)
         { "AngleV", 0x144 }, // 上 -pi/2   下 pi/2
         { "MinAngleV", 0x158 },
-        { "MaxAngleV", 0x15C },
+        { "MaxAngleV", 0x15C }
     };
 
     public Dictionary<string, int> OffsetsGlobal = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)  // 7.3
@@ -154,7 +154,7 @@ public class CameraModule : ModuleBase
         { "AngleH", 0x140 }, // 这个角度似乎不是底层的数值，手动修改（增加或减少）时，改变量的绝对值 dθ 会变为 max(dθ - pi/40, 0)
         { "AngleV", 0x144 }, // 上 -pi/2   下 pi/2
         { "MinAngleV", 0x158 },
-        { "MaxAngleV", 0x15C },
+        { "MaxAngleV", 0x15C }
     };
 
     // 游戏默认
@@ -165,7 +165,7 @@ public class CameraModule : ModuleBase
         { "MinFoV", 0.69f },
         { "MaxFoV", 0.78f },
         { "MinAngleV", -1.483529806f },
-        { "MaxAngleV", 0.7853981853f },
+        { "MaxAngleV", 0.7853981853f }
     };
 
     public readonly Dictionary<string, float> DefaultEditedParams = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase)
@@ -175,6 +175,6 @@ public class CameraModule : ModuleBase
         { "MinFoV", 0.69f },
         { "MaxFoV", 0.78f },
         { "MinAngleV", -1.569f }, // 超过这个数值时第一人称视角难以旋转
-        { "MaxAngleV", 1.569f },  // 超过这个数值时视角会反转
+        { "MaxAngleV", 1.569f }   // 超过这个数值时视角会反转
     };
 }
