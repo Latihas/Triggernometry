@@ -130,48 +130,18 @@ public class ProxyPlugin : IActPluginV1 {
         PluginInterface.UiBuilder.Draw += DrawScriptBdl;
     }
 
+
     private void DrawScriptBdl() {
         var bdl = ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
         var now = DateTime.Now.Ticks / 10000;
         lock (ScriptDrawList) {
-            foreach (var shape in ScriptDrawList) {
-                if (shape.toRecycle) continue;
+            foreach (var shape in ScriptDrawList.Where(shape => !shape.toRecycle)) {
                 if (now > shape.EndTime) {
                     shape.toRecycle = true;
                     BDLClearCount++;
                     continue;
                 }
-                switch (shape.ShapeType) {
-                    case Circle:
-                        var circle = (IGCircle)shape;
-                        GameGui.WorldToScreen(circle.Position, out var vcircle);
-                        bdl.AddCircleFilled(vcircle, circle.R, circle.Color);
-                        break;
-                    case Line:
-                        var line = (IGLine)shape;
-                        GameGui.WorldToScreen(line.Position, out var vline);
-                        GameGui.WorldToScreen(line.Position2, out var vline2);
-                        bdl.AddLine(vline, vline2, line.Color);
-                        break;
-                    case Cone:
-                        var cone = (IGCone)shape;
-                        var position = cone.Position;
-                        var rotation = cone.Rotation + MathF.PI / 4;
-                        var partialCircleSegmentRotation = cone.AngleRad / cone.CircleSegments;
-                        GameGui.WorldToScreen(position, out var originPositionOnScreen);
-                        bdl.PathLineTo(originPositionOnScreen);
-                        for (var i = 0; i <= cone.CircleSegments; i++) {
-                            var currentRotation = rotation - i * partialCircleSegmentRotation;
-                            GameGui.WorldToScreen(new Vector3(position.X + cone.R * MathF.Sin(currentRotation),
-                                    position.Y,
-                                    position.Z + cone.R * MathF.Cos(currentRotation)),
-                                out var segmentVectorOnCircle);
-                            bdl.PathLineTo(segmentVectorOnCircle);
-                        }
-                        bdl.PathFillConvex(cone.Color);
-                        bdl.PathClear(); //TODO necessary?
-                        break;
-                }
+                bdl.DrawIGShape(shape);
             }
             if (BDLClearCount > 100) {
                 ScriptDrawList = ScriptDrawList.Where(i => !i.toRecycle).ToList();
