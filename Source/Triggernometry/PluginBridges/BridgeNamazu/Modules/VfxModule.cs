@@ -196,19 +196,33 @@ public class VfxModule : ModuleBase {
             if (!autoRemoved) CheckIfAnyZeroPtr();
             if ((long)srcAddress <= 0xFFFF || (long)tgtAddress <= 0xFFFF)
                 throw new Exception($"[鲶鱼精邮差扩展] ActorVfxCreate ({fullPath}) 实体地址无效：src = {(long)srcAddress:X}, tgt = {(long)tgtAddress:X}");
-            var vfxPtr = ActorVfxCreateD(fullPath, srcAddress, tgtAddress, -1f, (char)0, 0, (char)0);
-            var vfx = new ActorVfx {
-                Ptr = vfxPtr,
-                Path = fullPath,
-                Tag = tag
-            };
-            if (!autoRemoved) // 临时应对方式，暂时未能检测 LockOn 是否已经被移除，所以不主动注册
-            {
-                lock (_actorVfxs) {
-                    _actorVfxs[vfxPtr] = vfx;
-                }
+            ActorVfx vfx = null;
+            if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
+                // if(ImGuiReplaceDict.TryGetValue(fullPath,out var type))
+                // vfx = new ActorVfx {
+                //     Ptr = 0,
+                //     Path = fullPath,
+                //     Tag = tag
+                // };
+                // Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
+                //TODO Collect data
+                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,$"ActorVfx not in dict: {fullPath}({tag})");
             }
-            Custom2Log($"[ActorVfxCreate] {fullPath} @ {(long)vfxPtr:X}");
+            if (vfx == null) {
+                var vfxPtr = ActorVfxCreateD(fullPath, srcAddress, tgtAddress, -1f, (char)0, 0, (char)0);
+                vfx = new ActorVfx {
+                    Ptr = vfxPtr,
+                    Path = fullPath,
+                    Tag = tag
+                };
+                if (!autoRemoved) // 临时应对方式，暂时未能检测 LockOn 是否已经被移除，所以不主动注册
+                {
+                    lock (_actorVfxs) {
+                        _actorVfxs[vfxPtr] = vfx;
+                    }
+                }
+                Custom2Log($"[ActorVfxCreate] {fullPath} @ {(long)vfxPtr:X}");
+            }
             return vfx;
         });
     }
@@ -290,16 +304,30 @@ public class VfxModule : ModuleBase {
         return GreyMagicMemoryBase.ExecuteWithLock(() => {
             CheckIfAnyZeroPtr();
             const string pool = "Client.System.Scheduler.Instance.VfxObject";
-            var vfxPtr = StaticVfxCreateD!(fullPath, pool);
-            var vfx = new StaticVfx {
-                Ptr = vfxPtr,
-                Path = fullPath,
-                Tag = tag
-            };
-            lock (_staticVfxs) {
-                _staticVfxs[vfxPtr] = vfx;
+            StaticVfx vfx = null;
+            if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
+                // if(ImGuiReplaceDict.TryGetValue(fullPath,out var type))
+                // vfx = new ActorVfx {
+                //     Ptr = 0,
+                //     Path = fullPath,
+                //     Tag = tag
+                // };
+                // Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
+                //TODO Collect data
+                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,$"StaticVfx not in dict: {fullPath}({tag})");
             }
-            Custom2Log($"[StaticVfxCreate] {fullPath} @ {(long)vfxPtr:X}");
+            if(vfx==null) {
+                var vfxPtr = StaticVfxCreateD!(fullPath, pool);
+                vfx = new StaticVfx {
+                    Ptr = vfxPtr,
+                    Path = fullPath,
+                    Tag = tag
+                };
+                lock (_staticVfxs) {
+                    _staticVfxs[vfxPtr] = vfx;
+                }
+                Custom2Log($"[StaticVfxCreate] {fullPath} @ {(long)vfxPtr:X}");
+            }
             return vfx;
         });
     }
@@ -348,4 +376,8 @@ public class VfxModule : ModuleBase {
         if (vfxName.Length <= 8)
             throw new Exception($"[鲶鱼精邮差扩展] {methodName} vfxName 参数过短：{vfxName}");
     }
+
+    public static readonly Dictionary<string, Object> ImGuiReplaceDict = new() {
+
+    };
 }

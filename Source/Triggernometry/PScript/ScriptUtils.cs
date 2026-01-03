@@ -184,7 +184,7 @@ public static partial class ScriptUtils {
     public class IGCircle : IGBase {
         internal readonly (float, float)[] _params;
 
-        public IGCircle(Func<Vector3> position, double r, long duration, uint? color = null) : base(position, duration, Circle, color ?? 0x7FFFFF00u) {
+        public IGCircle(Func<Vector3> position, double r, long duration, uint? color = null, string? tag = null) : base(position, duration, Circle, color ?? 0x7FFFFF00u, tag) {
             var r1 = (float)r;
             _params = new (float, float)[DefaultCircleSegments + 1];
             for (var i = 0; i <= DefaultCircleSegments; i++) {
@@ -194,32 +194,33 @@ public static partial class ScriptUtils {
         }
     }
 
-    public class IGCone(Func<Vector3> position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null)
-        : IGBase(position, duration, Cone, color ?? 0x7F00FFFFu) {
+    public class IGCone(Func<Vector3> position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null, string? tag = null)
+        : IGBase(position, duration, Cone, color ?? 0x7F00FFFFu, tag) {
         public readonly float R = (float)r;
         public readonly Func<float> Rotation = rotation;
         public readonly float AngleRad = (float)angleRad;
         public readonly int CircleSegments = circleSegments ?? (int)(DefaultCircleSegments * (angleRad / (2 * MathF.PI)));
     }
 
-    public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
-        : IGBase(position, duration, Line, color ?? 0x7F0000FFu) {
+    public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null, string? tag = null)
+        : IGBase(position, duration, Line, color ?? 0x7F0000FFu, tag) {
         public readonly Func<Vector3> Position2 = position2;
         public readonly int Thickness = thickness;
     }
 
-    public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
-        : IGBase(position, duration, Rect, color ?? 0x7F0000FFu) {
+    public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null, string? tag = null)
+        : IGBase(position, duration, Rect, color ?? 0x7F0000FFu, tag) {
         public readonly Func<Vector3> Position2 = position2;
         public readonly int Thickness = thickness;
     }
 
-    public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
+    public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color, string? tag) {
         public readonly Func<Vector3> Position = position;
         public readonly long EndTime = DateTime.Now.Ticks / 10000 + duration;
         public readonly ShapeType ShapeType = shapeType;
         public readonly uint Color = color;
         public bool toRecycle;
+        public string? Tag = tag;
     }
 
 
@@ -232,6 +233,7 @@ public static partial class ScriptUtils {
 
     public static IGameObject? GetGameObjectById(ulong id) => ObjectTable.SearchById(id);
     public static Func<Vector3> GetGameObjectById_Position(ulong id) => () => GetGameObjectById(id).Position;
+    
     public static List<IGBase> ScriptDrawList = [];
     public static int BDLClearCount;
 
@@ -269,7 +271,7 @@ public static partial class ScriptUtils {
 
         private void DrawIGCone(IGCone cone) {
             var position = cone.Position();
-            var rotation = cone.Rotation() +cone.AngleRad / 2;
+            var rotation = cone.Rotation() + cone.AngleRad / 2;
             var partialCircleSegmentRotation = cone.AngleRad / cone.CircleSegments;
             GameGui.WorldToScreen(position, out var originPositionOnScreen);
             bdl.PathLineTo(originPositionOnScreen);
@@ -299,7 +301,7 @@ public static partial class ScriptUtils {
             if (dirAB == Vector3.Zero) return;
             dirAB = Vector3.Normalize(dirAB);
             var helperVec = new Vector3(0, 1, 0);
-            if (MathF.Abs(Vector3.Dot(dirAB, helperVec)) > 0.99f) 
+            if (MathF.Abs(Vector3.Dot(dirAB, helperVec)) > 0.99f)
                 helperVec = new Vector3(1, 0, 0);
             var normalN = Vector3.Normalize(Vector3.Cross(dirAB, helperVec));
             var A1 = posA + normalN * halfThickness; // A点左侧顶点
