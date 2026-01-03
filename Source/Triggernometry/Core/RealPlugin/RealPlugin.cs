@@ -624,7 +624,7 @@ public partial class RealPlugin {
                     logFlattenACT.Enqueue(logLine);
                     if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.Dequeue();
                 }
-                var szone = BridgeFFXIV.ZoneID.ToString();
+                var szone = BridgeFFXIV.ZoneID;
                 // BDL.Clear();
                 foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
                     if (script!.TerritoryIds() == null || script.TerritoryIds()!.Contains(szone))
