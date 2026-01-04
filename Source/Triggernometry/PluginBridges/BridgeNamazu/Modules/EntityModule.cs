@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Dalamud;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
@@ -63,7 +64,8 @@ public class EntityModule : ModuleBase {
         var filter = XivEntityFilterEvaluator.CreateFilter(cmds[0]);
         foreach (var address in Entity.GetEntities().Where(filter).Select(e => e.Address)) {
             var strAddress = address.ToString();
-            var hexId = GreyMagicMemoryBase.Read<uint>(address + IdOffset()).ToString("X8");
+            SafeMemory.Read<uint>(address + IdOffset(), out var res);
+            var hexId = res.ToString("X8");
             // 后续行是回调名称和参数，实体地址用 _address 替换
             foreach (var cbPair in cmds.Skip(1).Select(c => c.Split([','], 2))) {
                 if (cbPair.Length == 1) throw new Exception($"批量调用回调时未提供回调参数：{cbPair[0]}");
@@ -209,38 +211,38 @@ public class EntityModule : ModuleBase {
 
     public void SetPos(IntPtr objectAddress, float x, float y, float z) {
         var pos = new Vector3(x, z, y); // 注意 Y Z 轴交换
-        var modelAddress = GreyMagicMemoryBase.Read<IntPtr>(objectAddress + ModelOffset());
-        GreyMagicMemoryBase.Write(objectAddress + PosOffset(), pos);
+        SafeMemory.Read<IntPtr>(objectAddress + ModelOffset(), out var modelAddress);
+        SafeMemory.Write(objectAddress + PosOffset(), pos);
         if (modelAddress != IntPtr.Zero)
-            GreyMagicMemoryBase.Write(modelAddress + ModelPosOffset(), pos);
+            SafeMemory.Write(modelAddress + ModelPosOffset(), pos);
     }
 
     public void SetDefaultPos(IntPtr objectAddress, float x, float y, float z) {
         var pos = new Vector3(x, z, y); // 注意 Y Z 轴交换
-        GreyMagicMemoryBase.Write(objectAddress + DefaultPosOffset(), pos);
+        SafeMemory.Write(objectAddress + DefaultPosOffset(), pos);
     }
 
     public void SetModelRelPos(IntPtr objectAddress, float dx, float dy, float dz) {
         var relPos = new Vector3(dx, dz, dy); // 注意 Y Z 轴交换
-        GreyMagicMemoryBase.Write(objectAddress + ModelRelPosOffset(), relPos);
+        SafeMemory.Write(objectAddress + ModelRelPosOffset(), relPos);
     }
 
     public void SetHeading(IntPtr objectAddress, float h) {
-        var modelAddress = GreyMagicMemoryBase.Read<nint>(objectAddress + ModelOffset());
-        GreyMagicMemoryBase.Write(objectAddress + PosOffset() + 0x10, h);
+        SafeMemory.Read<nint>(objectAddress + ModelOffset(), out var modelAddress);
+        SafeMemory.Write(objectAddress + PosOffset() + 0x10, h);
         // 四元数
-        GreyMagicMemoryBase.Write(modelAddress + ModelPosOffset() + 0x14, (float)Math.Sin(h / 2));
-        GreyMagicMemoryBase.Write(modelAddress + ModelPosOffset() + 0x1C, (float)Math.Cos(h / 2));
+        SafeMemory.Write(modelAddress + ModelPosOffset() + 0x14, (float)Math.Sin(h / 2));
+        SafeMemory.Write(modelAddress + ModelPosOffset() + 0x1C, (float)Math.Cos(h / 2));
     }
 
     public void SetDefaultHeading(IntPtr objectAddress, float h) {
-        GreyMagicMemoryBase.Write(objectAddress + DefaultPosOffset() + 0x10, h);
+        SafeMemory.Write(objectAddress + DefaultPosOffset() + 0x10, h);
     }
 
     public unsafe void Target(IntPtr address, bool hard = true, bool soft = true) {
         CheckIfAnyZeroPtr();
-        if (hard) GreyMagicMemoryBase.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset(), address);
-        if (soft) GreyMagicMemoryBase.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset() + 8, address);
+        if (hard) SafeMemory.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset(), address);
+        if (soft) SafeMemory.Write((IntPtr)TargetSystem.Instance() + HardTargetOffset() + 8, address);
     }
 
     /// <summary> 见 status 参数描述 </summary>
@@ -253,26 +255,26 @@ public class EntityModule : ModuleBase {
     ///     16384: 不重绘：有模型无名牌、不可选；重绘：不变，刷新模型 <br />
     /// </param>
     public void SetModelStatus(IntPtr objectAddress, int status) {
-        GreyMagicMemoryBase.Write(objectAddress + ModelStatusOffset(), status);
+        SafeMemory.Write(objectAddress + ModelStatusOffset(), status);
     }
 
     public void SetObjectScaleTemp(IntPtr objectAddress, float scaleX, float scaleY, float scaleZ) {
-        var drawObjectAddress = GreyMagicMemoryBase.Read<nint>(objectAddress + ModelOffset());
-        GreyMagicMemoryBase.Write(drawObjectAddress + ModelScaleOffset(), new Vector3(scaleX, scaleZ, scaleY));
+        SafeMemory.Read<nint>(objectAddress + ModelOffset(), out var drawObjectAddress);
+        SafeMemory.Write(drawObjectAddress + ModelScaleOffset(), new Vector3(scaleX, scaleZ, scaleY));
     }
 
     public void SetObjectScale(IntPtr objectAddress, float scale) {
-        GreyMagicMemoryBase.Write(objectAddress + ScaleOffset(), scale);
+        SafeMemory.Write(objectAddress + ScaleOffset(), scale);
         ReDraw(objectAddress);
     }
 
     // FFXIVClientStructs/FFXIV/Client/Game/Character/Character.cs    public float Alpha;
     public void SetOpacity(IntPtr objectAddress, float opacity) {
-        GreyMagicMemoryBase.Write(objectAddress + OpacityOffset(), opacity);
+        SafeMemory.Write(objectAddress + OpacityOffset(), opacity);
     }
 
     public void SetStatusLoopVfx(IntPtr objectAddress, ushort id) {
-        GreyMagicMemoryBase.Write(objectAddress + StatusLoopVfxOffset(), id);
+        SafeMemory.Write(objectAddress + StatusLoopVfxOffset(), id);
         ReDraw(objectAddress);
     }
 

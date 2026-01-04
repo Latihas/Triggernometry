@@ -18,9 +18,12 @@ namespace Triggernometry.PScript;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static partial class ScriptUtils {
     public static IPlayerCharacter Me => ObjectTable.LocalPlayer;
-    public static ulong Me_HexID() => Me.GameObjectId;
-    public static Vector3 Me_Position() => Me.Position;
-    public static float Me_Rotation() => Me.Rotation;
+    public static ulong Me_HexID_D() => Me.GameObjectId;
+    public static ulong Me_HexID_F() => Me.GameObjectId;
+    public static Vector3 Me_Position_D() => Me.Position;
+    public static Vector3 Me_Position_F => Me.Position;
+    public static float Me_Rotation_D() => Me.Rotation;
+    public static float Me_Rotation_F => Me.Rotation;
 
     #region TargetIcon
 
@@ -181,10 +184,16 @@ public static partial class ScriptUtils {
             ActGlobals.oFormActMain.TTS(text);
     };
 
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class IGCircle : IGBase {
         internal readonly (float, float)[] _params;
 
-        public IGCircle(Func<Vector3> position, double r, long duration, uint? color = null, string? tag = null) : base(position, duration, Circle, color ?? 0x7FFFFF00u, tag) {
+        public IGCircle(Vector3 position, double r, long duration, uint? color = null)
+            : this(() => position, r, duration, color) {
+        }
+
+        public IGCircle(Func<Vector3> position, double r, long duration, uint? color = null)
+            : base(position, duration, Circle, color ?? 0x7FFFFF00u) {
             var r1 = (float)r;
             _params = new (float, float)[DefaultCircleSegments + 1];
             for (var i = 0; i <= DefaultCircleSegments; i++) {
@@ -194,33 +203,68 @@ public static partial class ScriptUtils {
         }
     }
 
-    public class IGCone(Func<Vector3> position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null, string? tag = null)
-        : IGBase(position, duration, Cone, color ?? 0x7F00FFFFu, tag) {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class IGCone(Func<Vector3> position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null)
+        : IGBase(position, duration, Cone, color ?? 0x7F00FFFFu) {
         public readonly float R = (float)r;
         public readonly Func<float> Rotation = rotation;
         public readonly float AngleRad = (float)angleRad;
         public readonly int CircleSegments = circleSegments ?? (int)(DefaultCircleSegments * (angleRad / (2 * MathF.PI)));
+
+        public IGCone(Vector3 position, double r, float rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null) : this(() => position, r, () => rotation, angleRad, duration, circleSegments, color) {
+        }
+
+        public IGCone(Vector3 position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null) : this(() => position, r, rotation, angleRad, duration, circleSegments, color) {
+        }
+
+        public IGCone(Func<Vector3> position, double r, float rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null) : this(position, r, () => rotation, angleRad, duration, circleSegments, color) {
+        }
     }
 
-    public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null, string? tag = null)
-        : IGBase(position, duration, Line, color ?? 0x7F0000FFu, tag) {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
+        : IGBase(position, duration, Line, color ?? 0x7F0000FFu) {
         public readonly Func<Vector3> Position2 = position2;
         public readonly int Thickness = thickness;
+
+        public IGLine(Vector3 position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
+            : this(() => position, () => position2, duration, thickness, color) {
+        }
+
+        public IGLine(Vector3 position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
+            : this(() => position, position2, duration, thickness, color) {
+        }
+
+        public IGLine(Func<Vector3> position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
+            : this(position, () => position2, duration, thickness, color) {
+        }
     }
 
-    public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null, string? tag = null)
-        : IGBase(position, duration, Rect, color ?? 0x7F0000FFu, tag) {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
+        : IGBase(position, duration, Rect, color ?? 0x7F0000FFu) {
         public readonly Func<Vector3> Position2 = position2;
         public readonly int Thickness = thickness;
+        public IGRect(Vector3 position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
+            : this(() => position, () => position2, duration, thickness, color) {
+        }
+
+        public IGRect(Vector3 position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
+            : this(() => position, position2, duration, thickness, color) {
+        }
+
+        public IGRect(Func<Vector3> position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
+            : this(position, () => position2, duration, thickness, color) {
+        }
     }
 
-    public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color, string? tag) {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
         public readonly Func<Vector3> Position = position;
-        public readonly long EndTime = DateTime.Now.Ticks / 10000 + duration;
+        public long EndTime = DateTime.Now.Ticks / 10000 + duration;
         public readonly ShapeType ShapeType = shapeType;
         public readonly uint Color = color;
         public bool toRecycle;
-        public string? Tag = tag;
     }
 
 
@@ -231,9 +275,13 @@ public static partial class ScriptUtils {
         Rect
     }
 
+    public static void DrawShape(IGBase shape) {
+        lock (ScriptDrawList) ScriptDrawList.Add(shape);
+    }
+
     public static IGameObject? GetGameObjectById(ulong id) => ObjectTable.SearchById(id);
     public static Func<Vector3> GetGameObjectById_Position(ulong id) => () => GetGameObjectById(id).Position;
-    
+
     public static List<IGBase> ScriptDrawList = [];
     public static int BDLClearCount;
 

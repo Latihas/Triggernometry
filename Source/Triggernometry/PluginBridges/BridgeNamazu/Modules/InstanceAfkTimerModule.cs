@@ -1,4 +1,5 @@
 ﻿using System;
+using Dalamud;
 using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
@@ -27,14 +28,14 @@ public class InstanceAfkTimerModule : ModuleBase {
 
     public void DisableInstanceTimer(bool shouldDisable) {
         CheckIfAnyZeroPtr();
-        var currentBytes = GreyMagicMemoryBase.ReadBytes(PatchPtr, OriginalBytes.Length);
+        SafeMemory.ReadBytes(PatchPtr, OriginalBytes.Length,out  var currentBytes);
         bool? isDisabled = currentBytes.SequenceEqual(PatchedBytes) ? true :
             currentBytes.SequenceEqual(OriginalBytes) ? false : null;
         if (isDisabled == null) {
             WarningLog("[鲶鱼精邮差扩展] 当前副本计时疑似被其他插件修改，无法禁用副本计时器。");
             return;
         }
-        GreyMagicMemoryBase.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
+        SafeMemory.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
         if (isDisabled == shouldDisable) {
             CustomLog(shouldDisable ? "[鲶鱼精邮差扩展] 已禁用副本计时器。" : "[鲶鱼精邮差扩展] 已恢复副本计时器。");
         }

@@ -21,7 +21,6 @@ public class StaticVfx : Vfx {
     internal Vector3 PrevAngles;
     /// <summary> 注意 lock </summary>
     public static IReadOnlyDictionary<IntPtr, StaticVfx> Storage => VfxModule.StaticVfxs;
-    public bool isImGui;
 
     public static StaticVfx Create(string fullPath, string tag = null)
         => Module.StaticVfxCreate(fullPath, tag);

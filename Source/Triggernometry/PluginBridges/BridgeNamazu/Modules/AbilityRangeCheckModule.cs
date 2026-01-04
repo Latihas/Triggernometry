@@ -1,4 +1,5 @@
 ﻿using System;
+using Dalamud;
 using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
@@ -24,7 +25,7 @@ public class AbilityRangeCheckModule : ModuleBase {
 
     public void DisableAbilityRangeCheck(bool shouldDisable) {
         CheckIfAnyZeroPtr();
-        GreyMagicMemoryBase.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
+        SafeMemory.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
         CustomLog(shouldDisable ? "[Kairos] 开启屏蔽技能距离检测。" : "[Kairos] 已恢复技能距离检测。");
     }
 }

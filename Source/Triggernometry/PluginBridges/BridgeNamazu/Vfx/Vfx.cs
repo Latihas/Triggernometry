@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using Dalamud;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
+using Triggernometry.PScript;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
@@ -10,6 +12,8 @@ public abstract class Vfx {
     public string Path { get; set; }
     public string Tag { get; set; }
     public bool Removed { get; set; } = false;
+
+    public ScriptUtils.IGBase? ImGuiObject;
 
     public const string DefaultTag = "Auto";
     public static VfxModule Module => BridgeNamazu.GetModule<VfxModule>();
@@ -37,11 +41,15 @@ public abstract class Vfx {
 
     public byte Flag
     {
-        get => GreyMagicMemoryBase.Read<byte>(Ptr + 0x38);
+        get
+        {
+            SafeMemory.Read<byte>(Ptr + 0x38, out var flag);
+            return flag;
+        }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x38, value);
+            SafeMemory.Write(Ptr + 0x38, value);
         }
     }
 
@@ -49,13 +57,13 @@ public abstract class Vfx {
     {
         get
         {
-            var raw = GreyMagicMemoryBase.Read<Vector3>(Ptr + 0x50);
+            SafeMemory.Read<Vector3>(Ptr + 0x50, out var raw);
             return new Vector3(raw.X, raw.Z, raw.Y);
         }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x50, new Vector3(value.X, value.Z, value.Y));
+            SafeMemory.Write(Ptr + 0x50, new Vector3(value.X, value.Z, value.Y));
         }
     }
 
@@ -69,7 +77,7 @@ public abstract class Vfx {
     {
         get
         {
-            var raw = GreyMagicMemoryBase.Read<Vector4>(Ptr + 0x60);
+            SafeMemory.Read<Vector4>(Ptr + 0x60, out var raw);
             var q = new Quaternion(raw.X, raw.Z, raw.Y, raw.W);
 
             float yaw;
@@ -97,7 +105,7 @@ public abstract class Vfx {
         {
             if (Removed) return;
             var q = Quaternion.CreateFromYawPitchRoll(value.Z, value.Y, value.X); // θy, θx, θ
-            GreyMagicMemoryBase.Write(Ptr + 0x60, new Vector4(q.X, q.Z, q.Y, q.W));
+            SafeMemory.Write(Ptr + 0x60, new Vector4(q.X, q.Z, q.Y, q.W));
         }
     }
 
@@ -105,73 +113,97 @@ public abstract class Vfx {
     {
         get
         {
-            var raw = GreyMagicMemoryBase.Read<Vector3>(Ptr + 0x70);
+            SafeMemory.Read<Vector3>(Ptr + 0x70, out var raw);
             return new Vector3(raw.X, raw.Z, raw.Y);
         }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x70, new Vector3(value.X, value.Z, value.Y));
+            SafeMemory.Write(Ptr + 0x70, new Vector3(value.X, value.Z, value.Y));
         }
     }
 
     public uint ActorVfxSource
     {
-        get => GreyMagicMemoryBase.Read<uint>(Ptr + 0x128);
+        get
+        {
+            SafeMemory.Read<uint>(Ptr + 0x128, out var result);
+            return result;
+        }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x128, value);
+            SafeMemory.Write(Ptr + 0x128, value);
         }
     }
 
     public uint ActorVfxTarget
     {
-        get => GreyMagicMemoryBase.Read<uint>(Ptr + 0x130);
+        get
+        {
+            SafeMemory.Read<uint>(Ptr + 0x130, out var res);
+            return res;
+        }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x130, value);
+            SafeMemory.Write(Ptr + 0x130, value);
         }
     }
 
     public uint StaticVfxSource
     {
-        get => GreyMagicMemoryBase.Read<uint>(Ptr + 0x1B8);
+        get
+        {
+            SafeMemory.Read<uint>(Ptr + 0x1B8, out var res);
+            return res;
+        }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x1B8, value);
+            SafeMemory.Write(Ptr + 0x1B8, value);
         }
     }
 
     public uint StaticVfxTarget
     {
-        get => GreyMagicMemoryBase.Read<uint>(Ptr + 0x1C0);
+        get
+        {
+            SafeMemory.Read<uint>(Ptr + 0x1C0, out var res);
+            return res;
+        }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x1C0, value);
+            SafeMemory.Write(Ptr + 0x1C0, value);
         }
     }
 
     public float Speed
     {
-        get => GreyMagicMemoryBase.Read<float>(Ptr + 0x250);
+        get
+        {
+            SafeMemory.Read<float>(Ptr + 0x250, out var res);
+            return res;
+        }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x250, value);
+            SafeMemory.Write(Ptr + 0x250, value);
         }
     }
 
     public Vector4 Color
     {
-        get => GreyMagicMemoryBase.Read<Vector4>(Ptr + 0x260);
+        get
+        {
+            SafeMemory.Read<Vector4>(Ptr + 0x260, out var res);
+            return res;
+        }
         set
         {
             if (Removed) return;
-            GreyMagicMemoryBase.Write(Ptr + 0x260, value);
+            SafeMemory.Write(Ptr + 0x260, value);
         }
     }
 }

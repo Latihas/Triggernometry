@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Dalamud;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Environment;
 using Triggernometry.Expressions.String.Utils;
@@ -128,7 +129,7 @@ public class EnvironmentEffectModule : ModuleBase {
     public unsafe void ChangeWeather(byte weatherId) {
         CheckIfAnyZeroPtr();
         var envManagerPtr = (IntPtr)EnvManager.Instance();
-        GreyMagicMemoryBase.Write(envManagerPtr + 0x27, weatherId); // ActiveWeather
-        GreyMagicMemoryBase.Write<float>(envManagerPtr + 0x28, 1); // TransitionTime
+        SafeMemory.Write(envManagerPtr + 0x27, weatherId); // ActiveWeather
+        SafeMemory.Write<float>(envManagerPtr + 0x28, 1); // TransitionTime
     }
 }
