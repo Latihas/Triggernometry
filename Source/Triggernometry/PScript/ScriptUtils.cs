@@ -18,29 +18,29 @@ namespace Triggernometry.PScript;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static partial class ScriptUtils {
     public static IPlayerCharacter Me => ObjectTable.LocalPlayer;
-    public static ulong Me_HexID_D() => Me.GameObjectId;
-    public static ulong Me_HexID_F() => Me.GameObjectId;
-    public static Vector3 Me_Position_D() => Me.Position;
-    public static Vector3 Me_Position_F => Me.Position;
-    public static float Me_Rotation_D() => Me.Rotation;
-    public static float Me_Rotation_F => Me.Rotation;
+    public static ulong Me_HexID() => Me.GameObjectId;
+    public static Func<Vector3> Me_Position => () => Me.Position;
+    public static Func<float> Me_Rotation => () => Me.Rotation;
+    public static IGameObject? GetGameObjectById(ulong id) => ObjectTable.SearchById(id);
+    public static Func<Vector3> GetGameObjectById_Position(ulong id) => () => GetGameObjectById(id).Position;
+    public static Func<float> GetGameObjectById_Rotation(ulong id) => () => GetGameObjectById(id).Rotation;
 
     #region TargetIcon
 
     [GeneratedRegex("^.{14} TargetIcon 1B:(?<targetId>.{8}):[^:]+:.{4}:.{4}:(?<id>.{4}):")]
     private static partial Regex _LogRegexTargetIcon();
 
-    public static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();
+    private static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();
 
-    public static void MatchTargetIcon(string log, List<TargetIcon> dat) {
+    private static void MatchTargetIcon(string log, List<TargetIcon> dat) {
         var match = LogRegexTargetIcon.Match(log);
-        if (match.Success)
-            foreach (var d in dat) {
-                var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
-                var id = Convert.ToInt32(match.Groups["id"].Value, 16);
-                if ((d._targetId == null || d._targetId() == targetId) && (d._id == null || d._id == id))
-                    d.Action(targetId, id);
-            }
+        if (!match.Success) return;
+        foreach (var d in dat) {
+            var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
+            var id = Convert.ToInt32(match.Groups["id"].Value, 16);
+            if ((d._targetId == null || d._targetId() == targetId) && (d._id == null || d._id == id))
+                d.Action(targetId, id);
+        }
     }
 
     public record TargetIcon {
@@ -124,38 +124,48 @@ public static partial class ScriptUtils {
 
     #region StartsCasting
 
-    [GeneratedRegex("^.{14} StartsCasting 14:.{8}:[^:]+:(?<id>[^:]+):")]
+    [GeneratedRegex("^.{14} StartsCasting 14:(?<sourceId>.{8}):[^:]+:(?<id>[^:]+):[^:]+:(?<targetId>[^:]+):")]
     private static partial Regex _LogRegexStartsCasting();
 
     public static readonly Regex LogRegexStartsCasting = _LogRegexStartsCasting();
 
     public static void MatchStartsCasting(string log, List<StartsCasting> dat) {
         var match = LogRegexStartsCasting.Match(log);
-        if (match.Success)
-            foreach (var d in dat) {
-                var id = Convert.ToInt32(match.Groups["id"].Value, 16);
-                if (d._id == null || d._id == id)
-                    d.Action(id);
-            }
+        if (!match.Success) return;
+        foreach (var d in dat) {
+            var sourceId = Convert.ToUInt64(match.Groups["sourceId"].Value, 16);
+            var id = Convert.ToInt32(match.Groups["id"].Value, 16);
+            var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
+            if ((d._sourceId == null || d._sourceId == sourceId) &&
+                (d._id == null || d._id == id) &&
+                (d._targetId == null || d._targetId == targetId))
+                d.Action(sourceId, id, targetId);
+        }
     }
 
     public record StartsCasting {
         public int? _id;
-        private readonly Action<int>? actionF;
+        public ulong? _sourceId;
+        public ulong? _targetId;
+        private readonly Action<ulong, int, ulong>? actionF;
         private readonly Action? actionN;
 
-        public void Action(int id) {
+        public void Action(ulong sourceId, int id, ulong targetId) {
             if (actionN != null) actionN();
-            else actionF!(id);
+            else actionF!(sourceId, id, targetId);
         }
 
-        public StartsCasting(Action<int> Action, int? Id = null) {
+        public StartsCasting(Action<ulong, int, ulong> Action, ulong? sourceId = null, int? Id = null, ulong? targetId = null) {
             _id = Id;
+            _sourceId = sourceId;
+            _targetId = targetId;
             actionF = Action;
         }
 
-        public StartsCasting(Action Action, int? Id = null) {
+        public StartsCasting(Action Action, ulong? sourceId = null, int? Id = null, ulong? targetId = null) {
             _id = Id;
+            _sourceId = sourceId;
+            _targetId = targetId;
             actionN = Action;
         }
     }
@@ -174,7 +184,11 @@ public static partial class ScriptUtils {
                 c.toRecycle = true;
     }
 
-    public static Action TTS(string text, int delay = 0) => () => {
+    public static float Deg2Rad(float deg) => deg * MathF.PI / 180;
+
+    public static Action MTTS(string text, int delay = 0) => () => TTS(text, delay);
+
+    public static void TTS(string text, int delay = 0) {
         if (delay > 0)
             Task.Run(async () => {
                 await Task.Delay(delay);
@@ -182,7 +196,37 @@ public static partial class ScriptUtils {
             });
         else
             ActGlobals.oFormActMain.TTS(text);
+    }
+
+    public static Func<float> BossFacingToPlayer(ulong BossId) => () => {
+        var playerPosition = Me_Position();
+        var bossPosition = GetGameObjectById_Position(BossId)();
+        var deltaX = playerPosition.X - bossPosition.X;
+        var deltaY = playerPosition.Z- bossPosition.Z;
+        if (MathF.Abs(deltaX) < 1e-6 && MathF.Abs(deltaY) < 1e-6) return 0f;
+        var rad2 = MathF.Atan2(deltaX, deltaY);
+        if (rad2 < 0) rad2 += 2 * MathF.PI;
+        return rad2;
     };
+
+    #region Draw
+
+    public enum ShapeType {
+        Circle,
+        Cone,
+        Line,
+        Rect,
+        Ring
+    }
+
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
+        public readonly Func<Vector3> Position = position;
+        public long EndTime = DateTime.Now.Ticks / 10000 + duration;
+        public readonly ShapeType ShapeType = shapeType;
+        public readonly uint Color = color;
+        public bool toRecycle;
+    }
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class IGCircle : IGBase {
@@ -245,6 +289,7 @@ public static partial class ScriptUtils {
         : IGBase(position, duration, Rect, color ?? 0x7F0000FFu) {
         public readonly Func<Vector3> Position2 = position2;
         public readonly int Thickness = thickness;
+
         public IGRect(Vector3 position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
             : this(() => position, () => position2, duration, thickness, color) {
         }
@@ -259,28 +304,19 @@ public static partial class ScriptUtils {
     }
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
-        public readonly Func<Vector3> Position = position;
-        public long EndTime = DateTime.Now.Ticks / 10000 + duration;
-        public readonly ShapeType ShapeType = shapeType;
-        public readonly uint Color = color;
-        public bool toRecycle;
-    }
+    public class IGRing(Func<Vector3> position, double R, double r, long duration, uint? color = null)
+        : IGBase(position, duration, Ring, color ?? 0x7FFFFF00u) {
+        public readonly float R = (float)R;
+        public readonly float r = (float)r;
 
-
-    public enum ShapeType {
-        Circle,
-        Cone,
-        Line,
-        Rect
+        public IGRing(Vector3 position, double R, double r, long duration, uint? color = null)
+            : this(() => position, R, r, duration, color) {
+        }
     }
 
     public static void DrawShape(IGBase shape) {
         lock (ScriptDrawList) ScriptDrawList.Add(shape);
     }
-
-    public static IGameObject? GetGameObjectById(ulong id) => ObjectTable.SearchById(id);
-    public static Func<Vector3> GetGameObjectById_Position(ulong id) => () => GetGameObjectById(id).Position;
 
     public static List<IGBase> ScriptDrawList = [];
     public static int BDLClearCount;
@@ -289,7 +325,7 @@ public static partial class ScriptUtils {
     public const float DefaultCircleSegmentFullRotation = 2 * MathF.PI / DefaultCircleSegments;
 
     extension(ImDrawListPtr bdl) {
-        public void DrawIGShape(IGBase shape) {
+        internal void DrawIGShape(IGBase shape) {
             switch (shape.ShapeType) {
                 case Circle:
                     bdl.DrawIGCircle((IGCircle)shape);
@@ -302,6 +338,9 @@ public static partial class ScriptUtils {
                     break;
                 case Rect:
                     bdl.DrawIGRect((IGRect)shape);
+                    break;
+                case ShapeType.Ring:
+                    bdl.DrawIGRing((IGRing)shape);
                     break;
             }
         }
@@ -371,5 +410,36 @@ public static partial class ScriptUtils {
             bdl.PathFillConvex(rect.Color);
             bdl.PathClear();
         }
+
+        private void DrawIGRing(IGRing ring) {
+            var worldPosition = ring.Position();
+            var outerScreenPoints = new Vector2[DefaultCircleSegments + 1];
+            var innerScreenPoints = new Vector2[DefaultCircleSegments + 1];
+            for (var i = 0; i <= DefaultCircleSegments; i++) {
+                var currentRotation = i * DefaultCircleSegmentFullRotation;
+                GameGui.WorldToScreen(new Vector3(
+                    worldPosition.X + ring.R * MathF.Sin(currentRotation),
+                    worldPosition.Y,
+                    worldPosition.Z + ring.R * MathF.Cos(currentRotation)
+                ), out outerScreenPoints[i]);
+                GameGui.WorldToScreen(new Vector3(
+                    worldPosition.X + ring.r * MathF.Sin(currentRotation),
+                    worldPosition.Y,
+                    worldPosition.Z + ring.r * MathF.Cos(currentRotation)
+                ), out innerScreenPoints[i]);
+            }
+            bdl.PathClear();
+            for (var i = 0; i < DefaultCircleSegments; i++) {
+                bdl.PathLineTo(outerScreenPoints[i]);
+                bdl.PathLineTo(outerScreenPoints[i + 1]);
+                bdl.PathLineTo(innerScreenPoints[i + 1]);
+                bdl.PathLineTo(innerScreenPoints[i]);
+                bdl.PathLineTo(outerScreenPoints[i]);
+                bdl.PathFillConvex(ring.Color);
+                bdl.PathClear();
+            }
+        }
+
+        #endregion Draw
     }
 }
