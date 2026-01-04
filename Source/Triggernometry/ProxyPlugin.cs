@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Windows.Forms;
 using Advanced_Combat_Tracker;
@@ -14,7 +13,6 @@ using Triggernometry.Core;
 using Triggernometry.PluginBridges;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using static Triggernometry.PScript.ScriptUtils;
-using static Triggernometry.PScript.ScriptUtils.ShapeType;
 
 // using Costura;
 
