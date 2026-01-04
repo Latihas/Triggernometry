@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Triggernometry.Core;
 using Triggernometry.Expressions.String.Models;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
@@ -401,10 +402,24 @@ public class PictoACTModule : ModuleBase {
         var filter = ParseFilter(data);
 
         // 执行移除
-        if (isActor && GetConfig<bool>("ActorVfx") != false)
-            ActorVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => vfx.TryRemove());
-        if (isStatic && GetConfig<bool>("StaticVfx") != false)
-            StaticVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => vfx.TryRemove());
+        if (isActor && GetConfig<bool>("ActorVfx") != false) {
+            var vfxs = ActorVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList();
+            vfxs.ForEach(vfx => {
+                if (vfx.ImGuiObject != null) {
+                    vfx.ImGuiObject?.toRecycle = true;
+                    vfx.Removed = true;
+                }
+            });
+        }
+        if (isStatic && GetConfig<bool>("StaticVfx") != false) {
+            var vfxs = StaticVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList();
+            vfxs.ForEach(vfx => {
+                if (vfx.ImGuiObject != null) {
+                    vfx.ImGuiObject?.toRecycle = true;
+                    vfx.Removed = true;
+                }
+            });
+        }
     }
 
     private void ParseTypeAndPath(MultiLineRawArgs data, out VfxType vfxType, out string vfxPath, out bool isActor) {

@@ -3,20 +3,15 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Dalamud;
 using Triggernometry.Core;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
+using static Triggernometry.PScript.ScriptUtils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class VfxModule : ModuleBase {
-    public IntPtr ActorVfxCreatePtr;
-    public IntPtr ActorVfxRemovePtr;
-
-    public IntPtr StaticVfxCreatePtr;
-    public IntPtr StaticVfxRunPtr;
-    public IntPtr StaticVfxRemovePtr;
-
     private static readonly Dictionary<IntPtr, ActorVfx> _actorVfxs = new();
     private static readonly Dictionary<IntPtr, StaticVfx> _staticVfxs = new();
 
@@ -41,87 +36,88 @@ public class VfxModule : ModuleBase {
     public static void ClearVfxCache() {
         lock (_actorVfxs) _actorVfxs.Clear();
         lock (_staticVfxs) _staticVfxs.Clear();
+        if (RealPlugin.Instance.cfg.UseImGui4VfxModule) ClearAllIGShape();
     }
 
     public VfxModule() {
         ScanMethod = () => {
             ClearVfxCache();
-            // 40 53 55 56 57 48 81 EC 08 02 00 00 0F 29 B4 24 F0 01 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 E0 01 00 00 0F B6 ??
-            ActorVfxCreatePtr = Scanner.TryScan(
-                "E8 * * * * 48 8B D8 48 85 C0 74 ?? 0F B6 57 ?? 48 8B C8 C0 EA 02 80 E2 01", nameof(ActorVfxCreatePtr));
+            const string StaticVfxCreateSig = "E8 ?? ?? ?? ?? F3 0F 10 35 ?? ?? ?? ?? 48 89 43 08";
+            const string StaticVfxRunSig = "E8 ?? ?? ?? ?? B0 02 EB 02";
+            const string StaticVfxRemoveSig = "40 53 48 83 EC 20 48 8B D9 48 8B 89 ?? ?? ?? ?? 48 85 C9 74 28 33 D2 E8 ?? ?? ?? ?? 48 8B 8B ?? ?? ?? ?? 48 85 C9";
+            const string ActorVfxCreateSig = "40 53 55 56 57 48 81 EC ?? ?? ?? ?? 0F 29 B4 24 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 0F B6 AC 24 ?? ?? ?? ?? 0F 28 F3 49 8B F8";
+            const string ActorVfxRemoveSig = "0F 11 48 10 48 8D 05"; // the weird one
 
-            // 48 89 5C 24 10 57 48 83 EC 20 48 8D 05 ?? ?? ?? ?? 48 8B D9 48 89 01 8B FA 48 8D 05 ?? ?? ?? ?? 48 89 81 B0 01 00 00 48
-            var actorVfxRemovePtrPtr = Scanner.TryScan(
-                "0F 11 48 10 48 8D 05 * * * *", nameof(ActorVfxRemovePtr));
-            if (actorVfxRemovePtrPtr != IntPtr.Zero)
-                ActorVfxRemovePtr = GreyMagicMemoryBase.Read<IntPtr>(actorVfxRemovePtrPtr);
+            var staticVfxCreateAddress = ProxyPlugin.SigScanner.ScanText(StaticVfxCreateSig);
+            var staticVfxRemoveAddress = ProxyPlugin.SigScanner.ScanText(StaticVfxRemoveSig);
+            var actorVfxCreateAddress = ProxyPlugin.SigScanner.ScanText(ActorVfxCreateSig);
+            var actorVfxRemoveAddresTemp = ProxyPlugin.SigScanner.ScanText(ActorVfxRemoveSig) + 7;
+            var actorVfxRemoveAddress = Marshal.ReadIntPtr(actorVfxRemoveAddresTemp + Marshal.ReadInt32(actorVfxRemoveAddresTemp) + 4);
 
-            // 48 89 5C 24 08 57 48 83 EC 20 48 8B 05 ?? ?? ?? ?? 48 8B F9 BA 80 03 00 00 41 B8 10 00 00 00 48 8B 48 30 48 8B 01 FF 50 ??
-            StaticVfxCreatePtr = Scanner.TryScan(
-                "E8 * * * * F3 0F 10 35 ?? ?? ?? ?? 48 89 43 08", nameof(StaticVfxCreatePtr));
+            ActorVfxCreateD = Marshal.GetDelegateForFunctionPointer<ActorVfxCreateDelegate>(actorVfxCreateAddress);
+            ActorVfxRemoveD = Marshal.GetDelegateForFunctionPointer<ActorVfxRemoveDelegate>(actorVfxRemoveAddress);
+            StaticVfxRemoveD = Marshal.GetDelegateForFunctionPointer<StaticVfxRemoveDelegate>(staticVfxRemoveAddress);
+            StaticVfxRunD = Marshal.GetDelegateForFunctionPointer<StaticVfxRunDelegate>(ProxyPlugin.SigScanner.ScanText(StaticVfxRunSig));
+            StaticVfxCreateD = Marshal.GetDelegateForFunctionPointer<StaticVfxCreateDelegate>(staticVfxCreateAddress);
 
-            // 48 89 5C 24 10 48 89 74 24 20 57 48 81 EC 90 00 00 00 0F 29 B4 24 80 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ??
-            StaticVfxRunPtr = Scanner.TryScanMultiple([
-                "e8 * * * * 0f ? ? ? ? ? ? 66 ? ? ? 74 ?", // 7.3
-                "E8 * * * * 8B 4B 7C 85 C9" // 7.0
-            ], nameof(StaticVfxRunPtr));
-
-            // 40 53 48 81 EC D0 01 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 C0 01 00 00 80 A1 88 00 00 00 FB 48 8B D9 80 A1 89 ?? ?? ?? ??
-            try {
-                StaticVfxRemovePtr = Scanner.ScanText(
-                    "40 53 48 83 EC 20 48 8B D9 48 8B 89 ?? ?? ?? ?? 48 85 C9 74 28 33 D2 E8 ?? ?? ?? ?? 48 8B 8B ?? ?? ?? ?? 48 85 C9");
-            }
-            catch // 这个函数没有相对寻址的 xref，用前一个函数定位，相隔 0xB0
-            {
-                StaticVfxRemovePtr = Scanner.ScanText("E8 * * * * F7 05 ? ? ? ? ? ? ? ? 74 ? 48 8B 05", nameof(StaticVfxRemovePtr)) + 0xB0;
-            }
-            ActorVfxCreateD = Marshal.GetDelegateForFunctionPointer<ActorVfxCreateDelegate>(ActorVfxCreatePtr);
-            ActorVfxRemoveD = Marshal.GetDelegateForFunctionPointer<ActorVfxRemoveDelegate>(ActorVfxRemovePtr);
-            StaticVfxRemoveD = Marshal.GetDelegateForFunctionPointer<StaticVfxRemoveDelegate>(StaticVfxRemovePtr);
-            StaticVfxRunD = Marshal.GetDelegateForFunctionPointer<StaticVfxRunDelegate>(StaticVfxRunPtr);
-            StaticVfxCreateD = Marshal.GetDelegateForFunctionPointer<StaticVfxCreateDelegate>(StaticVfxCreatePtr);
-            ProxyPlugin.StaticVfxRemoveHook = ProxyPlugin.GameInteropProvider.HookFromAddress<StaticVfxRemoveDelegate>(StaticVfxRemovePtr, StaticVfxRemoveDetour);
-            ProxyPlugin.ActorVfxRemoveHook = ProxyPlugin.GameInteropProvider.HookFromAddress<ActorVfxRemoveDelegate>(ActorVfxRemovePtr, ActorVfxRemoveDetour);
+            ProxyPlugin.StaticVfxRemoveHook = ProxyPlugin.GameInteropProvider.HookFromAddress<StaticVfxRemoveDelegate>(staticVfxRemoveAddress, StaticVfxRemoveDetour);
+            ProxyPlugin.ActorVfxRemoveHook = ProxyPlugin.GameInteropProvider.HookFromAddress<ActorVfxRemoveDelegate>(actorVfxRemoveAddress, ActorVfxRemoveDetour);
             ProxyPlugin.StaticVfxRemoveHook.Enable();
             ProxyPlugin.ActorVfxRemoveHook.Enable();
         };
     }
 
-    private IntPtr StaticVfxRemoveDetour(IntPtr vfxPtr) {
-        lock (_staticVfxs) {
-            if (_staticVfxs.TryGetValue(vfxPtr, out var vfx)) {
-                try {
-                    vfx.Removed = true;
-                }
-                finally {
-                    _staticVfxs.Remove(vfxPtr);
+    public IntPtr StaticVfxRemoveDetour(IntPtr vfxPtr) {
+        try {
+            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},vfxPtr:{vfxPtr}");
+        }
+        catch (Exception e) {
+            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoving Log Err: {e}");
+        }
+        Task.Run(() => {
+            lock (_staticVfxs) {
+                if (_staticVfxs.TryGetValue(vfxPtr, out var vfx)) {
+                    try {
+                        vfx.Removed = true;
+                    }
+                    finally {
+                        _staticVfxs.Remove(vfxPtr);
+                    }
                 }
             }
-        }
+        });
         return ProxyPlugin.StaticVfxRemoveHook.Original(vfxPtr);
     }
 
-    private IntPtr ActorVfxRemoveDetour(IntPtr vfxPtr, char a2) {
-        lock (_actorVfxs) {
-            if (_actorVfxs.TryGetValue(vfxPtr, out var vfx)) {
-                try {
-                    vfx.Removed = true;
-                }
-                finally {
-                    _actorVfxs.Remove(vfxPtr);
+    public IntPtr ActorVfxRemoveDetour(IntPtr vfxPtr, char a2) {
+        try {
+            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},vfxPtr:{vfxPtr}");
+        }
+        catch (Exception e) {
+            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoving Log Err: {e}");
+        }
+        Task.Run(() => {
+            lock (_actorVfxs) {
+                if (_actorVfxs.TryGetValue(vfxPtr, out var vfx)) {
+                    try {
+                        vfx.Removed = true;
+                    }
+                    finally {
+                        _actorVfxs.Remove(vfxPtr);
+                    }
                 }
             }
-        }
+        });
         return ProxyPlugin.ActorVfxRemoveHook.Original(vfxPtr, a2);
     }
 
     public delegate IntPtr StaticVfxCreateDelegate(string path, string pool);
 
-    public static StaticVfxCreateDelegate? StaticVfxCreateD;
+    public static StaticVfxCreateDelegate StaticVfxCreateD;
 
     public delegate IntPtr StaticVfxRunDelegate(IntPtr vfx, float a1, int a2);
 
-    public static StaticVfxRunDelegate? StaticVfxRunD;
+    public static StaticVfxRunDelegate StaticVfxRunD;
 
     public delegate IntPtr ActorVfxRemoveDelegate(IntPtr vfx, char a2);
 
@@ -144,8 +140,8 @@ public class VfxModule : ModuleBase {
         if (GetConfig<bool>("ActorVfx") == false) return; // ignored
         var (tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, -1.0)); // 默认不移除
         CheckIfVfxNameTooShort(vfxName, "LockOn");
-        var vfxPtr = LockOnCreate(tgtAddress, vfxName).Ptr;
-        ScheduleActorVfxRemove(vfxPtr, duration);
+        var vfx = LockOnCreate(tgtAddress, vfxName);
+        ScheduleActorVfxRemove(vfx, duration);
     }
 
     /// <summary> 连线特效 </summary>
@@ -155,8 +151,8 @@ public class VfxModule : ModuleBase {
         if (GetConfig<bool>("ActorVfx") == false) return; // ignored
         var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
         CheckIfVfxNameTooShort(vfxName, "Channeling");
-        var vfxPtr = ChannelingCreate(srcAddress, tgtAddress, vfxName).Ptr;
-        ScheduleActorVfxRemove(vfxPtr, duration);
+        var vfx = ChannelingCreate(srcAddress, tgtAddress, vfxName);
+        ScheduleActorVfxRemove(vfx, duration);
     }
 
     /// <summary> 咏唱特效 </summary>
@@ -166,8 +162,8 @@ public class VfxModule : ModuleBase {
         if (GetConfig<bool>("ActorVfx") == false) return; // ignored
         var (srcAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, 3.0)); // 默认持续时间 3 秒
         CheckIfVfxNameTooShort(vfxName, "CastVfx");
-        var vfxPtr = CastVfxCreate(srcAddress, vfxName).Ptr;
-        ScheduleActorVfxRemove(vfxPtr, duration);
+        var vfx = CastVfxCreate(srcAddress, vfxName);
+        ScheduleActorVfxRemove(vfx, duration);
     }
 
     /// <summary> 通用 ActorVfx </summary>
@@ -177,8 +173,8 @@ public class VfxModule : ModuleBase {
         if (GetConfig<bool>("ActorVfx") == false) return; // ignored
         var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
         CheckIfVfxNameTooShort(vfxName, "ActorVfx");
-        var vfxPtr = ActorVfxCreate(srcAddress, tgtAddress, vfxName).Ptr;
-        ScheduleActorVfxRemove(vfxPtr, duration);
+        var vfx = ActorVfxCreate(srcAddress, tgtAddress, vfxName);
+        ScheduleActorVfxRemove(vfx, duration);
     }
 
     public ActorVfx LockOnCreate(IntPtr tgtAddress, string vfxName, string tag = Vfx.Vfx.DefaultTag)
@@ -203,13 +199,20 @@ public class VfxModule : ModuleBase {
                 //     Ptr = 0,
                 //     Path = fullPath,
                 //     Tag = tag
+                // imguiobj
                 // };
                 // Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
                 //TODO Collect data
-                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,$"ActorVfx not in dict: {fullPath}({tag})");
+                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"ActorVfx not in dict: {fullPath}({tag})");
             }
             if (vfx == null) {
                 var vfxPtr = ActorVfxCreateD(fullPath, srcAddress, tgtAddress, -1f, (char)0, 0, (char)0);
+                try {
+                    RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxCreate,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},Path:{fullPath},Tag:{tag},vfxPtr:{vfxPtr}");
+                }
+                catch (Exception e) {
+                    RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxCreate Log Err: {e}");
+                }
                 vfx = new ActorVfx {
                     Ptr = vfxPtr,
                     Path = fullPath,
@@ -235,28 +238,36 @@ public class VfxModule : ModuleBase {
                 RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoveHook未就绪，不移除特效 {vfxPtr}"); //TODO
                 return false;
             }
-            lock (_actorVfxs) {
-                if (!_actorVfxs.TryGetValue(vfxPtr, out var vfx)) {
-                    Custom2Log($"[ActorVfx] 移除特效：（已移除）@{(long)vfxPtr:X}");
-                    return false;
-                }
-                try {
+            try {
+                lock (_actorVfxs) {
+                    if (!_actorVfxs.TryGetValue(vfxPtr, out var vfx)) {
+                        Custom2Log($"[ActorVfx] 移除特效：（已移除）@{(long)vfxPtr:X}");
+                        return false;
+                    }
                     vfx.Removed = true;
-                    RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoveD {vfxPtr}"); //TODO
-                    ActorVfxRemoveD(vfxPtr, (char)1);
+                    try {
+                        RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemove,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},Path:{vfx.Path},Tag:{vfx.Tag},vfxPtr:{vfxPtr}");
+                    }
+                    catch (Exception e) {
+                        RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemove Log Err: {e}");
+                    }
                 }
-                finally {
-                    _actorVfxs.Remove(vfxPtr);
-                    Custom2Log($"[ActorVfx] 移除特效：{vfx.Path} @ {(long)vfxPtr:X}");
-                }
-                return true;
+                ActorVfxRemoveD(vfxPtr, (char)1);
             }
+            finally {
+                lock (_actorVfxs) _actorVfxs.Remove(vfxPtr);
+                Custom2Log($"[ActorVfx] 移除特效： @ {(long)vfxPtr:X}");
+            }
+            return true;
         });
     }
 
-    public void ScheduleActorVfxRemove(IntPtr vfxPtr, double duration) {
-        if (duration >= 0 && vfxPtr != IntPtr.Zero) {
-            Task.Delay((int)(duration * 1000)).ContinueWith(_ => TryActorVfxRemove(vfxPtr));
+    public void ScheduleActorVfxRemove(Vfx.Vfx vfx, double duration) {
+        if (vfx.ImGuiObject != null) {
+            vfx.ImGuiObject.EndTime = (long)(DateTime.Now.Ticks / 10000 + duration * 1000);
+        }
+        else if (duration >= 0 && vfx.Ptr != IntPtr.Zero) {
+            Task.Delay((int)(duration * 1000)).ContinueWith(_ => TryActorVfxRemove(vfx.Ptr));
         }
     }
 
@@ -306,18 +317,24 @@ public class VfxModule : ModuleBase {
             const string pool = "Client.System.Scheduler.Instance.VfxObject";
             StaticVfx vfx = null;
             if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
-                // if(ImGuiReplaceDict.TryGetValue(fullPath,out var type))
-                // vfx = new ActorVfx {
-                //     Ptr = 0,
-                //     Path = fullPath,
-                //     Tag = tag
-                // };
+                if (ImGuiReplaceDict.TryGetValue(fullPath, out var type))
+                    vfx = new StaticVfx {
+                        Ptr = 0,
+                        Path = fullPath,
+                        Tag = tag
+                    };
                 // Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
                 //TODO Collect data
-                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,$"StaticVfx not in dict: {fullPath}({tag})");
+                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"StaticVfx not in dict: {fullPath}({tag})");
             }
-            if(vfx==null) {
-                var vfxPtr = StaticVfxCreateD!(fullPath, pool);
+            if (vfx == null) {
+                var vfxPtr = StaticVfxCreateD(fullPath, pool);
+                try {
+                    RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxCreate,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},Path:{fullPath},Tag:{tag},vfxPtr:{vfxPtr}");
+                }
+                catch (Exception e) {
+                    RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxCreate Log Err: {e}");
+                }
                 vfx = new StaticVfx {
                     Ptr = vfxPtr,
                     Path = fullPath,
@@ -335,7 +352,7 @@ public class VfxModule : ModuleBase {
     public void StaticVfxRun(IntPtr vfxPtr) {
         GreyMagicMemoryBase.ExecuteWithLock(() => {
             CheckIfAnyZeroPtr();
-            StaticVfxRunD!(vfxPtr, 0.0f, -1);
+            StaticVfxRunD(vfxPtr, 0.0f, -1);
         });
     }
 
@@ -343,25 +360,30 @@ public class VfxModule : ModuleBase {
         return GreyMagicMemoryBase.ExecuteWithLock(() => {
             CheckIfAnyZeroPtr();
             if (!ProxyPlugin.StaticVfxRemoveHook.IsEnabled) {
-                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoveHook未就绪，不移除特效 {vfxPtr}"); //TODO
+                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoveHook未就绪，不移除特效 {vfxPtr}");
                 return false;
             }
-            lock (_staticVfxs) {
-                if (!_staticVfxs.TryGetValue(vfxPtr, out var vfx)) {
-                    Custom2Log($"[StaticVfx] 移除特效：（已移除）@{(long)vfxPtr:X}");
-                    return false;
-                }
-                try {
+            try {
+                lock (_staticVfxs) {
+                    if (!_staticVfxs.TryGetValue(vfxPtr, out var vfx)) {
+                        Custom2Log($"[StaticVfx] 移除特效：（已移除）@{(long)vfxPtr:X}");
+                        return false;
+                    }
                     vfx.Removed = true;
-                    RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoveD {vfxPtr}");
-                    StaticVfxRemoveD(vfxPtr);
+                    try {
+                        RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemove,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},Path:{vfx.Path},Tag:{vfx.Tag},vfxPtr:{vfxPtr}");
+                    }
+                    catch (Exception e) {
+                        RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemove Log Err: {e}");
+                    }
                 }
-                finally {
-                    _staticVfxs.Remove(vfxPtr);
-                    Custom2Log($"[StaticVfx] 已移除特效记录：{vfx.Path} @ {(long)vfxPtr:X}");
-                }
-                return true;
+                StaticVfxRemoveD(vfxPtr);
             }
+            finally {
+                lock (_staticVfxs) _staticVfxs.Remove(vfxPtr);
+                Custom2Log($"[StaticVfx] 已移除特效记录 @ {(long)vfxPtr:X}");
+            }
+            return true;
         });
     }
 
@@ -377,7 +399,8 @@ public class VfxModule : ModuleBase {
             throw new Exception($"[鲶鱼精邮差扩展] {methodName} vfxName 参数过短：{vfxName}");
     }
 
-    public static readonly Dictionary<string, Object> ImGuiReplaceDict = new() {
-
+    public static readonly Dictionary<string, ShapeType> ImGuiReplaceDict = new() {
+        // {"m0071_fan180_01k2",ShapeType.Circle},
+        // {"Rect",ShapeType.Rect},
     };
 }

@@ -75,10 +75,11 @@ public class ProxyPlugin : IActPluginV1 {
     public static IGameGui GameGui;
     public static IFramework Framework;
     public static IGameInteropProvider GameInteropProvider;
+    public static ISigScanner SigScanner;
     public static Hook<VfxModule.StaticVfxRemoveDelegate> StaticVfxRemoveHook;
     public static Hook<VfxModule.ActorVfxRemoveDelegate> ActorVfxRemoveHook;
 
-    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui) {
+    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui,ISigScanner sigScanner) {
         RealPlugin.ResetPlugin(log);
         DalamudPlugin = dalamudPlugin;
         PluginInterface = dalamudPluginInterface;
@@ -87,6 +88,7 @@ public class ProxyPlugin : IActPluginV1 {
         GameInteropProvider = gameInteropProvider;
         ObjectTable = objectTable;
         GameGui = gameGui;
+        SigScanner = sigScanner;
         lock (this) {
             Instance = RealPlugin.Instance;
             // register any queued callbacks if the RealPlugin instance was not ready to register previously

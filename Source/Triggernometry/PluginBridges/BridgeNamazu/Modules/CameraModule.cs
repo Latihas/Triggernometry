@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud;
 using Triggernometry.Expressions.Maths;
 using CameraManager = FFXIVClientStructs.FFXIV.Client.Game.Control.CameraManager;
 
@@ -17,37 +18,42 @@ public class CameraModule : ModuleBase {
 
     public float AngleV
     {
-        get => GreyMagicMemoryBase.Read<float>(CameraPtr + Offsets["AngleV"]);
-        set => GreyMagicMemoryBase.Write(CameraPtr + Offsets["AngleV"], value);
+        get
+        {
+            SafeMemory.Read<float>(CameraPtr + Offsets["AngleV"],out var f);
+            return f;
+        }
+        set => SafeMemory.Write(CameraPtr + Offsets["AngleV"], value);
     }
 
     public float AngleH // 和游戏的角度（南 = 0）是反的，补偿 pi
     {
         get
         {
-            var actualValue = GreyMagicMemoryBase.Read<float>(CameraPtr + Offsets["AngleH"]);
+              SafeMemory.Read<float>(CameraPtr + Offsets["AngleH"],out var actualValue);
             var convertedValue = MathParser.ModFunction(actualValue, 2 * Math.PI) - Math.PI;
             return (float)convertedValue;
         }
         set // 这个角度似乎不是底层的数值，手动修改（增加或减少）时，改变量的绝对值 θ 会变为 max(θ - pi/40, 0) （即少变化 pi/40）
         {
             var errθ = Math.PI / 40;
-            double oldθ = GreyMagicMemoryBase.Read<float>(CameraPtr + Offsets["AngleH"]);
+            SafeMemory.Read<float>(CameraPtr + Offsets["AngleH"],out  var oldθ);
             var newθ = MathParser.ModFunction(value, 2 * Math.PI) - Math.PI; // 补偿
             var dθ = MathParser.ModFunction(newθ - oldθ + Math.PI, 2 * Math.PI) - Math.PI;
             if (Math.Abs(dθ) >= 3.05) {
-                GreyMagicMemoryBase.Write(CameraPtr + Offsets["AngleH"], (float)oldθ + Math.Sign(dθ));
-                oldθ += Math.Sign(dθ) * (1 - errθ); // 实际变化的量
+                SafeMemory.Write(CameraPtr + Offsets["AngleH"], (float)oldθ + Math.Sign(dθ));
+                oldθ += (float)(Math.Sign(dθ) * (1 - errθ)); // 实际变化的量
                 dθ = MathParser.ModFunction(newθ - oldθ + Math.PI, 2 * Math.PI) - Math.PI;
             }
             var writeValue = newθ + Math.Sign(dθ) * errθ;
-            GreyMagicMemoryBase.Write(CameraPtr + Offsets["AngleH"], (float)writeValue);
+            SafeMemory.Write(CameraPtr + Offsets["AngleH"], (float)writeValue);
         }
     }
 
     public float GetParam(string param) {
         if (Offsets.TryGetValue(param, out var offset)) {
-            return GreyMagicMemoryBase.Read<float>(CameraPtr + offset);
+             SafeMemory.Read<float>(CameraPtr + offset,out var f);
+             return f;
         }
         ErrorLog($"[鲶鱼精邮差扩展] 错误的相机参数 ({param})。");
         return default;
@@ -60,7 +66,7 @@ public class CameraModule : ModuleBase {
             default:
                 if (Offsets.TryGetValue(param, out var offset)) {
                     var address = CameraPtr + offset;
-                    GreyMagicMemoryBase.Write(address, newValue);
+                    SafeMemory.Write(address, newValue);
                     Custom2Log($"[鲶鱼精邮差扩展] 成功设置相机参数 {param} = {newValue}");
                 }
                 else {
