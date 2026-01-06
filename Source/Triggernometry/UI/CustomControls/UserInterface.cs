@@ -2236,107 +2236,39 @@ public class UserInterface {
             RealPlugin.Instance.cfg.RepositoryRoot.Repositories.Remove(tn);
         }
     }
-
+    public static Repository DefaultRepoCN(string address, string name, int updateIntervalMinutes)
+    {
+        return new Repository
+        {
+            Enabled = true,
+            Address = address,
+            AllowProcessLaunch = true,
+            AllowScriptExecution = true,
+            KeepLocalBackup = true,
+            Name = name,
+            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
+            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
+            AudioOutput = Repository.AudioOutputEnum.NeverOverride,
+            AutoUpdate = true,
+            UpdateInterval = updateIntervalMinutes
+        };
+    }
     public static void AddDefaultRepoCN(bool shouldUpdate = false) {
-        var selfTest = new Repository {
-            Enabled = true,
-            Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/SelfTest.xml",
-            AllowProcessLaunch = true,
-            AllowScriptExecution = true,
-            KeepLocalBackup = true,
-            Name = "[工具] 问题自检工具箱 + 使用教程　　有问题请自行在此解决",
-            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-            AudioOutput = Repository.AudioOutputEnum.NeverOverride
+        List<Repository> repos = new List<Repository>
+        {
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/SelfTest.xml", "[工具] 问题自检工具箱 + 使用教程\u3000\u3000有问题请自行在此解决", 60),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/Utils.xml", "[工具] 运行支持库（必需）", 60),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7a.xml", "7.0 M1-4 阿卡狄亚轻量级", 1440),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7b.xml", "7.2 M5-8 阿卡狄亚中量级", 1440),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7c.xml", "7.4 M9-12 阿卡狄亚重量级", 60),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/Ex7.xml", "7.X 极神", 360),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/temp.xml", "临时推送", 1440),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/U7a.xml", "7.1 绝伊甸", 1440),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/field.xml", "特殊场景探索", 1440),
+            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/dungeon.xml", "深宫", 1440)
         };
-        var utils = new Repository {
-            Enabled = true,
-            Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/Utils.xml",
-            AllowProcessLaunch = true,
-            AllowScriptExecution = true,
-            KeepLocalBackup = true,
-            Name = "[工具] 运行支持库",
-            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-            AudioOutput = Repository.AudioOutputEnum.NeverOverride
-        };
-        var s7a = new Repository {
-            Enabled = true,
-            Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/S7a.xml",
-            AllowProcessLaunch = true,
-            AllowScriptExecution = true,
-            KeepLocalBackup = true,
-            Name = "7.0 M1-4 阿卡狄亚轻量级",
-            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-            AudioOutput = Repository.AudioOutputEnum.NeverOverride
-        };
-        var s7b = new Repository {
-            Enabled = true,
-            Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/S7b.xml",
-            AllowProcessLaunch = true,
-            AllowScriptExecution = true,
-            KeepLocalBackup = true,
-            Name = "7.2 M5-8 阿卡狄亚中量级",
-            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-            AudioOutput = Repository.AudioOutputEnum.NeverOverride
-        };
-        var ex7 = new Repository {
-            Enabled = true,
-            Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/Ex7.xml",
-            AllowProcessLaunch = true,
-            AllowScriptExecution = true,
-            KeepLocalBackup = true,
-            Name = "7.X 极神",
-            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-            AudioOutput = Repository.AudioOutputEnum.NeverOverride
-        };
-        var temp = new Repository {
-            Enabled = true,
-            Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/temp.xml",
-            AllowProcessLaunch = true,
-            AllowScriptExecution = true,
-            KeepLocalBackup = true,
-            Name = "临时推送",
-            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-            AudioOutput = Repository.AudioOutputEnum.NeverOverride
-        };
-        var u7a = new Repository {
-            Enabled = true,
-            Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/U7a.xml",
-            AllowProcessLaunch = true,
-            AllowScriptExecution = true,
-            KeepLocalBackup = true,
-            Name = "7.1 绝伊甸",
-            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-            AudioOutput = Repository.AudioOutputEnum.NeverOverride
-        };
-        var field = new Repository {
-            Enabled = true,
-            Address = "https://vip.123pan.cn/1824544011/Remote_Triggers/field.xml",
-            AllowProcessLaunch = true,
-            AllowScriptExecution = true,
-            KeepLocalBackup = true,
-            Name = "特殊场景探索",
-            NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-            UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-            AudioOutput = Repository.AudioOutputEnum.NeverOverride
-        };
-        RemoveRepo("vip.123pan.cn/1824544011/Remote_Triggers/AdvWm.xml");
-        AddRepos(new List<Repository> {
-            selfTest,
-            utils,
-            s7a,
-            s7b,
-            ex7,
-            temp,
-            u7a,
-            field
-        }, false);
+        RemoveRepo("vip.123pan.cn/1824544011");
+        AddRepos(repos, shouldUpdate);
     }
 
     public static void BuildTriggerTreeFromConfiguration(object? parentTag, Folder? parentfolder) {
