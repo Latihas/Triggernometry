@@ -12,8 +12,8 @@ using static Triggernometry.PScript.ScriptUtils;
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class VfxModule : ModuleBase {
-    private static readonly Dictionary<IntPtr, ActorVfx> _actorVfxs = new();
-    private static readonly Dictionary<IntPtr, StaticVfx> _staticVfxs = new();
+    internal static readonly Dictionary<IntPtr, ActorVfx> _actorVfxs = new();
+    internal static readonly Dictionary<IntPtr, StaticVfx> _staticVfxs = new();
 
     public static IReadOnlyDictionary<IntPtr, ActorVfx> ActorVfxs
     {
@@ -54,20 +54,21 @@ public class VfxModule : ModuleBase {
             var actorVfxRemoveAddresTemp = ProxyPlugin.SigScanner.ScanText(ActorVfxRemoveSig) + 7;
             var actorVfxRemoveAddress = Marshal.ReadIntPtr(actorVfxRemoveAddresTemp + Marshal.ReadInt32(actorVfxRemoveAddresTemp) + 4);
 
-            ActorVfxCreateD = Marshal.GetDelegateForFunctionPointer<ActorVfxCreateDelegate>(actorVfxCreateAddress);
-            ActorVfxRemoveD = Marshal.GetDelegateForFunctionPointer<ActorVfxRemoveDelegate>(actorVfxRemoveAddress);
-            StaticVfxRemoveD = Marshal.GetDelegateForFunctionPointer<StaticVfxRemoveDelegate>(staticVfxRemoveAddress);
+            ActorVfxCreateD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxCreateDelegate>(actorVfxCreateAddress);
+            ActorVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxRemoveDelegate>(actorVfxRemoveAddress);
+            StaticVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<StaticVfxRemoveDelegate>(staticVfxRemoveAddress);
             StaticVfxRunD = Marshal.GetDelegateForFunctionPointer<StaticVfxRunDelegate>(ProxyPlugin.SigScanner.ScanText(StaticVfxRunSig));
             StaticVfxCreateD = Marshal.GetDelegateForFunctionPointer<StaticVfxCreateDelegate>(staticVfxCreateAddress);
 
-            ProxyPlugin.StaticVfxRemoveHook = ProxyPlugin.GameInteropProvider.HookFromAddress<StaticVfxRemoveDelegate>(staticVfxRemoveAddress, StaticVfxRemoveDetour);
-            ProxyPlugin.ActorVfxRemoveHook = ProxyPlugin.GameInteropProvider.HookFromAddress<ActorVfxRemoveDelegate>(actorVfxRemoveAddress, ActorVfxRemoveDetour);
+            ProxyPlugin.StaticVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<StaticVfxRemoveDelegate>(staticVfxRemoveAddress, StaticVfxRemoveDetour);
+            ProxyPlugin.ActorVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<ActorVfxRemoveDelegate>(actorVfxRemoveAddress, ActorVfxRemoveDetour);
             ProxyPlugin.StaticVfxRemoveHook.Enable();
             ProxyPlugin.ActorVfxRemoveHook.Enable();
         };
     }
 
     public IntPtr StaticVfxRemoveDetour(IntPtr vfxPtr) {
+        if (RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(nameof(VfxModule))) return ProxyPlugin.StaticVfxRemoveHook.Original(vfxPtr);
         try {
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},vfxPtr:{vfxPtr}");
         }
@@ -90,6 +91,7 @@ public class VfxModule : ModuleBase {
     }
 
     public IntPtr ActorVfxRemoveDetour(IntPtr vfxPtr, char a2) {
+        if (RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(nameof(VfxModule))) return ProxyPlugin.ActorVfxRemoveHook.Original(vfxPtr, a2);
         try {
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},vfxPtr:{vfxPtr}");
         }
