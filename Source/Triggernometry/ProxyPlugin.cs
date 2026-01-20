@@ -12,6 +12,7 @@ using Dalamud.Plugin.Services;
 using Triggernometry.Core;
 using Triggernometry.PluginBridges;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
+using static Triggernometry.PluginBridges.BridgeNamazu.Modules.VfxModule;
 using static Triggernometry.PScript.ScriptUtils;
 
 // using Costura;
@@ -74,10 +75,11 @@ public class ProxyPlugin : IActPluginV1 {
     public static IFramework Framework;
     public static IGameInteropProvider GameInteropProvider;
     public static ISigScanner SigScanner;
-    public static Hook<VfxModule.StaticVfxRemoveDelegate> StaticVfxRemoveHook;
-    public static Hook<VfxModule.ActorVfxRemoveDelegate> ActorVfxRemoveHook;
+    public static Hook<StaticVfxRemoveDelegate>? StaticVfxRemoveHook;
+    public static Hook<ActorVfxRemoveDelegate>? ActorVfxRemoveHook;
 
-    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui,ISigScanner sigScanner) {
+    public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui,
+        ISigScanner sigScanner) {
         RealPlugin.ResetPlugin(log);
         DalamudPlugin = dalamudPlugin;
         PluginInterface = dalamudPluginInterface;
@@ -128,8 +130,10 @@ public class ProxyPlugin : IActPluginV1 {
         // ActGlobals.oFormActMain.OnCombatEnd += OFormActMain_OnCombatEnd;
         Instance.InitPlugin();
         PluginInterface.UiBuilder.Draw += DrawScriptBdl;
+        ClientState.Logout += OnLogout;
     }
 
+    private static void OnLogout(int type, int code) => ClearVfxCache();
 
     private void DrawScriptBdl() {
         var bdl = ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
@@ -169,6 +173,7 @@ public class ProxyPlugin : IActPluginV1 {
         ActGlobals.oFormActMain.OnLogLineRead -= OFormActMain_OnLogLineRead;
         ActGlobals.oFormActMain.BeforeLogLineRead -= OFormActMain_BeforeLogLineRead;
         PluginInterface.UiBuilder.Draw -= DrawScriptBdl;
+        ClientState.Logout -= OnLogout;
         StaticVfxRemoveHook.Disable();
         StaticVfxRemoveHook.Dispose();
         ActorVfxRemoveHook.Disable();

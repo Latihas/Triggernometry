@@ -176,6 +176,11 @@ public static partial class ScriptUtils {
         MatchTargetIcon(logLine, scriptBase.TargetIconList);
         MatchStartsCasting(logLine, scriptBase.StartsCastingList);
         MatchStatusAdd(logLine, scriptBase.StatusAddList);
+        foreach (var p in scriptBase.CustomList) {
+            var match = p.Item1.Match(logLine);
+            if (!match.Success) return;
+            p.Item2(match.Groups);
+        }
     }
 
     public static void ClearAllIGShape() {
@@ -189,20 +194,33 @@ public static partial class ScriptUtils {
     public static Action MTTS(string text, int delay = 0) => () => TTS(text, delay);
 
     public static void TTS(string text, int delay = 0) {
-        if (delay > 0)
-            Task.Run(async () => {
-                await Task.Delay(delay);
-                ActGlobals.oFormActMain.TTS(text);
-            });
-        else
-            ActGlobals.oFormActMain.TTS(text);
+        if (delay > 0) DelayExec(() => ActGlobals.oFormActMain.TTS(text), delay);
+        else ActGlobals.oFormActMain.TTS(text);
+    }
+
+    public static void DelayExec(Action action, int delay = 0) {
+        Task.Run(async () => {
+            await Task.Delay(delay);
+            action();
+        });
     }
 
     public static Func<float> BossFacingToPlayer(ulong BossId) => () => {
         var playerPosition = Me_Position();
         var bossPosition = GetGameObjectById_Position(BossId)();
         var deltaX = playerPosition.X - bossPosition.X;
-        var deltaY = playerPosition.Z- bossPosition.Z;
+        var deltaY = playerPosition.Z - bossPosition.Z;
+        if (MathF.Abs(deltaX) < 1e-6 && MathF.Abs(deltaY) < 1e-6) return 0f;
+        var rad2 = MathF.Atan2(deltaX, deltaY);
+        if (rad2 < 0) rad2 += 2 * MathF.PI;
+        return rad2;
+    };
+
+    public static Func<float> BossFacingToTarget(ulong BossId, ulong dst) => () => {
+        var bossPosition = GetGameObjectById(BossId)!.Position;
+        var target = GetGameObjectById(dst)!.Position;
+        var deltaX = target.X - bossPosition.X;
+        var deltaY = target.Z - bossPosition.Z;
         if (MathF.Abs(deltaX) < 1e-6 && MathF.Abs(deltaY) < 1e-6) return 0f;
         var rad2 = MathF.Atan2(deltaX, deltaY);
         if (rad2 < 0) rad2 += 2 * MathF.PI;
@@ -237,7 +255,7 @@ public static partial class ScriptUtils {
         }
 
         public IGCircle(Func<Vector3> position, double r, long duration, uint? color = null)
-            : base(position, duration, Circle, color ?? 0x7FFFFF00u) {
+            : base(position, duration, Circle, color ?? 0x40FFFF00u) {
             var r1 = (float)r;
             _params = new (float, float)[DefaultCircleSegments + 1];
             for (var i = 0; i <= DefaultCircleSegments; i++) {
@@ -249,7 +267,7 @@ public static partial class ScriptUtils {
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class IGCone(Func<Vector3> position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null)
-        : IGBase(position, duration, Cone, color ?? 0x7F00FFFFu) {
+        : IGBase(position, duration, Cone, color ?? 0x4000FFFFu) {
         public readonly float R = (float)r;
         public readonly Func<float> Rotation = rotation;
         public readonly float AngleRad = (float)angleRad;
@@ -267,7 +285,7 @@ public static partial class ScriptUtils {
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
-        : IGBase(position, duration, Line, color ?? 0x7F0000FFu) {
+        : IGBase(position, duration, Line, color ?? 0x400000FFu) {
         public readonly Func<Vector3> Position2 = position2;
         public readonly int Thickness = thickness;
 
@@ -286,7 +304,7 @@ public static partial class ScriptUtils {
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
-        : IGBase(position, duration, Rect, color ?? 0x7F0000FFu) {
+        : IGBase(position, duration, Rect, color ?? 0x400000FFu) {
         public readonly Func<Vector3> Position2 = position2;
         public readonly int Thickness = thickness;
 
@@ -305,7 +323,7 @@ public static partial class ScriptUtils {
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class IGRing(Func<Vector3> position, double R, double r, long duration, uint? color = null)
-        : IGBase(position, duration, Ring, color ?? 0x7FFFFF00u) {
+        : IGBase(position, duration, Ring, color ?? 0x40FFFF00u) {
         public readonly float R = (float)R;
         public readonly float r = (float)r;
 
