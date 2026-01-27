@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Dalamud.Plugin.Services;
 using Triggernometry.Localization;
+using TriggernometryProxy;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;

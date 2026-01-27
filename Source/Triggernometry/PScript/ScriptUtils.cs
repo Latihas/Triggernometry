@@ -9,7 +9,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Triggernometry.Core;
-using static Triggernometry.ProxyPlugin;
+using static TriggernometryProxy.ProxyPlugin;
 using static Triggernometry.PScript.ScriptUtils.ShapeType;
 
 // ReSharper disable ClassNeverInstantiated.Global

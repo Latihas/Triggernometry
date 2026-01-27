@@ -122,7 +122,7 @@ internal static class XmlAttr {
 
     // ---------- Version ----------
 
-    /// <summary>Serializes a <see cref="Version" /> for XML attributes, omitting the default value. </summary>
+    /// <summary>Serializes a <see cref="System.Version" /> for XML attributes, omitting the default value. </summary>
     public static string Version(Version value, Version omitValue) {
         if (value == omitValue)
             return null;
@@ -130,12 +130,12 @@ internal static class XmlAttr {
         return value.ToString();
     }
 
-    /// <summary>Parses a <see cref="Version" /> from an XML attribute string. </summary>
+    /// <summary>Parses a <see cref="System.Version" /> from an XML attribute string. </summary>
     public static Version Version(string value) => System.Version.Parse(value);
 
     // ---------- Guid ----------
 
-    /// <summary>Serializes a <see cref="Guid" /> for XML attributes, omitting the specified default value. </summary>
+    /// <summary>Serializes a <see cref="System.Guid" /> for XML attributes, omitting the specified default value. </summary>
     public static string Guid(Guid value, Guid omitValue) {
         if (value == omitValue)
             return null;
@@ -143,6 +143,6 @@ internal static class XmlAttr {
         return value.ToString();
     }
 
-    /// <summary>Parses a <see cref="Guid" /> from an XML attribute string. </summary>
+    /// <summary>Parses a <see cref="System.Guid" /> from an XML attribute string. </summary>
     public static Guid Guid(string value) => System.Guid.Parse(value);
 }

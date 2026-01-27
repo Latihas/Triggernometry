@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Triggernometry.Core;
+using TriggernometryProxy;
 
 namespace Triggernometry;
 

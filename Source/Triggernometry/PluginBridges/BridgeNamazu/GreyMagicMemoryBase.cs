@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using Dalamud;
 using Triggernometry.Core;
+using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu;
 

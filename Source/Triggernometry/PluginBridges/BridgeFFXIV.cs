@@ -9,6 +9,7 @@ using Triggernometry.Core;
 using Triggernometry.Core.Variables;
 using Triggernometry.FFXIV;
 using Triggernometry.Localization;
+using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges;
 

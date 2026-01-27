@@ -9,6 +9,7 @@ using Dalamud.Utility;
 using Triggernometry.Core;
 using Triggernometry.Core.Conditions;
 using Triggernometry.Localization;
+using TriggernometryProxy;
 using static Triggernometry.Core.ActionOld;
 
 namespace Triggernometry.UI.CustomControls;

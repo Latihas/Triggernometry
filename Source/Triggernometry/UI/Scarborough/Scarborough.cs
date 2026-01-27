@@ -9,6 +9,7 @@ using Scarborough.Drawing;
 using Scarborough.PInvoke;
 using Triggernometry.Core;
 using Triggernometry.Localization;
+using TriggernometryProxy;
 
 namespace Triggernometry.UI;
 

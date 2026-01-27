@@ -15,9 +15,8 @@ using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using static Triggernometry.PluginBridges.BridgeNamazu.Modules.VfxModule;
 using static Triggernometry.PScript.ScriptUtils;
 
-// using Costura;
-
-namespace Triggernometry;
+// ReSharper disable once CheckNamespace
+namespace TriggernometryProxy;
 
 public class ProxyPlugin : IActPluginV1 {
     public RealPlugin Instance;

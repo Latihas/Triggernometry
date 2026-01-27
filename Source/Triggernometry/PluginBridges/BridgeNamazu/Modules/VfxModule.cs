@@ -7,6 +7,7 @@ using Dalamud;
 using Triggernometry.Core;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
+using TriggernometryProxy;
 using static Triggernometry.PScript.ScriptUtils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;

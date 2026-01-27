@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Triggernometry.Core;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
+using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu;
 
