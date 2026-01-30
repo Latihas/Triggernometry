@@ -18,7 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0"/>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.2">
       <Private>True</Private>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
@@ -47,8 +47,8 @@
     <Reference Include="FFXIV_ACT_Plugin">
       <HintPath>..\..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
     </Reference>
-    <PackageReference Include="System.Management" Version="10.0.1"/>
-    <PackageReference Include="System.Speech" Version="10.0.1"/>
+    <PackageReference Include="System.Management" Version="10.0.2" />
+    <PackageReference Include="System.Speech" Version="10.0.2" />
     <PackageReference Include="System.ValueTuple" Version="4.6.1"/>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7"/>
     <Reference Include="Dalamud">

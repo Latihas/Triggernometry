@@ -177,6 +177,7 @@ public class ProxyPlugin : IActPluginV1 {
         StaticVfxRemoveHook.Dispose();
         ActorVfxRemoveHook.Disable();
         ActorVfxRemoveHook.Dispose();
+        RealPlugin.Instance.DeInitAura();
         Instance.DeInitPlugin();
     }
 
