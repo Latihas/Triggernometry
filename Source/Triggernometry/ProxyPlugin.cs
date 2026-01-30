@@ -130,6 +130,7 @@ public class ProxyPlugin : IActPluginV1 {
         Instance.InitPlugin();
         PluginInterface.UiBuilder.Draw += DrawScriptBdl;
         ClientState.Logout += OnLogout;
+        RealPlugin.Instance.InitAura();
     }
 
     private static void OnLogout(int type, int code) => ClearVfxCache();
