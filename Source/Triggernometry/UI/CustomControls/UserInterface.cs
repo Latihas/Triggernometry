@@ -2254,23 +2254,6 @@ public class UserInterface {
             UpdateInterval = updateIntervalMinutes
         };
     }
-    public static void AddDefaultRepoCN(bool shouldUpdate = false) {
-        List<Repository> repos = new List<Repository>
-        {
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/SelfTest.xml", "[工具] 问题自检工具箱 + 使用教程\u3000\u3000有问题请自行在此解决", 60),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/Utils.xml", "[工具] 运行支持库（必需）", 60),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7a.xml", "7.0 M1-4 阿卡狄亚轻量级", 1440),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7b.xml", "7.2 M5-8 阿卡狄亚中量级", 1440),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7c.xml", "7.4 M9-12 阿卡狄亚重量级", 60),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/Ex7.xml", "7.X 极神", 360),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/temp.xml", "临时推送", 1440),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/U7a.xml", "7.1 绝伊甸", 1440),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/field.xml", "特殊场景探索", 1440),
-            DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/dungeon.xml", "深宫", 1440)
-        };
-        RemoveRepo("vip.123pan.cn/1824544011");
-        AddRepos(repos, shouldUpdate);
-    }
 
     public static void BuildTriggerTreeFromConfiguration(object? parentTag, Folder? parentfolder) {
         if (parentTag == null || parentfolder == null) {

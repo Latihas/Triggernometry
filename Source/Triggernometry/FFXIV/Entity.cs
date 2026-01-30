@@ -186,7 +186,6 @@ public class Entity {
 
     internal static readonly Dictionary<string, Func<Entity, object>> _propAccessors
         = new(StringComparer.OrdinalIgnoreCase) {
-            {
             { "Exist",          e => e.Exist },
             { "PluginSource",   e => e.PluginSource },
             { "Address",        e => e.Address },

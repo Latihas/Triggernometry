@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
+using Triggernometry.UI.CustomControls;
 using static Triggernometry.UI.CustomControls.UserInterface;
 
 namespace Triggernometry.Core;
@@ -49,69 +50,7 @@ public partial class RealPlugin {
 
         public void AddRepo(Repository r, bool shouldUpdate)
         {
-            if (ui.InvokeRequired)
-            {
-                ui.Invoke(new Action(() => AddRepo(r, shouldUpdate)));
-                return;
-            }
-            if (!_legalRepoPrefixes.Any(prefix => r.Address.StartsWith(prefix)))
-            {
-                UnfilteredAddToLog(DebugLevelEnum.Error,
-                    I18n.IsChineseEnvironment
-                    ? $"正在尝试添加的远程仓库地址 {r.Address} 未在信任列表内，你需要手动添加此远程仓库。"
-                    : $"The repository address {r.Address} you are trying to add is not a trusted address and needs to be added manually."
-                );
-                return;
-            }
-
-            RepositoryFolder rfo = (RepositoryFolder)ui.treeView1.Nodes[1].Tag;
-            TreeNode tn = rfo.Repositories
-                .Where(repo => repo.Address == r.Address)
-                .Select(repo => ui.treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
-                .FirstOrDefault();
-
-            if (tn != null)
-            {
-                Repository existingRepo = (Repository)tn.Tag;
-                existingRepo.Name = r.Name;
-                // do not change enable state
-                existingRepo.AllowProcessLaunch = r.AllowProcessLaunch;
-                existingRepo.AllowScriptExecution = r.AllowScriptExecution;
-                existingRepo.AllowDiskOperations = r.AllowDiskOperations;
-                existingRepo.AllowWindowMessages = r.AllowWindowMessages;
-                existingRepo.AllowObsControl = r.AllowObsControl;
-                existingRepo.KeepLocalBackup = r.KeepLocalBackup;
-                existingRepo.UpdatePolicy = r.UpdatePolicy;
-                existingRepo.AudioOutput = r.AudioOutput;
-                existingRepo.AutoUpdate = r.AutoUpdate;
-                existingRepo.UpdateInterval = r.UpdateInterval;
-
-                tn.Text = existingRepo.Name;
-                tn.Checked = existingRepo.Enabled;
-                tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
-                tn.SelectedImageIndex = tn.ImageIndex;
-            }
-            else
-            {
-                tn = new TreeNode
-                {
-                    Text = r.Name,
-                    Tag = r,
-                    Checked = r.Enabled,
-                    ImageIndex = (int)ImageIndices.RemoteRepoUnavailable
-                };
-                tn.SelectedImageIndex = tn.ImageIndex;
-                rfo.Repositories.Add(r);
-                r.Parent = rfo;
-                ui.treeView1.Nodes[1].Nodes.Add(tn);
-                ui.treeView1.Nodes[1].Expand();
-            }
-            ui.RecolorStartingFromNode(tn.Parent, tn.Parent.Checked, true);
-            ui.treeView1.Sort();
-            if (shouldUpdate)
-            {
-                ui.ForceUpdateRepository(tn);
-            }
+            UserInterface.AddRepo(r,shouldUpdate);
         }
 
         public void AddRepos(IEnumerable<Repository> repos, bool shouldUpdate)
@@ -124,27 +63,7 @@ public partial class RealPlugin {
 
         public void RemoveRepo(string partialUrl)
         {
-            if (ui.InvokeRequired)
-            {
-                ui.Invoke(new Action(() => RemoveRepo(partialUrl)));
-                return;
-            }
-            partialUrl = partialUrl.Trim();
-            RepositoryFolder rfo = (RepositoryFolder)ui.treeView1.Nodes[1].Tag;
-            var nodes = rfo.Repositories
-                .Where(repo => repo.Address.IndexOf(partialUrl, StringComparison.OrdinalIgnoreCase) >= 0)
-                .Select(repo => ui.treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
-                .ToList();
-
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                var tn = nodes[i];
-                if (tn == null) continue;
-                Repository r = (Repository)tn.Tag;
-                r.Enabled = false;
-                rfo.Repositories.Remove(r);
-                ui.treeView1.Nodes[1].Nodes.Remove(tn);
-            }
+            UserInterface.RemoveRepo(partialUrl);
         }
 
         public Repository DefaultRepoCN(string address, string name, int updateIntervalMinutes) => new Repository

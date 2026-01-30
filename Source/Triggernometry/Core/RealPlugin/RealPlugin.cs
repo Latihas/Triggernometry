@@ -330,9 +330,7 @@ public partial class RealPlugin {
             // pluginStatusText.Text = I18n.Translate("internal/Plugin/iniready", "Ready");
             FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/inited", "Initialized"));
             // start
-            if (I18n.IsChineseEnvironment) {
-                UserInterface.AddDefaultRepoCN();
-            }
+            if (I18n.IsChineseEnvironment) AddDefaultRepoCN();
             _ = RegisterNamedCallback("UploadText", (Action<object, string>)UploadTextHelper.UploadTextV1Callback, registrant: nameof(RealPlugin));
             _ = RegisterNamedCallback("UploadTextV2", (Action<object, string>)UploadTextHelper.UploadTextV2Callback, registrant: nameof(RealPlugin));
             // end
