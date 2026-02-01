@@ -1,18 +1,10 @@
 ﻿using System;
 using System.Numerics;
-using System.Threading;
-using Triggernometry;
-using Triggernometry.PluginBridges.BridgeNamazu;
-using Triggernometry.PluginBridges.BridgeNamazu.Modules;
-using static Triggernometry.Debug;
-using static Triggernometry.Expressions.String.Utils.DataStringHelper;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class LocalEntityModule : ModuleBase {
-    public IntPtr CreateBattleCharacterFuncPtr;
-    public IntPtr GetObjectByIndexFuncPtr;
-    public IntPtr DeleteObjectByIndexFuncPtr;
 
     // FFXIVClientStructs/FFXIV/Client/Game/Character/Character.CharacterSetupContainer
     public Func<int> CharacterSetupContainerOffset;
@@ -25,10 +17,6 @@ public class LocalEntityModule : ModuleBase {
 
     public LocalEntityModule() {
         ScanMethod = () => {
-            CreateBattleCharacterFuncPtr = Scanner.TryScan("E8 * * * * 41 89 44 FC ??", nameof(CreateBattleCharacterFuncPtr));
-            GetObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * 4C 8B C0 4D 85 C0", nameof(GetObjectByIndexFuncPtr));
-            DeleteObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * C6 43 49 00", nameof(DeleteObjectByIndexFuncPtr));
-
             CharacterSetupContainerOffset = () => 0x1B10;
 
             CopyFromCharacterFuncPtr = Scanner.TryScan("E8 * * * * 8B 87 ?? ?? ?? ?? 85 C0 74 ?? 83 F8", nameof(CopyFromCharacterFuncPtr));
