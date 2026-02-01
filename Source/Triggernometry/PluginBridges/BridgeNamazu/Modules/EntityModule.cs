@@ -14,26 +14,36 @@ using static Triggernometry.Expressions.String.Utils.DataStringHelper;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
-public class EntityModule : ModuleBase {
+    public class EntityModule : ModuleBase
+    {
+        public IntPtr TargetSystemPtr;
+        // public IntPtr HasStatusPtr;
+        public IntPtr GetStatusIndexPtr;
+        public IntPtr RemoveStatusPtr;
+        public IntPtr EObjAnimationPtr;
+        public IntPtr PlayActionTimelinePtr;
+        public int TimelineContainerOffset;
+
+        /*Plugin.IsCN ? xx : xx*/
     /// <summary> 实体初始坐标相对于实体地址的偏移。</summary>
     public Func<int> DefaultPosOffset = () => 0x10;
     /// <summary> 实体 ID 相对于实体地址的偏移。</summary>
-    public Func<int> IdOffset = () => Plugin.IsCN ? 0x78 : 0x78; // 6.0 / 7.3
+        public Func<int> IdOffset = () => 0x78; // 6.0 / 7.3
     /// <summary> 实体坐标相对于实体地址的偏移。</summary>
-    public Func<int> PosOffset = () => Plugin.IsCN ? 0xB0 : 0xB0; // 7.2 / 7.3
+        public Func<int> PosOffset = () => 0xB0; // 7.2 / 7.3
     /// <summary> 实体缩放倍率相对于实体地址的偏移。</summary>
-    public Func<int> ScaleOffset = () => Plugin.IsCN ? 0xC4 : 0xC4; // 7.2 / 7.3
+        public Func<int> ScaleOffset = () => 0xC4; // 7.2 / 7.3
     /// <summary> 实体模型的相对偏移相对于实体地址的偏移。相对坐标偏移会影响实体绘制的模型显示的位置。</summary>
-    public Func<int> ModelRelPosOffset = () => Plugin.IsCN ? 0xE0 : 0xE0; // 7.2 / 7.3
+        public Func<int> ModelRelPosOffset = () => 0xE0; // 7.2 / 7.3
     /// <summary> 实体模型（DrawObject*）相对于实体地址的偏移。</summary>
-    public Func<int> ModelOffset = () => Plugin.IsCN ? 0x100 : 0x100; // 7.2 / 7.3
+        public Func<int> ModelOffset = () => 0x100; // 7.2 / 7.3
     /// <summary> 实体 StatusLoopVfx ID 相对于实体地址的偏移。</summary>
-    public Func<int> StatusLoopVfxOffset = () => Plugin.IsCN ? 0x1C8 : 0x1C8; // 7.2 / 7.3
+        public Func<int> StatusLoopVfxOffset = () => 0x1C8; // 7.2 / 7.3
     /// <summary> 实体透明度相对于实体地址的偏移。</summary>
     public Func<int> OpacityOffset = () => 0x22E8; // 7.4; 7.3 0x22D8 
     /// <summary> 实体 ModelStatus (RenderFlags) 相对于实体地址的偏移。</summary>
     /// https://github.com/xivdev/Penumbra/blob/master/Penumbra/Interop/Structs/DrawState.cs
-    public Func<int> ModelStatusOffset = () => Plugin.IsCN ? 0x118 : 0x118; // 7.2 / 7.3
+        public Func<int> ModelStatusOffset = () => 0x118; // 7.2 / 7.3
 
     /// <summary> 硬目标地址相对于实体 TargetSystem 地址的偏移（SoftTarget 地址在此基础上 +0x8）。</summary>
     public Func<int> HardTargetOffset = () => 0x80; // 7.0
@@ -208,7 +218,21 @@ public class EntityModule : ModuleBase {
         var (objectPtr, statusId) = cmd.ParseArgs<IntPtr, ushort>();
         GreyMagicMemoryBase.ExecuteWithLock(() => RemoveStatus(objectPtr, statusId));
     }
+    [CallbackMethod("EObjAnimation")]
+    internal void CbEObjAnimation(string cmd)
+    {
+        CheckBeforeExecution(cmd);
+        var (objectPtr, animationId, slotMask, context) = cmd.ParseArgs<IntPtr, ushort, ushort, long>((3, 0L));
+        GreyMagicMemoryBase.ExecuteWithLock(() => EObjAnimation(objectPtr, animationId, slotMask, context));
+    }
 
+    [CallbackMethod("PlayActionTimeline")]
+    internal void CbPlayActionTimeline(string cmd)
+    {
+        CheckBeforeExecution(cmd);
+        var (objectPtr, timelineId, a3, a4) = cmd.ParseArgs<IntPtr, ushort, long, bool>((2, 0L), (3, false));
+        GreyMagicMemoryBase.ExecuteWithLock(() => PlayActionTimeline(objectPtr, timelineId, a3, a4));
+    }
     public void SetPos(IntPtr objectAddress, float x, float y, float z) {
         var pos = new Vector3(x, z, y); // 注意 Y Z 轴交换
         SafeMemory.Read<IntPtr>(objectAddress + ModelOffset(), out var modelAddress);
@@ -292,10 +316,52 @@ public class EntityModule : ModuleBase {
         DisableDraw(address);
         EnableDraw(address);
     }
+    public void SetHighlightColor(IntPtr address, byte color)
+        => CallEntityVirtualFunction(address, SetHighlightColorVTableIdx(), color);
 
-    public unsafe void RemoveStatus(IntPtr address, ushort statusId) {
-        CheckIfAnyZeroPtr();
-        var sm = ((Character*)address)->GetStatusManager();
-        sm->RemoveStatus((int)sm->GetStatusId(statusId));
-    }
+        // FFXIVClientStructs/FFXIV/Client/Game/Character/Character.cs
+        // The GameObject must be a Character!
+        public IntPtr GetStatusManagerPtr(IntPtr address)
+            => CallEntityVirtualFunction<IntPtr>(address, GetStatusManagerVTableIdx());
+
+        public T CallEntityVirtualFunction<T>(IntPtr entityAddress, int vFuncIndex, params object[] args) where T : struct
+        {
+            if ((long)entityAddress < 0xFFFF)
+                throw new Exception($"[鲶鱼精邮差扩展] 传入实体虚函数 {vFuncIndex} 的地址 {entityAddress} 无效。");
+            return Memory.CallVirtualFunction<T>(entityAddress, vFuncIndex, args);
+        }
+
+        public void CallEntityVirtualFunction(IntPtr entityAddress, int vFuncIndex, params object[] args)
+            => CallEntityVirtualFunction<IntPtr>(entityAddress, vFuncIndex, args);
+
+        public unsafe void RemoveStatus(IntPtr address, ushort statusId) {
+            CheckIfAnyZeroPtr();
+            var sm = ((Character*)address)->GetStatusManager();
+            sm->RemoveStatus((int)sm->GetStatusId(statusId));
+        }
+
+        public void EObjAnimation(IntPtr objectPtr, ushort animationId, ushort slotMask, long context = 0)
+        {
+            CheckIfAnyZeroPtr(objectPtr, EObjAnimationPtr);
+            var obj = Entity.GetEntities(e => e.Address == objectPtr).FirstOrDefault();
+            if (obj == null)
+            {
+                WarningLog("[EObjAnimation] 未找到对应的实体");
+                return;
+            }
+            if (obj.Type != EntityType.EventObj)
+            {
+                throw new Exception($"[EObjAnimation] 指定实体 \"{obj.Name}\" ({obj.ID:X8}) @ {(long)objectPtr:X} 类型 {obj.Type} 不是 EventObject");
+            }
+            _ = Memory.CallInjected64<IntPtr>(EObjAnimationPtr, objectPtr, animationId, slotMask, context);
+        }
+
+        public bool PlayActionTimeline(IntPtr objectPtr, ushort timelineId, long a3 = 0, bool a4 = false)
+        {
+            // a4: should skip mount/submodel timeline
+            // 原函数是 实体->TimelineContainer 的方法，这里封装改用了实体本身的地址
+            CheckIfAnyZeroPtr(objectPtr, PlayActionTimelinePtr);
+            var timelineContainerPtr = objectPtr + TimelineContainerOffset;
+            return Memory.CallInjected64<bool>(PlayActionTimelinePtr, timelineContainerPtr, timelineId, a3, a4);
+        }
 }

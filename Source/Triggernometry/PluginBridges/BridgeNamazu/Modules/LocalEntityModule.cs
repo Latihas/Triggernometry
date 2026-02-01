@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Numerics;
-using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using System.Threading;
+using Triggernometry;
+using Triggernometry.PluginBridges.BridgeNamazu;
+using Triggernometry.PluginBridges.BridgeNamazu.Modules;
+using static Triggernometry.Debug;
+using static Triggernometry.Expressions.String.Utils.DataStringHelper;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
@@ -24,7 +29,7 @@ public class LocalEntityModule : ModuleBase {
             GetObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * 4C 8B C0 4D 85 C0", nameof(GetObjectByIndexFuncPtr));
             DeleteObjectByIndexFuncPtr = Scanner.TryScan("E8 * * * * C6 43 49 00", nameof(DeleteObjectByIndexFuncPtr));
 
-            CharacterSetupContainerOffset = () => 0x1B00;
+            CharacterSetupContainerOffset = () => 0x1B10;
 
             CopyFromCharacterFuncPtr = Scanner.TryScan("E8 * * * * 8B 87 ?? ?? ?? ?? 85 C0 74 ?? 83 F8", nameof(CopyFromCharacterFuncPtr));
             SetupBNpcFuncPtr = Scanner.TryScan("E8 * * * * 45 0F B6 86 ?? ?? ?? ?? 48 8D 8F", nameof(SetupBNpcFuncPtr));
