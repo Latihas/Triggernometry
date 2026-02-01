@@ -80,7 +80,7 @@ public partial class RealPlugin {
 
     private Queue<LogEvent> EventQueue = new();
     private ManualResetEvent QueueWakeupEvent;
-    // public CustomControls.UserInterface ui = null;
+    public UserInterface ui = UserInterface.Instance;
     [Obsolete("Use ConfigPath")] public string path => ConfigPath;
     public string ConfigPath { get; set; }
     private bool isInitialized { get; set; }

@@ -2,13 +2,13 @@
 using System.IO;
 using System.Media;
 using System.Text;
+using System.Threading.Tasks;
 using static System.Math;
 
 namespace Triggernometry.Common.Audio;
 
 public static class WaveGenerator {
-    public static readonly Func<double, double> SineWaveFunc
-        = phase => Sin(phase);
+    public static readonly Func<double, double> SineWaveFunc = Sin;
 
     public static readonly Func<double, double> SquareWaveFunc
         = phase => Tanh(5 * Sin(phase)); // smoothed square wave
@@ -40,9 +40,9 @@ public static class WaveGenerator {
             var fileLength = 36 + dataLength;
 
             // === WAV Header ===
-            binWriter.Write(Encoding.ASCII.GetBytes("RIFF"));
+            binWriter.Write("RIFF"u8.ToArray());
             binWriter.Write(fileLength);
-            binWriter.Write(Encoding.ASCII.GetBytes("WAVEfmt "));
+            binWriter.Write("WAVEfmt "u8.ToArray());
             binWriter.Write(16); // fmt chunk size
             binWriter.Write((short)1); // PCM
             binWriter.Write((short)1); // mono
@@ -50,7 +50,7 @@ public static class WaveGenerator {
             binWriter.Write(sampleRate * 2); // byte rate
             binWriter.Write((short)2); // block align
             binWriter.Write((short)16); // bits per sample
-            binWriter.Write(Encoding.ASCII.GetBytes("data"));
+            binWriter.Write("data"u8.ToArray());
             binWriter.Write(dataLength);
 
             // === PCM Data ===
@@ -62,10 +62,11 @@ public static class WaveGenerator {
     }
 
     private static void PlaySyncWav(byte[] wavBytes) {
-        using (var memStream = new MemoryStream(wavBytes))
-        using (var player = new SoundPlayer(memStream)) {
+        Task.Run(() => {
+            using var memStream = new MemoryStream(wavBytes);
+            using var player = new SoundPlayer(memStream);
             player.PlaySync();
-        }
+        });
     }
 
     public static void PlaySyncWav(Func<double, double> waveFunc, int frequency, int durationMs, int sampleRate = 44100, double volume = 1.0)

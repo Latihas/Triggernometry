@@ -26,6 +26,8 @@ public class UserInterface {
         Readme = 7
     }
 
+    public static UserInterface Instance = new();
+    public TreeViewEx treeView1 = new();
     // internal WMPLib.WindowsMediaPlayer wmp;
     // internal SpeechSynthesizer tts;
     // internal RealPlugin plug;
@@ -2237,10 +2239,9 @@ public class UserInterface {
             RealPlugin.Instance.cfg.RepositoryRoot.Repositories.Remove(tn);
         }
     }
-    public static Repository DefaultRepoCN(string address, string name, int updateIntervalMinutes)
-    {
-        return new Repository
-        {
+
+    public static Repository DefaultRepoCN(string address, string name, int updateIntervalMinutes) {
+        return new Repository {
             Enabled = true,
             Address = address,
             AllowProcessLaunch = true,
