@@ -8,7 +8,6 @@ using Advanced_Combat_Tracker;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
-using Triggernometry.Core;
 using static TriggernometryProxy.ProxyPlugin;
 using static Triggernometry.PScript.ScriptUtils.ShapeType;
 

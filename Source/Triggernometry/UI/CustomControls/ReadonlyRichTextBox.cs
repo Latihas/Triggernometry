@@ -1,13 +1,10 @@
-﻿using Microsoft.CodeAnalysis;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Triggernometry.Expressions.String.Utils;
-using Triggernometry.UI.Forms;
 using Triggernometry.Localization;
-using static Triggernometry.Core.ActionOld;
 using System.ComponentModel;
 
 namespace Triggernometry.UI.CustomControls

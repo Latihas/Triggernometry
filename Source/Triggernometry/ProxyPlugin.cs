@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 using Advanced_Combat_Tracker;
 using Dalamud.Bindings.ImGui;
@@ -11,7 +10,6 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Triggernometry.Core;
 using Triggernometry.PluginBridges;
-using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using static Triggernometry.PluginBridges.BridgeNamazu.Modules.VfxModule;
 using static Triggernometry.PScript.ScriptUtils;
 
@@ -21,7 +19,6 @@ namespace TriggernometryProxy;
 public class ProxyPlugin : IActPluginV1 {
     public RealPlugin Instance;
     private int callbackIdCounter;
-    private List<Tuple<int, string, CustomCallbackDelegate, object, string>> queuedRegs = [];
 
     public delegate void CustomCallbackDelegate(object o, string param);
 
@@ -79,7 +76,6 @@ public class ProxyPlugin : IActPluginV1 {
 
     public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui,
         ISigScanner sigScanner) {
-        RealPlugin.ResetPlugin(log);
         DalamudPlugin = dalamudPlugin;
         PluginInterface = dalamudPluginInterface;
         ClientState = clientState;
@@ -88,23 +84,9 @@ public class ProxyPlugin : IActPluginV1 {
         ObjectTable = objectTable;
         GameGui = gameGui;
         SigScanner = sigScanner;
-        lock (this) {
-            Instance = RealPlugin.Instance;
-            // register any queued callbacks if the RealPlugin instance was not ready to register previously
-            if (queuedRegs.Count > 0) {
-                // private void RegisterNamedCallback(int id, string name, Delegate callback, object o, string registrant)
-                var registerNamedCallbackMethod = Instance.GetType().GetMethod(
-                    "RegisterNamedCallback",
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    [typeof(int), typeof(string), typeof(Delegate), typeof(object), typeof(string)],
-                    null
-                ) ?? throw new MissingMethodException("RealPlugin", "RegisterNamedCallback(int, string, Delegate, object, string)");
-                foreach (var t in queuedRegs) {
-                    registerNamedCallbackMethod.Invoke(Instance, [t.Item1, t.Item2, t.Item3, t.Item4, t.Item5]);
-                }
-                queuedRegs.Clear();
-            }
-        }
+        RealPlugin.ResetPlugin(log);
+        Instance = RealPlugin.Instance;
+
         FailsafeRegisterHook("InCombatHook", "InCombat");
         FailsafeRegisterHook("SetCombatStateHook", "SetCombatState");
         FailsafeRegisterHook("CurrentZoneHook", "GetCurrentZone");
@@ -115,9 +97,9 @@ public class ProxyPlugin : IActPluginV1 {
         FailsafeRegisterHook("SoundPlaybackHook", "InvokeSoundMethod");
         FailsafeRegisterHook("CustomTriggerCheckHook", "HasCustomTriggers");
         FailsafeRegisterHook("CustomTriggerHook", "GetCustomTriggers");
-        FailsafeRegisterHook("CornerShowHook", "ShowCornerNotification");
-        FailsafeRegisterHook("CornerHideHook", "HideCornerNotification");
-        FailsafeRegisterHook("TabLocateHook", "LocateTab");
+        // FailsafeRegisterHook("CornerShowHook", "ShowCornerNotification");
+        // FailsafeRegisterHook("CornerHideHook", "HideCornerNotification");
+        // FailsafeRegisterHook("TabLocateHook", "LocateTab");
         FailsafeRegisterHook("InstanceHook", "GetInstance");
         FailsafeRegisterHook("CheckUpdateHook", "CheckForUpdates");
         FailsafeRegisterHook("ActInitedHook", "ActInited");
@@ -127,9 +109,10 @@ public class ProxyPlugin : IActPluginV1 {
         ActGlobals.oFormActMain.OnLogLineRead += OFormActMain_OnLogLineRead;
         // ActGlobals.oFormActMain.OnCombatStart += OFormActMain_OnCombatStart;
         // ActGlobals.oFormActMain.OnCombatEnd += OFormActMain_OnCombatEnd;
-        Instance.InitPlugin();
         PluginInterface.UiBuilder.Draw += DrawScriptBdl;
         ClientState.Logout += OnLogout;
+        
+        Instance.InitPlugin();
         RealPlugin.Instance.InitAura();
     }
 

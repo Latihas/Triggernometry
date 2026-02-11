@@ -3,7 +3,6 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Dalamud;
-using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;

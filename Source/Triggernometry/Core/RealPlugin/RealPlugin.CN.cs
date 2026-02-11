@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
 using Triggernometry.UI.CustomControls;
-using static Triggernometry.UI.CustomControls.UserInterface;
 
 namespace Triggernometry.Core;
 
