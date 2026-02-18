@@ -54,8 +54,7 @@ public static class CSharpScriptCompiler {
     ];
 
     public static string GenerateClassName(string script) {
-        var scriptBytes = Encoding.UTF8.GetBytes(script);
-        var hashBytes = SHA256.HashData(scriptBytes);
+        var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(script));
         var hashSb = new StringBuilder();
         foreach (var b in hashBytes) hashSb.Append(b.ToString("X2"));
         return $"Script_{hashSb}";
