@@ -111,7 +111,7 @@ public class ProxyPlugin : IActPluginV1 {
         // ActGlobals.oFormActMain.OnCombatEnd += OFormActMain_OnCombatEnd;
         PluginInterface.UiBuilder.Draw += DrawScriptBdl;
         ClientState.Logout += OnLogout;
-        
+
         Instance.InitPlugin();
         RealPlugin.Instance.InitAura();
     }

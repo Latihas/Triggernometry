@@ -15,7 +15,6 @@ using static Triggernometry.Expressions.String.Utils.DataStringHelper;
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class EntityModule : ModuleBase {
-
     /*Plugin.IsCN ? xx : xx*/
     /// <summary> 实体初始坐标相对于实体地址的偏移。</summary>
     public Func<int> DefaultPosOffset = () => 0x10;
@@ -346,10 +345,9 @@ public class EntityModule : ModuleBase {
         // EventObject._ = Memory.CallInjected64<IntPtr>(EObjAnimationPtr, objectPtr, animationId, slotMask, context);
     }
 
-    public unsafe bool PlayActionTimeline(IntPtr objectPtr, ushort timelineId, long a3 = 0, bool a4 = false) {
+    public bool PlayActionTimeline(IntPtr objectPtr, ushort timelineId, long a3 = 0, bool a4 = false) =>
         // var character = (Character*)objectPtr;
         // character->Timeline.PlayActionTimeline(timelineId);
-        return true;
-        // return Memory.CallInjected64<bool>(PlayActionTimelinePtr, timelineContainerPtr, timelineId, a3, a4);
-    }
+        true;
+    // return Memory.CallInjected64<bool>(PlayActionTimelinePtr, timelineContainerPtr, timelineId, a3, a4);
 }

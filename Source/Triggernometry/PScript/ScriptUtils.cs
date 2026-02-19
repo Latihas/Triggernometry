@@ -356,7 +356,7 @@ public static partial class ScriptUtils {
                 case Rect:
                     bdl.DrawIGRect((IGRect)shape);
                     break;
-                case ShapeType.Ring:
+                case Ring:
                     bdl.DrawIGRing((IGRing)shape);
                     break;
             }

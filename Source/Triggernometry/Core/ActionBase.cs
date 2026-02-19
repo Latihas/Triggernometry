@@ -594,7 +594,7 @@ public abstract class ActionBase {
         out List<bool> isNumeric, out List<bool> isAscending,
         out List<string> keysExpr, out List<List<string>> values) {
         // parsing expressions like "n+:key1, s-:key2, s+:key3, ..."
-        var rawKeys = ArgHelper.SplitArguments(rawExpr, true);
+        var rawKeys = ArgHelper.SplitArguments(rawExpr);
 
         isNumeric = []; // numeric / string options
         isAscending = []; // ascending / descending options

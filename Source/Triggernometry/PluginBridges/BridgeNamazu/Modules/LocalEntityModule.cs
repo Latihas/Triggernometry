@@ -5,7 +5,6 @@ using FFXIVClientStructs.FFXIV.Client.Game.Object;
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class LocalEntityModule : ModuleBase {
-
     // FFXIVClientStructs/FFXIV/Client/Game/Character/Character.CharacterSetupContainer
     public Func<int> CharacterSetupContainerOffset;
 

@@ -47,9 +47,9 @@
     <Reference Include="FFXIV_ACT_Plugin">
       <HintPath>..\..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
     </Reference>
-    <PackageReference Include="System.Management" Version="10.0.3" />
-    <PackageReference Include="System.Speech" Version="10.0.3" />
-    <PackageReference Include="System.ValueTuple" Version="4.6.2" />
+    <PackageReference Include="System.Management" Version="10.0.3"/>
+    <PackageReference Include="System.Speech" Version="10.0.3"/>
+    <PackageReference Include="System.ValueTuple" Version="4.6.2"/>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7"/>
     <Reference Include="Dalamud">
       <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>

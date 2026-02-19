@@ -20,7 +20,7 @@ public class CameraModule : ModuleBase {
     {
         get
         {
-            SafeMemory.Read<float>(CameraPtr + Offsets["AngleV"],out var f);
+            SafeMemory.Read<float>(CameraPtr + Offsets["AngleV"], out var f);
             return f;
         }
         set => SafeMemory.Write(CameraPtr + Offsets["AngleV"], value);
@@ -30,18 +30,18 @@ public class CameraModule : ModuleBase {
     {
         get
         {
-              SafeMemory.Read<float>(CameraPtr + Offsets["AngleH"],out var actualValue);
+            SafeMemory.Read<float>(CameraPtr + Offsets["AngleH"], out var actualValue);
             var convertedValue = MathParser.ModFunction(actualValue, 2 * Math.PI) - Math.PI;
             return (float)convertedValue;
         }
         set // 这个角度似乎不是底层的数值，手动修改（增加或减少）时，改变量的绝对值 θ 会变为 max(θ - pi/40, 0) （即少变化 pi/40）
         {
             var errθ = Math.PI / 40;
-            SafeMemory.Read<float>(CameraPtr + Offsets["AngleH"],out  var oldθ);
+            SafeMemory.Read<float>(CameraPtr + Offsets["AngleH"], out var oldθ);
             var newθ = MathParser.ModFunction(value, 2 * Math.PI) - Math.PI; // 补偿
             var dθ = MathParser.ModFunction(newθ - oldθ + Math.PI, 2 * Math.PI) - Math.PI;
             if (Math.Abs(dθ) >= 3.05) {
-                SafeMemory.Write(CameraPtr + Offsets["AngleH"], (float)oldθ + Math.Sign(dθ));
+                SafeMemory.Write(CameraPtr + Offsets["AngleH"], oldθ + Math.Sign(dθ));
                 oldθ += (float)(Math.Sign(dθ) * (1 - errθ)); // 实际变化的量
                 dθ = MathParser.ModFunction(newθ - oldθ + Math.PI, 2 * Math.PI) - Math.PI;
             }
@@ -52,8 +52,8 @@ public class CameraModule : ModuleBase {
 
     public float GetParam(string param) {
         if (Offsets.TryGetValue(param, out var offset)) {
-             SafeMemory.Read<float>(CameraPtr + offset,out var f);
-             return f;
+            SafeMemory.Read<float>(CameraPtr + offset, out var f);
+            return f;
         }
         ErrorLog($"[鲶鱼精邮差扩展] 错误的相机参数 ({param})。");
         return default;

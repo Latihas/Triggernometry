@@ -186,66 +186,126 @@ public class Entity {
 
     internal static readonly Dictionary<string, Func<Entity, object>> _propAccessors
         = new(StringComparer.OrdinalIgnoreCase) {
-            { "Exist",          e => e.Exist },
-            { "PluginSource",   e => e.PluginSource },
-            { "Address",        e => e.Address },
-            { "HexAddress",     e => e.HexAddress },
-            { "Name",           e => e.Name },
-            { "ID",             e => e.HexID },
-            { "IsSelf",         e => e.ID == Entity.GetMyself().ID },
-            { "IsPlayer",       e => e.Type == EntityType.Pc },
-            { "BNpcID",         e => e.BNpcID },
-            { "OwnerID",        e => e.OwnerHexID },
-            { "TypeName",       e => e.Type },
-            { "Type",           e => (byte)e.Type },
-            { "EffectiveDistance",  e => e.EffectiveDistance },
-            { "Distance",       e => e.EffectiveDistance },
-            { "ObjectStatus",   e => (byte)e.ObjectStatus },
-            { "X",              e => e.PosX },
-            { "PosX",           e => e.PosX },
-            { "Y",              e => e.PosY },
-            { "PosY",           e => e.PosY },
-            { "Z",              e => e.PosZ },
-            { "PosZ",           e => e.PosZ },
-            { "XY",             e => new Vector2(e.PosX, e.PosY) },
-            { "PosXY",          e => new Vector2(e.PosX, e.PosY) },
-            { "XYZ",            e => new Vector3(e.PosX, e.PosY, e.PosZ) },
-            { "Pos",            e => new Vector3(e.PosX, e.PosY, e.PosZ) },
-            { "H",              e => e.Heading },
-            { "Heading",        e => e.Heading },
-            { "Radius",         e => e.Radius },
-            { "ModelStatus",    e => (int)e.ModelStatus },
-            { "IsTargetable",   e => e.IsTargetable },
-            { "IsVisible",      e => e.ModelStatus == ModelStatus.Visible },
-            { "HP",             e => e.CurrentHP },
-            { "CurrentHP",      e => e.CurrentHP },
-            { "MaxHP",          e => e.MaxHP },
-            { "MP",             e => e.CurrentMP },
-            { "CurrentMP",      e => e.CurrentMP },
-            { "MaxMP",          e => e.MaxMP },
-            { "CP",             e => e.CurrentCP },
-            { "CurrentCP",      e => e.CurrentCP },
-            { "MaxCP",          e => e.MaxCP },
-            { "GP",             e => e.CurrentGP },
-            { "CurrentGP",      e => e.CurrentGP },
-            { "MaxGP",          e => e.MaxGP },
-            { "TransformationID",   e => e.TransformationID },
-            { "Level",          e => e.Level },
-            { "MonsterType",    e => (byte)e.MonsterType },
-            { "IsEnemy",        e => e.IsEnemy },
-            { "IsAggressive",   e => e.IsAggressive },
-            { "InCombat",       e => e.InCombat },
-            { "InParty",        e => e.InParty },
-            { "InAlliance",     e => e.InAlliance },
-            { "IsFriend",       e => e.IsFriend },
-            { "WeaponID",       e => e.WeaponID },
-            { "TargetID",       e => e.TargetHexID },
-            { "IsTargetingSelf",e => e.TargetID == GetMyself().TargetID },
-            { "BNpcNameID",     e => e.BNpcNameID },
-            { "CurrentWorldID", e => e.CurrentWorldID },
-            { "WorldID",        e => e.WorldID },
-            { "HomeWorldID",    e => e.WorldID },
-            { "WorldName",      e => (e.Type == EntityType.Pc || e.Type == EntityType.Retainer /* Retainer needs to be tested */)
+            {
+                "Exist", e => e.Exist
+            }, {
+                "PluginSource", e => e.PluginSource
+            }, {
+                "Address", e => e.Address
+            }, {
+                "HexAddress", e => e.HexAddress
+            }, {
+                "Name", e => e.Name
+            }, {
+                "ID", e => e.HexID
+            }, {
+                "IsSelf", e => e.ID == GetMyself().ID
+            }, {
+                "IsPlayer", e => e.Type == EntityType.Pc
+            }, {
+                "BNpcID", e => e.BNpcID
+            }, {
+                "OwnerID", e => e.OwnerHexID
+            }, {
+                "TypeName", e => e.Type
+            }, {
+                "Type", e => (byte)e.Type
+            }, {
+                "EffectiveDistance", e => e.EffectiveDistance
+            }, {
+                "Distance", e => e.EffectiveDistance
+            }, {
+                "ObjectStatus", e => (byte)e.ObjectStatus
+            }, {
+                "X", e => e.PosX
+            }, {
+                "PosX", e => e.PosX
+            }, {
+                "Y", e => e.PosY
+            }, {
+                "PosY", e => e.PosY
+            }, {
+                "Z", e => e.PosZ
+            }, {
+                "PosZ", e => e.PosZ
+            }, {
+                "XY", e => new Vector2(e.PosX, e.PosY)
+            }, {
+                "PosXY", e => new Vector2(e.PosX, e.PosY)
+            }, {
+                "XYZ", e => new Vector3(e.PosX, e.PosY, e.PosZ)
+            }, {
+                "Pos", e => new Vector3(e.PosX, e.PosY, e.PosZ)
+            }, {
+                "H", e => e.Heading
+            }, {
+                "Heading", e => e.Heading
+            }, {
+                "Radius", e => e.Radius
+            }, {
+                "ModelStatus", e => (int)e.ModelStatus
+            }, {
+                "IsTargetable", e => e.IsTargetable
+            }, {
+                "IsVisible", e => e.ModelStatus == ModelStatus.Visible
+            }, {
+                "HP", e => e.CurrentHP
+            }, {
+                "CurrentHP", e => e.CurrentHP
+            }, {
+                "MaxHP", e => e.MaxHP
+            }, {
+                "MP", e => e.CurrentMP
+            }, {
+                "CurrentMP", e => e.CurrentMP
+            }, {
+                "MaxMP", e => e.MaxMP
+            }, {
+                "CP", e => e.CurrentCP
+            }, {
+                "CurrentCP", e => e.CurrentCP
+            }, {
+                "MaxCP", e => e.MaxCP
+            }, {
+                "GP", e => e.CurrentGP
+            }, {
+                "CurrentGP", e => e.CurrentGP
+            }, {
+                "MaxGP", e => e.MaxGP
+            }, {
+                "TransformationID", e => e.TransformationID
+            }, {
+                "Level", e => e.Level
+            }, {
+                "MonsterType", e => (byte)e.MonsterType
+            }, {
+                "IsEnemy", e => e.IsEnemy
+            }, {
+                "IsAggressive", e => e.IsAggressive
+            }, {
+                "InCombat", e => e.InCombat
+            }, {
+                "InParty", e => e.InParty
+            }, {
+                "InAlliance", e => e.InAlliance
+            }, {
+                "IsFriend", e => e.IsFriend
+            }, {
+                "WeaponID", e => e.WeaponID
+            }, {
+                "TargetID", e => e.TargetHexID
+            }, {
+                "IsTargetingSelf", e => e.TargetID == GetMyself().TargetID
+            }, {
+                "BNpcNameID", e => e.BNpcNameID
+            }, {
+                "CurrentWorldID", e => e.CurrentWorldID
+            }, {
+                "WorldID", e => e.WorldID
+            }, {
+                "HomeWorldID", e => e.WorldID
+            }, {
+                "WorldName", e => e.Type == EntityType.Pc || e.Type == EntityType.Retainer /* Retainer needs to be tested */
                     ? BridgeFFXIV.GetIdEntity(e.HexID).GetValue("worldname").ToString()
                     : ""
             }, {
@@ -296,158 +356,159 @@ public class Entity {
         = new(StringComparer.OrdinalIgnoreCase) {
             ["HasStatus"] = (e, args) => {
                 CheckArgCount("1", "HasStatus", args);
-                    var id = (ushort)MathParser.Parse(args[0]);
-                    return e.Statuses.Any(s => s.StatusID == id);
-                },
-
-                // true if entity has any of the specified status IDs
-                ["HasAnyStatus"] = (e, args) => {
-                    CheckArgCount(">=1", "HasAnyStatus", args);
-                    var ids = args.Select(a => (ushort)MathParser.Parse(a)).ToArray();
-                    var currentStatuses = new HashSet<ushort>(e.Statuses.Select(s => s.StatusID));
-                    return ids.Any(id => currentStatuses.Contains(id));
+                var id = (ushort)MathParser.Parse(args[0]);
+                return e.Statuses.Any(s => s.StatusID == id);
             },
 
-                // true if entity has all specified status IDs
-                ["HasAllStatus"] = (e, args) => {
-                    CheckArgCount(">=1", "HasAllStatus", args);
-                    var ids = args.Select(a => (ushort)MathParser.Parse(a)).ToArray();
-                    var currentStatuses = new HashSet<ushort>(e.Statuses.Select(s => s.StatusID));
-                    return ids.All(id => currentStatuses.Contains(id));
-                },
+            // true if entity has any of the specified status IDs
+            ["HasAnyStatus"] = (e, args) => {
+                CheckArgCount(">=1", "HasAnyStatus", args);
+                var ids = args.Select(a => (ushort)MathParser.Parse(a)).ToArray();
+                var currentStatuses = new HashSet<ushort>(e.Statuses.Select(s => s.StatusID));
+                return ids.Any(id => currentStatuses.Contains(id));
+            },
 
-                // remaining timer of status, or default if missing
+            // true if entity has all specified status IDs
+            ["HasAllStatus"] = (e, args) => {
+                CheckArgCount(">=1", "HasAllStatus", args);
+                var ids = args.Select(a => (ushort)MathParser.Parse(a)).ToArray();
+                var currentStatuses = new HashSet<ushort>(e.Statuses.Select(s => s.StatusID));
+                return ids.All(id => currentStatuses.Contains(id));
+            },
+
+            // remaining timer of status, or default if missing
             ["StatusTimer"] = (e, args) => {
-                    CheckArgCount("1-2", "StatusTimer", args);
+                CheckArgCount("1-2", "StatusTimer", args);
                 var statusID = (ushort)MathParser.Parse(args[0]);
-                    var def = args.Length >= 2 ? MathParser.Parse(args[1]) : -1;
-                    return e.Statuses.FirstOrDefault(s => s.StatusID == statusID)?.Timer ?? def;
+                var def = args.Length >= 2 ? MathParser.Parse(args[1]) : -1;
+                return e.Statuses.FirstOrDefault(s => s.StatusID == statusID)?.Timer ?? def;
             },
 
-                // stack count (extraParam) of status, or default if missing
+            // stack count (extraParam) of status, or default if missing
             ["StatusStack"] = (e, args) => {
-                    CheckArgCount("1-2", "StatusStack", args);
+                CheckArgCount("1-2", "StatusStack", args);
                 var statusID = (ushort)MathParser.Parse(args[0]);
-                    var def = args.Length >= 2 ? MathParser.Parse(args[1]) : -1;
-                    return e.Statuses.FirstOrDefault(s => s.StatusID == statusID)?.Stack ?? def;
+                var def = args.Length >= 2 ? MathParser.Parse(args[1]) : -1;
+                return e.Statuses.FirstOrDefault(s => s.StatusID == statusID)?.Stack ?? def;
             },
 
-                ["HasTankStance"] = (e, args) => {
-                    CheckArgCount("0", "HasTankStance", args);
-                    switch (e.Job.JobType)
-                    {
-                        case JobEnum.PLD: return e.Statuses.Any(s => s.StatusID == 0x4F);
-                        case JobEnum.WAR: return e.Statuses.Any(s => s.StatusID == 0x5B);
-                        case JobEnum.DRK: return e.Statuses.Any(s => s.StatusID == 0x2E7);
-                        case JobEnum.GNB: return e.Statuses.Any(s => s.StatusID == 0x729);
-                        case JobEnum.BLU: return e.Statuses.Any(s => s.StatusID == 0x6B7);
-                        default: return false;
-                    }
-                },
+            ["HasTankStance"] = (e, args) => {
+                CheckArgCount("0", "HasTankStance", args);
+                switch (e.Job.JobType) {
+                    case JobEnum.PLD: return e.Statuses.Any(s => s.StatusID == 0x4F);
+                    case JobEnum.WAR: return e.Statuses.Any(s => s.StatusID == 0x5B);
+                    case JobEnum.DRK: return e.Statuses.Any(s => s.StatusID == 0x2E7);
+                    case JobEnum.GNB: return e.Statuses.Any(s => s.StatusID == 0x729);
+                    case JobEnum.BLU: return e.Statuses.Any(s => s.StatusID == 0x6B7);
+                    default: return false;
+                }
+            },
 
-                // XP percentage (current / max)
+            // XP percentage (current / max)
             ["PercentHP"] = (e, args) => PercentXP("PercentHP", e.CurrentHP, e.MaxHP, args),
             ["PercentMP"] = (e, args) => PercentXP("PercentMP", e.CurrentMP, e.MaxMP, args),
             ["PercentCP"] = (e, args) => PercentXP("PercentCP", e.CurrentCP, e.MaxCP, args),
-                ["PercentGP"] = (e, args) => PercentXP("PercentGP", e.CurrentGP, e.MaxGP, args),
+            ["PercentGP"] = (e, args) => PercentXP("PercentGP", e.CurrentGP, e.MaxGP, args),
 
-                // Distance from entity to target point (2D or 3D)
-                ["DistanceTo"] = (e, args) => {
-                    CheckArgCount("2-3", "DistanceTo", args);
-                    var xSquare = Math.Pow(e.PosX - MathParser.Parse(args[0]), 2);
-                    var ySquare = Math.Pow(e.PosY - MathParser.Parse(args[1]), 2);
-                    var zSquare = args.Length == 2 ? 0
-                                : Math.Pow(e.PosZ - MathParser.Parse(args[2]), 2);
-                    return Math.Sqrt(xSquare + ySquare + zSquare);
-                },
+            // Distance from entity to target point (2D or 3D)
+            ["DistanceTo"] = (e, args) => {
+                CheckArgCount("2-3", "DistanceTo", args);
+                var xSquare = Math.Pow(e.PosX - MathParser.Parse(args[0]), 2);
+                var ySquare = Math.Pow(e.PosY - MathParser.Parse(args[1]), 2);
+                var zSquare = args.Length == 2
+                    ? 0
+                    : Math.Pow(e.PosZ - MathParser.Parse(args[2]), 2);
+                return Math.Sqrt(xSquare + ySquare + zSquare);
+            },
 
-                // Absolute angle from given point to entity
-                ["AngleFrom"] = (e, args) => {
-                    CheckArgCount("2", "AngleFrom", args);
-                    return Math.Atan2(e.PosX - MathParser.Parse(args[0]), e.PosY - MathParser.Parse(args[1]));
-                },
+            // Absolute angle from given point to entity
+            ["AngleFrom"] = (e, args) => {
+                CheckArgCount("2", "AngleFrom", args);
+                return Math.Atan2(e.PosX - MathParser.Parse(args[0]), e.PosY - MathParser.Parse(args[1]));
+            },
 
-                // Absolute angle from entity to given point
-                ["AngleTo"] = (e, args) => {
-                    CheckArgCount("2", "AngleTo", args);
-                    return Math.Atan2(MathParser.Parse(args[0]) - e.PosX, MathParser.Parse(args[1]) - e.PosY);
-                },
+            // Absolute angle from entity to given point
+            ["AngleTo"] = (e, args) => {
+                CheckArgCount("2", "AngleTo", args);
+                return Math.Atan2(MathParser.Parse(args[0]) - e.PosX, MathParser.Parse(args[1]) - e.PosY);
+            },
 
-                // Relative angle from entity to given point, using heading as relative north (-π ~ π)
-                ["LocalAngleTo"] = (e, args) => {
-                    CheckArgCount("2", "LocalAngleTo", args);
-                    var theta = Math.Atan2(MathParser.Parse(args[0]) - e.PosX, MathParser.Parse(args[1]) - e.PosY);
-                    return MathParser.ModFunction(theta - e.Heading, 2 * Math.PI) - Math.PI;
-                },
+            // Relative angle from entity to given point, using heading as relative north (-π ~ π)
+            ["LocalAngleTo"] = (e, args) => {
+                CheckArgCount("2", "LocalAngleTo", args);
+                var theta = Math.Atan2(MathParser.Parse(args[0]) - e.PosX, MathParser.Parse(args[1]) - e.PosY);
+                return MathParser.ModFunction(theta - e.Heading, 2 * Math.PI) - Math.PI;
+            },
 
-                // Quantized direction from given point to entity
-                ["DirFrom"] = (e, args) => {
-                    CheckArgCount("3-4", "DirFrom", args);
-                    var roundvecArgs = args.Select(MathParser.Parse).ToArray();
-                    roundvecArgs[0] = e.PosX - roundvecArgs[0];
-                    roundvecArgs[1] = e.PosY - roundvecArgs[1];
-                    return MathParser.RoundvecFunction(roundvecArgs);
-                },
+            // Quantized direction from given point to entity
+            ["DirFrom"] = (e, args) => {
+                CheckArgCount("3-4", "DirFrom", args);
+                var roundvecArgs = args.Select(MathParser.Parse).ToArray();
+                roundvecArgs[0] = e.PosX - roundvecArgs[0];
+                roundvecArgs[1] = e.PosY - roundvecArgs[1];
+                return MathParser.RoundvecFunction(roundvecArgs);
+            },
 
-                // Quantized direction from entity to given point
-                ["DirTo"] = (e, args) => {
-                    CheckArgCount("3-4", "DirTo", args);
-                    var roundvecArgs = args.Select(MathParser.Parse).ToArray();
-                    roundvecArgs[0] = roundvecArgs[0] - e.PosX;
-                    roundvecArgs[1] = roundvecArgs[1] - e.PosY;
-                    return MathParser.RoundvecFunction(roundvecArgs);
-                },
+            // Quantized direction from entity to given point
+            ["DirTo"] = (e, args) => {
+                CheckArgCount("3-4", "DirTo", args);
+                var roundvecArgs = args.Select(MathParser.Parse).ToArray();
+                roundvecArgs[0] = roundvecArgs[0] - e.PosX;
+                roundvecArgs[1] = roundvecArgs[1] - e.PosY;
+                return MathParser.RoundvecFunction(roundvecArgs);
+            },
 
-                // Quantized relative direction from entity to given point, using heading as relative north
-                ["LocalDirTo"] = (e, args) => {
-                    CheckArgCount("3-4", "LocalDirTo", args);
-                    var theta = Math.Atan2(MathParser.Parse(args[0]) - e.PosX, MathParser.Parse(args[1]) - e.PosY);
-                    var rel = theta - e.Heading + Math.PI;
-                    var roundirArgs = new double[] { rel }.Concat(args.Select(MathParser.Parse).Skip(2)).ToArray();
-                    return MathParser.RoundirFunction(roundirArgs);
-                },
+            // Quantized relative direction from entity to given point, using heading as relative north
+            ["LocalDirTo"] = (e, args) => {
+                CheckArgCount("3-4", "LocalDirTo", args);
+                var theta = Math.Atan2(MathParser.Parse(args[0]) - e.PosX, MathParser.Parse(args[1]) - e.PosY);
+                var rel = theta - e.Heading + Math.PI;
+                var roundirArgs = new[] {
+                    rel
+                }.Concat(args.Select(MathParser.Parse).Skip(2)).ToArray();
+                return MathParser.RoundirFunction(roundirArgs);
+            },
 
-                // Convert a local-space offset to world coordinates using entity pos and heading.
-                ["LocalToWorld"] = (e, args) => {
-                    CheckArgCount("2-3", "LocalToWorld", args);
+            // Convert a local-space offset to world coordinates using entity pos and heading.
+            ["LocalToWorld"] = (e, args) => {
+                CheckArgCount("2-3", "LocalToWorld", args);
 
-                    var heading = e.Heading;
-                    var sin = Math.Sin(heading);
-                    var cos = Math.Cos(heading);
+                var heading = e.Heading;
+                var sin = Math.Sin(heading);
+                var cos = Math.Cos(heading);
 
-                    var dx = MathParser.Parse(args[0]);
-                    var dy = MathParser.Parse(args[1]);
-                    var x = (float)(e.PosX - cos * dx - sin * dy);
-                    var y = (float)(e.PosY + sin * dx - cos * dy);
+                var dx = MathParser.Parse(args[0]);
+                var dy = MathParser.Parse(args[1]);
+                var x = (float)(e.PosX - cos * dx - sin * dy);
+                var y = (float)(e.PosY + sin * dx - cos * dy);
 
-                    if (args.Length == 2)
-                        return new Vector2(x, y);
+                if (args.Length == 2)
+                    return new Vector2(x, y);
 
-                    var dz = MathParser.Parse(args[2]);
-                    var z = (float)(e.PosZ + dz);
-                    return new Vector3(x, y, z);
-                },
+                var dz = MathParser.Parse(args[2]);
+                var z = (float)(e.PosZ + dz);
+                return new Vector3(x, y, z);
+            },
 
-                // Convert world coordinates to local-space offset using entity pos and heading.
-                ["WorldToLocal"] = (e, args) => {
-                    CheckArgCount("2-3", "WorldToLocal", args);
+            // Convert world coordinates to local-space offset using entity pos and heading.
+            ["WorldToLocal"] = (e, args) => {
+                CheckArgCount("2-3", "WorldToLocal", args);
 
-                    var heading = e.Heading;
-                    var sin = Math.Sin(heading);
-                    var cos = Math.Cos(heading);
+                var heading = e.Heading;
+                var sin = Math.Sin(heading);
+                var cos = Math.Cos(heading);
 
-                    var dxWorld = MathParser.Parse(args[0]) - e.PosX;
-                    var dyWorld = MathParser.Parse(args[1]) - e.PosY;
-                    var dx = (float)(-cos * dxWorld + sin * dyWorld);
-                    var dy = (float)(-sin * dxWorld - cos * dyWorld);
+                var dxWorld = MathParser.Parse(args[0]) - e.PosX;
+                var dyWorld = MathParser.Parse(args[1]) - e.PosY;
+                var dx = (float)(-cos * dxWorld + sin * dyWorld);
+                var dy = (float)(-sin * dxWorld - cos * dyWorld);
 
-                    if (args.Length == 2)
-                        return new Vector2(dx, dy);
+                if (args.Length == 2)
+                    return new Vector2(dx, dy);
 
-                    var dz = (float)(MathParser.Parse(args[2]) - e.PosZ);
-                    return new Vector3(dx, dy, dz);
-                },
-
+                var dz = (float)(MathParser.Parse(args[2]) - e.PosZ);
+                return new Vector3(dx, dy, dz);
+            }
         };
 
     /// <summary>

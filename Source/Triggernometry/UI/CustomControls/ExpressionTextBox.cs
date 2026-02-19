@@ -36,28 +36,28 @@ public partial class ExpressionTextBox : UserControl {
         "sinh(x)", "cosh(x)", "tanh(x)",
 
         // numeric func: distance
-            "Distance(x0, y0, x1, y1)", "d(x0, y0, x1, y1)", 
-            "Distance(x0, y0, z0..., x1, y1, z1...)", "d(x0, y0, z0..., x1, y1, z1...)",
-            "ManhattanDistance(x0, y0, z0..., x1, y1, z1...)", "L1d(x0, y0, z0..., x1, y1, z1...)",
-            "ChebyshevDistance(x0, y0, z0..., x1, y1, z1...)", "L∞d(x0, y0, z0..., x1, y1, z1...)",
-            "ProjD(srcX, srcY, θ, tgtX, tgtY)", "ProjectDistance(srcX, srcY, θ, tgtX, tgtY)",
-            "ProjH(srcX, srcY, θ, tgtX, tgtY)", "ProjectHeight(srcX, srcY, θ, tgtX, tgtY)",
-            "IsPointInRay(srcX, srcY, θ, width, tgtX, tgtY)",
+        "Distance(x0, y0, x1, y1)", "d(x0, y0, x1, y1)",
+        "Distance(x0, y0, z0..., x1, y1, z1...)", "d(x0, y0, z0..., x1, y1, z1...)",
+        "ManhattanDistance(x0, y0, z0..., x1, y1, z1...)", "L1d(x0, y0, z0..., x1, y1, z1...)",
+        "ChebyshevDistance(x0, y0, z0..., x1, y1, z1...)", "L∞d(x0, y0, z0..., x1, y1, z1...)",
+        "ProjD(srcX, srcY, θ, tgtX, tgtY)", "ProjectDistance(srcX, srcY, θ, tgtX, tgtY)",
+        "ProjH(srcX, srcY, θ, tgtX, tgtY)", "ProjectHeight(srcX, srcY, θ, tgtX, tgtY)",
+        "IsPointInRay(srcX, srcY, θ, width, tgtX, tgtY)",
 
         // numeric func: angle
-            "RadToDeg(rad)", "DegToRad(deg)",
-            "Angle(srcX, srcY, tgtX, tgtY)", "θ(srcX, srcY, tgtX, tgtY)", 
-            "RelAngle(srcθ, tgtθ)", "Relθ(srcθ, tgtθ)",
-            "RadToDir(θ, ±divisions, digits=0)",
-            "VecToDir(dx, dy, ±divisions, digits=0)",
-            "DirToRad(dir, ±divisions)",
-            "IsAngleBetween(θ, minθ, maxθ)", "IsθBetween(θ, minθ, maxθ)",
+        "RadToDeg(rad)", "DegToRad(deg)",
+        "Angle(srcX, srcY, tgtX, tgtY)", "θ(srcX, srcY, tgtX, tgtY)",
+        "RelAngle(srcθ, tgtθ)", "Relθ(srcθ, tgtθ)",
+        "RadToDir(θ, ±divisions, digits=0)",
+        "VecToDir(dx, dy, ±divisions, digits=0)",
+        "DirToRad(dir, ±divisions)",
+        "IsAngleBetween(θ, minθ, maxθ)", "IsθBetween(θ, minθ, maxθ)",
 
         // numeric string func
-            "hex2dec(hex)", "hex2float(hex)", "hex2double(hex)", "X8float(hex)", "ParseDmg(hex)", 
-            "len(alphanumstr)",
-            "Freq(note, semitones=0)", "NextETms(XX:XX)", "NextETms(ETmin)",
-        ];
+        "hex2dec(hex)", "hex2float(hex)", "hex2double(hex)", "X8float(hex)", "ParseDmg(hex)",
+        "len(alphanumstr)",
+        "Freq(note, semitones=0)", "NextETms(XX:XX)", "NextETms(ETmin)"
+    ];
 
     public static List<string> prefixes = new() // right after "${"
     {
@@ -284,22 +284,29 @@ public partial class ExpressionTextBox : UserControl {
 
     // Name, X, Job, Role, etc.
     public static List<string> XivEntityProps = new List<string> {
-            "HasStatus(statusId)",
-            "HasAnyStatus(statusIds...)",
-            "HasAllStatus(statusIds...)", 
-            "HasTankStance",
-            "StatusTimer(statusId, default=-1)", 
-            "StatusStack(statusId, default=-1)",
-            "PercentHP(digits=-1)", "PercentMP(digits=-1)", 
-            "PercentCP(digits=-1)", "PercentGP(digits=-1)",
-            "DistanceTo(x, y)", "DistanceTo(x, y, z)",
-            "AngleFrom(x, y)", "AngleTo(x, y)", "LocalAngleTo(x, y)",
-            "DirFrom(x, y, ±divisions, digits=0)",
-            "DirTo(x, y, ±divisions, digits=0)",
-            "LocalDirTo(x, y, ±divisions, digits=0)",
-            "LocalToWorld(dx, dy)", "LocalToWorld(dx, dy, dz)",
-            "WorldToLocal(dx, dy)", "WorldToLocal(dx, dy, dz)",
-        }.Concat(FFXIV.Entity.ValidEntityPropNames).Concat(FFXIV.Job.LegalJobPropNames).ToList();
+        "HasStatus(statusId)",
+        "HasAnyStatus(statusIds...)",
+        "HasAllStatus(statusIds...)",
+        "HasTankStance",
+        "StatusTimer(statusId, default=-1)",
+        "StatusStack(statusId, default=-1)",
+        "PercentHP(digits=-1)",
+        "PercentMP(digits=-1)",
+        "PercentCP(digits=-1)",
+        "PercentGP(digits=-1)",
+        "DistanceTo(x, y)",
+        "DistanceTo(x, y, z)",
+        "AngleFrom(x, y)",
+        "AngleTo(x, y)",
+        "LocalAngleTo(x, y)",
+        "DirFrom(x, y, ±divisions, digits=0)",
+        "DirTo(x, y, ±divisions, digits=0)",
+        "LocalDirTo(x, y, ±divisions, digits=0)",
+        "LocalToWorld(dx, dy)",
+        "LocalToWorld(dx, dy, dz)",
+        "WorldToLocal(dx, dy)",
+        "WorldToLocal(dx, dy, dz)"
+    }.Concat(Entity.ValidEntityPropNames).Concat(Job.LegalJobPropNames).ToList();
 
     // Job, Role, etc.
     public static List<string> XivJobProps = Job.LegalJobPropNames.ToList();

@@ -2240,8 +2240,8 @@ public class UserInterface {
         }
     }
 
-    public static Repository DefaultRepoCN(string address, string name, int updateIntervalMinutes) {
-        return new Repository {
+    public static Repository DefaultRepoCN(string address, string name, int updateIntervalMinutes) =>
+        new() {
             Enabled = true,
             Address = address,
             AllowProcessLaunch = true,
@@ -2254,7 +2254,6 @@ public class UserInterface {
             AutoUpdate = true,
             UpdateInterval = updateIntervalMinutes
         };
-    }
 
     public static void BuildTriggerTreeFromConfiguration(object? parentTag, Folder? parentfolder) {
         if (parentTag == null || parentfolder == null) {

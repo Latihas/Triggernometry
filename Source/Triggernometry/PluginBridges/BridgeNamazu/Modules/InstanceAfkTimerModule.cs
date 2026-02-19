@@ -28,7 +28,7 @@ public class InstanceAfkTimerModule : ModuleBase {
 
     public void DisableInstanceTimer(bool shouldDisable) {
         CheckIfAnyZeroPtr();
-        SafeMemory.ReadBytes(PatchPtr, OriginalBytes.Length,out  var currentBytes);
+        SafeMemory.ReadBytes(PatchPtr, OriginalBytes.Length, out var currentBytes);
         bool? isDisabled = currentBytes.SequenceEqual(PatchedBytes) ? true :
             currentBytes.SequenceEqual(OriginalBytes) ? false : null;
         if (isDisabled == null) {

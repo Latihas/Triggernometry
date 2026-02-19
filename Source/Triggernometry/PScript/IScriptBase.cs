@@ -12,7 +12,7 @@ public abstract class IScriptBase : IActPluginV1 {
     public virtual List<TargetIcon> TargetIconList => [];
     public virtual List<StartsCasting> StartsCastingList => [];
     public virtual List<StatusAdd> StatusAddList => [];
-    public virtual List<(Regex,Action< GroupCollection>)> CustomList => [];
+    public virtual List<(Regex, Action<GroupCollection>)> CustomList => [];
 
     public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText) {
     }

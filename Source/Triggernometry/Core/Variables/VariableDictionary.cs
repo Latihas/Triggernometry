@@ -226,7 +226,7 @@ public sealed class VariableDictionary : Variable {
         return string.Join(joiner, keys.Select(k => Values.TryGetValue(k, out var v) ? v.ToString() : ""));
     }
 
-        public string JoinValues(string joiner, params string[] keys) => JoinValues(joiner, (IEnumerable<string>)keys);
+    public string JoinValues(string joiner, params string[] keys) => JoinValues(joiner, (IEnumerable<string>)keys);
 
     public string JoinAll(string kvJoiner, string pairJoiner) {
         return string.Join(pairJoiner, Values.Select(pair => $"{pair.Key}{kvJoiner}{pair.Value}"));
@@ -236,7 +236,7 @@ public sealed class VariableDictionary : Variable {
         return string.Join(pairJoiner, keys.Select(k => Values.TryGetValue(k, out var v) ? $"{k}{kvJoiner}{v}" : ""));
     }
 
-        public string JoinAll(string kvJoiner, string pairJoiner, params string[] keys) => JoinAll(kvJoiner, pairJoiner, (IEnumerable<string>)keys);
+    public string JoinAll(string kvJoiner, string pairJoiner, params string[] keys) => JoinAll(kvJoiner, pairJoiner, (IEnumerable<string>)keys);
 
     public void Merge(VariableDictionary sourceDict, bool overwriteExistingKeys = true) {
         foreach (var pair in sourceDict.Values) {
