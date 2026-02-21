@@ -54,7 +54,7 @@ public class Interpreter {
                 var instance = (ITrnNamedCallback)Activator.CreateInstance(type)!;
                 instance.Load();
                 var name = type.Name;
-                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Loaded Dll {name}");
+                RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Info, $"Loaded Dll {name}");
             }
         }
         catch (Exception e) {
