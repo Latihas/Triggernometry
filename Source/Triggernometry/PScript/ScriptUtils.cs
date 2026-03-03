@@ -15,6 +15,7 @@ using static Triggernometry.PScript.ScriptUtils.ShapeType;
 namespace Triggernometry.PScript;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static partial class ScriptUtils {
     public static IPlayerCharacter Me => ObjectTable.LocalPlayer;
     public static ulong Me_HexID() => Me.GameObjectId;
