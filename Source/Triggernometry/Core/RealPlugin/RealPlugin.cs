@@ -281,7 +281,6 @@ public partial class RealPlugin {
             //     ui.pnlWelcome.Visible = false;
             //     ui.btnOptions.Enabled = true;
             // }
-            FixConfigurationOnStartCN(); // start
             if (cfg.UpdateNotifications == Configuration.UpdateNotificationsEnum.Yes) {
                 exwhere = I18n.Translate("internal/Plugin/iniupdates", "checking for updates");
                 // CheckForUpdates();

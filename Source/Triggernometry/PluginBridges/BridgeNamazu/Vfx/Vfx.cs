@@ -25,7 +25,7 @@ public abstract class Vfx {
             Task.Run(async () => {
                 try {
                     await Task.Delay(TimeSpan.FromSeconds(duration)).ConfigureAwait(false);
-                    TryRemove();
+                        GreyMagicMemoryBase.ExecuteWithLock(() => TryRemove());
                 }
                 catch (Exception ex) {
                     Module.ErrorLog($"[PictoACT] 延迟移除时出错：\n{ex}");

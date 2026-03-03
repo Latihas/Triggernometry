@@ -401,24 +401,10 @@ public class PictoACTModule : ModuleBase {
         var filter = ParseFilter(data);
 
         // 执行移除
-        if (isActor && GetConfig<bool>("ActorVfx") != false) {
-            var vfxs = ActorVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList();
-            vfxs.ForEach(vfx => {
-                if (vfx.ImGuiObject != null) {
-                    vfx.ImGuiObject?.toRecycle = true;
-                    vfx.Removed = true;
-                }
-            });
-        }
-        if (isStatic && GetConfig<bool>("StaticVfx") != false) {
-            var vfxs = StaticVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList();
-            vfxs.ForEach(vfx => {
-                if (vfx.ImGuiObject != null) {
-                    vfx.ImGuiObject?.toRecycle = true;
-                    vfx.Removed = true;
-                }
-            });
-        }
+            if (isActor && GetConfig<bool>("ActorVfx") != false)
+                ActorVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => Memory.ExecuteWithLock(() => vfx.TryRemove()));
+            if (isStatic && GetConfig<bool>("StaticVfx") != false)
+                StaticVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => Memory.ExecuteWithLock(() => vfx.TryRemove()));
     }
 
     private void ParseTypeAndPath(MultiLineRawArgs data, out VfxType vfxType, out string vfxPath, out bool isActor) {
@@ -573,6 +559,9 @@ public class PictoACTModule : ModuleBase {
             vfx.PrevRotation = rotation ?? vfx.PrevRotation;
             vfx.PrevKeepX = keepX ?? vfx.PrevKeepX;
             vfx.PrevKeepY = keepY ?? vfx.PrevKeepY;
+
+                if (vfx.PrevPos == null || vfx.PrevAngles == null) // 只 create 但还没设置参数，忽略本次修改
+                    return;
 
             var newPos = vfx.PrevPos.Duplicate();
             var newθ = vfx.PrevAngles.X;

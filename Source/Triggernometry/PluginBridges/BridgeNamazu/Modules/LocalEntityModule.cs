@@ -53,6 +53,8 @@ public class LocalEntityModule : ModuleBase {
         return entityPtr;
     }
 
+    public void ReDraw(IntPtr entityPtr) => entityModule.ReDraw(entityPtr);
+
     [Flags]
     public enum CopyFlags : uint {
         None = 0x00,

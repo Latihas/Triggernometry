@@ -221,7 +221,7 @@ public class VfxModule : ModuleBase {
                     Path = fullPath,
                     Tag = tag
                 };
-                if (!autoRemoved) // 临时应对方式，暂时未能检测 LockOn 是否已经被移除，所以不主动注册
+            if (!scheduleRemovalByGame) // 临时应对方式，暂时未能检测 LockOn 是否已经被移除，所以不主动注册
                 {
                     lock (_actorVfxs) {
                         _actorVfxs[vfxPtr] = vfx;
@@ -233,7 +233,7 @@ public class VfxModule : ModuleBase {
         });
     }
 
-    public bool TryActorVfxRemove(IntPtr vfxPtr) // 待优化：判断是否存在 vfx
+        public bool TryActorVfxRemove(IntPtr vfxPtr, bool scheduleRemovalByGame = false) // 待优化：判断是否存在 vfx
     {
         return GreyMagicMemoryBase.ExecuteWithLock(() => {
             CheckIfAnyZeroPtr();
@@ -243,6 +243,7 @@ public class VfxModule : ModuleBase {
             }
             try {
                 lock (_actorVfxs) {
+                    if (!scheduleRemovalByGame)return false;
                     if (!_actorVfxs.TryGetValue(vfxPtr, out var vfx)) {
                         Custom2Log($"[ActorVfx] 移除特效：（已移除）@{(long)vfxPtr:X}");
                         return false;
@@ -265,14 +266,14 @@ public class VfxModule : ModuleBase {
         });
     }
 
-    public void ScheduleActorVfxRemove(Vfx.Vfx vfx, double duration) {
-        if (vfx.ImGuiObject != null) {
-            vfx.ImGuiObject.EndTime = (long)(DateTime.Now.Ticks / 10000 + duration * 1000);
-        }
-        else if (duration >= 0 && vfx.Ptr != IntPtr.Zero) {
-            Task.Delay((int)(duration * 1000)).ContinueWith(_ => TryActorVfxRemove(vfx.Ptr));
-        }
+\
+public void ScheduleActorVfxRemove(IntPtr vfxPtr, double duration, bool scheduleRemovalByGame = false)
+{
+    if (duration >= 0 && vfxPtr != IntPtr.Zero)
+    {
+        Task.Delay((int)(duration * 1000)).ContinueWith(_ => GreyMagicMemoryBase.ExecuteWithLock(() => TryActorVfxRemove(vfxPtr, scheduleRemovalByGame)));
     }
+}
 
     #endregion ActorVfx
 
