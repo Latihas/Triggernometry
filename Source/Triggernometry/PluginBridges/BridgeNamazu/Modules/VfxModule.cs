@@ -144,7 +144,7 @@ public class VfxModule : ModuleBase {
         var (tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, -1.0)); // 默认不移除
         CheckIfVfxNameTooShort(vfxName, "LockOn");
         var vfx = LockOnCreate(tgtAddress, vfxName);
-        ScheduleActorVfxRemove(vfx, duration);
+        ScheduleActorVfxRemove(vfx.Ptr, duration);
     }
 
     /// <summary> 连线特效 </summary>
@@ -155,7 +155,7 @@ public class VfxModule : ModuleBase {
         var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
         CheckIfVfxNameTooShort(vfxName, "Channeling");
         var vfx = ChannelingCreate(srcAddress, tgtAddress, vfxName);
-        ScheduleActorVfxRemove(vfx, duration);
+        ScheduleActorVfxRemove(vfx.Ptr, duration);
     }
 
     /// <summary> 咏唱特效 </summary>
@@ -166,7 +166,7 @@ public class VfxModule : ModuleBase {
         var (srcAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, 3.0)); // 默认持续时间 3 秒
         CheckIfVfxNameTooShort(vfxName, "CastVfx");
         var vfx = CastVfxCreate(srcAddress, vfxName);
-        ScheduleActorVfxRemove(vfx, duration);
+        ScheduleActorVfxRemove(vfx.Ptr, duration);
     }
 
     /// <summary> 通用 ActorVfx </summary>
@@ -177,7 +177,7 @@ public class VfxModule : ModuleBase {
         var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
         CheckIfVfxNameTooShort(vfxName, "ActorVfx");
         var vfx = ActorVfxCreate(srcAddress, tgtAddress, vfxName);
-        ScheduleActorVfxRemove(vfx, duration);
+        ScheduleActorVfxRemove(vfx.Ptr, duration);
     }
 
     public ActorVfx LockOnCreate(IntPtr tgtAddress, string vfxName, string tag = Vfx.Vfx.DefaultTag)
@@ -189,10 +189,10 @@ public class VfxModule : ModuleBase {
     public ActorVfx CastVfxCreate(IntPtr srcAddress, string vfxName, string tag = Vfx.Vfx.DefaultTag)
         => ActorVfxCreate(srcAddress, srcAddress, $"vfx/common/eff/{vfxName}.avfx", tag);
 
-    public ActorVfx ActorVfxCreate(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = Vfx.Vfx.DefaultTag, bool autoRemoved = false) {
+    public ActorVfx ActorVfxCreate(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = Vfx.Vfx.DefaultTag, bool scheduleRemovalByGame = false, float unknownParamTest = -1f) {
         return GreyMagicMemoryBase.ExecuteWithLock(() => {
             CheckIfAnyZeroPtr();
-            if (!autoRemoved) CheckIfAnyZeroPtr();
+            if (!scheduleRemovalByGame) CheckIfAnyZeroPtr();
             if ((long)srcAddress <= 0xFFFF || (long)tgtAddress <= 0xFFFF)
                 throw new Exception($"[鲶鱼精邮差扩展] ActorVfxCreate ({fullPath}) 实体地址无效：src = {(long)srcAddress:X}, tgt = {(long)tgtAddress:X}");
             ActorVfx vfx = null;
@@ -221,7 +221,7 @@ public class VfxModule : ModuleBase {
                     Path = fullPath,
                     Tag = tag
                 };
-            if (!scheduleRemovalByGame) // 临时应对方式，暂时未能检测 LockOn 是否已经被移除，所以不主动注册
+                if (!scheduleRemovalByGame) // 临时应对方式，暂时未能检测 LockOn 是否已经被移除，所以不主动注册
                 {
                     lock (_actorVfxs) {
                         _actorVfxs[vfxPtr] = vfx;
@@ -233,7 +233,7 @@ public class VfxModule : ModuleBase {
         });
     }
 
-        public bool TryActorVfxRemove(IntPtr vfxPtr, bool scheduleRemovalByGame = false) // 待优化：判断是否存在 vfx
+    public bool TryActorVfxRemove(IntPtr vfxPtr, bool scheduleRemovalByGame = false) // 待优化：判断是否存在 vfx
     {
         return GreyMagicMemoryBase.ExecuteWithLock(() => {
             CheckIfAnyZeroPtr();
@@ -243,7 +243,7 @@ public class VfxModule : ModuleBase {
             }
             try {
                 lock (_actorVfxs) {
-                    if (!scheduleRemovalByGame)return false;
+                    if (!scheduleRemovalByGame) return false;
                     if (!_actorVfxs.TryGetValue(vfxPtr, out var vfx)) {
                         Custom2Log($"[ActorVfx] 移除特效：（已移除）@{(long)vfxPtr:X}");
                         return false;
@@ -266,14 +266,12 @@ public class VfxModule : ModuleBase {
         });
     }
 
-\
-public void ScheduleActorVfxRemove(IntPtr vfxPtr, double duration, bool scheduleRemovalByGame = false)
-{
-    if (duration >= 0 && vfxPtr != IntPtr.Zero)
-    {
-        Task.Delay((int)(duration * 1000)).ContinueWith(_ => GreyMagicMemoryBase.ExecuteWithLock(() => TryActorVfxRemove(vfxPtr, scheduleRemovalByGame)));
+
+    public void ScheduleActorVfxRemove(IntPtr vfxPtr, double duration, bool scheduleRemovalByGame = false) {
+        if (duration >= 0 && vfxPtr != IntPtr.Zero) {
+            Task.Delay((int)(duration * 1000)).ContinueWith(_ => GreyMagicMemoryBase.ExecuteWithLock(() => TryActorVfxRemove(vfxPtr, scheduleRemovalByGame)));
+        }
     }
-}
 
     #endregion ActorVfx
 
