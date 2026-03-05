@@ -573,7 +573,7 @@ public class Configuration {
         }
     }
 
-    [XmlAttribute] public bool EnableModuleBase { get; set; }
+    [XmlAttribute] public bool EnableModuleBase { get; set; } = true;
     [XmlAttribute] public bool UseImGui4VfxModule { get; set; } = true;
     [XmlAttribute] public List<string> CompileFailedScripts { get; set; } = [];
     [XmlAttribute] public int LogFlattenMaxCount { get; set; } = 114514;

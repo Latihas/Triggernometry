@@ -144,7 +144,7 @@ public class VfxModule : ModuleBase {
         var (tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, -1.0)); // 默认不移除
         CheckIfVfxNameTooShort(vfxName, "LockOn");
         var vfx = LockOnCreate(tgtAddress, vfxName);
-        ScheduleActorVfxRemove(vfx.Ptr, duration);
+        ScheduleActorVfxRemove(vfx.Ptr, duration, true);
     }
 
     /// <summary> 连线特效 </summary>
@@ -209,7 +209,7 @@ public class VfxModule : ModuleBase {
                 RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"ActorVfx not in dict: {fullPath}({tag})");
             }
             if (vfx == null) {
-                var vfxPtr = ActorVfxCreateD(fullPath, srcAddress, tgtAddress, -1f, (char)0, 0, (char)0);
+                var vfxPtr = ActorVfxCreateD(fullPath, srcAddress, tgtAddress, unknownParamTest, (char)0, 0, (char)0);
                 try {
                     RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxCreate,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},Path:{fullPath},Tag:{tag},vfxPtr:{vfxPtr}");
                 }
