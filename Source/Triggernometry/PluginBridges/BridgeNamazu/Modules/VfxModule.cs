@@ -71,7 +71,7 @@ public class VfxModule : ModuleBase {
     public IntPtr StaticVfxRemoveDetour(IntPtr vfxPtr) {
         if (RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(nameof(VfxModule))) return ProxyPlugin.StaticVfxRemoveHook.Original(vfxPtr);
         try {
-            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},vfxPtr:{vfxPtr}");
+            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Info, $"StaticVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},vfxPtr:{vfxPtr}");
         }
         catch (Exception e) {
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoving Log Err: {e}");
@@ -94,7 +94,7 @@ public class VfxModule : ModuleBase {
     public IntPtr ActorVfxRemoveDetour(IntPtr vfxPtr, char a2) {
         if (RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(nameof(VfxModule))) return ProxyPlugin.ActorVfxRemoveHook.Original(vfxPtr, a2);
         try {
-            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},vfxPtr:{vfxPtr}");
+            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Info, $"ActorVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>(vfxPtr, 1)![0]:X},vfxPtr:{vfxPtr}");
         }
         catch (Exception e) {
             RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoving Log Err: {e}");
