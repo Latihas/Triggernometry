@@ -44,9 +44,8 @@ public partial class RealPlugin {
     }
 
     private void SetupDefaultSecurity() {
-        var setter = cfg.GetType().GetMethod("AddAPIUsage", BindingFlags.NonPublic | BindingFlags.Instance);
         foreach (var a in DefaultAPIUsages) {
-            setter.Invoke(cfg, [a, false]);
+            cfg.AddAPIUsage(a, false);
         }
     }
 

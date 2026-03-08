@@ -16,8 +16,8 @@ public static class BridgeNamazu {
     // private static RealPlugin.PluginWrapper _wrappedPlugin;
 
     public static NamazuPlugin NamazuPlugin
-        => _namazuPlugin ?? (_namazuPlugin = new NamazuPlugin(ProxyPlugin.DalamudPlugin.PostNamazuPlugin));
-    private static NamazuPlugin _namazuPlugin;
+        => _namazuPlugin ??= new NamazuPlugin(ProxyPlugin.DalamudPlugin.PostNamazuPlugin);
+    private static NamazuPlugin? _namazuPlugin;
 
     public static IReadOnlyDictionary<Type, ModuleBase> Modules => _modules;
     private static readonly Dictionary<Type, ModuleBase> _modules = new();

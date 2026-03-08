@@ -332,9 +332,9 @@ public class Configuration {
         AllowAdmin = 4
     }
 
-    private bool SecuritySettingsLocked { get; set; } = false;
+    [XmlIgnore]  public bool SecuritySettingsLocked { get; set; } = false;
 
-    private List<APIUsage> _APIUsages { get; set; } = [];
+    [XmlIgnore] public List<APIUsage> _APIUsages { get; set; } = [];
     public List<APIUsage> APIUsages
     {
         get => !SecuritySettingsLocked ? _APIUsages : null;
@@ -378,7 +378,7 @@ public class Configuration {
         return l;
     }
 
-    private void AddAPIUsage(APIUsage au, bool overwrite) {
+    public void AddAPIUsage(APIUsage au, bool overwrite) {
         var ax = (from aus in _APIUsages where aus.Name.CompareTo(au.Name) == 0 select aus).FirstOrDefault();
         if (ax == null) {
             _APIUsages.Add(au);

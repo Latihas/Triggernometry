@@ -252,7 +252,7 @@ public class ProxyPlugin : IActPluginV1 {
 
     public RealPlugin.PluginWrapper GetInstance(string ActPluginName, string ActPluginType) {
         if (!(ActPluginName == "FFXIV_ACT_Plugin.dll" && ActPluginType == "FFXIV_ACT_Plugin.FFXIV_ACT_Plugin")) {
-            RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"PluginWrapper GetInstance Not Implemented: {ActPluginName}|{ActPluginType}");
+            // RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"PluginWrapper GetInstance Not Implemented: {ActPluginName}|{ActPluginType}");
             return new RealPlugin.PluginWrapper {
                 pluginObj = null
             };

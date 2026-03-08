@@ -269,6 +269,7 @@ public partial class RealPlugin {
             exwhere = I18n.Translate("internal/Plugin/iniwelcome", "preparing welcome");
             // ui.pnlWelcome.Dock = DockStyle.Fill;
             // ui.pnlUi.Dock = DockStyle.Fill;
+            FixConfigurationOnStartCN(); // start
             // if (cfg != null && cfg.ShowWelcome == true)
             // {
             //     ui.pnlUi.Visible = false;
@@ -330,8 +331,7 @@ public partial class RealPlugin {
             FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/inited", "Initialized"));
             // start
             if (I18n.IsChineseEnvironment) AddDefaultRepoCN();
-            _ = RegisterNamedCallback("UploadText", (Action<object, string>)UploadTextHelper.UploadTextV1Callback, registrant: nameof(RealPlugin));
-            _ = RegisterNamedCallback("UploadTextV2", (Action<object, string>)UploadTextHelper.UploadTextV2Callback, registrant: nameof(RealPlugin));
+            RegisterDefaultNamedCallbacks();
             // end
             _ = Task.Run(() => UpdateAllRepositoriesAsync(true));
             isInitialized = true;

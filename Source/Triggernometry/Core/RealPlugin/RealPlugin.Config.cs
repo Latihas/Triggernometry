@@ -87,10 +87,9 @@ public partial class RealPlugin {
             var cre = "";
             if (!fi.Exists) {
                 FilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Plugin/cfgnew", "Configuration file '{0}' does not exist, creating a new configuration", filename));
-                var c = new Configuration();
-                var setter = c.GetType().GetProperty("SecuritySettingsLocked", BindingFlags.NonPublic | BindingFlags.Instance);
-                setter.SetValue(c, true);
-                return c;
+                return new Configuration {
+                    SecuritySettingsLocked = true
+                };
             }
             var corruptFallback = false;
             var lastLine = File.ReadLines(filename).LastOrDefault();
@@ -115,8 +114,7 @@ public partial class RealPlugin {
             var xs = new XmlSerializer(typeof(Configuration));
             using (var fs = File.Open(filename, FileMode.Open, FileAccess.Read)) {
                 cx = (Configuration)xs.Deserialize(fs);
-                var setter = cx.GetType().GetProperty("SecuritySettingsLocked", BindingFlags.NonPublic | BindingFlags.Instance);
-                setter.SetValue(cx, true);
+                cx.SecuritySettingsLocked = true;
                 cx.isnew = false;
                 cx.lastWrite = fi.LastWriteTimeUtc;
             }
@@ -142,10 +140,9 @@ public partial class RealPlugin {
             ns.Add("", "");
             var xs = new XmlSerializer(typeof(Configuration));
             using (var ms = new MemoryStream()) {
-                var setter = cfg.GetType().GetProperty("SecuritySettingsLocked", BindingFlags.NonPublic | BindingFlags.Instance);
-                setter.SetValue(cfg, false);
+                cfg.SecuritySettingsLocked = false;
                 xs.Serialize(ms, cfg, ns);
-                setter.SetValue(cfg, true);
+                cfg.SecuritySettingsLocked = true;
                 ms.Position = 0;
                 using (var sr = new StreamReader(ms)) {
                     test = sr.ReadToEnd();
