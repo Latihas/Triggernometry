@@ -27,7 +27,7 @@ public static partial class ScriptUtils {
 
     #region TargetIcon
 
-    [GeneratedRegex("^.{14} TargetIcon 1B:(?<targetId>.{8}):[^:]+:.{4}:.{4}:(?<id>.{4}):")]
+    [GeneratedRegex("^.{14} TargetIcon 1B:(?<targetId>.{8}):[^:]+:[^:]+:[^:]+:(?<id>.{4}):")]
     private static partial Regex _LogRegexTargetIcon();
 
     private static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();

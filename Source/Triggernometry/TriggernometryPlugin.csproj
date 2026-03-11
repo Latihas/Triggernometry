@@ -3,7 +3,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Triggernometry</RootNamespace>
     <AssemblyName>Triggernometry</AssemblyName>
-    <FileAlignment>512</FileAlignment>
     <UseWindowsForms>true</UseWindowsForms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>2.99.99.99</Version>
@@ -18,39 +17,21 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0"/>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.3">
-      <Private>True</Private>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.0.0"/>
-    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.0.0"/>
-    <PackageReference Include="SharpDX" Version="4.2.0">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </PackageReference>
-    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
-    </PackageReference>
-    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
-    </PackageReference>
-    <PackageReference Include="SharpDX.DXGI" Version="4.2.0">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
-    </PackageReference>
-    <Reference Include="FFXIVClientStructs">
-      <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.4"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.3.0"/>
+    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0"/>
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0"/>
+    <PackageReference Include="System.Management" Version="10.0.4"/>
+    <PackageReference Include="System.Speech" Version="10.0.4"/>
+    <PackageReference Include="System.ValueTuple" Version="4.6.2"/>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
     <Reference Include="FFXIV_ACT_Plugin">
       <HintPath>..\..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
     </Reference>
-    <PackageReference Include="System.Management" Version="10.0.3"/>
-    <PackageReference Include="System.Speech" Version="10.0.3"/>
-    <PackageReference Include="System.ValueTuple" Version="4.6.2"/>
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7"/>
+    <Reference Include="FFXIVClientStructs">
+      <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Dalamud">
       <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
       <Private>false</Private>
@@ -67,8 +48,5 @@
       <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Localization\newtranslations.txt"/>
   </ItemGroup>
 </Project>
