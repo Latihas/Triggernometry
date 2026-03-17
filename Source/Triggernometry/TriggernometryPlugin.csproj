@@ -17,12 +17,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0"/>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.4"/>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.5" />
     <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.3.0"/>
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0"/>
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0"/>
-    <PackageReference Include="System.Management" Version="10.0.4"/>
-    <PackageReference Include="System.Speech" Version="10.0.4"/>
+    <PackageReference Include="System.Management" Version="10.0.5" />
+    <PackageReference Include="System.Speech" Version="10.0.5" />
     <PackageReference Include="System.ValueTuple" Version="4.6.2"/>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
     <Reference Include="FFXIV_ACT_Plugin">
