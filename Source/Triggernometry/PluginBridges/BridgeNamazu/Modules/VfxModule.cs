@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dalamud;
+using System.Xml.Linq;
 using Triggernometry.Core;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
@@ -193,6 +196,7 @@ public class VfxModule : ModuleBase {
         return GreyMagicMemoryBase.ExecuteWithLock(() => {
             CheckIfAnyZeroPtr();
             if (!scheduleRemovalByGame) CheckIfAnyZeroPtr();
+            CheckIfVfxPathValid(fullPath);
             if ((long)srcAddress <= 0xFFFF || (long)tgtAddress <= 0xFFFF)
                 throw new Exception($"[鲶鱼精邮差扩展] ActorVfxCreate ({fullPath}) 实体地址无效：src = {(long)srcAddress:X}, tgt = {(long)tgtAddress:X}");
             ActorVfx vfx = null;
@@ -316,6 +320,7 @@ public class VfxModule : ModuleBase {
     public StaticVfx StaticVfxCreate(string fullPath, string tag = Vfx.Vfx.DefaultTag) {
         return GreyMagicMemoryBase.ExecuteWithLock(() => {
             CheckIfAnyZeroPtr();
+            CheckIfVfxPathValid(fullPath);
             const string pool = "Client.System.Scheduler.Instance.VfxObject";
             StaticVfx vfx = null;
             if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
@@ -405,4 +410,12 @@ public class VfxModule : ModuleBase {
         // {"m0071_fan180_01k2",ShapeType.Circle},
         // {"Rect",ShapeType.Rect},
     };
+        private void CheckIfVfxPathValid(string vfxPath)
+        {
+            if (!vfxPath.EndsWith(".avfx", StringComparison.OrdinalIgnoreCase))
+                throw new Exception($"[鲶鱼精邮差扩展] vfxName 不以 \".avfx\" 结尾：{vfxPath}");
+            if (Regex.IsMatch(vfxPath, @"\.(?!avfx)", RegexOptions.IgnoreCase))
+                throw new Exception($"[鲶鱼精邮差扩展] vfxName 包含错误的扩展名：{vfxPath}");
+        }
+
 }

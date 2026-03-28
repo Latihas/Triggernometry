@@ -22,7 +22,7 @@ public class Action : TypedCsvRow {
 
     public sbyte Range => Get<sbyte>("Range");
     public byte ShapeType => Get<byte>("CastType");
-    public ShapeEnum Shape => ShapeMap[ShapeType];
+        public ShapeEnum Shape => ShapeMap.TryGetValue(ShapeType, out var shape) ? shape : ShapeEnum.Unknown;
 
     /// <summary> 技能范围，即圆/扇形技能的半径、矩形技能的半长，相当于特效的 y 参数。</summary>
     public byte ScaleY => Get<byte>("EffectRange");
@@ -61,7 +61,9 @@ public class Action : TypedCsvRow {
         Fashion = 18
     }
 
-    public enum ShapeEnum : byte {
+        public enum ShapeEnum : byte
+        {
+            Unknown,
         None,
         Circle,
         Fan,
@@ -70,7 +72,9 @@ public class Action : TypedCsvRow {
         RectThrough, // y = 0, 截至 7.3 只有 PVP 技能 必杀剑·早天
         Ring,
         Cross,
-        Triangle
+            Triangle,
+            RightRectTo,
+            LeftRectTo
     }
 
     public static Dictionary<byte, ShapeEnum> ShapeMap = new() {
@@ -89,7 +93,9 @@ public class Action : TypedCsvRow {
         [12] = ShapeEnum.Rect,
         [13] = ShapeEnum.Fan,
         [14] = ShapeEnum.Triangle,
-        [15] = ShapeEnum.RectThrough
+            [15] = ShapeEnum.RectThrough,
+            [16] = ShapeEnum.RightRectTo,
+            [17] = ShapeEnum.LeftRectTo,
     };
 
     public enum AttackTypeEnum : sbyte {
