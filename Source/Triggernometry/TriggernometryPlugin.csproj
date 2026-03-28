@@ -14,7 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="../../../NotACT/NotACT.csproj"/>
     <ProjectReference Include="../../../OverlayPlugin.Core/OverlayPlugin.Core.csproj"/>
-    <ProjectReference Include="../../..\ChineseConverter\ChineseConverter.csproj"/>
+    <ProjectReference Include="../../../ChineseConverter/ChineseConverter.csproj"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="*"/>
@@ -25,7 +25,7 @@
     <PackageReference Include="System.Management" Version="*" />
     <PackageReference Include="System.Speech" Version="*" />
     <Reference Include="FFXIV_ACT_Plugin">
-      <HintPath>../../..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
+      <HintPath>../../../external_dependencies/FFXIV_ACT_Plugin.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == ''">
