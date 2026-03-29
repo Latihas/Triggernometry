@@ -6,37 +6,37 @@ namespace Triggernometry.Core.Variables;
 
 [XmlRoot(ElementName = "VariableScalar")]
 public class VariableScalar : Variable {
-    public string Value { get; set; } = "";
+	public string Value { get; set; } = "";
 
-    public VariableScalar() {
-    }
+	public VariableScalar() {
+	}
 
-    public VariableScalar(string value) {
-        Value = value;
-    }
+	public VariableScalar(string value) {
+		Value = value;
+	}
 
-    public VariableScalar(double value) {
-        Value = value.ToString(CultureInfo.InvariantCulture);
-    }
+	public VariableScalar(double value) {
+		Value = value.ToString(CultureInfo.InvariantCulture);
+	}
 
-    public override string ToString() => Value;
+	public override string ToString() => Value;
 
-    public override int CompareTo(object o) {
-        if (!(o is Variable)) {
-            throw new InvalidOperationException();
-        }
-        if (o is VariableScalar) {
-            var v = (VariableScalar)o;
-            return Value.CompareTo(v.Value);
-        }
-        return -1;
-    }
+	public override int CompareTo(object o) {
+		if (!(o is Variable)) {
+			throw new InvalidOperationException();
+		}
+		if (o is VariableScalar) {
+			var v = (VariableScalar)o;
+			return Value.CompareTo(v.Value);
+		}
+		return -1;
+	}
 
-    public override Variable Duplicate() {
-        var v = new VariableScalar();
-        v.Value = Value;
-        v.LastChanger = LastChanger;
-        v.LastChanged = LastChanged;
-        return v;
-    }
+	public override Variable Duplicate() {
+		var v = new VariableScalar();
+		v.Value = Value;
+		v.LastChanger = LastChanger;
+		v.LastChanged = LastChanged;
+		return v;
+	}
 }

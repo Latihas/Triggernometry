@@ -7,27 +7,26 @@ namespace Triggernometry.PluginBridges;
 
 [OverlayModule]
 internal static class ModuleAtkStageMemory {
-    public static bool Ready;
-    public static IAtkStageMemory AtkStageMemoryManager;
+	public static bool Ready;
+	public static IAtkStageMemory AtkStageMemoryManager;
 
-    static ModuleAtkStageMemory() {
-        try {
-            AtkStageMemoryManager = BridgeOverlay.Container.Resolve<IAtkStageMemory>();
-            Ready = true;
-        }
-        catch (Exception ex) {
-            RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
-                I18n.Translate("internal/BridgeOverlay/initfail", "OverlayPlugin initialization failed due to: {0}", ex.ToString())
-            );
-            Ready = false;
-        }
-    }
+	static ModuleAtkStageMemory() {
+		try {
+			AtkStageMemoryManager = BridgeOverlay.Container.Resolve<IAtkStageMemory>();
+			Ready = true;
+		} catch (Exception ex) {
+			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
+				I18n.Translate("internal/BridgeOverlay/initfail", "OverlayPlugin initialization failed due to: {0}", ex.ToString())
+			);
+			Ready = false;
+		}
+	}
 
-    #region AtkStageMemory
+	#region AtkStageMemory
 
-    public static IntPtr GetAddonAddress(string name) => AtkStageMemoryManager.GetAddonAddress(name);
+	public static IntPtr GetAddonAddress(string name) => AtkStageMemoryManager.GetAddonAddress(name);
 
-    public static object GetAddon(string name) => AtkStageMemoryManager.GetAddon(name);
+	public static object GetAddon(string name) => AtkStageMemoryManager.GetAddon(name);
 
-    #endregion AtkStageMemory
+	#endregion AtkStageMemory
 }

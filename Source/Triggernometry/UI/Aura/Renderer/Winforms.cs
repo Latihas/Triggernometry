@@ -1,36 +1,36 @@
 ﻿namespace Triggernometry.UI.Aura.Renderer;
 
 internal sealed class Winforms : RendererBase {
-    // Forms.AuraContainerForm acf = null;
+	// Forms.AuraContainerForm acf = null;
 
-    public override void Dispose() {
-        CloseForm();
-    }
+	public override void Dispose() {
+		CloseForm();
+	}
 
-    private void CloseForm() {
-        // if (acf != null)
-        // {
-        //     acf.Close();
-        //     acf.Dispose();
-        //     acf = null;
-        // }
-    }
+	private void CloseForm() {
+		// if (acf != null)
+		// {
+		//     acf.Close();
+		//     acf.Dispose();
+		//     acf = null;
+		// }
+	}
 
-    internal override void Initialize(Aura a) {
-        // if (a is AuraImage)
-        // {                
-        //     acf = new Forms.AuraContainerForm(Forms.AuraContainerForm.AuraTypeEnum.Image);
-        // }
-        // if (a is AuraText)
-        // {
-        //     acf = new Forms.AuraContainerForm(Forms.AuraContainerForm.AuraTypeEnum.Text);
-        // }
-        // acf.plug = a.ctx.plug;
-        // acf.AuraName = a.Name;
-        // acf.AuraPrepare();
-        // acf.ctx = a.ctx;
-    }
+	internal override void Initialize(Aura a) {
+		// if (a is AuraImage)
+		// {                
+		//     acf = new Forms.AuraContainerForm(Forms.AuraContainerForm.AuraTypeEnum.Image);
+		// }
+		// if (a is AuraText)
+		// {
+		//     acf = new Forms.AuraContainerForm(Forms.AuraContainerForm.AuraTypeEnum.Text);
+		// }
+		// acf.plug = a.ctx.plug;
+		// acf.AuraName = a.Name;
+		// acf.AuraPrepare();
+		// acf.ctx = a.ctx;
+	}
 
-    internal override void Render(Aura a) {
-    }
+	internal override void Render(Aura a) {
+	}
 }

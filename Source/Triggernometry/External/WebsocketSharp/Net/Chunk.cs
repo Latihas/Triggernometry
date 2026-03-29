@@ -46,42 +46,42 @@ using System;
 namespace WebSocketSharp.Net;
 
 internal class Chunk {
-    #region Private Fields
+	#region Private Fields
 
-    private byte[] _data;
-    private int _offset;
+	private byte[] _data;
+	private int _offset;
 
-    #endregion
+	#endregion
 
-    #region Public Constructors
+	#region Public Constructors
 
-    public Chunk(byte[] data) {
-        _data = data;
-    }
+	public Chunk(byte[] data) {
+		_data = data;
+	}
 
-    #endregion
+	#endregion
 
-    #region Public Properties
+	#region Public Properties
 
-    public int ReadLeft => _data.Length - _offset;
+	public int ReadLeft => _data.Length - _offset;
 
-    #endregion
+	#endregion
 
-    #region Public Methods
+	#region Public Methods
 
-    public int Read(byte[] buffer, int offset, int count) {
-        var left = _data.Length - _offset;
-        if (left == 0)
-            return left;
+	public int Read(byte[] buffer, int offset, int count) {
+		var left = _data.Length - _offset;
+		if (left == 0)
+			return left;
 
-        if (count > left)
-            count = left;
+		if (count > left)
+			count = left;
 
-        Buffer.BlockCopy(_data, _offset, buffer, offset, count);
-        _offset += count;
+		Buffer.BlockCopy(_data, _offset, buffer, offset, count);
+		_offset += count;
 
-        return count;
-    }
+		return count;
+	}
 
-    #endregion
+	#endregion
 }

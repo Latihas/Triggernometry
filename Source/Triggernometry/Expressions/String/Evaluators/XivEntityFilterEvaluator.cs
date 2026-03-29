@@ -10,66 +10,66 @@ namespace Triggernometry.Expressions.String.Evaluators;
 
 internal static class XivEntityFilterEvaluator // to-do: sortings
 {
-    internal static Func<Entity, bool> CreateFilter(string rawFilterExpression) {
-        var funcTokens = BuildEntityTokenPipeline(rawFilterExpression);
-        return entity => {
-            var tokens = funcTokens.Select(func => func(entity)).ToList();
-            var result = MathParser.MathParserLogic(tokens);
-            return !MathParser.IsZero(result);
-        };
-    }
+	internal static Func<Entity, bool> CreateFilter(string rawFilterExpression) {
+		var funcTokens = BuildEntityTokenPipeline(rawFilterExpression);
+		return entity => {
+			var tokens = funcTokens.Select(func => func(entity)).ToList();
+			var result = MathParser.MathParserLogic(tokens);
+			return !MathParser.IsZero(result);
+		};
+	}
 
-    private static List<Func<Entity, string>> BuildEntityTokenPipeline(string rawFilterExpression) {
-        // "X=0 && HasStatus(0x32)"
-        var rawTokenList = MathParser.Lexer(rawFilterExpression);
-        // "X"   "="   "0"   "&&"   "HasStatus"   " *"   "("   "0x32"   ")"
-        var funcTokens = new List<Func<Entity, string>>();
-        for (var i = 0; i < rawTokenList.Count; i++) {
-            var token = rawTokenList[i];
-            var followedByParentheses = // the fake token " *" added by the lexer, need to rewrite when the lexer is improved
-                i + 2 < rawTokenList.Count && rawTokenList[i + 1] == " *" && rawTokenList[i + 2] == "(";
+	private static List<Func<Entity, string>> BuildEntityTokenPipeline(string rawFilterExpression) {
+		// "X=0 && HasStatus(0x32)"
+		var rawTokenList = MathParser.Lexer(rawFilterExpression);
+		// "X"   "="   "0"   "&&"   "HasStatus"   " *"   "("   "0x32"   ")"
+		var funcTokens = new List<Func<Entity, string>>();
+		for (var i = 0; i < rawTokenList.Count; i++) {
+			var token = rawTokenList[i];
+			var followedByParentheses = // the fake token " *" added by the lexer, need to rewrite when the lexer is improved
+				i + 2 < rawTokenList.Count && rawTokenList[i + 1] == " *" && rawTokenList[i + 2] == "(";
 
-            // single keyword token (prop; jobProp; method without args) or other normal numeric tokens
-            if (!followedByParentheses) {
-                var possibleMemberExpr = new MemberExpression(token, null, token);
-                var accessor = XivEntityEvaluator.TryGetSingleAccessor(possibleMemberExpr);
-                if (accessor != null) // found
-                    funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // why replace?
-                else
-                    funcTokens.Add(_ => token); // normal numeric token
-                continue;
-            }
+			// single keyword token (prop; jobProp; method without args) or other normal numeric tokens
+			if (!followedByParentheses) {
+				var possibleMemberExpr = new MemberExpression(token, null, token);
+				var accessor = XivEntityEvaluator.TryGetSingleAccessor(possibleMemberExpr);
+				if (accessor != null) // found
+					funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // why replace?
+				else
+					funcTokens.Add(_ => token); // normal numeric token
+				continue;
+			}
 
-            // token followed by parentheses
-            if (!Entity.ValidEntityMethodNames.Contains(token)) // normal numeric tokens
-            {
-                funcTokens.Add(_ => token);
-                continue;
-            }
+			// token followed by parentheses
+			if (!Entity.ValidEntityMethodNames.Contains(token)) // normal numeric tokens
+			{
+				funcTokens.Add(_ => token);
+				continue;
+			}
 
-            // entity method with args: search for the matching ")"
-            var depth = 1;
-            var paired = false;
-            for (var j = i + 3; j < rawTokenList.Count; j++) // start from the token after "("
-            {
-                if (rawTokenList[j] == "(")
-                    depth++;
-                else if (rawTokenList[j] == ")") {
-                    depth--;
-                    if (depth == 0) // closed
-                    {
-                        var methodArgs = rawTokenList.GetRange(i + 3, j - i - 3).ToArray(); // between (...)
-                        var methodExpr = new MemberExpression(token, methodArgs);
-                        var accessor = XivEntityEvaluator.GetSingleAccessor(methodExpr);
-                        funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // to-do: spaces in numeric expressions
-                        i = j;
-                        paired = true;
-                        break;
-                    }
-                }
-            }
-            if (!paired) funcTokens.Add(_ => token);
-        }
-        return funcTokens;
-    }
+			// entity method with args: search for the matching ")"
+			var depth = 1;
+			var paired = false;
+			for (var j = i + 3; j < rawTokenList.Count; j++) // start from the token after "("
+			{
+				if (rawTokenList[j] == "(")
+					depth++;
+				else if (rawTokenList[j] == ")") {
+					depth--;
+					if (depth == 0) // closed
+					{
+						var methodArgs = rawTokenList.GetRange(i + 3, j - i - 3).ToArray(); // between (...)
+						var methodExpr = new MemberExpression(token, methodArgs);
+						var accessor = XivEntityEvaluator.GetSingleAccessor(methodExpr);
+						funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // to-do: spaces in numeric expressions
+						i = j;
+						paired = true;
+						break;
+					}
+				}
+			}
+			if (!paired) funcTokens.Add(_ => token);
+		}
+		return funcTokens;
+	}
 }

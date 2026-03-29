@@ -11,113 +11,109 @@ namespace Triggernometry.Core.Actions;
 [ActionCategory(ActionCategory.CategoryTypeEnum.RemoteControl)]
 [XmlRoot(ElementName = "DiscordWebhook")]
 internal class ActionDiscordWebhook : ActionBase {
-    #region Properties
+	#region Properties
 
-    /*
-    public enum MethodEnum
-    {
-        POST,
-        GET
-    }
-    */
+	/*
+	public enum MethodEnum
+	{
+	    POST,
+	    GET
+	}
+	*/
 
-    /// <summary>
-    ///     Discord webhook URL
-    /// </summary>
-    [XmlIgnore] [Action(1)] public string WebhookURL { get; set; } = "";
+	/// <summary>
+	///     Discord webhook URL
+	/// </summary>
+	[XmlIgnore] [Action(1)] public string WebhookURL { get; set; } = "";
 
-    [XmlAttribute("WebhookURL")] public string Xml_WebhookURL
-    {
-        get => XmlAttr.String(WebhookURL);
-        set => WebhookURL = value;
-    }
+	[XmlAttribute("WebhookURL")] public string Xml_WebhookURL {
+		get => XmlAttr.String(WebhookURL);
+		set => WebhookURL = value;
+	}
 
-    /// <summary>
-    ///     Message to send to the webhook
-    /// </summary>
-    [XmlIgnore] [Action(2)] public string Message { get; set; } = "";
+	/// <summary>
+	///     Message to send to the webhook
+	/// </summary>
+	[XmlIgnore] [Action(2)] public string Message { get; set; } = "";
 
-    [XmlAttribute("Message")] public string Xml_Message
-    {
-        get => XmlAttr.String(Message);
-        set => Message = value;
-    }
+	[XmlAttribute("Message")] public string Xml_Message {
+		get => XmlAttr.String(Message);
+		set => Message = value;
+	}
 
-    /// <summary>
-    ///     If set, sent telegram will be flagged as a TTS message
-    /// </summary>
-    [XmlIgnore] [Action(3)] public bool UseTTS { get; set; }
+	/// <summary>
+	///     If set, sent telegram will be flagged as a TTS message
+	/// </summary>
+	[XmlIgnore] [Action(3)] public bool UseTTS { get; set; }
 
-    [XmlAttribute("UseTTS")] public string Xml_UseTTS
-    {
-        get => XmlAttr.Bool(UseTTS, false);
-        set => UseTTS = XmlAttr.Bool(value);
-    }
+	[XmlAttribute("UseTTS")] public string Xml_UseTTS {
+		get => XmlAttr.Bool(UseTTS, false);
+		set => UseTTS = XmlAttr.Bool(value);
+	}
 
-    #endregion
+	#endregion
 
-    #region Implementation
+	#region Implementation
 
-    internal override string DescribeImplementation() {
-        if (UseTTS) {
-            return I18n.Translate("internal/Action/descdiscordttsmsg", "send TTS message ({0}) to Discord webhook ({1})", Message, WebhookURL);
-        }
-        return I18n.Translate("internal/Action/descdiscordmsg", "send message ({0}) to Discord webhook ({1})", Message, WebhookURL);
-    }
+	internal override string DescribeImplementation() {
+		if (UseTTS) {
+			return I18n.Translate("internal/Action/descdiscordttsmsg", "send TTS message ({0}) to Discord webhook ({1})", Message, WebhookURL);
+		}
+		return I18n.Translate("internal/Action/descdiscordmsg", "send message ({0}) to Discord webhook ({1})", Message, WebhookURL);
+	}
 
-    internal override void ExecuteImplementation(ActionInstance ai) {
-        var ctx = ai?.ctx ?? Context.Unbound;
-        var plug = ctx.Plugin;
+	internal override void ExecuteImplementation(ActionInstance ai) {
+		var ctx = ai?.ctx ?? Context.Unbound;
+		var plug = ctx.Plugin;
 
-        var msg = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Message);
-        var url = ctx.EvaluateStringExpression(ActionContextLogger, ctx, WebhookURL);
-        if (UseTTS) {
-            if (msg.Length > 1970) {
-                msg = msg.Substring(0, 1970);
-                AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/warndiscordtrunc", "Discord message too long, capping to {0}", msg.Length));
-            }
-            var wh = JsonSerializer.Serialize(new {
-                content = msg,
-                tts = true
-            });
-            SendJson(ctx, ActionOld.HTTPMethodEnum.POST, url, wh, null, true);
-        }
-        else {
-            if (msg.Length > 1980) {
-                msg = msg.Substring(0, 1980);
-                AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/warndiscordtrunc", "Discord message too long, capping to {0}", msg.Length));
-            }
-            var wh = JsonSerializer.Serialize(new {
-                content = msg
-            });
-            SendJson(ctx, ActionOld.HTTPMethodEnum.POST, url, wh, null, true);
-        }
-    }
+		var msg = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Message);
+		var url = ctx.EvaluateStringExpression(ActionContextLogger, ctx, WebhookURL);
+		if (UseTTS) {
+			if (msg.Length > 1970) {
+				msg = msg.Substring(0, 1970);
+				AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/warndiscordtrunc", "Discord message too long, capping to {0}", msg.Length));
+			}
+			var wh = JsonSerializer.Serialize(new {
+				content = msg,
+				tts = true
+			});
+			SendJson(ctx, ActionOld.HTTPMethodEnum.POST, url, wh, null, true);
+		} else {
+			if (msg.Length > 1980) {
+				msg = msg.Substring(0, 1980);
+				AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/warndiscordtrunc", "Discord message too long, capping to {0}", msg.Length));
+			}
+			var wh = JsonSerializer.Serialize(new {
+				content = msg
+			});
+			SendJson(ctx, ActionOld.HTTPMethodEnum.POST, url, wh, null, true);
+		}
+	}
 
-    #endregion
+	#endregion
 
-    #region Old Action Converter
+	#region Old Action Converter
 
-    // (this)ActionOld
-    public static explicit operator ActionDiscordWebhook(ActionOld oldAction) {
-        var action = new ActionDiscordWebhook();
-        oldAction.CopyCommonPropertiesTo(action);
-        action.WebhookURL = oldAction._DiscordWebhookURL;
-        action.Message = oldAction._DiscordWebhookMessage;
-        action.UseTTS = oldAction._DiscordTts;
-        return action;
-    }
+	// (this)ActionOld
+	public static explicit operator ActionDiscordWebhook(ActionOld oldAction) {
+		var action = new ActionDiscordWebhook();
+		oldAction.CopyCommonPropertiesTo(action);
+		action.WebhookURL = oldAction._DiscordWebhookURL;
+		action.Message = oldAction._DiscordWebhookMessage;
+		action.UseTTS = oldAction._DiscordTts;
+		return action;
+	}
 
-    // (ActionOld)this
-    public static explicit operator ActionOld(ActionDiscordWebhook action) {
-        var oldAction = new ActionOld();
-        action.CopyCommonPropertiesTo(oldAction);
-        oldAction.ActionType = ActionOld.ActionTypeEnum.DiscordWebhook;
-        oldAction._DiscordWebhookURL = action.WebhookURL;
-        oldAction._DiscordWebhookMessage = action.Message;
-        oldAction._DiscordTts = action.UseTTS;
-        return oldAction;
-    }
+	// (ActionOld)this
+	public static explicit operator ActionOld(ActionDiscordWebhook action) {
+		var oldAction = new ActionOld();
+		action.CopyCommonPropertiesTo(oldAction);
+		oldAction.ActionType = ActionOld.ActionTypeEnum.DiscordWebhook;
+		oldAction._DiscordWebhookURL = action.WebhookURL;
+		oldAction._DiscordWebhookMessage = action.Message;
+		oldAction._DiscordTts = action.UseTTS;
+		return oldAction;
+	}
 
-    #endregion Old Action Converter
+	#endregion Old Action Converter
 }

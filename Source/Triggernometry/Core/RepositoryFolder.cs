@@ -4,28 +4,28 @@ using System.Xml.Serialization;
 namespace Triggernometry.Core;
 
 public class RepositoryFolder {
-    public List<Repository> Repositories { get; set; }
+	public List<Repository> Repositories { get; set; }
 
-    [XmlAttribute] public string Name { get; set; }
+	[XmlAttribute] public string Name { get; set; }
 
-    [XmlAttribute] public bool Enabled { get; set; }
+	[XmlAttribute] public bool Enabled { get; set; }
 
-    public bool IsLimited() => false;
+	public bool IsLimited() => false;
 
-    public RepositoryFolder() {
-        Repositories = [];
-        Enabled = true;
-    }
+	public RepositoryFolder() {
+		Repositories = [];
+		Enabled = true;
+	}
 
-    public Folder ConvertToFolder() {
-        var f = new Folder();
-        f.Enabled = Enabled;
-        f.Name = Name;
-        foreach (var r in Repositories) {
-            var fx = r.Root;
-            fx.Parent = f;
-            f.Folders.Add(fx);
-        }
-        return f;
-    }
+	public Folder ConvertToFolder() {
+		var f = new Folder();
+		f.Enabled = Enabled;
+		f.Name = Name;
+		foreach (var r in Repositories) {
+			var fx = r.Root;
+			fx.Parent = f;
+			f.Folders.Add(fx);
+		}
+		return f;
+	}
 }

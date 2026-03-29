@@ -7,35 +7,34 @@ namespace Triggernometry.PluginBridges;
 
 [OverlayModule]
 internal static class ModuleAlliance {
-    public static bool Ready;
-    private static IPartyMemory _partyMemoryManager;
+	public static bool Ready;
+	private static IPartyMemory _partyMemoryManager;
 
-    static ModuleAlliance() {
-        try {
-            _partyMemoryManager = BridgeOverlay.Container.Resolve<IPartyMemory>();
-            Ready = true;
-        }
-        catch (Exception ex) {
-            RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
-                I18n.Translate("internal/BridgeOverlay/initfail", "OverlayPlugin initialization failed due to: {0}", ex.ToString())
-            );
-            Ready = false;
-        }
-    }
+	static ModuleAlliance() {
+		try {
+			_partyMemoryManager = BridgeOverlay.Container.Resolve<IPartyMemory>();
+			Ready = true;
+		} catch (Exception ex) {
+			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
+				I18n.Translate("internal/BridgeOverlay/initfail", "OverlayPlugin initialization failed due to: {0}", ex.ToString())
+			);
+			Ready = false;
+		}
+	}
 
-    #region PartyList
+	#region PartyList
 
-    public static object GetPartyLists() {
-        if (!Ready) {
-            RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not ready");
-            return new object();
-        }
-        var o = _partyMemoryManager.GetPartyLists();
-        return o;
-    }
+	public static object GetPartyLists() {
+		if (!Ready) {
+			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not ready");
+			return new object();
+		}
+		var o = _partyMemoryManager.GetPartyLists();
+		return o;
+	}
 
-    public class PartyLists {
-    }
+	public class PartyLists {
+	}
 
-    #endregion PartyList
+	#endregion PartyList
 }

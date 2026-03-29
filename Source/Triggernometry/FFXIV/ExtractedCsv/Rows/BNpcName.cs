@@ -1,5 +1,5 @@
 ﻿namespace Triggernometry.FFXIV.ExtractedCsv.Rows;
 
 public class BNpcName : TypedCsvRow {
-    public override string Name => Get(1);
+	public override string Name => Get(1);
 }

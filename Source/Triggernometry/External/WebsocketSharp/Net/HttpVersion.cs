@@ -48,27 +48,27 @@ namespace WebSocketSharp.Net;
 ///     Provides the HTTP version numbers.
 /// </summary>
 public class HttpVersion {
-    #region Public Fields
+	#region Public Fields
 
-    /// <summary>
-    ///     Provides a <see cref="Version" /> instance for the HTTP/1.0.
-    /// </summary>
-    public static readonly Version Version10 = new(1, 0);
+	/// <summary>
+	///     Provides a <see cref="Version" /> instance for the HTTP/1.0.
+	/// </summary>
+	public static readonly Version Version10 = new(1, 0);
 
-    /// <summary>
-    ///     Provides a <see cref="Version" /> instance for the HTTP/1.1.
-    /// </summary>
-    public static readonly Version Version11 = new(1, 1);
+	/// <summary>
+	///     Provides a <see cref="Version" /> instance for the HTTP/1.1.
+	/// </summary>
+	public static readonly Version Version11 = new(1, 1);
 
-    #endregion
+	#endregion
 
-    #region Public Constructors
+	#region Public Constructors
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="HttpVersion" /> class.
-    /// </summary>
-    public HttpVersion() {
-    }
+	/// <summary>
+	///     Initializes a new instance of the <see cref="HttpVersion" /> class.
+	/// </summary>
+	public HttpVersion() {
+	}
 
-    #endregion
+	#endregion
 }

@@ -47,113 +47,105 @@ using System.Threading;
 namespace WebSocketSharp.Net;
 
 internal class HttpStreamAsyncResult : IAsyncResult {
-    #region Private Fields
+	#region Private Fields
 
-    private byte[] _buffer;
-    private AsyncCallback _callback;
-    private bool _completed;
-    private int _count;
-    private Exception _exception;
-    private int _offset;
-    private object _state;
-    private object _sync;
-    private int _syncRead;
-    private ManualResetEvent _waitHandle;
+	private byte[] _buffer;
+	private AsyncCallback _callback;
+	private bool _completed;
+	private int _count;
+	private Exception _exception;
+	private int _offset;
+	private object _state;
+	private object _sync;
+	private int _syncRead;
+	private ManualResetEvent _waitHandle;
 
-    #endregion
+	#endregion
 
-    #region Internal Constructors
+	#region Internal Constructors
 
-    internal HttpStreamAsyncResult(AsyncCallback callback, object state) {
-        _callback = callback;
-        _state = state;
-        _sync = new object();
-    }
+	internal HttpStreamAsyncResult(AsyncCallback callback, object state) {
+		_callback = callback;
+		_state = state;
+		_sync = new object();
+	}
 
-    #endregion
+	#endregion
 
-    #region Internal Properties
+	#region Internal Properties
 
-    internal byte[] Buffer
-    {
-        get => _buffer;
+	internal byte[] Buffer {
+		get => _buffer;
 
-        set => _buffer = value;
-    }
+		set => _buffer = value;
+	}
 
-    internal int Count
-    {
-        get => _count;
+	internal int Count {
+		get => _count;
 
-        set => _count = value;
-    }
+		set => _count = value;
+	}
 
-    internal Exception Exception => _exception;
+	internal Exception Exception => _exception;
 
-    internal bool HasException => _exception != null;
+	internal bool HasException => _exception != null;
 
-    internal int Offset
-    {
-        get => _offset;
+	internal int Offset {
+		get => _offset;
 
-        set => _offset = value;
-    }
+		set => _offset = value;
+	}
 
-    internal int SyncRead
-    {
-        get => _syncRead;
+	internal int SyncRead {
+		get => _syncRead;
 
-        set => _syncRead = value;
-    }
+		set => _syncRead = value;
+	}
 
-    #endregion
+	#endregion
 
-    #region Public Properties
+	#region Public Properties
 
-    public object AsyncState => _state;
+	public object AsyncState => _state;
 
-    public WaitHandle AsyncWaitHandle
-    {
-        get
-        {
-            lock (_sync)
-                return _waitHandle ?? (_waitHandle = new ManualResetEvent(_completed));
-        }
-    }
+	public WaitHandle AsyncWaitHandle {
+		get {
+			lock (_sync)
+				return _waitHandle ?? (_waitHandle = new ManualResetEvent(_completed));
+		}
+	}
 
-    public bool CompletedSynchronously => _syncRead == _count;
+	public bool CompletedSynchronously => _syncRead == _count;
 
-    public bool IsCompleted
-    {
-        get
-        {
-            lock (_sync)
-                return _completed;
-        }
-    }
+	public bool IsCompleted {
+		get {
+			lock (_sync)
+				return _completed;
+		}
+	}
 
-    #endregion
+	#endregion
 
-    #region Internal Methods
+	#region Internal Methods
 
-    internal void Complete() {
-        lock (_sync) {
-            if (_completed)
-                return;
+	internal void Complete() {
+		lock (_sync) {
+			if (_completed)
+				return;
 
-            _completed = true;
-            if (_waitHandle != null)
-                _waitHandle.Set();
+			_completed = true;
+			if (_waitHandle != null)
+				_waitHandle.Set();
 
-            if (_callback != null)
-                _callback.BeginInvoke(this, ar => _callback.EndInvoke(ar), null);
-        }
-    }
+			if (_callback != null)
+				_callback.BeginInvoke(this, ar => _callback.EndInvoke(ar), null);
+		}
+	}
 
-    internal void Complete(Exception exception) {
-        _exception = exception;
-        Complete();
-    }
+	internal void Complete(Exception exception) {
+		_exception = exception;
+		Complete();
+	}
 
-    #endregion
+	#endregion
 }

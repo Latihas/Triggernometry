@@ -1,11 +1,11 @@
 ﻿namespace Triggernometry.FFXIV.ExtractedCsv.Rows;
 
 public class ContentFinderCondition : TypedCsvRow {
-    // "AAC Cruiserweight M1"
-    public override string Name => Get("Name");
-    public byte ContentTypeId => Get<byte>("ContentType"); // ContentType
-    // Raids
-    public ContentType ContentType => GetRow<ContentType>(ContentTypeId);
+	// "AAC Cruiserweight M1"
+	public override string Name => Get("Name");
+	public byte ContentTypeId => Get<byte>("ContentType"); // ContentType
+	// Raids
+	public ContentType ContentType => GetRow<ContentType>(ContentTypeId);
 
-    // many other boolean fields
+	// many other boolean fields
 }

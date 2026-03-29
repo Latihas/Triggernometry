@@ -31,8 +31,8 @@
 namespace WebSocketSharp.Server;
 
 internal enum ServerState {
-    Ready,
-    Start,
-    ShuttingDown,
-    Stop
+	Ready,
+	Start,
+	ShuttingDown,
+	Stop
 }

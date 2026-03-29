@@ -33,60 +33,60 @@ using System;
 namespace WebSocketSharp.Server;
 
 internal class WebSocketServiceHost<TBehavior> : WebSocketServiceHost
-    where TBehavior : WebSocketBehavior {
-    #region Private Fields
+	where TBehavior : WebSocketBehavior {
+	#region Private Fields
 
-    private Func<TBehavior> _creator;
+	private Func<TBehavior> _creator;
 
-    #endregion
+	#endregion
 
-    #region Internal Constructors
+	#region Internal Constructors
 
-    internal WebSocketServiceHost(
-        string path, Func<TBehavior> creator, Logger log
-    )
-        : this(path, creator, null, log) {
-    }
+	internal WebSocketServiceHost(
+		string path, Func<TBehavior> creator, Logger log
+	)
+		: this(path, creator, null, log) {
+	}
 
-    internal WebSocketServiceHost(
-        string path,
-        Func<TBehavior> creator,
-        Action<TBehavior> initializer,
-        Logger log
-    )
-        : base(path, log) {
-        _creator = createCreator(creator, initializer);
-    }
+	internal WebSocketServiceHost(
+		string path,
+		Func<TBehavior> creator,
+		Action<TBehavior> initializer,
+		Logger log
+	)
+		: base(path, log) {
+		_creator = createCreator(creator, initializer);
+	}
 
-    #endregion
+	#endregion
 
-    #region Public Properties
+	#region Public Properties
 
-    public override Type BehaviorType => typeof(TBehavior);
+	public override Type BehaviorType => typeof(TBehavior);
 
-    #endregion
+	#endregion
 
-    #region Private Methods
+	#region Private Methods
 
-    private Func<TBehavior> createCreator(
-        Func<TBehavior> creator, Action<TBehavior> initializer
-    ) {
-        if (initializer == null)
-            return creator;
+	private Func<TBehavior> createCreator(
+		Func<TBehavior> creator, Action<TBehavior> initializer
+	) {
+		if (initializer == null)
+			return creator;
 
-        return () => {
-            var ret = creator();
-            initializer(ret);
+		return () => {
+			var ret = creator();
+			initializer(ret);
 
-            return ret;
-        };
-    }
+			return ret;
+		};
+	}
 
-    #endregion
+	#endregion
 
-    #region Protected Methods
+	#region Protected Methods
 
-    protected override WebSocketBehavior CreateSession() => _creator();
+	protected override WebSocketBehavior CreateSession() => _creator();
 
-    #endregion
+	#endregion
 }

@@ -11,115 +11,113 @@ namespace Triggernometry.Core.Actions;
 [ActionCategory(ActionCategory.CategoryTypeEnum.Programming)]
 [XmlRoot(ElementName = "Repository")]
 public class ActionRepository : ActionBase {
-    #region Properties
+	#region Properties
 
-    /// <summary>
-    ///     Repository operations
-    /// </summary>
-    public enum OperationEnum {
-        /// <summary>
-        ///     Update remote repository containing trigger
-        /// </summary>
-        UpdateSelf,
-        /// <summary>
-        ///     Update specified remote repository
-        /// </summary>
-        UpdateRepo,
-        /// <summary>
-        ///     Update all remote repositories
-        /// </summary>
-        UpdateAll
-    }
+	/// <summary>
+	///     Repository operations
+	/// </summary>
+	public enum OperationEnum {
+		/// <summary>
+		///     Update remote repository containing trigger
+		/// </summary>
+		UpdateSelf,
+		/// <summary>
+		///     Update specified remote repository
+		/// </summary>
+		UpdateRepo,
+		/// <summary>
+		///     Update all remote repositories
+		/// </summary>
+		UpdateAll
+	}
 
-    /// <summary>
-    ///     Type of the repository operation
-    /// </summary>
-    [XmlIgnore] [Action(1)] public OperationEnum Operation { get; set; } = OperationEnum.UpdateSelf;
+	/// <summary>
+	///     Type of the repository operation
+	/// </summary>
+	[XmlIgnore] [Action(1)] public OperationEnum Operation { get; set; } = OperationEnum.UpdateSelf;
 
-    [XmlAttribute("Operation")] public string Xml_Operation
-    {
-        get => XmlAttr.Enum(Operation, OperationEnum.UpdateSelf);
-        set => Operation = XmlAttr.Enum<OperationEnum>(value);
-    }
+	[XmlAttribute("Operation")] public string Xml_Operation {
+		get => XmlAttr.Enum(Operation, OperationEnum.UpdateSelf);
+		set => Operation = XmlAttr.Enum<OperationEnum>(value);
+	}
 
-    /// <summary>
-    ///     Reference to remote respository
-    /// </summary>
-    [XmlIgnore] [Action(2, specialtype: ActionAttribute.SpecialTypeEnum.RepoReference)]
-    public Guid RepositoryId { get; set; } = Guid.Empty;
+	/// <summary>
+	///     Reference to remote respository
+	/// </summary>
+	[XmlIgnore] [Action(2, specialtype: ActionAttribute.SpecialTypeEnum.RepoReference)]
+	public Guid RepositoryId { get; set; } = Guid.Empty;
 
-    [XmlAttribute("RepositoryId")] public string Xml_RepositoryId
-    {
-        get => XmlAttr.Guid(RepositoryId, Guid.Empty);
-        set => RepositoryId = XmlAttr.Guid(value);
-    }
+	[XmlAttribute("RepositoryId")] public string Xml_RepositoryId {
+		get => XmlAttr.Guid(RepositoryId, Guid.Empty);
+		set => RepositoryId = XmlAttr.Guid(value);
+	}
 
-    #endregion
+	#endregion
 
-    #region Implementation
+	#region Implementation
 
-    internal override string DescribeImplementation() {
-        switch (Operation) {
-            case OperationEnum.UpdateSelf:
-                return I18n.Translate("internal/Action/repoupdateself", "Update containing repository");
-            case OperationEnum.UpdateRepo:
-                var r = RealPlugin.Instance.GetRepositoryById(RepositoryId);
-                if (r != null) {
-                    return I18n.Translate("internal/Action/repoupdatespecific", "Update repository ({0})", r.Name);
-                }
-                return I18n.Translate("internal/Action/descrepoinvalidref", "repository action with an invalid repository reference ({0})", RepositoryId);
-            case OperationEnum.UpdateAll:
-                return I18n.Translate("internal/Action/repoupdateall", "Update all repositories");
-            default:
-                return NotImplementedEnumMessage(Operation);
-        }
-    }
+	internal override string DescribeImplementation() {
+		switch (Operation) {
+			case OperationEnum.UpdateSelf:
+				return I18n.Translate("internal/Action/repoupdateself", "Update containing repository");
+			case OperationEnum.UpdateRepo:
+				var r = RealPlugin.Instance.GetRepositoryById(RepositoryId);
+				if (r != null) {
+					return I18n.Translate("internal/Action/repoupdatespecific", "Update repository ({0})", r.Name);
+				}
+				return I18n.Translate("internal/Action/descrepoinvalidref", "repository action with an invalid repository reference ({0})", RepositoryId);
+			case OperationEnum.UpdateAll:
+				return I18n.Translate("internal/Action/repoupdateall", "Update all repositories");
+			default:
+				return NotImplementedEnumMessage(Operation);
+		}
+	}
 
-    internal override void ExecuteImplementation(ActionInstance ai) {
-        var ctx = ai?.ctx ?? Context.Unbound;
-        var plug = ctx.Plugin;
+	internal override void ExecuteImplementation(ActionInstance ai) {
+		var ctx = ai?.ctx ?? Context.Unbound;
+		var plug = ctx.Plugin;
 
-        Repository r = null;
-        switch (Operation) {
-            case OperationEnum.UpdateSelf:
-                r = ctx.Trigger?.Repo;
-                break;
-            case OperationEnum.UpdateRepo:
-                r = plug.GetRepositoryById(RepositoryId);
-                break;
-            case OperationEnum.UpdateAll:
-                _ = plug.UpdateAllRepositoriesAsync(false);
-                break;
-            default:
-                throw NotImplementedEnumException(Operation);
-        }
-        if (r != null) {
-            _ = plug.UpdateSingleRepositoryAsync(r);
-        }
-    }
+		Repository r = null;
+		switch (Operation) {
+			case OperationEnum.UpdateSelf:
+				r = ctx.Trigger?.Repo;
+				break;
+			case OperationEnum.UpdateRepo:
+				r = plug.GetRepositoryById(RepositoryId);
+				break;
+			case OperationEnum.UpdateAll:
+				_ = plug.UpdateAllRepositoriesAsync(false);
+				break;
+			default:
+				throw NotImplementedEnumException(Operation);
+		}
+		if (r != null) {
+			_ = plug.UpdateSingleRepositoryAsync(r);
+		}
+	}
 
-    #endregion
+	#endregion
 
-    #region Old Action Converter
+	#region Old Action Converter
 
-    // (this)ActionOld
-    public static explicit operator ActionRepository(ActionOld oldAction) {
-        var action = new ActionRepository();
-        oldAction.CopyCommonPropertiesTo(action);
-        action.Operation = (OperationEnum)(int)oldAction._RepositoryOp;
-        action.RepositoryId = oldAction._RepositoryId;
-        return action;
-    }
+	// (this)ActionOld
+	public static explicit operator ActionRepository(ActionOld oldAction) {
+		var action = new ActionRepository();
+		oldAction.CopyCommonPropertiesTo(action);
+		action.Operation = (OperationEnum)(int)oldAction._RepositoryOp;
+		action.RepositoryId = oldAction._RepositoryId;
+		return action;
+	}
 
-    // (ActionOld)this
-    public static explicit operator ActionOld(ActionRepository action) {
-        var oldAction = new ActionOld();
-        action.CopyCommonPropertiesTo(oldAction);
-        oldAction.ActionType = ActionOld.ActionTypeEnum.Repository;
-        oldAction._RepositoryOp = (ActionOld.RepositoryOpEnum)(int)action.Operation;
-        oldAction._RepositoryId = action.RepositoryId;
-        return oldAction;
-    }
+	// (ActionOld)this
+	public static explicit operator ActionOld(ActionRepository action) {
+		var oldAction = new ActionOld();
+		action.CopyCommonPropertiesTo(oldAction);
+		oldAction.ActionType = ActionOld.ActionTypeEnum.Repository;
+		oldAction._RepositoryOp = (ActionOld.RepositoryOpEnum)(int)action.Operation;
+		oldAction._RepositoryId = action.RepositoryId;
+		return oldAction;
+	}
 
-    #endregion Old Action Converter
+	#endregion Old Action Converter
 }

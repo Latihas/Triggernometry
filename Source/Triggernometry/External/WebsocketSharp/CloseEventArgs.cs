@@ -45,77 +45,76 @@ namespace WebSocketSharp;
 ///     </para>
 /// </remarks>
 public class CloseEventArgs : EventArgs {
-    #region Private Fields
+	#region Private Fields
 
-    private bool _clean;
-    private PayloadData _payloadData;
+	private bool _clean;
+	private PayloadData _payloadData;
 
-    #endregion
+	#endregion
 
-    #region Internal Constructors
+	#region Internal Constructors
 
-    internal CloseEventArgs() {
-        _payloadData = PayloadData.Empty;
-    }
+	internal CloseEventArgs() {
+		_payloadData = PayloadData.Empty;
+	}
 
-    internal CloseEventArgs(ushort code)
-        : this(code, null) {
-    }
+	internal CloseEventArgs(ushort code)
+		: this(code, null) {
+	}
 
-    internal CloseEventArgs(CloseStatusCode code)
-        : this((ushort)code, null) {
-    }
+	internal CloseEventArgs(CloseStatusCode code)
+		: this((ushort)code, null) {
+	}
 
-    internal CloseEventArgs(PayloadData payloadData) {
-        _payloadData = payloadData;
-    }
+	internal CloseEventArgs(PayloadData payloadData) {
+		_payloadData = payloadData;
+	}
 
-    internal CloseEventArgs(ushort code, string reason) {
-        _payloadData = new PayloadData(code, reason);
-    }
+	internal CloseEventArgs(ushort code, string reason) {
+		_payloadData = new PayloadData(code, reason);
+	}
 
-    internal CloseEventArgs(CloseStatusCode code, string reason)
-        : this((ushort)code, reason) {
-    }
+	internal CloseEventArgs(CloseStatusCode code, string reason)
+		: this((ushort)code, reason) {
+	}
 
-    #endregion
+	#endregion
 
-    #region Internal Properties
+	#region Internal Properties
 
-    internal PayloadData PayloadData => _payloadData;
+	internal PayloadData PayloadData => _payloadData;
 
-    #endregion
+	#endregion
 
-    #region Public Properties
+	#region Public Properties
 
-    /// <summary>
-    ///     Gets the status code for the close.
-    /// </summary>
-    /// <value>
-    ///     A <see cref="ushort" /> that represents the status code for the close if any.
-    /// </value>
-    public ushort Code => _payloadData.Code;
+	/// <summary>
+	///     Gets the status code for the close.
+	/// </summary>
+	/// <value>
+	///     A <see cref="ushort" /> that represents the status code for the close if any.
+	/// </value>
+	public ushort Code => _payloadData.Code;
 
-    /// <summary>
-    ///     Gets the reason for the close.
-    /// </summary>
-    /// <value>
-    ///     A <see cref="string" /> that represents the reason for the close if any.
-    /// </value>
-    public string Reason => _payloadData.Reason ?? string.Empty;
+	/// <summary>
+	///     Gets the reason for the close.
+	/// </summary>
+	/// <value>
+	///     A <see cref="string" /> that represents the reason for the close if any.
+	/// </value>
+	public string Reason => _payloadData.Reason ?? string.Empty;
 
-    /// <summary>
-    ///     Gets a value indicating whether the connection has been closed cleanly.
-    /// </summary>
-    /// <value>
-    ///     <c>true</c> if the connection has been closed cleanly; otherwise, <c>false</c>.
-    /// </value>
-    public bool WasClean
-    {
-        get => _clean;
+	/// <summary>
+	///     Gets a value indicating whether the connection has been closed cleanly.
+	/// </summary>
+	/// <value>
+	///     <c>true</c> if the connection has been closed cleanly; otherwise, <c>false</c>.
+	/// </value>
+	public bool WasClean {
+		get => _clean;
 
-        internal set => _clean = value;
-    }
+		internal set => _clean = value;
+	}
 
-    #endregion
+	#endregion
 }

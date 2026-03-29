@@ -35,88 +35,88 @@ using System.Text;
 namespace WebSocketSharp.Net;
 
 internal abstract class AuthenticationBase {
-    #region Private Fields
+	#region Private Fields
 
-    private AuthenticationSchemes _scheme;
+	private AuthenticationSchemes _scheme;
 
-    #endregion
+	#endregion
 
-    #region Internal Fields
+	#region Internal Fields
 
-    internal NameValueCollection Parameters;
+	internal NameValueCollection Parameters;
 
-    #endregion
+	#endregion
 
-    #region Protected Constructors
+	#region Protected Constructors
 
-    protected AuthenticationBase(AuthenticationSchemes scheme, NameValueCollection parameters) {
-        _scheme = scheme;
-        Parameters = parameters;
-    }
+	protected AuthenticationBase(AuthenticationSchemes scheme, NameValueCollection parameters) {
+		_scheme = scheme;
+		Parameters = parameters;
+	}
 
-    #endregion
+	#endregion
 
-    #region Public Properties
+	#region Public Properties
 
-    public string Algorithm => Parameters["algorithm"];
+	public string Algorithm => Parameters["algorithm"];
 
-    public string Nonce => Parameters["nonce"];
+	public string Nonce => Parameters["nonce"];
 
-    public string Opaque => Parameters["opaque"];
+	public string Opaque => Parameters["opaque"];
 
-    public string Qop => Parameters["qop"];
+	public string Qop => Parameters["qop"];
 
-    public string Realm => Parameters["realm"];
+	public string Realm => Parameters["realm"];
 
-    public AuthenticationSchemes Scheme => _scheme;
+	public AuthenticationSchemes Scheme => _scheme;
 
-    #endregion
+	#endregion
 
-    #region Internal Methods
+	#region Internal Methods
 
-    internal static string CreateNonceValue() {
-        var src = new byte[16];
-        var rand = new Random();
-        rand.NextBytes(src);
+	internal static string CreateNonceValue() {
+		var src = new byte[16];
+		var rand = new Random();
+		rand.NextBytes(src);
 
-        var res = new StringBuilder(32);
-        foreach (var b in src)
-            res.Append(b.ToString("x2"));
+		var res = new StringBuilder(32);
+		foreach (var b in src)
+			res.Append(b.ToString("x2"));
 
-        return res.ToString();
-    }
+		return res.ToString();
+	}
 
-    internal static NameValueCollection ParseParameters(string value) {
-        var res = new NameValueCollection();
-        foreach (var param in value.SplitHeaderValue(',')) {
-            var i = param.IndexOf('=');
-            var name = i > 0 ? param.Substring(0, i).Trim() : null;
-            var val = i < 0
-                ? param.Trim().Trim('"')
-                : i < param.Length - 1
-                    ? param.Substring(i + 1).Trim().Trim('"')
-                    : string.Empty;
+	internal static NameValueCollection ParseParameters(string value) {
+		var res = new NameValueCollection();
+		foreach (var param in value.SplitHeaderValue(',')) {
+			var i = param.IndexOf('=');
+			var name = i > 0 ? param.Substring(0, i).Trim() : null;
+			var val = i < 0
+				? param.Trim().Trim('"')
+				: i < param.Length - 1
+					? param.Substring(i + 1).Trim().Trim('"')
+					: string.Empty;
 
-            res.Add(name, val);
-        }
+			res.Add(name, val);
+		}
 
-        return res;
-    }
+		return res;
+	}
 
-    internal abstract string ToBasicString();
+	internal abstract string ToBasicString();
 
-    internal abstract string ToDigestString();
+	internal abstract string ToDigestString();
 
-    #endregion
+	#endregion
 
-    #region Public Methods
+	#region Public Methods
 
-    public override string ToString() =>
-        _scheme == AuthenticationSchemes.Basic
-            ? ToBasicString()
-            : _scheme == AuthenticationSchemes.Digest
-                ? ToDigestString()
-                : string.Empty;
+	public override string ToString() =>
+		_scheme == AuthenticationSchemes.Basic
+			? ToBasicString()
+			: _scheme == AuthenticationSchemes.Digest
+				? ToDigestString()
+				: string.Empty;
 
-    #endregion
+	#endregion
 }

@@ -5,86 +5,82 @@ using System.IO.Pipes;
 namespace Triggernometry.PluginBridges.ExternalTools;
 
 internal class LiveSplitController : IDisposable {
-    internal bool IsConnected
-    {
-        get
-        {
-            lock (lockobj) {
-                if (client == null || clientWriter?.BaseStream == null)
-                    return false;
-                return client.IsConnected;
-            }
-        }
-    }
+	internal bool IsConnected {
+		get {
+			lock (lockobj) {
+				if (client == null || clientWriter?.BaseStream == null)
+					return false;
+				return client.IsConnected;
+			}
+		}
+	}
 
-    private NamedPipeClientStream client;
-    private StreamWriter clientWriter;
-    private object lockobj = new();
+	private NamedPipeClientStream client;
+	private StreamWriter clientWriter;
+	private object lockobj = new();
 
-    public void Dispose() {
-        clientWriter?.Dispose();
-        client?.Dispose();
-        clientWriter = null;
-        client = null;
-    }
+	public void Dispose() {
+		clientWriter?.Dispose();
+		client?.Dispose();
+		clientWriter = null;
+		client = null;
+	}
 
-    internal void Connect() {
-        lock (lockobj) {
-            try {
-                if (IsConnected)
-                    return;
-                Dispose();
-                client = new NamedPipeClientStream(".", "LiveSplit", PipeDirection.Out, PipeOptions.Asynchronous);
-                client.Connect(3000);
-                clientWriter = new StreamWriter(client);
-                clientWriter.AutoFlush = true;
-            }
-            catch (Exception) {
-                Dispose();
-                throw;
-            }
-        }
-    }
+	internal void Connect() {
+		lock (lockobj) {
+			try {
+				if (IsConnected)
+					return;
+				Dispose();
+				client = new NamedPipeClientStream(".", "LiveSplit", PipeDirection.Out, PipeOptions.Asynchronous);
+				client.Connect(3000);
+				clientWriter = new StreamWriter(client);
+				clientWriter.AutoFlush = true;
+			} catch (Exception) {
+				Dispose();
+				throw;
+			}
+		}
+	}
 
-    internal void SendCommand(string command) {
-        try {
-            clientWriter.WriteLine(command);
-        }
-        catch (Exception) {
-            Dispose();
-            throw;
-        }
-    }
+	internal void SendCommand(string command) {
+		try {
+			clientWriter.WriteLine(command);
+		} catch (Exception) {
+			Dispose();
+			throw;
+		}
+	}
 
-    internal void StartOrSplit() {
-        SendCommand("startorsplit");
-    }
+	internal void StartOrSplit() {
+		SendCommand("startorsplit");
+	}
 
-    internal void Start() {
-        SendCommand("start");
-    }
+	internal void Start() {
+		SendCommand("start");
+	}
 
-    internal void Split() {
-        SendCommand("split");
-    }
+	internal void Split() {
+		SendCommand("split");
+	}
 
-    internal void UndoSplit() {
-        SendCommand("undosplit");
-    }
+	internal void UndoSplit() {
+		SendCommand("undosplit");
+	}
 
-    internal void SkipSplit() {
-        SendCommand("skipsplit");
-    }
+	internal void SkipSplit() {
+		SendCommand("skipsplit");
+	}
 
-    internal void Reset() {
-        SendCommand("reset");
-    }
+	internal void Reset() {
+		SendCommand("reset");
+	}
 
-    internal void Pause() {
-        SendCommand("pause");
-    }
+	internal void Pause() {
+		SendCommand("pause");
+	}
 
-    internal void Resume() {
-        SendCommand("resume");
-    }
+	internal void Resume() {
+		SendCommand("resume");
+	}
 }

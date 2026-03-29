@@ -41,12 +41,12 @@ namespace WebSocketSharp;
 ///     .
 /// </remarks>
 public enum CompressionMethod : byte {
-    /// <summary>
-    ///     Specifies no compression.
-    /// </summary>
-    None,
-    /// <summary>
-    ///     Specifies DEFLATE.
-    /// </summary>
-    Deflate
+	/// <summary>
+	///     Specifies no compression.
+	/// </summary>
+	None,
+	/// <summary>
+	///     Specifies DEFLATE.
+	/// </summary>
+	Deflate
 }

@@ -3,13 +3,13 @@
 namespace Scarborough.PInvoke;
 
 internal static class DwmApi {
-    public delegate void DwmExtendFrameIntoClientAreaDelegate(IntPtr hWnd, ref NativeMargin pMargins);
+	public delegate void DwmExtendFrameIntoClientAreaDelegate(IntPtr hWnd, ref NativeMargin pMargins);
 
-    public static readonly DwmExtendFrameIntoClientAreaDelegate DwmExtendFrameIntoClientArea;
+	public static readonly DwmExtendFrameIntoClientAreaDelegate DwmExtendFrameIntoClientArea;
 
-    static DwmApi() {
-        var library = DynamicImport.ImportLibrary("dwmapi.dll");
+	static DwmApi() {
+		var library = DynamicImport.ImportLibrary("dwmapi.dll");
 
-        DwmExtendFrameIntoClientArea = DynamicImport.Import<DwmExtendFrameIntoClientAreaDelegate>(library, "DwmExtendFrameIntoClientArea");
-    }
+		DwmExtendFrameIntoClientArea = DynamicImport.Import<DwmExtendFrameIntoClientAreaDelegate>(library, "DwmExtendFrameIntoClientArea");
+	}
 }

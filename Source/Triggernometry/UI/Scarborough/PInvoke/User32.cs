@@ -5,224 +5,222 @@ using Scarborough.Windows;
 namespace Scarborough.PInvoke;
 
 internal static class User32 {
-    public static readonly IntPtr HwndBroadcast = 0xffff;
-    public static readonly IntPtr HwndInsertNoTopmost = -2;
-    public static readonly IntPtr HwndInsertTopMost = -1;
-    public static readonly IntPtr HwndInsertTop = IntPtr.Zero;
-    public static readonly IntPtr HwndInsertBottom = 1;
+	public static readonly IntPtr HwndBroadcast = 0xffff;
+	public static readonly IntPtr HwndInsertNoTopmost = -2;
+	public static readonly IntPtr HwndInsertTopMost = -1;
+	public static readonly IntPtr HwndInsertTop = IntPtr.Zero;
+	public static readonly IntPtr HwndInsertBottom = 1;
 
-    private delegate IntPtr SetThreadDpiAwarenessContextDelegate(ref DpiAwareness awareness); // returns a handle to a DpiAwarenessContext
+	private delegate IntPtr SetThreadDpiAwarenessContextDelegate(ref DpiAwareness awareness); // returns a handle to a DpiAwarenessContext
 
-    private static readonly SetThreadDpiAwarenessContextDelegate _setThreadDpiAwarenessContext;
+	private static readonly SetThreadDpiAwarenessContextDelegate _setThreadDpiAwarenessContext;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    public delegate IntPtr CreateWindowExDelegate(
-        ExtendedWindowStyle dwExStyle,
-        string lpClassName,
-        string lpWindowName,
-        WindowStyle dwStyle,
-        int x,
-        int y,
-        int nWidth,
-        int nHeight,
-        IntPtr hWndParent,
-        IntPtr hMenu,
-        IntPtr hInstance,
-        IntPtr lpParam);
+	[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+	public delegate IntPtr CreateWindowExDelegate(
+		ExtendedWindowStyle dwExStyle,
+		string lpClassName,
+		string lpWindowName,
+		WindowStyle dwStyle,
+		int x,
+		int y,
+		int nWidth,
+		int nHeight,
+		IntPtr hWndParent,
+		IntPtr hMenu,
+		IntPtr hInstance,
+		IntPtr lpParam);
 
-    public static readonly CreateWindowExDelegate CreateWindowEx;
+	public static readonly CreateWindowExDelegate CreateWindowEx;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    public delegate IntPtr DefWindowProcDelegate(IntPtr hwnd, WindowMessage msg, IntPtr wparam, IntPtr lparam);
+	[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+	public delegate IntPtr DefWindowProcDelegate(IntPtr hwnd, WindowMessage msg, IntPtr wparam, IntPtr lparam);
 
-    public static readonly DefWindowProcDelegate DefWindowProc;
+	public static readonly DefWindowProcDelegate DefWindowProc;
 
-    public delegate int DestroyWindowDelegate(IntPtr hwnd);
+	public delegate int DestroyWindowDelegate(IntPtr hwnd);
 
-    public static readonly DestroyWindowDelegate DestroyWindow;
+	public static readonly DestroyWindowDelegate DestroyWindow;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool DispatchMessageDelegate(ref Message msg);
+	[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool DispatchMessageDelegate(ref Message msg);
 
-    public static readonly DispatchMessageDelegate DispatchMessage;
+	public static readonly DispatchMessageDelegate DispatchMessage;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool GetClientRectDelegate(IntPtr hwnd, out NativeRect lpNativeRect);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool GetClientRectDelegate(IntPtr hwnd, out NativeRect lpNativeRect);
 
-    public static readonly GetClientRectDelegate GetClientRect;
+	public static readonly GetClientRectDelegate GetClientRect;
 
-    public delegate IntPtr GetForegroundWindowDelegate();
+	public delegate IntPtr GetForegroundWindowDelegate();
 
-    public static readonly GetForegroundWindowDelegate GetForegroundWindow;
+	public static readonly GetForegroundWindowDelegate GetForegroundWindow;
 
-    public delegate IntPtr GetWindowDelegate(IntPtr hwnd, uint cmd);
+	public delegate IntPtr GetWindowDelegate(IntPtr hwnd, uint cmd);
 
-    public static readonly GetWindowDelegate GetWindow;
+	public static readonly GetWindowDelegate GetWindow;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool GetWindowRectDelegate(IntPtr hwnd, out NativeRect lpNativeRect);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool GetWindowRectDelegate(IntPtr hwnd, out NativeRect lpNativeRect);
 
-    public static readonly GetWindowRectDelegate GetWindowRect;
+	public static readonly GetWindowRectDelegate GetWindowRect;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool IsWindowDelegate(IntPtr hwnd);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool IsWindowDelegate(IntPtr hwnd);
 
-    public static readonly IsWindowDelegate IsWindow;
+	public static readonly IsWindowDelegate IsWindow;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool IsWindowVisibleDelegate(IntPtr hwnd);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool IsWindowVisibleDelegate(IntPtr hwnd);
 
-    public static readonly IsWindowVisibleDelegate IsWindowVisible;
+	public static readonly IsWindowVisibleDelegate IsWindowVisible;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool MoveWindowDelegate(IntPtr hwnd, int x, int y, int width, int height, [MarshalAs(UnmanagedType.Bool)] bool repaint);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool MoveWindowDelegate(IntPtr hwnd, int x, int y, int width, int height, [MarshalAs(UnmanagedType.Bool)] bool repaint);
 
-    public static readonly MoveWindowDelegate MoveWindow;
+	public static readonly MoveWindowDelegate MoveWindow;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool PeekMessageWDelegate(ref Message msg, IntPtr hwnd, uint filterMin, uint filterMax, uint removeMsg);
+	[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool PeekMessageWDelegate(ref Message msg, IntPtr hwnd, uint filterMin, uint filterMax, uint removeMsg);
 
-    public static readonly PeekMessageWDelegate PeekMessage;
+	public static readonly PeekMessageWDelegate PeekMessage;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    public delegate ushort RegisterClassExDelegate(ref WindowClassEx windowClassEx);
+	[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+	public delegate ushort RegisterClassExDelegate(ref WindowClassEx windowClassEx);
 
-    public static readonly RegisterClassExDelegate RegisterClassEx;
+	public static readonly RegisterClassExDelegate RegisterClassEx;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool SendMessageDelegate(IntPtr hwnd, WindowMessage msg, IntPtr wparam, IntPtr lparam);
+	[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool SendMessageDelegate(IntPtr hwnd, WindowMessage msg, IntPtr wparam, IntPtr lparam);
 
-    public static readonly SendMessageDelegate SendMessage;
+	public static readonly SendMessageDelegate SendMessage;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool SetLayeredWindowAttributesDelegate(IntPtr hwnd, uint crKey, byte bAlpha, LayeredWindowAttributes dwFlags);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool SetLayeredWindowAttributesDelegate(IntPtr hwnd, uint crKey, byte bAlpha, LayeredWindowAttributes dwFlags);
 
-    public static readonly SetLayeredWindowAttributesDelegate SetLayeredWindowAttributes;
+	public static readonly SetLayeredWindowAttributesDelegate SetLayeredWindowAttributes;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool SetWindowPosDelegate(IntPtr hwnd, IntPtr hwndInsertAfter, int x, int y, int cx, int cy, SwpFlags flags);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool SetWindowPosDelegate(IntPtr hwnd, IntPtr hwndInsertAfter, int x, int y, int cx, int cy, SwpFlags flags);
 
-    public static readonly SetWindowPosDelegate SetWindowPos;
+	public static readonly SetWindowPosDelegate SetWindowPos;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool ShowWindowDelegate(IntPtr hWnd, ShowWindowCommand nCmdShow);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool ShowWindowDelegate(IntPtr hWnd, ShowWindowCommand nCmdShow);
 
-    public static readonly ShowWindowDelegate ShowWindow;
+	public static readonly ShowWindowDelegate ShowWindow;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool TranslateMessageDelegate(ref Message msg);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool TranslateMessageDelegate(ref Message msg);
 
-    public static readonly TranslateMessageDelegate TranslateMessage;
+	public static readonly TranslateMessageDelegate TranslateMessage;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool UnregisterClassDelegate(string lpClassName, IntPtr hInstance);
+	[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool UnregisterClassDelegate(string lpClassName, IntPtr hInstance);
 
-    public static readonly UnregisterClassDelegate UnregisterClass;
+	public static readonly UnregisterClassDelegate UnregisterClass;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool UpdateWindowDelegate(IntPtr hWnd);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool UpdateWindowDelegate(IntPtr hWnd);
 
-    public static readonly UpdateWindowDelegate UpdateWindow;
+	public static readonly UpdateWindowDelegate UpdateWindow;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool WaitMessageDelegate();
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool WaitMessageDelegate();
 
-    public static readonly WaitMessageDelegate WaitMessage;
+	public static readonly WaitMessageDelegate WaitMessage;
 
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool PostMessageWDelegate(IntPtr hwnd, WindowMessage message, IntPtr wparam, IntPtr lparam);
+	[return: MarshalAs(UnmanagedType.Bool)]
+	public delegate bool PostMessageWDelegate(IntPtr hwnd, WindowMessage message, IntPtr wparam, IntPtr lparam);
 
-    public static readonly PostMessageWDelegate PostMessage;
+	public static readonly PostMessageWDelegate PostMessage;
 
-    internal static string _className;
-    private static WindowProc _windowProc;
-    private static IntPtr _windowProcAddress;
+	internal static string _className;
+	private static WindowProc _windowProc;
+	private static IntPtr _windowProcAddress;
 
-    internal static void InitializeWindowClass() {
-        string MenuName;
-        if (string.IsNullOrEmpty(_className)) {
-            _className = WindowHelper.GenerateRandomClass();
-            MenuName = WindowHelper.GenerateRandomTitle();
-            _windowProc = OverlayWindow.WindowProcedure;
-            _windowProcAddress = Marshal.GetFunctionPointerForDelegate(_windowProc);
-        }
-        else {
-            return;
-        }
-        while (true) {
-            var wndClassEx = new WindowClassEx {
-                Size = WindowClassEx.NativeSize(),
-                Style = 0,
-                WindowProc = _windowProcAddress,
-                ClsExtra = 0,
-                WindowExtra = 0,
-                Instance = IntPtr.Zero,
-                Icon = IntPtr.Zero,
-                Curser = IntPtr.Zero,
-                Background = IntPtr.Zero,
-                MenuName = MenuName,
-                ClassName = _className,
-                IconSm = IntPtr.Zero
-            };
+	internal static void InitializeWindowClass() {
+		string MenuName;
+		if (string.IsNullOrEmpty(_className)) {
+			_className = WindowHelper.GenerateRandomClass();
+			MenuName = WindowHelper.GenerateRandomTitle();
+			_windowProc = OverlayWindow.WindowProcedure;
+			_windowProcAddress = Marshal.GetFunctionPointerForDelegate(_windowProc);
+		} else {
+			return;
+		}
+		while (true) {
+			var wndClassEx = new WindowClassEx {
+				Size = WindowClassEx.NativeSize(),
+				Style = 0,
+				WindowProc = _windowProcAddress,
+				ClsExtra = 0,
+				WindowExtra = 0,
+				Instance = IntPtr.Zero,
+				Icon = IntPtr.Zero,
+				Curser = IntPtr.Zero,
+				Background = IntPtr.Zero,
+				MenuName = MenuName,
+				ClassName = _className,
+				IconSm = IntPtr.Zero
+			};
 
-            if (RegisterClassEx(ref wndClassEx) != 0) {
-                break;
-            }
-            // already taken name?
-            _className = WindowHelper.GenerateRandomClass();
-        }
-    }
+			if (RegisterClassEx(ref wndClassEx) != 0) {
+				break;
+			}
+			// already taken name?
+			_className = WindowHelper.GenerateRandomClass();
+		}
+	}
 
-    private static void UninitializeWindowClass() {
-        UnregisterClass(_className, IntPtr.Zero);
-    }
+	private static void UninitializeWindowClass() {
+		UnregisterClass(_className, IntPtr.Zero);
+	}
 
-    static User32() {
-        var library = DynamicImport.ImportLibrary("user32.dll");
+	static User32() {
+		var library = DynamicImport.ImportLibrary("user32.dll");
 
-        CreateWindowEx = DynamicImport.Import<CreateWindowExDelegate>(library, "CreateWindowExW");
-        DefWindowProc = DynamicImport.Import<DefWindowProcDelegate>(library, "DefWindowProcW");
-        DestroyWindow = DynamicImport.Import<DestroyWindowDelegate>(library, "DestroyWindow");
-        DispatchMessage = DynamicImport.Import<DispatchMessageDelegate>(library, "DispatchMessageW");
-        GetClientRect = DynamicImport.Import<GetClientRectDelegate>(library, "GetClientRect");
-        GetWindow = DynamicImport.Import<GetWindowDelegate>(library, "GetWindow");
-        GetWindowRect = DynamicImport.Import<GetWindowRectDelegate>(library, "GetWindowRect");
-        IsWindow = DynamicImport.Import<IsWindowDelegate>(library, "IsWindow");
-        IsWindowVisible = DynamicImport.Import<IsWindowVisibleDelegate>(library, "IsWindowVisible");
-        MoveWindow = DynamicImport.Import<MoveWindowDelegate>(library, "MoveWindow");
-        PeekMessage = DynamicImport.Import<PeekMessageWDelegate>(library, "PeekMessageW");
-        RegisterClassEx = DynamicImport.Import<RegisterClassExDelegate>(library, "RegisterClassExW");
-        SendMessage = DynamicImport.Import<SendMessageDelegate>(library, "SendMessageW");
-        SetLayeredWindowAttributes = DynamicImport.Import<SetLayeredWindowAttributesDelegate>(library, "SetLayeredWindowAttributes");
-        SetWindowPos = DynamicImport.Import<SetWindowPosDelegate>(library, "SetWindowPos");
-        ShowWindow = DynamicImport.Import<ShowWindowDelegate>(library, "ShowWindow");
-        TranslateMessage = DynamicImport.Import<TranslateMessageDelegate>(library, "TranslateMessage");
-        UnregisterClass = DynamicImport.Import<UnregisterClassDelegate>(library, "UnregisterClassW");
-        UpdateWindow = DynamicImport.Import<UpdateWindowDelegate>(library, "UpdateWindow");
-        WaitMessage = DynamicImport.Import<WaitMessageDelegate>(library, "WaitMessage");
-        PostMessage = DynamicImport.Import<PostMessageWDelegate>(library, "PostMessageW");
-        GetForegroundWindow = DynamicImport.Import<GetForegroundWindowDelegate>(library, "GetForegroundWindow");
+		CreateWindowEx = DynamicImport.Import<CreateWindowExDelegate>(library, "CreateWindowExW");
+		DefWindowProc = DynamicImport.Import<DefWindowProcDelegate>(library, "DefWindowProcW");
+		DestroyWindow = DynamicImport.Import<DestroyWindowDelegate>(library, "DestroyWindow");
+		DispatchMessage = DynamicImport.Import<DispatchMessageDelegate>(library, "DispatchMessageW");
+		GetClientRect = DynamicImport.Import<GetClientRectDelegate>(library, "GetClientRect");
+		GetWindow = DynamicImport.Import<GetWindowDelegate>(library, "GetWindow");
+		GetWindowRect = DynamicImport.Import<GetWindowRectDelegate>(library, "GetWindowRect");
+		IsWindow = DynamicImport.Import<IsWindowDelegate>(library, "IsWindow");
+		IsWindowVisible = DynamicImport.Import<IsWindowVisibleDelegate>(library, "IsWindowVisible");
+		MoveWindow = DynamicImport.Import<MoveWindowDelegate>(library, "MoveWindow");
+		PeekMessage = DynamicImport.Import<PeekMessageWDelegate>(library, "PeekMessageW");
+		RegisterClassEx = DynamicImport.Import<RegisterClassExDelegate>(library, "RegisterClassExW");
+		SendMessage = DynamicImport.Import<SendMessageDelegate>(library, "SendMessageW");
+		SetLayeredWindowAttributes = DynamicImport.Import<SetLayeredWindowAttributesDelegate>(library, "SetLayeredWindowAttributes");
+		SetWindowPos = DynamicImport.Import<SetWindowPosDelegate>(library, "SetWindowPos");
+		ShowWindow = DynamicImport.Import<ShowWindowDelegate>(library, "ShowWindow");
+		TranslateMessage = DynamicImport.Import<TranslateMessageDelegate>(library, "TranslateMessage");
+		UnregisterClass = DynamicImport.Import<UnregisterClassDelegate>(library, "UnregisterClassW");
+		UpdateWindow = DynamicImport.Import<UpdateWindowDelegate>(library, "UpdateWindow");
+		WaitMessage = DynamicImport.Import<WaitMessageDelegate>(library, "WaitMessage");
+		PostMessage = DynamicImport.Import<PostMessageWDelegate>(library, "PostMessageW");
+		GetForegroundWindow = DynamicImport.Import<GetForegroundWindowDelegate>(library, "GetForegroundWindow");
 
-        try {
-            _setThreadDpiAwarenessContext = DynamicImport.Import<SetThreadDpiAwarenessContextDelegate>(library, "SetThreadDpiAwarenessContext");
-        }
-        catch {
-        } // ignored
-    }
+		try {
+			_setThreadDpiAwarenessContext = DynamicImport.Import<SetThreadDpiAwarenessContextDelegate>(library, "SetThreadDpiAwarenessContext");
+		} catch {
+		} // ignored
+	}
 
-    public static void MakeThreadDpiAware() {
-        if (_setThreadDpiAwarenessContext == null) return;
+	public static void MakeThreadDpiAware() {
+		if (_setThreadDpiAwarenessContext == null) return;
 
-        var dpiAwareness = DpiAwareness.PerMonitorAware;
+		var dpiAwareness = DpiAwareness.PerMonitorAware;
 
-        // i dont know if this actually takes a DpiAwareness or DpiAwarenessContext
-        if (_setThreadDpiAwarenessContext(ref dpiAwareness) == IntPtr.Zero) {
-            dpiAwareness = (DpiAwareness)DpiAwarenessContext.PerMonitorAware;
-            _setThreadDpiAwarenessContext(ref dpiAwareness);
-        }
-    }
+		// i dont know if this actually takes a DpiAwareness or DpiAwarenessContext
+		if (_setThreadDpiAwarenessContext(ref dpiAwareness) == IntPtr.Zero) {
+			dpiAwareness = (DpiAwareness)DpiAwarenessContext.PerMonitorAware;
+			_setThreadDpiAwarenessContext(ref dpiAwareness);
+		}
+	}
 }

@@ -18,1591 +18,1545 @@ using Triggernometry.UI.Forms;
 namespace Triggernometry.UI.CustomControls;
 
 public partial class ExpressionTextBox : UserControl {
-    #region Autofill Text
-
-    public static List<string> math = [
-        "pi", "π", "pi2", "pi05", "pi025", "pi0125", "pitorad", "piofrad",
-        "phi", "major", "minor", "ETmin2sec", "semitone", "cent",
-
-        // numeric func: basic
-        "sqrt(x)", "pow(x, y)", "root(x, y)", "exp(x)", "log(x, base=e)",
-        "abs(x)", "sign(x)", "rem(x, y)", "mod(x, y)", "random(start, end)",
-        "truncate(x)", "floor(x)", "ceiling(x)", "round(x, digits=0)",
-        "max(...)", "min(...)", "or(...)", "and(...)", "if(condition, trueVal, falseVal)",
-
-        // numeric func: trigonometric 
-        "sin(x)", "cos(x)", "tan(x)", "cot(x)", "cotan(x)", "sec(x)", "csc(x)", "cosec(x)",
-        "arcsin(x)", "arccos(x)", "arctan(x)", "atan2(x, y)", "arctan2(x, y)",
-        "sinh(x)", "cosh(x)", "tanh(x)",
-
-        // numeric func: distance
-        "Distance(x0, y0, x1, y1)", "d(x0, y0, x1, y1)",
-        "Distance(x0, y0, z0..., x1, y1, z1...)", "d(x0, y0, z0..., x1, y1, z1...)",
-        "ManhattanDistance(x0, y0, z0..., x1, y1, z1...)", "L1d(x0, y0, z0..., x1, y1, z1...)",
-        "ChebyshevDistance(x0, y0, z0..., x1, y1, z1...)", "L∞d(x0, y0, z0..., x1, y1, z1...)",
-        "ProjD(srcX, srcY, θ, tgtX, tgtY)", "ProjectDistance(srcX, srcY, θ, tgtX, tgtY)",
-        "ProjH(srcX, srcY, θ, tgtX, tgtY)", "ProjectHeight(srcX, srcY, θ, tgtX, tgtY)",
-        "IsPointInRay(srcX, srcY, θ, width, tgtX, tgtY)",
-
-        // numeric func: angle
-        "RadToDeg(rad)", "DegToRad(deg)",
-        "Angle(srcX, srcY, tgtX, tgtY)", "θ(srcX, srcY, tgtX, tgtY)",
-        "RelAngle(srcθ, tgtθ)", "Relθ(srcθ, tgtθ)",
-        "RadToDir(θ, ±divisions, digits=0)",
-        "VecToDir(dx, dy, ±divisions, digits=0)",
-        "DirToRad(dir, ±divisions)",
-        "IsAngleBetween(θ, minθ, maxθ)", "IsθBetween(θ, minθ, maxθ)",
-
-        // numeric string func
-        "hex2dec(hex)", "hex2float(hex)", "hex2double(hex)", "X8float(hex)", "ParseDmg(hex)",
-        "len(alphanumstr)",
-        "Freq(note, semitones=0)", "NextETms(XX:XX)", "NextETms(ETmin)"
-    ];
-
-    public static List<string> prefixes = new() // right after "${"
-    {
-        "numeric:",
-        "n:",
-        "func:",
-        "f:",
-        "sfunc:",
-        "if:",
-        "var:",
-        "pvar:",
-        "evar:",
-        "epvar:",
-        "v:",
-        "pv:",
-        "ev:",
-        "epv:",
-        "!var:",
-        "!v:",
-        "!pvar:",
-        "!pv:",
-        "lvar:",
-        "plvar:",
-        "elvar:",
-        "eplvar:",
-        "l:",
-        "pl:",
-        "el:",
-        "epl:",
-        "!lvar:",
-        "!l:",
-        "!plvar:",
-        "!pl:",
-        "tvar:",
-        "ptvar:",
-        "etvar:",
-        "eptvar:",
-        "t:",
-        "pt:",
-        "et:",
-        "ept:",
-        "!tvar:",
-        "!t:",
-        "!ptvar:",
-        "!pt:",
-        "dvar:",
-        "pdvar:",
-        "edvar:",
-        "epdvar:",
-        "d:",
-        "pd:",
-        "ed:",
-        "epd:",
-        "!dvar:",
-        "!d:",
-        "!pdvar:",
-        "!pd:",
-        "tvarcl:",
-        "tcl:",
-        "ptvarcl:",
-        "ptcl:",
-        "!tvarcl:",
-        "!tcl:",
-        "!ptvarcl:",
-        "!ptcl:",
-        "tvarrl:",
-        "trl:",
-        "ptvarrl:",
-        "ptrl:",
-        "!tvarrl:",
-        "!trl:",
-        "!ptvarrl:",
-        "!ptrl:",
-        "tvardl:",
-        "tdl:",
-        "ptvardl:",
-        "ptdl:",
-        "!tvardl:",
-        "!tdl:",
-        "!ptvardl:",
-        "!ptdl:",
-        "?l:",
-        "?lvar:",
-        "?t:",
-        "?tvar:",
-        "?d:",
-        "?dvar:",
-        "etext:",
-        "eimage:",
-        "ecallback:",
-        "estorage:",
-        "env:",
-
-        // special variables
-        "_incombat",
-        "_lastencounter",
-        "_activeencounter",
-        "_configpath",
-        "_pluginpath",
-        "_pluginversion",
-        "_duration",
-        "_event",
-        "_since",
-        "_sincems",
-        "_triggerid",
-        "_triggername",
-        "_triggerpath",
-        "_zone",
-        "_response",
-        "_responsecode",
-        "_jsonresponse[x]",
-        "_timestamp",
-        "_timestampms",
-        "_systemtime",
-        "_systemtimems",
-        "_clipboard",
-        "_screenwidth",
-        "_screenheight",
-        "_textaura[x]",
-        "_imageaura[x]",
-        "_x",
-        "_y",
-        "_w",
-        "_width",
-        "_h",
-        "_height",
-        "_opacity",
-        "_ffxivparty[x]",
-        "_party[x]",
-        "_ffxiventity[x]",
-        "_entity[x]",
-        "_ffxivplayer",
-        "_me",
-        "_me.id",
-        "_job[jobid/jobName/jobAbbrev]",
-        "_tm2id[markType]",
-        "_targetmarker2id[markType]",
-        "_wm[markType]",
-        "_waymark[markType]",
-        "_ffxivtime",
-        "_ET",
-        "_ETprecise",
-        "_ffxivpartyorder",
-        "_ffxivprocid",
-        "_ffxivprocname",
-        "_ffxivzoneid",
-        "_ffxivversion",
-        "_ffxivincombat",
-        "_ffxivisglobal",
-        "_ffxivlanguage",
-        "_ffxivlanguageid",
-        "_env[x]",
-        "_const[x]",
-        "_config[x]",
-        "_storage[x]",
-        "_actionhistory[i/previous]",
-        "_this",
-        "_idx",
-        "_col",
-        "_row",
-        "_col[i]",
-        "_row[i]",
-        "_colrl[...]",
-        "_rowcl[...]",
-        "_key",
-        "_val",
-        "_loopiterator",
-        "_i"
-    };
-
-    public static List<string> funcs = [
-        "toupper", "tolower", "tofullwidth", "tohalfwidth", "toblackchar(combineDigits=false)", "towhitechar", "tosimpcn", "totradcn",
-        "length", "dec2hex", "dec2hex2", "dec2hex4", "dec2hex8", "float2hex", "double2hex",
-        "hex2dec", "hex2float", "hex2double", "parsedmg",
-        "substring(index)", "substring(index, len)", "slice(slices)", "pick(index, separator=',')",
-        "indexof(str)", "lastindexof(str)", "i(str)", "indicesof(str, joiner=',', slices='::')",
-        "padleft(char, len)", "padright(char, len)", "chr(separator=',')", "ord(joiner=',')",
-        "trim()", "trim(char, char, ...)", "trimleft()", "trimleft(char, char, ...)", "trimright()", "trimright(char, char, ...)",
-        "repeat(times, joiner=',')", "replace(oldStr, newStr='', isLooped=false)", "dictreplace(old1 = new1, old2 = new2, ...)",
-        "format(type, format)", "compare(str, ignorecase=true)", "versioncompare(tgtVersion)",
-        "contain(str)", "ifcontain(str, t, f)", "equal(str)", "ifequal(str, t, f)",
-        "startwith(str)", "ifstartwith(str, t, f)", "endwith(str)", "ifendwith(str, t, f)",
-        "match(str)", "ifmatch(str, t, f)", "capture(str, groupName)", "capture(str, groupIndex)",
-        "utctime(format)", "localtime(format)"
-    ];
-
-    public static List<string> lvarProps = [
-        "size", "length", "indexof(str)", "i(str)", "lastindexof(str)",
-        "indicesof(str, joiner=',', slices='::')",
-        "sum(slices='::')", "count(str, slices='::')",
-        "join(joiner=',', slices='::')",
-        "randjoin(joiner=',', slices='::')",
-        "contain(str, slices='::')", "ifcontain(str, t, f)",
-        "max(type='n', slices='::')", "min(type='n', slices='::')"
-    ];
-
-    public static List<string> tvarProps = [
-        "w", "width", "h", "height",
-        "hjoin()", "hjoin(joiner1=',', joiner2='⏎', colSlices='::', rowSlices='::')",
-        "vjoin()", "vjoin(joiner1=',', joiner2='⏎', colSlices='::', rowSlices='::')",
-        "hlookup(str, rowIndex, colSlices='::')",
-        "vlookup(str, colIndex, rowSlices='::')",
-        "hl(str, rowIndex, colSlices='::')",
-        "vl(str, colIndex, rowSlices='::')",
-        "count(str, colSlices='::', rowSlices='::')",
-        "sum(colSlices='::', rowSlices='::')",
-        "max()", "max(type='n', colSlices='::', rowSlices='::')",
-        "min()", "min(type='n', colSlices='::', rowSlices='::')",
-        "contain(str, colSlices='::', rowSlices='::')", "ifcontain(str, t, f)"
-    ];
-
-    public static List<string> dvarProps = [
-        "size", "length", "ekey(key)", "evalue(value)", "ifekey(key, t, f)", "ifevalue(value, t, f)",
-        "keyof(value)", "keysof(value, joiner=',')",
-        "joinall(kvjoiner='=', pairjoiner=',')", "joinall(kvjoiner='=', pairjoiner=',', selectedKeys...)",
-        "joinkeys(joiner=',')", "joinvalues(joiner=',')", "joinvalues(joiner=',', selectedKeys...)",
-        "sumkeys", "sum", "count(value)",
-        "max(type='n')", "min(type='n')", "maxkey(type='n')", "minkey(type='n')"
-    ];
-
-    public static List<string> textAuraProps = ["x", "y", "w", "h", "opacity", "text"];
-
-    public static List<string> imageAuraProps = ["x", "y", "w", "h", "opacity"];
-
-    // Name, X, Job, Role, etc.
-    public static List<string> XivEntityProps = new List<string> {
-        "HasStatus(statusId)",
-        "HasAnyStatus(statusIds...)",
-        "HasAllStatus(statusIds...)",
-        "HasTankStance",
-        "StatusTimer(statusId, default=-1)",
-        "StatusStack(statusId, default=-1)",
-        "PercentHP(digits=-1)",
-        "PercentMP(digits=-1)",
-        "PercentCP(digits=-1)",
-        "PercentGP(digits=-1)",
-        "DistanceTo(x, y)",
-        "DistanceTo(x, y, z)",
-        "AngleFrom(x, y)",
-        "AngleTo(x, y)",
-        "LocalAngleTo(x, y)",
-        "DirFrom(x, y, ±divisions, digits=0)",
-        "DirTo(x, y, ±divisions, digits=0)",
-        "LocalDirTo(x, y, ±divisions, digits=0)",
-        "LocalToWorld(dx, dy)",
-        "LocalToWorld(dx, dy, dz)",
-        "WorldToLocal(dx, dy)",
-        "WorldToLocal(dx, dy, dz)"
-    }.Concat(Entity.ValidEntityPropNames).Concat(Job.LegalJobPropNames).ToList();
-
-    // Job, Role, etc.
-    public static List<string> XivJobProps = Job.LegalJobPropNames.ToList();
-
-    public static List<string> configurations = [
-        "DebugLevel", "UseACTForSound", "UseACTForTTS", "FfxivLogNetwork", "UseOsClipboard", "DeveloperMode", "Autosave", "Language",
-        "UnsafeUsage", "DynamicUsage",
-        "Microsoft.CodeAnalysis", "Microsoft.Win32", "System.CodeDom.Compiler", "System.Diagnostics", "Triggernometry.Utilities",
-        "System.IO", "System.Net", "System.Reflection", "System.Runtime", "System.Security", "System.Web"
-    ];
-
-    // sfunc:FuncName(type argName, ...) : returnType
-    private static readonly Dictionary<Type, string> typeAliases = new() {
-        {
-            typeof(void), "void"
-        }, {
-            typeof(bool), "bool"
-        }, {
-            typeof(byte), "byte"
-        }, {
-            typeof(sbyte), "sbyte"
-        }, {
-            typeof(char), "char"
-        }, {
-            typeof(decimal), "decimal"
-        }, {
-            typeof(double), "double"
-        }, {
-            typeof(float), "float"
-        }, {
-            typeof(int), "int"
-        }, {
-            typeof(uint), "uint"
-        }, {
-            typeof(long), "long"
-        }, {
-            typeof(ulong), "ulong"
-        }, {
-            typeof(object), "object"
-        }, {
-            typeof(short), "short"
-        }, {
-            typeof(ushort), "ushort"
-        }, {
-            typeof(string), "string"
-        }
-    };
-
-    private static string GetFriendlyTypeName(Type type) // ignore types like List<> that could not be invoked by string expressions
-    {
-        // Nullable
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) {
-            var innerType = type.GetGenericArguments()[0];
-            return GetFriendlyTypeName(innerType) + "?";
-        }
-
-        return typeAliases.TryGetValue(type, out var typeName) ? typeName : type.Name;
-    }
-
-    public static List<string> GetStorageFuncDescs() {
-        var result = new List<string>();
-        var delegates = RealPlugin.Instance.scriptingStorage.Where(p => p.Value is Delegate);
-
-        foreach (var kv in delegates) {
-            var name = kv.Key;
-            var del = (Delegate)kv.Value;
-            var method = del.Method;
-            var parameters = method.GetParameters();
-
-            var paramStrs = parameters.Select(p => {
-                // type
-                string param;
-                if (p.GetCustomAttributes(typeof(ParamArrayAttribute), false).Any()) {
-                    param = "params " + GetFriendlyTypeName(p.ParameterType.GetElementType()) + "[]";
-                }
-                else {
-                    param = GetFriendlyTypeName(p.ParameterType);
-                }
-                // name
-                param += $" {p.Name}";
-
-                // default value
-                if (p.HasDefaultValue) {
-                    param += $"= {p.DefaultValue.ToDataString()}";
-                }
-
-                return param;
-            }).ToArray();
-
-            var paramList = string.Join(", ", paramStrs);
-            var returnType = GetFriendlyTypeName(method.ReturnType);
-
-            var sig = $"{name}({paramList}) : {returnType}";
-            result.Add(sig);
-        }
-
-        return result;
-    }
-
-    #endregion
-
-    public enum SupportedExpressionTypeEnum {
-        String,
-        Numeric,
-        Regex,
-        Color
-    }
-
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public bool ReadOnly
-    {
-        get => textBox1.ReadOnly;
-        set => textBox1.ReadOnly = value;
-    }
-
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public string Expression
-    {
-        get => textBox1.Text;
-        set => textBox1.Text = value;
-    }
-
-    public override string Text
-    {
-        get => Expression;
-        set => Expression = value;
-    }
-
-    private bool _IsPersistent;
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public bool IsPersistent
-    {
-        get => _IsPersistent;
-        set
-        {
-            _IsPersistent = value;
-            UpdateBackground();
-        }
-    }
-
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public bool AutocompleteAvailable { get; set; } = true;
-
-    private SupportedExpressionTypeEnum _ExpressionType;
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public SupportedExpressionTypeEnum ExpressionType
-    {
-        get => _ExpressionType;
-        set
-        {
-            if (value != _ExpressionType) {
-                _ExpressionType = value;
-                ResetTooltip();
-            }
-        }
-    }
-
-    private void ResetTooltip() {
-        switch (ExpressionType) {
-            case SupportedExpressionTypeEnum.Numeric:
-                var temp = I18n.Translate("internal/ExpressionTextBox/numeric1", "This field supports numeric expressions; references to named regular expression groups will be expanded, after which the result will be evaluated as a mathematic expression.");
-                temp += Environment.NewLine;
-                temp += I18n.Translate("internal/ExpressionTextBox/numeric2", "The color of the field will also change depending on whether the numeric expression appears to be valid (green) or not (red).");
-                toolTip1.SetToolTip(panel1, temp);
-                break;
-            case SupportedExpressionTypeEnum.String:
-                toolTip1.SetToolTip(panel1, I18n.Translate("internal/ExpressionTextBox/string", "This field supports string expressions; references to named regular expression groups will be expanded."));
-                break;
-            case SupportedExpressionTypeEnum.Regex:
-                toolTip1.SetToolTip(panel1, I18n.Translate("internal/RegexTextBox", "This field supports regular expressions; the color of the field will change depending on whether the regular expression is valid (green) or not (red)."));
-                break;
-        }
-        UpdateBackground();
-    }
-
-    /// <summary>
-    ///     For validating the expression with placeholder values based on ExpressionType.
-    ///     Set background color based on the result.
-    /// </summary>
-    private static Context contextForValidation = new(null) {
-        testByPlaceholder = true
-    };
-
-    private bool _triedToGetUiContext = false;
-    private Context _uiContext;
-
-    /// <summary> For autofilling. </summary>
-    // to-do: replace the logic using the static RealPlugin instance
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    internal Context UiContext
-    {
-        get =>
-            // if (_uiContext != null)
-            //     return _uiContext;
-            // if (!_triedToGetUiContext)
-            // {
-            //     var form = this.FindForm();
-            //     if (form is TriggerForm tf)
-            //     {
-            //         _uiContext = tf.UiContext;
-            //     }
-            //     else if (form is ActionForm af)
-            //     {
-            //         _uiContext = af.UiContext;
-            //     }
-            //     _triedToGetUiContext = true;
-            // }
-            _uiContext ?? Context.Unbound;
-        set => _uiContext = value;
-    }
-
-    // record all the capture groups and combine with prefixes
-    // when entering a trigger or editing the trigger regex
-
-    private static string _currentTriggerRegexStr = "";
-    internal static string CurrentTriggerRegexStr
-    {
-        get => _currentTriggerRegexStr;
-        set
-        {
-            _currentTriggerRegexStr = value;
-            _currentRegexGroupsAndPrefixes = null;
-        }
-    }
-
-    private static HashSet<string> _currentRegexGroupsAndPrefixes;
-    private static HashSet<string> CurrentRegexGroupsAndPrefixes
-    {
-        get // lazy loading
-        {
-            if (_currentRegexGroupsAndPrefixes == null) {
-                List<string> groups;
-                try {
-                    var regex = new Regex(_currentTriggerRegexStr);
-                    groups = regex.GetGroupNames().ToList();
-                    groups.AddRange(prefixes);
-                }
-                catch {
-                    _currentTriggerRegexStr = "";
-                    groups = prefixes;
-                }
-                _currentRegexGroupsAndPrefixes = new HashSet<string>(groups);
-            }
-            return _currentRegexGroupsAndPrefixes;
-        }
-    }
-
-    private string suffix = ""; // to do
-
-    public delegate void EnterDelegate();
-
-    public event EnterDelegate OnEnterKeyHit;
-    public IButtonControl AcceptButton;
-    public IButtonControl CancelButton;
-
-    public static readonly Regex rexPrefix = new(@"[$¤]\{(?<prefix>[^[$}:.]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexFunc = new(@"[$¤]\{f(?:unc)?:(?<funcid>[^(:]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexStorageFunc = new(@"[$¤]\{sfunc:(?<funcid>[^(}]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexEnvironment = new(@"[$¤]\{env:(?<key>[^}]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexVarName = new(@"[$¤]\{(?<e>e?)!?(?<persist>p?)(?<type>[vltd]|text|image|callback|storage)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexColHeader = new(@"[$¤]\{!?(?<persist>p?)t(?:var)?[cd]l:(?<name>[^$¤[]+)\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexRowHeader = new(@"[$¤]\{!?(?<persist>p?)t(?:var)?(?:rl:(?<name1>[^$¤[]+)|dl:(?<name2>[^$¤[]+)\[.*\])\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexDictKey = new(@"[$¤]\{!?(?<persist>p?)d(?:var)?:(?<name>[^$¤[]+)\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexStructKey = new(@"[$¤]\{_(?<struct>const|textaura|imageaura|config|storage)\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
-    // The regexes "rex...Prop" and "rexMath" are matched after looking for the previous unclosed '{'
-    public static readonly Regex rexVarProp = new(@"^!?[p?]?(?<type>[ltd])(?:var)?:.*\.(?<prop>[^.(]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexMeProp = new(@"^_me\.(?<prop>.*)$", RegexOptions.Compiled);
-    public static readonly Regex rexStructProp = new(@"_(?<struct>[^[]+)\[.*\]\.(?<prop>[^.]*)$", RegexOptions.Compiled);
-    public static readonly Regex rexMath = new(@"(?<![[$¤.])\b[\p{L}\w]+$", RegexOptions.Compiled);
-
-    private static readonly Regex rexDynamicNames // capture the names in the expressions and store into lists for autofill
-        = new(@"[$¤]\{e?!?(?<persist>p?)(?<type>[vltd]|text|image)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[{}\n]*)[^\${}]*\}", RegexOptions.Compiled);
-
-    private string CurrentMatch;
-    private Timer acfDebounceTimer = new();
-
-    public AutoCompleteForm acf;
-
-    // unhide TextChanged on base class
-    private EventHandler _TextChanged;
-    [Browsable(true)] [EditorBrowsable(EditorBrowsableState.Always)]
-    public new event EventHandler TextChanged
-    {
-        add => _TextChanged += value;
-        remove => _TextChanged -= value;
-    }
-
-    public ExpressionTextBox() {
-        InitializeComponent();
-        ResetTooltip();
-        textBox1.TextChanged += TextBox1_TextChanged;
-        textBox1.KeyPress += TextBox1_KeyPress;
-        textBox1.KeyDown += TextBox1_KeyDown;
-        textBox1.MaxLength = 10000000; // for scripts
-        textBox1.GotFocus += ReplaceIncompleteLineBreaksInClipboard;
-        Disposed += ExpressionTextBox_Disposed;
-        Leave += ExpressionTextBox_Leave;
-        LostFocus += ExpressionTextBox_LostFocus;
-        acfDebounceTimer.Interval = 100; // debounce timer for autocomplete
-        acfDebounceTimer.Tick += (_, _) => ProcessAutocomplete();
-    }
-
-    public ExpressionTextBox(Context uiContext) : this() {
-        UiContext = uiContext;
-    }
-
-    private void ExpressionTextBox_LostFocus(object sender, EventArgs e) {
-        HideAutocomplete();
-    }
-
-    private void ExpressionTextBox_Leave(object sender, EventArgs e) {
-        HideAutocomplete();
-    }
-
-    private void ExpressionTextBox_Disposed(object sender, EventArgs e) {
-        HideAutocomplete();
-    }
-
-    private void RefreshAutocomplete(IEnumerable<string> strs) {
-        lock (this) {
-            if (acf == null) {
-                return;
-            }
-            acf.BuildList(strs);
-        }
-    }
-
-    [DllImport("user32.dll")]
-    private static extern bool GetCaretPos(out POINT lpPoint);
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct POINT {
-        public int X;
-        public int Y;
-    }
-
-    private void ShowAutocomplete(IEnumerable<string> strs) {
-        if (!AutocompleteAvailable) {
-            return;
-        }
-        lock (this) {
-            var refresh = acf != null;
-            if (!refresh) {
-                acf = new AutoCompleteForm();
-            }
-
-            // show acf beneath the start of the matched string
-            GetCaretPos(out var cursorPoint);
-            var size = TextRenderer.MeasureText(CurrentMatch, textBox1.Font);
-            var parent = Parent.PointToScreen(Location);
-            double lineHeight = textBox1.Font.Height * 4 / 3;
-            acf.Left = parent.X + panel1.Width + cursorPoint.X - size.Width + 4;
-            acf.Top = parent.Y + cursorPoint.Y + (int)lineHeight;
-
-            if (refresh) {
-                RefreshAutocomplete(strs);
-                return;
-            }
-
-            acf.GotFocus += Acf_GotFocus;
-            acf.listBox1.MouseDown += ListBox1_MouseDown;
-            acf.listBox1.DoubleClick += ListBox1_DoubleClick;
-            RefreshAutocomplete(strs);
-            acf.Show(this);
-            AcceptButton = ParentForm.AcceptButton;
-            CancelButton = ParentForm.CancelButton;
-            ParentForm.AcceptButton = null;
-            ParentForm.CancelButton = null;
-        }
-    }
-
-    private void ListBox1_DoubleClick(object sender, EventArgs e) {
-        if (AutocompleteActive()) {
-            ApplyAutoComplete();
-        }
-    }
-
-    private void ListBox1_MouseDown(object sender, EventArgs e) {
-        textBox1.Focus();
-    }
-
-    private void Acf_GotFocus(object sender, EventArgs e) {
-        textBox1.Focus();
-    }
-
-    private void HideAutocomplete() {
-        acfDebounceTimer.Stop();
-        lock (this) {
-            if (acf != null) {
-                acf.Dispose();
-                acf = null;
-                if (ParentForm != null) {
-                    ParentForm.AcceptButton = AcceptButton;
-                    ParentForm.CancelButton = CancelButton;
-                }
-            }
-        }
-    }
-
-    private bool AutocompleteActive() {
-        lock (this) {
-            return acf != null;
-        }
-    }
-
-    private string GetChosenAutocomplete() {
-        lock (this) {
-            var temp = acf.GetChosenAutocomplete();
-            HideAutocomplete();
-            return temp;
-        }
-    }
-
-    private void TextBox1_KeyDown(object sender, KeyEventArgs e) {
-        if (e.KeyData == Keys.Up || e.KeyData == Keys.Down || e.KeyData == Keys.PageDown || e.KeyData == Keys.PageUp) {
-            if (AutocompleteActive()) {
-                if (e.KeyData == Keys.Up) {
-                    acf.PreviousAutocompleteItem();
-                }
-                if (e.KeyData == Keys.Down) {
-                    acf.NextAutocompleteItem();
-                }
-                if (e.KeyData == Keys.PageUp) {
-                    acf.PreviousAutocompletePage();
-                }
-                if (e.KeyData == Keys.PageDown) {
-                    acf.NextAutocompletePage();
-                }
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
-        }
-        else if (e.KeyCode == Keys.Left || e.KeyCode == Keys.Right) {
-            HideAutocomplete();
-        }
-    }
-
-    private IEnumerable<string> GetAutocompleteSuggestions(IEnumerable<string> src, string str) {
-        return (from ix in src
-            where ix.StartsWith(str, StringComparison.OrdinalIgnoreCase) && string.Compare(str, ix, true) != 0
-            select ix)
-            .OrderBy(a => a);
-    }
-
-    private void TextBox1_KeyPress(object sender, KeyPressEventArgs e) {
-        if (e.KeyChar == Convert.ToChar(Keys.Enter)) {
-            e.Handled = true;
-            if (AutocompleteActive()) {
-                ApplyAutoComplete();
-            }
-            else if (OnEnterKeyHit != null) {
-                OnEnterKeyHit();
-            }
-            else {
-                if (!textBox1.Multiline) // switch to multiline mode
-                {
-                    ToggleExpand();
-                }
-                else // input linebreaks (+ indent), instead of closing the form
-                {
-                    // Delete selected text, if any
-                    if (textBox1.SelectionLength > 0)
-                        textBox1.Paste("");
-
-                    // Get the start index of the current line
-                    var currentPosition = textBox1.SelectionStart;
-                    var currentLineIndex = textBox1.GetLineFromCharIndex(currentPosition);
-                    var lineStartIndex = textBox1.GetFirstCharIndexFromLine(currentLineIndex);
-                    if (lineStartIndex < 0) lineStartIndex = 0;
-
-                    // Get indentation (leading spaces or full-width spaces) and add to the new line
-                    var length = Math.Max(0, currentPosition - lineStartIndex);
-                    var currentLineText = textBox1.Text.Substring(lineStartIndex, length);
-                    var indent = new string(currentLineText.TakeWhile(c => char.IsWhiteSpace(c)).ToArray());
-                    textBox1.Paste(Environment.NewLine + indent);
-                }
-            }
-        }
-        else if (e.KeyChar == Convert.ToChar(Keys.Escape)) {
-            HideAutocomplete();
-        }
-        else if (char.IsControl(e.KeyChar)) {
-            HideAutocomplete();
-        }
-    }
-
-    private void ApplyAutoComplete() {
-        var ac = GetChosenAutocomplete();
-        var cursorPos = textBox1.SelectionStart;
-
-        // remove the existing part to fix the capitalization typos
-        if (CurrentMatch.Length > 0 && cursorPos >= CurrentMatch.Length) {
-            textBox1.Text = textBox1.Text.Remove(cursorPos - CurrentMatch.Length, CurrentMatch.Length);
-            textBox1.SelectionStart = cursorPos - CurrentMatch.Length;
-        }
-
-        // when the autofilled string contains '(' or '[', e.g. method(arg1, arg2)
-        // remove the parameters, and trigger the TextChanged event with the correct cursor position
-        var pIndex = ac.IndexOf('(');
-        var bIndex = ac.IndexOf("[");
-        if (pIndex >= 0) {
-            textBox1.Paste(ac.Substring(0, pIndex) + ")");
-            textBox1.SelectionStart--;
-            textBox1.Paste("(");
-        }
-        else if (bIndex >= 0) {
-            textBox1.Paste(ac.Substring(0, bIndex) + "]");
-            textBox1.SelectionStart--;
-            textBox1.Paste("[");
-        }
-        else
-            textBox1.Paste(ac);
-    }
-
-    private static Regex reCaptureGroups = new(@"\$\{(?<capture>[\p{L}\d_]+?)\}");
-
-    /// <summary> Check if the pure alphanumeric ${...} expressions are all capture groups or special variables (like _since) </summary>
-    internal static bool CheckValidBasicExpression(string expression) {
-        var matches = reCaptureGroups.Matches(expression);
-        return matches.All(m => CurrentRegexGroupsAndPrefixes.Contains(m.Groups["capture"].Value)
-        );
-    }
-
-    internal static Color BgRed = Color.FromArgb(255, 225, 225); // invalid expression
-    internal static Color BgYellow = Color.FromArgb(255, 240, 210); // capture group not found
-    internal static Color BgGreen = Color.FromArgb(225, 255, 225); // correct
-    internal static Color BgBlue = Color.FromArgb(210, 240, 255); // persistent variable
-
-    private void UpdateBackground() {
-        if (!Enabled && !IsPersistent) {
-            textBox1.BackColor = SystemColors.Window;
-            textBox1.ForeColor = SystemColors.WindowText;
-            return;
-        }
-        if (ExpressionType == SupportedExpressionTypeEnum.Numeric) {
-            if (textBox1.Text.Length == 0) {
-                textBox1.BackColor = SystemColors.Window;
-                return;
-            }
-            try {
-                contextForValidation.EvaluateNumericExpression(null, null, textBox1.Text);
-                textBox1.BackColor = BgGreen;
-                if (!CheckValidBasicExpression(Expression)) {
-                    textBox1.BackColor = BgYellow;
-                }
-            }
-            catch (Exception) {
-                textBox1.BackColor = BgRed;
-            }
-        }
-        else if (ExpressionType == SupportedExpressionTypeEnum.String) {
-            if (!CheckValidBasicExpression(Expression)) {
-                textBox1.BackColor = BgYellow;
-            }
-            else if (IsPersistent) {
-                textBox1.BackColor = BgBlue;
-            }
-            else if (textBox1.BackColor != SystemColors.Window) {
-                textBox1.BackColor = SystemColors.Window;
-            }
-        }
-        else if (ExpressionType == SupportedExpressionTypeEnum.Regex) {
-            if (textBox1.Text.Length == 0) {
-                textBox1.BackColor = IsPersistent ? BgBlue : SystemColors.Window;
-                return;
-            }
-            try {
-                var rex = new Regex(textBox1.Text);
-                textBox1.BackColor = IsPersistent ? BgBlue : BgGreen;
-            }
-            catch (Exception) {
-                textBox1.BackColor = BgRed;
-            }
-        }
-        else if (ExpressionType == SupportedExpressionTypeEnum.Color) {
-            if (string.IsNullOrWhiteSpace(textBox1.Text)) {
-                textBox1.BackColor = SystemColors.Window;
-                textBox1.ForeColor = SystemColors.WindowText;
-            }
-            else {
-                var color = Color.Empty;
-                try {
-                    var rawColor = contextForValidation.ExpandVariables(null, null, false, textBox1.Text);
-                    color = ParseColor(rawColor, Color.Empty);
-                }
-                catch {
-                    color = Color.Empty;
-                }
-
-                if (color == Color.Empty) {
-                    textBox1.BackColor = SystemColors.Window;
-                    textBox1.ForeColor = SystemColors.WindowText;
-                }
-                else {
-                    textBox1.BackColor = color != Color.Transparent ? color : SystemColors.Window;
-                    var brightness = 0.299 * color.R + 0.587 * color.G + 0.114 * color.B;
-                    textBox1.ForeColor = brightness > 128 ? Color.FromArgb(0, 0, 0) : Color.FromArgb(255, 255, 255);
-                }
-            }
-        }
-    }
-
-    private void TextBox1_TextChanged(object sender, EventArgs e) {
-        UpdateBackground();
-        if (textBox1.Multiline) {
-            MultiLineAdjustHeight();
-        }
-        if (RealPlugin.Instance.cfg.AutoComplete) {
-            if (ExpressionType != SupportedExpressionTypeEnum.Regex && textBox1.Focused) {
-                acfDebounceTimer.Stop();
-                acfDebounceTimer.Start();
-            }
-        }
-        _TextChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    private void ProcessAutocomplete() {
-        //D
-    }
-
-    private void panel1_Click(object sender, EventArgs e) {
-        ToggleExpand();
-    }
-
-    private void panel1_DoubleClick(object sender, EventArgs e) {
-        ToggleExpand();
-    }
-
-    private void ToggleExpand() {
-        if (textBox1.Multiline) {
-            textBox1.Multiline = false;
-            textBox1.MinimumSize = new Size(textBox1.MinimumSize.Width, 0);
-            textBox1.ScrollBars = ScrollBars.None;
-            var tmp = panel1.BackgroundImage;
-            panel1.BackgroundImage = panel2.BackgroundImage;
-            panel2.BackgroundImage = tmp;
-        }
-        else {
-            textBox1.Multiline = true;
-            textBox1.MinimumSize = new Size(textBox1.MinimumSize.Width, 80);
-            textBox1.MaximumSize = new Size(textBox1.MaximumSize.Width, 300);
-            textBox1.ScrollBars = ScrollBars.Both;
-            MultiLineAdjustHeight();
-            var tmp = panel1.BackgroundImage;
-            panel1.BackgroundImage = panel2.BackgroundImage;
-            panel2.BackgroundImage = tmp;
-        }
-    }
-
-    private void MultiLineAdjustHeight() {
-        using (var g = textBox1.CreateGraphics()) {
-            var size = g.MeasureString(textBox1.Text + "\n\n1", textBox1.Font); // add 2 more lines
-            textBox1.Height = (int)size.Height;
-        }
-    }
-
-    // Prevent pasting a hidden \n (usually from ACT loglines) into the txtbox
-    // Did not use WinProc since there are some regular TextBoxes in the forms besides ExpTxtBox.
-    public static void ReplaceIncompleteLineBreaksInClipboard(object sender, EventArgs e) {
-        try {
-            if (Clipboard.ContainsText()) {
-                var clipboardText = Clipboard.GetText();
-                var rexIncompleteLinebreaks = new Regex(@"\r(?!\n)|(?<!\r)\n");
-                if (rexIncompleteLinebreaks.IsMatch(clipboardText)) {
-                    var replacedText = clipboardText.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
-                    Clipboard.SetText(replacedText);
-                }
-            }
-        }
-        catch {
-        }
-    }
-
-    #region Color
-
-    private static Regex regexHexColor = new(@"^#? *(?<rgb>[\dA-Fa-f]{3}|[\dA-Fa-f]{6})$");
-    private static Regex regexNumColor = new(@"^(?<r>\d+(?:\.\d+)?) *, *(?<g>\d+(?:\.\d+)?) *, *(?<b>\d+(?:\.\d+)?)$");
-
-    /// <summary>
-    ///     Parse a user-input raw color string to a <see cref="Color" />. <br /><br />
-    ///     If parsing fails, return the given default color. <br /><br />
-    ///     Input could be: <br /><br />
-    ///     · <see cref="Color" /> names: white <br />
-    ///     · RGB: 192, 0, 18 <br />
-    ///     · Hex value: #acf / #aaccff / acf / aaccff <br />
-    /// </summary>
-    /// <param name="defaultColor">The default color returned if the string is invalid.</param>
-    /// <returns>The representing <see cref="Color" /></returns>
-    public static Color ParseColor(string rawColor, Color defaultColor)
-        => TryParseColor(rawColor) ?? defaultColor;
-
-    /// <summary>
-    ///     Parse a user-input raw color string to a <see cref="Color" />. <br /><br />
-    ///     Input could be: <br /><br />
-    ///     · Color names: white <br />
-    ///     · RGB: 192, 0, 18 <br />
-    ///     · Hex value: #acf / #aaccff / acf / aaccff <br />
-    /// </summary>
-    /// <param name="defaultColor">The default <see cref="Color" /> returned if the string is invalid.</param>
-    /// <returns>The representing <see cref="Color" /></returns>
-    public static Color? TryParseColor(string rawColor) {
-        rawColor = rawColor.Trim();
-
-        var namedColor = Color.FromName(rawColor);
-        if (namedColor.IsKnownColor) {
-            // "white"
-            return namedColor;
-        }
-
-        int r, g, b;
-        var hexMatch = regexHexColor.Match(rawColor);
-        if (hexMatch.Success) {
-            var rgb = hexMatch.Groups["rgb"].Value;
-            if (rgb.Length == 3) {
-                // "#acf" or "acf"
-                rgb = string.Concat(rgb[0], rgb[0], rgb[1], rgb[1], rgb[2], rgb[2]);
-            }
-            // "#aaccff" or "aaccff"
-            r = Convert.ToInt32(rgb.Substring(0, 2), 16);
-            g = Convert.ToInt32(rgb.Substring(2, 2), 16);
-            b = Convert.ToInt32(rgb.Substring(4, 2), 16);
-        }
-        else {
-            // "192, 0, 18"
-            var numMatch = regexNumColor.Match(rawColor);
-            if (numMatch.Success) {
-                r = (int)Math.Round(double.Parse(numMatch.Groups["r"].Value, CultureInfo.InvariantCulture));
-                g = (int)Math.Round(double.Parse(numMatch.Groups["g"].Value, CultureInfo.InvariantCulture));
-                b = (int)Math.Round(double.Parse(numMatch.Groups["b"].Value, CultureInfo.InvariantCulture));
-            }
-            else return null;
-        }
-
-        return Color.FromArgb(r < 0 ? 0 : r > 255 ? 255 : r,
-            g < 0 ? 0 : g > 255 ? 255 : g,
-            b < 0 ? 0 : b > 255 ? 255 : b);
-    }
-
-    public static string ColorToString(Color color, Color? defaultColor = null) {
-        if (color == Color.Empty || color == defaultColor) {
-            return "";
-        }
-        if (color.IsKnownColor) {
-            return color.Name;
-        }
-        return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-    }
-
-    #endregion
-
-    #region Store Variable Names Dynamically
-
-    private static List<string> tmpScalarNames = [];
-    private static List<string> tmpListNames = [];
-    private static List<string> tmpTableNames = [];
-    private static List<string> tmpDictNames = [];
-    private static List<string> tmpTextNames = [];
-    private static List<string> tmpImageNames = [];
-
-    private static List<string> prsScalarNames = [];
-    private static List<string> prsListNames = [];
-    private static List<string> prsTableNames = [];
-    private static List<string> prsDictNames = [];
-
-    public enum AutofillTypeEnum {
-        None,
-        Scalar,
-        List,
-        Table,
-        Dict,
-        Image,
-        Text,
-        Callback,
-        Storage
-    }
-
-    public static Dictionary<string, AutofillTypeEnum> StringToAutofillEnum = new() {
-        {
-            "v", AutofillTypeEnum.Scalar
-        }, {
-            "l", AutofillTypeEnum.List
-        }, {
-            "t", AutofillTypeEnum.Table
-        }, {
-            "d", AutofillTypeEnum.Dict
-        }, {
-            "image", AutofillTypeEnum.Image
-        }, {
-            "text", AutofillTypeEnum.Text
-        }, {
-            "callback", AutofillTypeEnum.Callback
-        }, {
-            "storage", AutofillTypeEnum.Storage
-        }
-    };
-
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public AutofillTypeEnum AutofillType { get; set; } = AutofillTypeEnum.None;
-
-    /// <summary>
-    ///     Returns the list for dynamically storing the names in the expression textboxes,
-    ///     based on the autofill type.
-    /// </summary>
-    private static List<string> GetDynamicAutofillNameList(AutofillTypeEnum type, bool isPersistent) {
-        switch (type) {
-            case AutofillTypeEnum.Scalar: return isPersistent ? prsScalarNames : tmpScalarNames;
-            case AutofillTypeEnum.List: return isPersistent ? prsListNames : tmpListNames;
-            case AutofillTypeEnum.Table: return isPersistent ? prsTableNames : tmpTableNames;
-            case AutofillTypeEnum.Dict: return isPersistent ? prsDictNames : tmpDictNames;
-            case AutofillTypeEnum.Text: return tmpTextNames;
-            case AutofillTypeEnum.Image: return tmpImageNames;
-            default: return null;
-        }
-    }
-
-    /// <summary>
-    ///     Returns the list of existing variable/aura/... names corresponding to the autofill type.
-    /// </summary>
-    private static List<string> GetExistingAutofillNameList(AutofillTypeEnum type, bool isPersistent) {
-        var vs = RealPlugin.Instance.GetVariableStore(isPersistent);
-        switch (type) {
-            case AutofillTypeEnum.Scalar: return vs.Scalar.Keys.ToList();
-            case AutofillTypeEnum.List: return vs.List.Keys.ToList();
-            case AutofillTypeEnum.Table: return vs.Table.Keys.ToList();
-            case AutofillTypeEnum.Dict: return vs.Dict.Keys.ToList();
-            case AutofillTypeEnum.Text: return RealPlugin.Instance.sc != null ? RealPlugin.Instance.sc.textitems.Keys.ToList() : RealPlugin.Instance.textauras.Keys.ToList();
-            // case AutofillTypeEnum.Image: return (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.imageitems.Keys.ToList() : RealPlugin.Instance.imageauras.Keys.ToList();
-            case AutofillTypeEnum.Callback: return RealPlugin.Instance.callbacksByName.Keys.ToList();
-            case AutofillTypeEnum.Storage: return RealPlugin.Instance.scriptingStorage.Keys.ToList();
-            default: return [];
-        }
-    }
-
-    private void RegisterAutofillNames() {
-        if (ExpressionType == SupportedExpressionTypeEnum.Regex)
-            return;
-
-        // search for all expressions like ${var:xxx}, ${l:xxx.prop}, ${pd:xxx[key]},
-        // and add the names "xxx" to their corresponding namelist. 
-        foreach (Match match in rexDynamicNames.Matches(Text)) {
-            var isPersistent = match.Groups["persist"].ToString() == "p";
-            var typeString = match.Groups["type"].ToString();
-            if (!StringToAutofillEnum.TryGetValue(typeString, out var type)) {
-                type = AutofillTypeEnum.None;
-            }
-            var name = match.Groups["name"].ToString();
-            RegisterDynamicVarName(name, type, isPersistent);
-        }
-
-        // If the textbox is used for entering variable names,
-        // add the name to the corresponding namelist.
-        if (Text.Count(c => c == '$') <= 1) // skip variable names with too many expressions
-        {
-            RegisterDynamicVarName(Text, AutofillType, IsPersistent);
-        }
-    }
-
-    private static void RegisterDynamicVarName(string name, AutofillTypeEnum type, bool isPersistent) {
-        var dynamicNames = GetDynamicAutofillNameList(type, isPersistent);
-        if (dynamicNames == null) {
-            return;
-        }
-        dynamicNames.Remove(name);
-
-        var existingNames = GetExistingAutofillNameList(type, isPersistent);
-        if (!existingNames.Contains(name)) {
-            dynamicNames.Add(name);
-            if (dynamicNames.Count > 30) {
-                dynamicNames.RemoveAt(0);
-            }
-        }
-    }
-
-    internal static void RegisterAllDynamicVarNamesOnForm(Control parent) {
-        if (parent is ExpressionTextBox exp) {
-            exp.RegisterAutofillNames();
-        }
-        foreach (Control children in parent.Controls) {
-            RegisterAllDynamicVarNamesOnForm(children);
-        }
-    }
-
-    #endregion
-
-    public class TextBox : System.Windows.Forms.TextBox {
-        #region Enhanced Double-Click Selection
-
-        private int clickCount;
-        private DateTime lastClickTime = DateTime.Now;
-        private ExpressionTextBox ExpTextBox => Parent as ExpressionTextBox;
-
-        protected override void WndProc(ref Message m) {
-            const int WM_LBUTTONDOWN = 0x0201;
-            const int WM_LBUTTONDBLCLK = 0x0203;
-            const int WM_PASTE = 0x302;
-
-            if (m.Msg == WM_LBUTTONDBLCLK) {
-                clickCount = 2;
-                lastClickTime = DateTime.Now;
-
-                var x = m.LParam.ToInt32() & 0xFFFF;
-                var y = m.LParam.ToInt32() >> 16 & 0xFFFF;
-                var clickPoint = new Point(x, y);
-
-                var index = GetCharIndexFromPosition(clickPoint);
-                if (index < 0) return;
-
-                var charPosition = GetPositionFromCharIndex(index);
-                if (clickPoint.X < charPosition.X && index > 0) {
-                    index--;
-                }
-
-                HandleDoubleClick(index);
-                return;
-            }
-            if (m.Msg == WM_LBUTTONDOWN) {
-                var interval = DateTime.Now - lastClickTime;
-                if (interval.TotalMilliseconds > SystemInformation.DoubleClickTime || clickCount >= 3) {
-                    clickCount = 0;
-                }
-
-                clickCount++;
-                lastClickTime = DateTime.Now;
-                if (clickCount == 3) {
-                    if (Multiline) {
-                        var x = m.LParam.ToInt32() & 0xFFFF;
-                        var y = m.LParam.ToInt32() >> 16 & 0xFFFF;
-                        var index = GetCharIndexFromPosition(new Point(x, y));
-                        var lineIndex = GetLineFromCharIndex(index);
-                        var lineStart = GetFirstCharIndexFromLine(lineIndex);
-                        var lineEnd = GetFirstCharIndexFromLine(lineIndex + 1);
-                        if (lineEnd == -1) lineEnd = Text.Length; // last line
-
-                        Select(lineStart, lineEnd - lineStart);
-                    }
-                    else {
-                        Select(0, Text.Length);
-                    }
-                    clickCount = 0;
-                    return;
-                }
-            }
-            if (m.Msg == WM_PASTE) {
-                var clipboardText = Clipboard.GetText();
-                if (!Multiline && clipboardText.Contains("\n")) {
-                    ExpTextBox?.ToggleExpand();
-                    BeginInvoke(() => Paste());
-                    return;
-                }
-            }
-            base.WndProc(ref m);
-        }
-
-        private void HandleDoubleClick(int index) {
-            if (index < 0 || index >= Text.Length)
-                return;
-
-            var currentChar = Text[index];
-            if (char.IsWhiteSpace(currentChar)) {
-                SelectAdjacentChars(index, c => char.IsWhiteSpace(c) && c != '\n' && c != '\r');
-                return;
-            }
-
-            var type = GetExpressionEnvironmentAt(index);
-
-            if (_leftBracketChars.ContainsKey(currentChar) || _rightBracketChars.ContainsKey(currentChar) || currentChar == '$' || currentChar == '¤') {
-                SelectEnclosedBrackets(index);
-                return;
-            }
-
-            if (type == SupportedExpressionTypeEnum.Numeric) {
-                // select the adjacent alphanumeric chars
-                if (!MathParser.OperatorChar.Contains(currentChar)) {
-                    SelectAdjacentChars(index, c => !MathParser.OperatorChar.Contains(c) && !char.IsWhiteSpace(c) && c != '}');
-                    // if the prev char is a unary operator, select it
-                    var prevIdx = SelectionStart - 1;
-                    if (prevIdx < 0) {
-                        return;
-                    }
-                    var prevChar = Text[prevIdx];
-                    if (prevChar != '+' && prevChar != '-') {
-                        return;
-                    }
-                    var i = prevIdx - 1;
-                    // scan the prev char before +/- to check if it is really a unary op
-                    while (true) {
-                        if (i < 0 || Text[i] == '\n' || MathParser.OperatorChar.Contains(Text[i])) {
-                            Select(prevIdx, SelectionLength + 1);
-                            return;
-                        }
-                        if (char.IsWhiteSpace(Text[i--])) continue;
-                        return;
-                    }
-                }
-                // select the current op
-                // if it is the 2nd char of an op
-                if (index > 0 && !char.IsWhiteSpace(Text[index - 1])) {
-                    var potentialOperator = Text.Substring(index - 1, 2);
-                    if (MathParser.OperatorOrder.Contains(potentialOperator)) {
-                        Select(index - 1, 2);
-                        return;
-                    }
-                }
-                // if it is the 1st char of an op
-                if (index < Text.Length - 1 && !char.IsWhiteSpace(Text[index + 1])) {
-                    var potentialOperator = Text.Substring(index, 2);
-                    if (MathParser.OperatorOrder.Contains(potentialOperator)) {
-                        Select(index, 2);
-                        return;
-                    }
-                }
-                // if it is a single-char op
-                Select(index, 1);
-            }
-            else if (type == SupportedExpressionTypeEnum.String || type == SupportedExpressionTypeEnum.Color
-                                                                || type == SupportedExpressionTypeEnum.Regex) // To do: better logic for regexes
-            {
-                var separators = new HashSet<char>($"^$¤{{}}[]()<>,.:;=|/\\'\"，。？！、：；（）《》「」『』【】“”‘’…{ParserCommon.LINEBREAK}");
-                if (type == SupportedExpressionTypeEnum.Regex)
-                    separators.ExceptWith(".");
-                if (!separators.Contains(currentChar)) {
-                    SelectAdjacentChars(index, c => !separators.Contains(c) && !char.IsWhiteSpace(c));
-                }
-                else {
-                    Select(index, 1);
-                }
-            }
-        }
-
-        private void SelectAdjacentChars(int index, Func<char, bool> predicate) {
-            var start = index;
-            var end = index;
-
-            while (start > 0 && predicate(Text[start - 1]))
-                start--;
-
-            while (end < Text.Length - 1 && predicate(Text[end + 1]))
-                end++;
-
-            Select(start, end - start + 1);
-        }
-
-        private SupportedExpressionTypeEnum GetExpressionEnvironmentAt(int position) {
-            if (ExpTextBox?._ExpressionType == SupportedExpressionTypeEnum.Regex)
-                return SupportedExpressionTypeEnum.Regex;
-
-            if (position > Text.Length)
-                return SupportedExpressionTypeEnum.String;
-
-            var prevText = Text.Substring(0, position);
-            var lBracketCount = 0;
-            var afterLBracket = "";
-            for (var i = prevText.Length - 1; i >= 0; i--) {
-                if (prevText[i] == '}')
-                    lBracketCount--;
-                else if (prevText[i] == '{')
-                    lBracketCount++;
-
-                if (lBracketCount == 1) {
-                    afterLBracket = prevText.Substring(i + 1);
-                    break;
-                }
-            }
-
-            if (lBracketCount != 1) // not in {...}
-                return ExpTextBox?._ExpressionType ?? SupportedExpressionTypeEnum.String;
-
-            if (afterLBracket.StartsWith("n:") || afterLBracket.StartsWith("numeric:"))
-                return SupportedExpressionTypeEnum.Numeric;
-            return SupportedExpressionTypeEnum.String;
-        }
-
-        private static Dictionary<char, char> _leftBracketChars = new() {
-            {
-                '(', ')'
-            }, {
-                '[', ']'
-            }, {
-                '{', '}'
-            }, {
-                '（', '）'
-            }, {
-                '［', '］'
-            }, {
-                '｛', '｝'
-            }, {
-                '【', '】'
-            }, {
-                '《', '》'
-            }, {
-                '<', '>'
-            }, {
-                '“', '”'
-            }, {
-                '‘', '’'
-            }, {
-                '「', '」'
-            }, {
-                '\"', '\"'
-            }, {
-                '\'', '\''
-            } // too complicated to determine if a " or ' is left/right, so always consider it as left for now
-        };
-
-        private static Dictionary<char, char> _rightBracketChars = _leftBracketChars.ToDictionary(pair => pair.Value, pair => pair.Key);
-
-        private void SelectEnclosedBrackets(int index) {
-            var clicked = Text[index];
-            char pair;
-            int direction;
-            if (_leftBracketChars.TryGetValue(clicked, out var c1)) {
-                pair = c1;
-                direction = 1;
-            }
-            else if (_rightBracketChars.TryGetValue(clicked, out var c)) {
-                pair = c;
-                direction = -1;
-            }
-            else if ((clicked == '$' || clicked == '¤') && index < Text.Length - 1 && Text[index + 1] == '{') {
-                SelectEnclosedBrackets(index + 1);
-                return;
-            }
-            else {
-                Select(index, 1);
-                return;
-            }
-
-            var count = 0;
-            var end = direction == 1 ? Text.Length - 1 : 0;
-            for (var i = index + direction; i >= 0 && i < Text.Length; i += direction) {
-                var c = Text[i];
-                if (c == pair) {
-                    count++;
-                }
-                else if (c == clicked) {
-                    count--;
-                }
-                if (count == 1) {
-                    end = i;
-                    break;
-                }
-            }
-
-            var start = Math.Min(index, end);
-            var length = Math.Abs(index - end) + 1;
-            if (start >= 1 && Text[start] == '{' && (Text[start - 1] == '$' || Text[start - 1] == '¤')) {
-                start--;
-                length++;
-            }
-            Select(start, length);
-        }
-
-        #endregion
-
-        #region Shortcuts
-
-        private Keys prevKeyWithCtrlShift = Keys.None;
-
-        protected override void OnKeyUp(KeyEventArgs e) {
-            if (!e.Control || !e.Shift) {
-                prevKeyWithCtrlShift = Keys.None;
-            }
-            base.OnKeyUp(e);
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e) {
-            if (e.Control && e.Shift && !e.Alt && RealPlugin.Instance.cfg.EnableShortcutTemplates) {
-                var handled = true;
-                var shouldWrap = SelectionLength != 0 && RealPlugin.Instance.cfg.WrapTextWhenSelected;
-                var useAbbrev = RealPlugin.Instance.cfg.UseAbbrevInTemplates;
-                switch (e.KeyCode) {
-                    // Ctrl + Shift + 4: ${}
-                    case Keys.D4:
-                        if (shouldWrap)
-                            Paste($"${{{SelectedText}}}");
-                        else
-                            InsertStringOnBothSides("${", "}");
-                        break;
-                    // Ctrl + Shift + V/L/T/D: ${v/l/t/d:};
-                    // Ctrl + Shift + P, V/L/T/D: ${pv/pl/pt/pd:};
-                    case Keys.P:
-                        break;
-                    case Keys.V:
-                    case Keys.L:
-                    case Keys.T:
-                    case Keys.D:
-                        var varType = e.KeyCode.ToString().ToLower();
-                        varType = useAbbrev ? varType : varType.Trim('v') + "var";
-                        if (prevKeyWithCtrlShift == Keys.P)
-                            varType = "p" + varType;
-                        if (shouldWrap)
-                            Paste($"${{{varType}:{SelectedText}}}");
-                        else
-                            InsertStringOnBothSides($"${{{varType}:", "}");
-                        break;
-                    // Ctrl + Shift + N: ${n:}
-                    case Keys.N:
-                        var numeric = useAbbrev ? "n" : "numeric";
-                        if (shouldWrap)
-                            Paste($"${{{numeric}: {SelectedText.TrimStart()}}}");
-                        else
-                            InsertStringOnBothSides($"${{{numeric}: ", "}");
-                        break;
-                    // Ctrl + Shift + F: ${f::}
-                    case Keys.F:
-                        var func = useAbbrev ? "f" : "func";
-                        if (shouldWrap)
-                            InsertStringOnBothSides($"${{{func}:", $":{SelectedText}}}");
-                        else
-                            InsertStringOnBothSides($"${{{func}:", ":}");
-                        break;
-                    // Ctrl + Shift + E: ${_entity[].}
-                    case Keys.E:
-                        var entity = useAbbrev ? "entity" : "ffxiventity";
-                        if (shouldWrap)
-                            InsertStringOnBothSides($"${{_{entity}[{SelectedText}].", "}");
-                        else
-                            InsertStringOnBothSides($"${{_{entity}[", "].}");
-                        break;
-                    // Ctrl + Shift + M: ${_me.id}
-                    case Keys.M:
-                        Paste(useAbbrev ? "${_me.id}" : "${_ffxiventity[${_ffxivplayer}].id}");
-                        SelectionStart -= 3;
-                        SelectionLength = 2; // select "id"
-                        break;
-                    // Ctrl + Shift + I: ${if: ? : }
-                    case Keys.I:
-                        if (shouldWrap)
-                            InsertStringOnBothSides("${if: " + SelectedText.Trim() + " ? ", " :  }");
-                        else
-                            InsertStringOnBothSides("${if: ", " ?  :  }");
-                        break;
-                    // Ctrl + Shift + A: Select the next outer layer of brackets
-                    case Keys.A:
-                        SelectNextOuterBracket();
-                        ExpTextBox?.HideAutocomplete();
-                        break;
-                    // Ctrl + Shift + C (in regex textboxes): named capture group (?<name>xxx)
-                    case Keys.C:
-                        if (ExpTextBox?.ExpressionType == SupportedExpressionTypeEnum.Regex) {
-                            if (shouldWrap)
-                                InsertStringOnBothSides("(?<", $">{SelectedText})");
-                            else
-                                InsertStringOnBothSides("(?<", ">)");
-                        }
-                        else {
-                            handled = false;
-                        }
-                        break;
-                    default:
-                        handled = false;
-                        break;
-                }
-                prevKeyWithCtrlShift = e.KeyCode;
-                if (handled) {
-                    e.SuppressKeyPress = true;
-                    e.Handled = true;
-                    return;
-                }
-            }
-            base.OnKeyDown(e);
-        }
-
-        public void InsertStringOnBothSides(string newTextBeforeCursor, string newTextAfterCursor = "") {
-            Paste(newTextBeforeCursor + newTextAfterCursor);
-            SelectionStart -= newTextAfterCursor.Length;
-            ExpTextBox?.ProcessAutocomplete();
-        }
-
-        public void SelectNextOuterBracket() {
-            var hasOuterLayer = false;
-            int index;
-            var counts = _leftBracketChars.ToDictionary(pair => pair.Key, _ => 0);
-            for (index = SelectionStart - 1; index >= 0; index--) {
-                var c = Text[index];
-                if (c == '\"' || c == '\'') {
-                    continue;
-                }
-                if (_rightBracketChars.TryGetValue(c, out var pair)) {
-                    counts[pair]--;
-                }
-                else if (_leftBracketChars.ContainsKey(c)) {
-                    if (++counts[c] == 1) {
-                        hasOuterLayer = true;
-                        break;
-                    }
-                }
-            }
-            if (hasOuterLayer) {
-                SelectEnclosedBrackets(index);
-            }
-            else {
-                SystemSounds.Exclamation.Play();
-            }
-        }
-
-        #endregion
-    }
+	#region Autofill Text
+
+	public static List<string> math = [
+		"pi", "π", "pi2", "pi05", "pi025", "pi0125", "pitorad", "piofrad",
+		"phi", "major", "minor", "ETmin2sec", "semitone", "cent",
+
+		// numeric func: basic
+		"sqrt(x)", "pow(x, y)", "root(x, y)", "exp(x)", "log(x, base=e)",
+		"abs(x)", "sign(x)", "rem(x, y)", "mod(x, y)", "random(start, end)",
+		"truncate(x)", "floor(x)", "ceiling(x)", "round(x, digits=0)",
+		"max(...)", "min(...)", "or(...)", "and(...)", "if(condition, trueVal, falseVal)",
+
+		// numeric func: trigonometric 
+		"sin(x)", "cos(x)", "tan(x)", "cot(x)", "cotan(x)", "sec(x)", "csc(x)", "cosec(x)",
+		"arcsin(x)", "arccos(x)", "arctan(x)", "atan2(x, y)", "arctan2(x, y)",
+		"sinh(x)", "cosh(x)", "tanh(x)",
+
+		// numeric func: distance
+		"Distance(x0, y0, x1, y1)", "d(x0, y0, x1, y1)",
+		"Distance(x0, y0, z0..., x1, y1, z1...)", "d(x0, y0, z0..., x1, y1, z1...)",
+		"ManhattanDistance(x0, y0, z0..., x1, y1, z1...)", "L1d(x0, y0, z0..., x1, y1, z1...)",
+		"ChebyshevDistance(x0, y0, z0..., x1, y1, z1...)", "L∞d(x0, y0, z0..., x1, y1, z1...)",
+		"ProjD(srcX, srcY, θ, tgtX, tgtY)", "ProjectDistance(srcX, srcY, θ, tgtX, tgtY)",
+		"ProjH(srcX, srcY, θ, tgtX, tgtY)", "ProjectHeight(srcX, srcY, θ, tgtX, tgtY)",
+		"IsPointInRay(srcX, srcY, θ, width, tgtX, tgtY)",
+
+		// numeric func: angle
+		"RadToDeg(rad)", "DegToRad(deg)",
+		"Angle(srcX, srcY, tgtX, tgtY)", "θ(srcX, srcY, tgtX, tgtY)",
+		"RelAngle(srcθ, tgtθ)", "Relθ(srcθ, tgtθ)",
+		"RadToDir(θ, ±divisions, digits=0)",
+		"VecToDir(dx, dy, ±divisions, digits=0)",
+		"DirToRad(dir, ±divisions)",
+		"IsAngleBetween(θ, minθ, maxθ)", "IsθBetween(θ, minθ, maxθ)",
+
+		// numeric string func
+		"hex2dec(hex)", "hex2float(hex)", "hex2double(hex)", "X8float(hex)", "ParseDmg(hex)",
+		"len(alphanumstr)",
+		"Freq(note, semitones=0)", "NextETms(XX:XX)", "NextETms(ETmin)"
+	];
+
+	public static List<string> prefixes = new() // right after "${"
+	{
+		"numeric:",
+		"n:",
+		"func:",
+		"f:",
+		"sfunc:",
+		"if:",
+		"var:",
+		"pvar:",
+		"evar:",
+		"epvar:",
+		"v:",
+		"pv:",
+		"ev:",
+		"epv:",
+		"!var:",
+		"!v:",
+		"!pvar:",
+		"!pv:",
+		"lvar:",
+		"plvar:",
+		"elvar:",
+		"eplvar:",
+		"l:",
+		"pl:",
+		"el:",
+		"epl:",
+		"!lvar:",
+		"!l:",
+		"!plvar:",
+		"!pl:",
+		"tvar:",
+		"ptvar:",
+		"etvar:",
+		"eptvar:",
+		"t:",
+		"pt:",
+		"et:",
+		"ept:",
+		"!tvar:",
+		"!t:",
+		"!ptvar:",
+		"!pt:",
+		"dvar:",
+		"pdvar:",
+		"edvar:",
+		"epdvar:",
+		"d:",
+		"pd:",
+		"ed:",
+		"epd:",
+		"!dvar:",
+		"!d:",
+		"!pdvar:",
+		"!pd:",
+		"tvarcl:",
+		"tcl:",
+		"ptvarcl:",
+		"ptcl:",
+		"!tvarcl:",
+		"!tcl:",
+		"!ptvarcl:",
+		"!ptcl:",
+		"tvarrl:",
+		"trl:",
+		"ptvarrl:",
+		"ptrl:",
+		"!tvarrl:",
+		"!trl:",
+		"!ptvarrl:",
+		"!ptrl:",
+		"tvardl:",
+		"tdl:",
+		"ptvardl:",
+		"ptdl:",
+		"!tvardl:",
+		"!tdl:",
+		"!ptvardl:",
+		"!ptdl:",
+		"?l:",
+		"?lvar:",
+		"?t:",
+		"?tvar:",
+		"?d:",
+		"?dvar:",
+		"etext:",
+		"eimage:",
+		"ecallback:",
+		"estorage:",
+		"env:",
+
+		// special variables
+		"_incombat",
+		"_lastencounter",
+		"_activeencounter",
+		"_configpath",
+		"_pluginpath",
+		"_pluginversion",
+		"_duration",
+		"_event",
+		"_since",
+		"_sincems",
+		"_triggerid",
+		"_triggername",
+		"_triggerpath",
+		"_zone",
+		"_response",
+		"_responsecode",
+		"_jsonresponse[x]",
+		"_timestamp",
+		"_timestampms",
+		"_systemtime",
+		"_systemtimems",
+		"_clipboard",
+		"_screenwidth",
+		"_screenheight",
+		"_textaura[x]",
+		"_imageaura[x]",
+		"_x",
+		"_y",
+		"_w",
+		"_width",
+		"_h",
+		"_height",
+		"_opacity",
+		"_ffxivparty[x]",
+		"_party[x]",
+		"_ffxiventity[x]",
+		"_entity[x]",
+		"_ffxivplayer",
+		"_me",
+		"_me.id",
+		"_job[jobid/jobName/jobAbbrev]",
+		"_tm2id[markType]",
+		"_targetmarker2id[markType]",
+		"_wm[markType]",
+		"_waymark[markType]",
+		"_ffxivtime",
+		"_ET",
+		"_ETprecise",
+		"_ffxivpartyorder",
+		"_ffxivprocid",
+		"_ffxivprocname",
+		"_ffxivzoneid",
+		"_ffxivversion",
+		"_ffxivincombat",
+		"_ffxivisglobal",
+		"_ffxivlanguage",
+		"_ffxivlanguageid",
+		"_env[x]",
+		"_const[x]",
+		"_config[x]",
+		"_storage[x]",
+		"_actionhistory[i/previous]",
+		"_this",
+		"_idx",
+		"_col",
+		"_row",
+		"_col[i]",
+		"_row[i]",
+		"_colrl[...]",
+		"_rowcl[...]",
+		"_key",
+		"_val",
+		"_loopiterator",
+		"_i"
+	};
+
+	public static List<string> funcs = [
+		"toupper", "tolower", "tofullwidth", "tohalfwidth", "toblackchar(combineDigits=false)", "towhitechar", "tosimpcn", "totradcn",
+		"length", "dec2hex", "dec2hex2", "dec2hex4", "dec2hex8", "float2hex", "double2hex",
+		"hex2dec", "hex2float", "hex2double", "parsedmg",
+		"substring(index)", "substring(index, len)", "slice(slices)", "pick(index, separator=',')",
+		"indexof(str)", "lastindexof(str)", "i(str)", "indicesof(str, joiner=',', slices='::')",
+		"padleft(char, len)", "padright(char, len)", "chr(separator=',')", "ord(joiner=',')",
+		"trim()", "trim(char, char, ...)", "trimleft()", "trimleft(char, char, ...)", "trimright()", "trimright(char, char, ...)",
+		"repeat(times, joiner=',')", "replace(oldStr, newStr='', isLooped=false)", "dictreplace(old1 = new1, old2 = new2, ...)",
+		"format(type, format)", "compare(str, ignorecase=true)", "versioncompare(tgtVersion)",
+		"contain(str)", "ifcontain(str, t, f)", "equal(str)", "ifequal(str, t, f)",
+		"startwith(str)", "ifstartwith(str, t, f)", "endwith(str)", "ifendwith(str, t, f)",
+		"match(str)", "ifmatch(str, t, f)", "capture(str, groupName)", "capture(str, groupIndex)",
+		"utctime(format)", "localtime(format)"
+	];
+
+	public static List<string> lvarProps = [
+		"size", "length", "indexof(str)", "i(str)", "lastindexof(str)",
+		"indicesof(str, joiner=',', slices='::')",
+		"sum(slices='::')", "count(str, slices='::')",
+		"join(joiner=',', slices='::')",
+		"randjoin(joiner=',', slices='::')",
+		"contain(str, slices='::')", "ifcontain(str, t, f)",
+		"max(type='n', slices='::')", "min(type='n', slices='::')"
+	];
+
+	public static List<string> tvarProps = [
+		"w", "width", "h", "height",
+		"hjoin()", "hjoin(joiner1=',', joiner2='⏎', colSlices='::', rowSlices='::')",
+		"vjoin()", "vjoin(joiner1=',', joiner2='⏎', colSlices='::', rowSlices='::')",
+		"hlookup(str, rowIndex, colSlices='::')",
+		"vlookup(str, colIndex, rowSlices='::')",
+		"hl(str, rowIndex, colSlices='::')",
+		"vl(str, colIndex, rowSlices='::')",
+		"count(str, colSlices='::', rowSlices='::')",
+		"sum(colSlices='::', rowSlices='::')",
+		"max()", "max(type='n', colSlices='::', rowSlices='::')",
+		"min()", "min(type='n', colSlices='::', rowSlices='::')",
+		"contain(str, colSlices='::', rowSlices='::')", "ifcontain(str, t, f)"
+	];
+
+	public static List<string> dvarProps = [
+		"size", "length", "ekey(key)", "evalue(value)", "ifekey(key, t, f)", "ifevalue(value, t, f)",
+		"keyof(value)", "keysof(value, joiner=',')",
+		"joinall(kvjoiner='=', pairjoiner=',')", "joinall(kvjoiner='=', pairjoiner=',', selectedKeys...)",
+		"joinkeys(joiner=',')", "joinvalues(joiner=',')", "joinvalues(joiner=',', selectedKeys...)",
+		"sumkeys", "sum", "count(value)",
+		"max(type='n')", "min(type='n')", "maxkey(type='n')", "minkey(type='n')"
+	];
+
+	public static List<string> textAuraProps = ["x", "y", "w", "h", "opacity", "text"];
+
+	public static List<string> imageAuraProps = ["x", "y", "w", "h", "opacity"];
+
+	// Name, X, Job, Role, etc.
+	public static List<string> XivEntityProps = new List<string> {
+		"HasStatus(statusId)",
+		"HasAnyStatus(statusIds...)",
+		"HasAllStatus(statusIds...)",
+		"HasTankStance",
+		"StatusTimer(statusId, default=-1)",
+		"StatusStack(statusId, default=-1)",
+		"PercentHP(digits=-1)",
+		"PercentMP(digits=-1)",
+		"PercentCP(digits=-1)",
+		"PercentGP(digits=-1)",
+		"DistanceTo(x, y)",
+		"DistanceTo(x, y, z)",
+		"AngleFrom(x, y)",
+		"AngleTo(x, y)",
+		"LocalAngleTo(x, y)",
+		"DirFrom(x, y, ±divisions, digits=0)",
+		"DirTo(x, y, ±divisions, digits=0)",
+		"LocalDirTo(x, y, ±divisions, digits=0)",
+		"LocalToWorld(dx, dy)",
+		"LocalToWorld(dx, dy, dz)",
+		"WorldToLocal(dx, dy)",
+		"WorldToLocal(dx, dy, dz)"
+	}.Concat(Entity.ValidEntityPropNames).Concat(Job.LegalJobPropNames).ToList();
+
+	// Job, Role, etc.
+	public static List<string> XivJobProps = Job.LegalJobPropNames.ToList();
+
+	public static List<string> configurations = [
+		"DebugLevel", "UseACTForSound", "UseACTForTTS", "FfxivLogNetwork", "UseOsClipboard", "DeveloperMode", "Autosave", "Language",
+		"UnsafeUsage", "DynamicUsage",
+		"Microsoft.CodeAnalysis", "Microsoft.Win32", "System.CodeDom.Compiler", "System.Diagnostics", "Triggernometry.Utilities",
+		"System.IO", "System.Net", "System.Reflection", "System.Runtime", "System.Security", "System.Web"
+	];
+
+	// sfunc:FuncName(type argName, ...) : returnType
+	private static readonly Dictionary<Type, string> typeAliases = new() {
+		{
+			typeof(void), "void"
+		}, {
+			typeof(bool), "bool"
+		}, {
+			typeof(byte), "byte"
+		}, {
+			typeof(sbyte), "sbyte"
+		}, {
+			typeof(char), "char"
+		}, {
+			typeof(decimal), "decimal"
+		}, {
+			typeof(double), "double"
+		}, {
+			typeof(float), "float"
+		}, {
+			typeof(int), "int"
+		}, {
+			typeof(uint), "uint"
+		}, {
+			typeof(long), "long"
+		}, {
+			typeof(ulong), "ulong"
+		}, {
+			typeof(object), "object"
+		}, {
+			typeof(short), "short"
+		}, {
+			typeof(ushort), "ushort"
+		}, {
+			typeof(string), "string"
+		}
+	};
+
+	private static string GetFriendlyTypeName(Type type) // ignore types like List<> that could not be invoked by string expressions
+	{
+		// Nullable
+		if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) {
+			var innerType = type.GetGenericArguments()[0];
+			return GetFriendlyTypeName(innerType) + "?";
+		}
+
+		return typeAliases.TryGetValue(type, out var typeName) ? typeName : type.Name;
+	}
+
+	public static List<string> GetStorageFuncDescs() {
+		var result = new List<string>();
+		var delegates = RealPlugin.Instance.scriptingStorage.Where(p => p.Value is Delegate);
+
+		foreach (var kv in delegates) {
+			var name = kv.Key;
+			var del = (Delegate)kv.Value;
+			var method = del.Method;
+			var parameters = method.GetParameters();
+
+			var paramStrs = parameters.Select(p => {
+				// type
+				string param;
+				if (p.GetCustomAttributes(typeof(ParamArrayAttribute), false).Any()) {
+					param = "params " + GetFriendlyTypeName(p.ParameterType.GetElementType()) + "[]";
+				} else {
+					param = GetFriendlyTypeName(p.ParameterType);
+				}
+				// name
+				param += $" {p.Name}";
+
+				// default value
+				if (p.HasDefaultValue) {
+					param += $"= {p.DefaultValue.ToDataString()}";
+				}
+
+				return param;
+			}).ToArray();
+
+			var paramList = string.Join(", ", paramStrs);
+			var returnType = GetFriendlyTypeName(method.ReturnType);
+
+			var sig = $"{name}({paramList}) : {returnType}";
+			result.Add(sig);
+		}
+
+		return result;
+	}
+
+	#endregion
+
+	public enum SupportedExpressionTypeEnum {
+		String,
+		Numeric,
+		Regex,
+		Color
+	}
+
+	[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+	public bool ReadOnly {
+		get => textBox1.ReadOnly;
+		set => textBox1.ReadOnly = value;
+	}
+
+	[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+	public string Expression {
+		get => textBox1.Text;
+		set => textBox1.Text = value;
+	}
+
+	public override string Text {
+		get => Expression;
+		set => Expression = value;
+	}
+
+	private bool _IsPersistent;
+	[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+	public bool IsPersistent {
+		get => _IsPersistent;
+		set {
+			_IsPersistent = value;
+			UpdateBackground();
+		}
+	}
+
+	[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+	public bool AutocompleteAvailable { get; set; } = true;
+
+	private SupportedExpressionTypeEnum _ExpressionType;
+	[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+	public SupportedExpressionTypeEnum ExpressionType {
+		get => _ExpressionType;
+		set {
+			if (value != _ExpressionType) {
+				_ExpressionType = value;
+				ResetTooltip();
+			}
+		}
+	}
+
+	private void ResetTooltip() {
+		switch (ExpressionType) {
+			case SupportedExpressionTypeEnum.Numeric:
+				var temp = I18n.Translate("internal/ExpressionTextBox/numeric1", "This field supports numeric expressions; references to named regular expression groups will be expanded, after which the result will be evaluated as a mathematic expression.");
+				temp += Environment.NewLine;
+				temp += I18n.Translate("internal/ExpressionTextBox/numeric2", "The color of the field will also change depending on whether the numeric expression appears to be valid (green) or not (red).");
+				toolTip1.SetToolTip(panel1, temp);
+				break;
+			case SupportedExpressionTypeEnum.String:
+				toolTip1.SetToolTip(panel1, I18n.Translate("internal/ExpressionTextBox/string", "This field supports string expressions; references to named regular expression groups will be expanded."));
+				break;
+			case SupportedExpressionTypeEnum.Regex:
+				toolTip1.SetToolTip(panel1, I18n.Translate("internal/RegexTextBox", "This field supports regular expressions; the color of the field will change depending on whether the regular expression is valid (green) or not (red)."));
+				break;
+		}
+		UpdateBackground();
+	}
+
+	/// <summary>
+	///     For validating the expression with placeholder values based on ExpressionType.
+	///     Set background color based on the result.
+	/// </summary>
+	private static Context contextForValidation = new(null) {
+		testByPlaceholder = true
+	};
+
+	private bool _triedToGetUiContext = false;
+	private Context _uiContext;
+
+	/// <summary> For autofilling. </summary>
+	// to-do: replace the logic using the static RealPlugin instance
+	[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+	internal Context UiContext {
+		get =>
+			// if (_uiContext != null)
+			//     return _uiContext;
+			// if (!_triedToGetUiContext)
+			// {
+			//     var form = this.FindForm();
+			//     if (form is TriggerForm tf)
+			//     {
+			//         _uiContext = tf.UiContext;
+			//     }
+			//     else if (form is ActionForm af)
+			//     {
+			//         _uiContext = af.UiContext;
+			//     }
+			//     _triedToGetUiContext = true;
+			// }
+			_uiContext ?? Context.Unbound;
+		set => _uiContext = value;
+	}
+
+	// record all the capture groups and combine with prefixes
+	// when entering a trigger or editing the trigger regex
+
+	private static string _currentTriggerRegexStr = "";
+	internal static string CurrentTriggerRegexStr {
+		get => _currentTriggerRegexStr;
+		set {
+			_currentTriggerRegexStr = value;
+			_currentRegexGroupsAndPrefixes = null;
+		}
+	}
+
+	private static HashSet<string> _currentRegexGroupsAndPrefixes;
+	private static HashSet<string> CurrentRegexGroupsAndPrefixes {
+		get // lazy loading
+		{
+			if (_currentRegexGroupsAndPrefixes == null) {
+				List<string> groups;
+				try {
+					var regex = new Regex(_currentTriggerRegexStr);
+					groups = regex.GetGroupNames().ToList();
+					groups.AddRange(prefixes);
+				} catch {
+					_currentTriggerRegexStr = "";
+					groups = prefixes;
+				}
+				_currentRegexGroupsAndPrefixes = new HashSet<string>(groups);
+			}
+			return _currentRegexGroupsAndPrefixes;
+		}
+	}
+
+	private string suffix = ""; // to do
+
+	public delegate void EnterDelegate();
+
+	public event EnterDelegate OnEnterKeyHit;
+	public IButtonControl AcceptButton;
+	public IButtonControl CancelButton;
+
+	public static readonly Regex rexPrefix = new(@"[$¤]\{(?<prefix>[^[$}:.]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexFunc = new(@"[$¤]\{f(?:unc)?:(?<funcid>[^(:]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexStorageFunc = new(@"[$¤]\{sfunc:(?<funcid>[^(}]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexEnvironment = new(@"[$¤]\{env:(?<key>[^}]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexVarName = new(@"[$¤]\{(?<e>e?)!?(?<persist>p?)(?<type>[vltd]|text|image|callback|storage)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexColHeader = new(@"[$¤]\{!?(?<persist>p?)t(?:var)?[cd]l:(?<name>[^$¤[]+)\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexRowHeader = new(@"[$¤]\{!?(?<persist>p?)t(?:var)?(?:rl:(?<name1>[^$¤[]+)|dl:(?<name2>[^$¤[]+)\[.*\])\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexDictKey = new(@"[$¤]\{!?(?<persist>p?)d(?:var)?:(?<name>[^$¤[]+)\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexStructKey = new(@"[$¤]\{_(?<struct>const|textaura|imageaura|config|storage)\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
+	// The regexes "rex...Prop" and "rexMath" are matched after looking for the previous unclosed '{'
+	public static readonly Regex rexVarProp = new(@"^!?[p?]?(?<type>[ltd])(?:var)?:.*\.(?<prop>[^.(]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexMeProp = new(@"^_me\.(?<prop>.*)$", RegexOptions.Compiled);
+	public static readonly Regex rexStructProp = new(@"_(?<struct>[^[]+)\[.*\]\.(?<prop>[^.]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexMath = new(@"(?<![[$¤.])\b[\p{L}\w]+$", RegexOptions.Compiled);
+
+	private static readonly Regex rexDynamicNames // capture the names in the expressions and store into lists for autofill
+		= new(@"[$¤]\{e?!?(?<persist>p?)(?<type>[vltd]|text|image)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[{}\n]*)[^\${}]*\}", RegexOptions.Compiled);
+
+	private string CurrentMatch;
+	private Timer acfDebounceTimer = new();
+
+	public AutoCompleteForm acf;
+
+	// unhide TextChanged on base class
+	private EventHandler _TextChanged;
+	[Browsable(true)] [EditorBrowsable(EditorBrowsableState.Always)]
+	public new event EventHandler TextChanged {
+		add => _TextChanged += value;
+		remove => _TextChanged -= value;
+	}
+
+	public ExpressionTextBox() {
+		InitializeComponent();
+		ResetTooltip();
+		textBox1.TextChanged += TextBox1_TextChanged;
+		textBox1.KeyPress += TextBox1_KeyPress;
+		textBox1.KeyDown += TextBox1_KeyDown;
+		textBox1.MaxLength = 10000000; // for scripts
+		textBox1.GotFocus += ReplaceIncompleteLineBreaksInClipboard;
+		Disposed += ExpressionTextBox_Disposed;
+		Leave += ExpressionTextBox_Leave;
+		LostFocus += ExpressionTextBox_LostFocus;
+		acfDebounceTimer.Interval = 100; // debounce timer for autocomplete
+		acfDebounceTimer.Tick += (_, _) => ProcessAutocomplete();
+	}
+
+	public ExpressionTextBox(Context uiContext) : this() {
+		UiContext = uiContext;
+	}
+
+	private void ExpressionTextBox_LostFocus(object sender, EventArgs e) {
+		HideAutocomplete();
+	}
+
+	private void ExpressionTextBox_Leave(object sender, EventArgs e) {
+		HideAutocomplete();
+	}
+
+	private void ExpressionTextBox_Disposed(object sender, EventArgs e) {
+		HideAutocomplete();
+	}
+
+	private void RefreshAutocomplete(IEnumerable<string> strs) {
+		lock (this) {
+			if (acf == null) {
+				return;
+			}
+			acf.BuildList(strs);
+		}
+	}
+
+	[DllImport("user32.dll")]
+	private static extern bool GetCaretPos(out POINT lpPoint);
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct POINT {
+		public int X;
+		public int Y;
+	}
+
+	private void ShowAutocomplete(IEnumerable<string> strs) {
+		if (!AutocompleteAvailable) {
+			return;
+		}
+		lock (this) {
+			var refresh = acf != null;
+			if (!refresh) {
+				acf = new AutoCompleteForm();
+			}
+
+			// show acf beneath the start of the matched string
+			GetCaretPos(out var cursorPoint);
+			var size = TextRenderer.MeasureText(CurrentMatch, textBox1.Font);
+			var parent = Parent.PointToScreen(Location);
+			double lineHeight = textBox1.Font.Height * 4 / 3;
+			acf.Left = parent.X + panel1.Width + cursorPoint.X - size.Width + 4;
+			acf.Top = parent.Y + cursorPoint.Y + (int)lineHeight;
+
+			if (refresh) {
+				RefreshAutocomplete(strs);
+				return;
+			}
+
+			acf.GotFocus += Acf_GotFocus;
+			acf.listBox1.MouseDown += ListBox1_MouseDown;
+			acf.listBox1.DoubleClick += ListBox1_DoubleClick;
+			RefreshAutocomplete(strs);
+			acf.Show(this);
+			AcceptButton = ParentForm.AcceptButton;
+			CancelButton = ParentForm.CancelButton;
+			ParentForm.AcceptButton = null;
+			ParentForm.CancelButton = null;
+		}
+	}
+
+	private void ListBox1_DoubleClick(object sender, EventArgs e) {
+		if (AutocompleteActive()) {
+			ApplyAutoComplete();
+		}
+	}
+
+	private void ListBox1_MouseDown(object sender, EventArgs e) {
+		textBox1.Focus();
+	}
+
+	private void Acf_GotFocus(object sender, EventArgs e) {
+		textBox1.Focus();
+	}
+
+	private void HideAutocomplete() {
+		acfDebounceTimer.Stop();
+		lock (this) {
+			if (acf != null) {
+				acf.Dispose();
+				acf = null;
+				if (ParentForm != null) {
+					ParentForm.AcceptButton = AcceptButton;
+					ParentForm.CancelButton = CancelButton;
+				}
+			}
+		}
+	}
+
+	private bool AutocompleteActive() {
+		lock (this) {
+			return acf != null;
+		}
+	}
+
+	private string GetChosenAutocomplete() {
+		lock (this) {
+			var temp = acf.GetChosenAutocomplete();
+			HideAutocomplete();
+			return temp;
+		}
+	}
+
+	private void TextBox1_KeyDown(object sender, KeyEventArgs e) {
+		if (e.KeyData == Keys.Up || e.KeyData == Keys.Down || e.KeyData == Keys.PageDown || e.KeyData == Keys.PageUp) {
+			if (AutocompleteActive()) {
+				if (e.KeyData == Keys.Up) {
+					acf.PreviousAutocompleteItem();
+				}
+				if (e.KeyData == Keys.Down) {
+					acf.NextAutocompleteItem();
+				}
+				if (e.KeyData == Keys.PageUp) {
+					acf.PreviousAutocompletePage();
+				}
+				if (e.KeyData == Keys.PageDown) {
+					acf.NextAutocompletePage();
+				}
+				e.Handled = true;
+				e.SuppressKeyPress = true;
+			}
+		} else if (e.KeyCode == Keys.Left || e.KeyCode == Keys.Right) {
+			HideAutocomplete();
+		}
+	}
+
+	private IEnumerable<string> GetAutocompleteSuggestions(IEnumerable<string> src, string str) {
+		return (from ix in src
+			where ix.StartsWith(str, StringComparison.OrdinalIgnoreCase) && string.Compare(str, ix, true) != 0
+			select ix)
+			.OrderBy(a => a);
+	}
+
+	private void TextBox1_KeyPress(object sender, KeyPressEventArgs e) {
+		if (e.KeyChar == Convert.ToChar(Keys.Enter)) {
+			e.Handled = true;
+			if (AutocompleteActive()) {
+				ApplyAutoComplete();
+			} else if (OnEnterKeyHit != null) {
+				OnEnterKeyHit();
+			} else {
+				if (!textBox1.Multiline) // switch to multiline mode
+				{
+					ToggleExpand();
+				} else // input linebreaks (+ indent), instead of closing the form
+				{
+					// Delete selected text, if any
+					if (textBox1.SelectionLength > 0)
+						textBox1.Paste("");
+
+					// Get the start index of the current line
+					var currentPosition = textBox1.SelectionStart;
+					var currentLineIndex = textBox1.GetLineFromCharIndex(currentPosition);
+					var lineStartIndex = textBox1.GetFirstCharIndexFromLine(currentLineIndex);
+					if (lineStartIndex < 0) lineStartIndex = 0;
+
+					// Get indentation (leading spaces or full-width spaces) and add to the new line
+					var length = Math.Max(0, currentPosition - lineStartIndex);
+					var currentLineText = textBox1.Text.Substring(lineStartIndex, length);
+					var indent = new string(currentLineText.TakeWhile(c => char.IsWhiteSpace(c)).ToArray());
+					textBox1.Paste(Environment.NewLine + indent);
+				}
+			}
+		} else if (e.KeyChar == Convert.ToChar(Keys.Escape)) {
+			HideAutocomplete();
+		} else if (char.IsControl(e.KeyChar)) {
+			HideAutocomplete();
+		}
+	}
+
+	private void ApplyAutoComplete() {
+		var ac = GetChosenAutocomplete();
+		var cursorPos = textBox1.SelectionStart;
+
+		// remove the existing part to fix the capitalization typos
+		if (CurrentMatch.Length > 0 && cursorPos >= CurrentMatch.Length) {
+			textBox1.Text = textBox1.Text.Remove(cursorPos - CurrentMatch.Length, CurrentMatch.Length);
+			textBox1.SelectionStart = cursorPos - CurrentMatch.Length;
+		}
+
+		// when the autofilled string contains '(' or '[', e.g. method(arg1, arg2)
+		// remove the parameters, and trigger the TextChanged event with the correct cursor position
+		var pIndex = ac.IndexOf('(');
+		var bIndex = ac.IndexOf("[");
+		if (pIndex >= 0) {
+			textBox1.Paste(ac.Substring(0, pIndex) + ")");
+			textBox1.SelectionStart--;
+			textBox1.Paste("(");
+		} else if (bIndex >= 0) {
+			textBox1.Paste(ac.Substring(0, bIndex) + "]");
+			textBox1.SelectionStart--;
+			textBox1.Paste("[");
+		} else
+			textBox1.Paste(ac);
+	}
+
+	private static Regex reCaptureGroups = new(@"\$\{(?<capture>[\p{L}\d_]+?)\}");
+
+	/// <summary> Check if the pure alphanumeric ${...} expressions are all capture groups or special variables (like _since) </summary>
+	internal static bool CheckValidBasicExpression(string expression) {
+		var matches = reCaptureGroups.Matches(expression);
+		return matches.All(m => CurrentRegexGroupsAndPrefixes.Contains(m.Groups["capture"].Value)
+		);
+	}
+
+	internal static Color BgRed = Color.FromArgb(255, 225, 225); // invalid expression
+	internal static Color BgYellow = Color.FromArgb(255, 240, 210); // capture group not found
+	internal static Color BgGreen = Color.FromArgb(225, 255, 225); // correct
+	internal static Color BgBlue = Color.FromArgb(210, 240, 255); // persistent variable
+
+	private void UpdateBackground() {
+		if (!Enabled && !IsPersistent) {
+			textBox1.BackColor = SystemColors.Window;
+			textBox1.ForeColor = SystemColors.WindowText;
+			return;
+		}
+		if (ExpressionType == SupportedExpressionTypeEnum.Numeric) {
+			if (textBox1.Text.Length == 0) {
+				textBox1.BackColor = SystemColors.Window;
+				return;
+			}
+			try {
+				contextForValidation.EvaluateNumericExpression(null, null, textBox1.Text);
+				textBox1.BackColor = BgGreen;
+				if (!CheckValidBasicExpression(Expression)) {
+					textBox1.BackColor = BgYellow;
+				}
+			} catch (Exception) {
+				textBox1.BackColor = BgRed;
+			}
+		} else if (ExpressionType == SupportedExpressionTypeEnum.String) {
+			if (!CheckValidBasicExpression(Expression)) {
+				textBox1.BackColor = BgYellow;
+			} else if (IsPersistent) {
+				textBox1.BackColor = BgBlue;
+			} else if (textBox1.BackColor != SystemColors.Window) {
+				textBox1.BackColor = SystemColors.Window;
+			}
+		} else if (ExpressionType == SupportedExpressionTypeEnum.Regex) {
+			if (textBox1.Text.Length == 0) {
+				textBox1.BackColor = IsPersistent ? BgBlue : SystemColors.Window;
+				return;
+			}
+			try {
+				var rex = new Regex(textBox1.Text);
+				textBox1.BackColor = IsPersistent ? BgBlue : BgGreen;
+			} catch (Exception) {
+				textBox1.BackColor = BgRed;
+			}
+		} else if (ExpressionType == SupportedExpressionTypeEnum.Color) {
+			if (string.IsNullOrWhiteSpace(textBox1.Text)) {
+				textBox1.BackColor = SystemColors.Window;
+				textBox1.ForeColor = SystemColors.WindowText;
+			} else {
+				var color = Color.Empty;
+				try {
+					var rawColor = contextForValidation.ExpandVariables(null, null, false, textBox1.Text);
+					color = ParseColor(rawColor, Color.Empty);
+				} catch {
+					color = Color.Empty;
+				}
+
+				if (color == Color.Empty) {
+					textBox1.BackColor = SystemColors.Window;
+					textBox1.ForeColor = SystemColors.WindowText;
+				} else {
+					textBox1.BackColor = color != Color.Transparent ? color : SystemColors.Window;
+					var brightness = 0.299 * color.R + 0.587 * color.G + 0.114 * color.B;
+					textBox1.ForeColor = brightness > 128 ? Color.FromArgb(0, 0, 0) : Color.FromArgb(255, 255, 255);
+				}
+			}
+		}
+	}
+
+	private void TextBox1_TextChanged(object sender, EventArgs e) {
+		UpdateBackground();
+		if (textBox1.Multiline) {
+			MultiLineAdjustHeight();
+		}
+		if (RealPlugin.Instance.cfg.AutoComplete) {
+			if (ExpressionType != SupportedExpressionTypeEnum.Regex && textBox1.Focused) {
+				acfDebounceTimer.Stop();
+				acfDebounceTimer.Start();
+			}
+		}
+		_TextChanged?.Invoke(this, EventArgs.Empty);
+	}
+
+	private void ProcessAutocomplete() {
+		//D
+	}
+
+	private void panel1_Click(object sender, EventArgs e) {
+		ToggleExpand();
+	}
+
+	private void panel1_DoubleClick(object sender, EventArgs e) {
+		ToggleExpand();
+	}
+
+	private void ToggleExpand() {
+		if (textBox1.Multiline) {
+			textBox1.Multiline = false;
+			textBox1.MinimumSize = new Size(textBox1.MinimumSize.Width, 0);
+			textBox1.ScrollBars = ScrollBars.None;
+			var tmp = panel1.BackgroundImage;
+			panel1.BackgroundImage = panel2.BackgroundImage;
+			panel2.BackgroundImage = tmp;
+		} else {
+			textBox1.Multiline = true;
+			textBox1.MinimumSize = new Size(textBox1.MinimumSize.Width, 80);
+			textBox1.MaximumSize = new Size(textBox1.MaximumSize.Width, 300);
+			textBox1.ScrollBars = ScrollBars.Both;
+			MultiLineAdjustHeight();
+			var tmp = panel1.BackgroundImage;
+			panel1.BackgroundImage = panel2.BackgroundImage;
+			panel2.BackgroundImage = tmp;
+		}
+	}
+
+	private void MultiLineAdjustHeight() {
+		using (var g = textBox1.CreateGraphics()) {
+			var size = g.MeasureString(textBox1.Text + "\n\n1", textBox1.Font); // add 2 more lines
+			textBox1.Height = (int)size.Height;
+		}
+	}
+
+	// Prevent pasting a hidden \n (usually from ACT loglines) into the txtbox
+	// Did not use WinProc since there are some regular TextBoxes in the forms besides ExpTxtBox.
+	public static void ReplaceIncompleteLineBreaksInClipboard(object sender, EventArgs e) {
+		try {
+			if (Clipboard.ContainsText()) {
+				var clipboardText = Clipboard.GetText();
+				var rexIncompleteLinebreaks = new Regex(@"\r(?!\n)|(?<!\r)\n");
+				if (rexIncompleteLinebreaks.IsMatch(clipboardText)) {
+					var replacedText = clipboardText.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
+					Clipboard.SetText(replacedText);
+				}
+			}
+		} catch {
+		}
+	}
+
+	#region Color
+
+	private static Regex regexHexColor = new(@"^#? *(?<rgb>[\dA-Fa-f]{3}|[\dA-Fa-f]{6})$");
+	private static Regex regexNumColor = new(@"^(?<r>\d+(?:\.\d+)?) *, *(?<g>\d+(?:\.\d+)?) *, *(?<b>\d+(?:\.\d+)?)$");
+
+	/// <summary>
+	///     Parse a user-input raw color string to a <see cref="Color" />. <br /><br />
+	///     If parsing fails, return the given default color. <br /><br />
+	///     Input could be: <br /><br />
+	///     · <see cref="Color" /> names: white <br />
+	///     · RGB: 192, 0, 18 <br />
+	///     · Hex value: #acf / #aaccff / acf / aaccff <br />
+	/// </summary>
+	/// <param name="defaultColor">The default color returned if the string is invalid.</param>
+	/// <returns>The representing <see cref="Color" /></returns>
+	public static Color ParseColor(string rawColor, Color defaultColor)
+		=> TryParseColor(rawColor) ?? defaultColor;
+
+	/// <summary>
+	///     Parse a user-input raw color string to a <see cref="Color" />. <br /><br />
+	///     Input could be: <br /><br />
+	///     · Color names: white <br />
+	///     · RGB: 192, 0, 18 <br />
+	///     · Hex value: #acf / #aaccff / acf / aaccff <br />
+	/// </summary>
+	/// <param name="defaultColor">The default <see cref="Color" /> returned if the string is invalid.</param>
+	/// <returns>The representing <see cref="Color" /></returns>
+	public static Color? TryParseColor(string rawColor) {
+		rawColor = rawColor.Trim();
+
+		var namedColor = Color.FromName(rawColor);
+		if (namedColor.IsKnownColor) {
+			// "white"
+			return namedColor;
+		}
+
+		int r, g, b;
+		var hexMatch = regexHexColor.Match(rawColor);
+		if (hexMatch.Success) {
+			var rgb = hexMatch.Groups["rgb"].Value;
+			if (rgb.Length == 3) {
+				// "#acf" or "acf"
+				rgb = string.Concat(rgb[0], rgb[0], rgb[1], rgb[1], rgb[2], rgb[2]);
+			}
+			// "#aaccff" or "aaccff"
+			r = Convert.ToInt32(rgb.Substring(0, 2), 16);
+			g = Convert.ToInt32(rgb.Substring(2, 2), 16);
+			b = Convert.ToInt32(rgb.Substring(4, 2), 16);
+		} else {
+			// "192, 0, 18"
+			var numMatch = regexNumColor.Match(rawColor);
+			if (numMatch.Success) {
+				r = (int)Math.Round(double.Parse(numMatch.Groups["r"].Value, CultureInfo.InvariantCulture));
+				g = (int)Math.Round(double.Parse(numMatch.Groups["g"].Value, CultureInfo.InvariantCulture));
+				b = (int)Math.Round(double.Parse(numMatch.Groups["b"].Value, CultureInfo.InvariantCulture));
+			} else return null;
+		}
+
+		return Color.FromArgb(r < 0 ? 0 : r > 255 ? 255 : r,
+			g < 0 ? 0 : g > 255 ? 255 : g,
+			b < 0 ? 0 : b > 255 ? 255 : b);
+	}
+
+	public static string ColorToString(Color color, Color? defaultColor = null) {
+		if (color == Color.Empty || color == defaultColor) {
+			return "";
+		}
+		if (color.IsKnownColor) {
+			return color.Name;
+		}
+		return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+	}
+
+	#endregion
+
+	#region Store Variable Names Dynamically
+
+	private static List<string> tmpScalarNames = [];
+	private static List<string> tmpListNames = [];
+	private static List<string> tmpTableNames = [];
+	private static List<string> tmpDictNames = [];
+	private static List<string> tmpTextNames = [];
+	private static List<string> tmpImageNames = [];
+
+	private static List<string> prsScalarNames = [];
+	private static List<string> prsListNames = [];
+	private static List<string> prsTableNames = [];
+	private static List<string> prsDictNames = [];
+
+	public enum AutofillTypeEnum {
+		None,
+		Scalar,
+		List,
+		Table,
+		Dict,
+		Image,
+		Text,
+		Callback,
+		Storage
+	}
+
+	public static Dictionary<string, AutofillTypeEnum> StringToAutofillEnum = new() {
+		{
+			"v", AutofillTypeEnum.Scalar
+		}, {
+			"l", AutofillTypeEnum.List
+		}, {
+			"t", AutofillTypeEnum.Table
+		}, {
+			"d", AutofillTypeEnum.Dict
+		}, {
+			"image", AutofillTypeEnum.Image
+		}, {
+			"text", AutofillTypeEnum.Text
+		}, {
+			"callback", AutofillTypeEnum.Callback
+		}, {
+			"storage", AutofillTypeEnum.Storage
+		}
+	};
+
+	[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+	public AutofillTypeEnum AutofillType { get; set; } = AutofillTypeEnum.None;
+
+	/// <summary>
+	///     Returns the list for dynamically storing the names in the expression textboxes,
+	///     based on the autofill type.
+	/// </summary>
+	private static List<string> GetDynamicAutofillNameList(AutofillTypeEnum type, bool isPersistent) {
+		switch (type) {
+			case AutofillTypeEnum.Scalar: return isPersistent ? prsScalarNames : tmpScalarNames;
+			case AutofillTypeEnum.List: return isPersistent ? prsListNames : tmpListNames;
+			case AutofillTypeEnum.Table: return isPersistent ? prsTableNames : tmpTableNames;
+			case AutofillTypeEnum.Dict: return isPersistent ? prsDictNames : tmpDictNames;
+			case AutofillTypeEnum.Text: return tmpTextNames;
+			case AutofillTypeEnum.Image: return tmpImageNames;
+			default: return null;
+		}
+	}
+
+	/// <summary>
+	///     Returns the list of existing variable/aura/... names corresponding to the autofill type.
+	/// </summary>
+	private static List<string> GetExistingAutofillNameList(AutofillTypeEnum type, bool isPersistent) {
+		var vs = RealPlugin.Instance.GetVariableStore(isPersistent);
+		switch (type) {
+			case AutofillTypeEnum.Scalar: return vs.Scalar.Keys.ToList();
+			case AutofillTypeEnum.List: return vs.List.Keys.ToList();
+			case AutofillTypeEnum.Table: return vs.Table.Keys.ToList();
+			case AutofillTypeEnum.Dict: return vs.Dict.Keys.ToList();
+			case AutofillTypeEnum.Text: return RealPlugin.Instance.sc != null ? RealPlugin.Instance.sc.textitems.Keys.ToList() : RealPlugin.Instance.textauras.Keys.ToList();
+			// case AutofillTypeEnum.Image: return (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.imageitems.Keys.ToList() : RealPlugin.Instance.imageauras.Keys.ToList();
+			case AutofillTypeEnum.Callback: return RealPlugin.Instance.callbacksByName.Keys.ToList();
+			case AutofillTypeEnum.Storage: return RealPlugin.Instance.scriptingStorage.Keys.ToList();
+			default: return [];
+		}
+	}
+
+	private void RegisterAutofillNames() {
+		if (ExpressionType == SupportedExpressionTypeEnum.Regex)
+			return;
+
+		// search for all expressions like ${var:xxx}, ${l:xxx.prop}, ${pd:xxx[key]},
+		// and add the names "xxx" to their corresponding namelist. 
+		foreach (Match match in rexDynamicNames.Matches(Text)) {
+			var isPersistent = match.Groups["persist"].ToString() == "p";
+			var typeString = match.Groups["type"].ToString();
+			if (!StringToAutofillEnum.TryGetValue(typeString, out var type)) {
+				type = AutofillTypeEnum.None;
+			}
+			var name = match.Groups["name"].ToString();
+			RegisterDynamicVarName(name, type, isPersistent);
+		}
+
+		// If the textbox is used for entering variable names,
+		// add the name to the corresponding namelist.
+		if (Text.Count(c => c == '$') <= 1) // skip variable names with too many expressions
+		{
+			RegisterDynamicVarName(Text, AutofillType, IsPersistent);
+		}
+	}
+
+	private static void RegisterDynamicVarName(string name, AutofillTypeEnum type, bool isPersistent) {
+		var dynamicNames = GetDynamicAutofillNameList(type, isPersistent);
+		if (dynamicNames == null) {
+			return;
+		}
+		dynamicNames.Remove(name);
+
+		var existingNames = GetExistingAutofillNameList(type, isPersistent);
+		if (!existingNames.Contains(name)) {
+			dynamicNames.Add(name);
+			if (dynamicNames.Count > 30) {
+				dynamicNames.RemoveAt(0);
+			}
+		}
+	}
+
+	internal static void RegisterAllDynamicVarNamesOnForm(Control parent) {
+		if (parent is ExpressionTextBox exp) {
+			exp.RegisterAutofillNames();
+		}
+		foreach (Control children in parent.Controls) {
+			RegisterAllDynamicVarNamesOnForm(children);
+		}
+	}
+
+	#endregion
+
+	public class TextBox : System.Windows.Forms.TextBox {
+		#region Enhanced Double-Click Selection
+
+		private int clickCount;
+		private DateTime lastClickTime = DateTime.Now;
+		private ExpressionTextBox ExpTextBox => Parent as ExpressionTextBox;
+
+		protected override void WndProc(ref Message m) {
+			const int WM_LBUTTONDOWN = 0x0201;
+			const int WM_LBUTTONDBLCLK = 0x0203;
+			const int WM_PASTE = 0x302;
+
+			if (m.Msg == WM_LBUTTONDBLCLK) {
+				clickCount = 2;
+				lastClickTime = DateTime.Now;
+
+				var x = m.LParam.ToInt32() & 0xFFFF;
+				var y = m.LParam.ToInt32() >> 16 & 0xFFFF;
+				var clickPoint = new Point(x, y);
+
+				var index = GetCharIndexFromPosition(clickPoint);
+				if (index < 0) return;
+
+				var charPosition = GetPositionFromCharIndex(index);
+				if (clickPoint.X < charPosition.X && index > 0) {
+					index--;
+				}
+
+				HandleDoubleClick(index);
+				return;
+			}
+			if (m.Msg == WM_LBUTTONDOWN) {
+				var interval = DateTime.Now - lastClickTime;
+				if (interval.TotalMilliseconds > SystemInformation.DoubleClickTime || clickCount >= 3) {
+					clickCount = 0;
+				}
+
+				clickCount++;
+				lastClickTime = DateTime.Now;
+				if (clickCount == 3) {
+					if (Multiline) {
+						var x = m.LParam.ToInt32() & 0xFFFF;
+						var y = m.LParam.ToInt32() >> 16 & 0xFFFF;
+						var index = GetCharIndexFromPosition(new Point(x, y));
+						var lineIndex = GetLineFromCharIndex(index);
+						var lineStart = GetFirstCharIndexFromLine(lineIndex);
+						var lineEnd = GetFirstCharIndexFromLine(lineIndex + 1);
+						if (lineEnd == -1) lineEnd = Text.Length; // last line
+
+						Select(lineStart, lineEnd - lineStart);
+					} else {
+						Select(0, Text.Length);
+					}
+					clickCount = 0;
+					return;
+				}
+			}
+			if (m.Msg == WM_PASTE) {
+				var clipboardText = Clipboard.GetText();
+				if (!Multiline && clipboardText.Contains("\n")) {
+					ExpTextBox?.ToggleExpand();
+					BeginInvoke(() => Paste());
+					return;
+				}
+			}
+			base.WndProc(ref m);
+		}
+
+		private void HandleDoubleClick(int index) {
+			if (index < 0 || index >= Text.Length)
+				return;
+
+			var currentChar = Text[index];
+			if (char.IsWhiteSpace(currentChar)) {
+				SelectAdjacentChars(index, c => char.IsWhiteSpace(c) && c != '\n' && c != '\r');
+				return;
+			}
+
+			var type = GetExpressionEnvironmentAt(index);
+
+			if (_leftBracketChars.ContainsKey(currentChar) || _rightBracketChars.ContainsKey(currentChar) || currentChar == '$' || currentChar == '¤') {
+				SelectEnclosedBrackets(index);
+				return;
+			}
+
+			if (type == SupportedExpressionTypeEnum.Numeric) {
+				// select the adjacent alphanumeric chars
+				if (!MathParser.OperatorChar.Contains(currentChar)) {
+					SelectAdjacentChars(index, c => !MathParser.OperatorChar.Contains(c) && !char.IsWhiteSpace(c) && c != '}');
+					// if the prev char is a unary operator, select it
+					var prevIdx = SelectionStart - 1;
+					if (prevIdx < 0) {
+						return;
+					}
+					var prevChar = Text[prevIdx];
+					if (prevChar != '+' && prevChar != '-') {
+						return;
+					}
+					var i = prevIdx - 1;
+					// scan the prev char before +/- to check if it is really a unary op
+					while (true) {
+						if (i < 0 || Text[i] == '\n' || MathParser.OperatorChar.Contains(Text[i])) {
+							Select(prevIdx, SelectionLength + 1);
+							return;
+						}
+						if (char.IsWhiteSpace(Text[i--])) continue;
+						return;
+					}
+				}
+				// select the current op
+				// if it is the 2nd char of an op
+				if (index > 0 && !char.IsWhiteSpace(Text[index - 1])) {
+					var potentialOperator = Text.Substring(index - 1, 2);
+					if (MathParser.OperatorOrder.Contains(potentialOperator)) {
+						Select(index - 1, 2);
+						return;
+					}
+				}
+				// if it is the 1st char of an op
+				if (index < Text.Length - 1 && !char.IsWhiteSpace(Text[index + 1])) {
+					var potentialOperator = Text.Substring(index, 2);
+					if (MathParser.OperatorOrder.Contains(potentialOperator)) {
+						Select(index, 2);
+						return;
+					}
+				}
+				// if it is a single-char op
+				Select(index, 1);
+			} else if (type == SupportedExpressionTypeEnum.String || type == SupportedExpressionTypeEnum.Color
+			                                                      || type == SupportedExpressionTypeEnum.Regex) // To do: better logic for regexes
+			{
+				var separators = new HashSet<char>($"^$¤{{}}[]()<>,.:;=|/\\'\"，。？！、：；（）《》「」『』【】“”‘’…{ParserCommon.LINEBREAK}");
+				if (type == SupportedExpressionTypeEnum.Regex)
+					separators.ExceptWith(".");
+				if (!separators.Contains(currentChar)) {
+					SelectAdjacentChars(index, c => !separators.Contains(c) && !char.IsWhiteSpace(c));
+				} else {
+					Select(index, 1);
+				}
+			}
+		}
+
+		private void SelectAdjacentChars(int index, Func<char, bool> predicate) {
+			var start = index;
+			var end = index;
+
+			while (start > 0 && predicate(Text[start - 1]))
+				start--;
+
+			while (end < Text.Length - 1 && predicate(Text[end + 1]))
+				end++;
+
+			Select(start, end - start + 1);
+		}
+
+		private SupportedExpressionTypeEnum GetExpressionEnvironmentAt(int position) {
+			if (ExpTextBox?._ExpressionType == SupportedExpressionTypeEnum.Regex)
+				return SupportedExpressionTypeEnum.Regex;
+
+			if (position > Text.Length)
+				return SupportedExpressionTypeEnum.String;
+
+			var prevText = Text.Substring(0, position);
+			var lBracketCount = 0;
+			var afterLBracket = "";
+			for (var i = prevText.Length - 1; i >= 0; i--) {
+				if (prevText[i] == '}')
+					lBracketCount--;
+				else if (prevText[i] == '{')
+					lBracketCount++;
+
+				if (lBracketCount == 1) {
+					afterLBracket = prevText.Substring(i + 1);
+					break;
+				}
+			}
+
+			if (lBracketCount != 1) // not in {...}
+				return ExpTextBox?._ExpressionType ?? SupportedExpressionTypeEnum.String;
+
+			if (afterLBracket.StartsWith("n:") || afterLBracket.StartsWith("numeric:"))
+				return SupportedExpressionTypeEnum.Numeric;
+			return SupportedExpressionTypeEnum.String;
+		}
+
+		private static Dictionary<char, char> _leftBracketChars = new() {
+			{
+				'(', ')'
+			}, {
+				'[', ']'
+			}, {
+				'{', '}'
+			}, {
+				'（', '）'
+			}, {
+				'［', '］'
+			}, {
+				'｛', '｝'
+			}, {
+				'【', '】'
+			}, {
+				'《', '》'
+			}, {
+				'<', '>'
+			}, {
+				'“', '”'
+			}, {
+				'‘', '’'
+			}, {
+				'「', '」'
+			}, {
+				'\"', '\"'
+			}, {
+				'\'', '\''
+			} // too complicated to determine if a " or ' is left/right, so always consider it as left for now
+		};
+
+		private static Dictionary<char, char> _rightBracketChars = _leftBracketChars.ToDictionary(pair => pair.Value, pair => pair.Key);
+
+		private void SelectEnclosedBrackets(int index) {
+			var clicked = Text[index];
+			char pair;
+			int direction;
+			if (_leftBracketChars.TryGetValue(clicked, out var c1)) {
+				pair = c1;
+				direction = 1;
+			} else if (_rightBracketChars.TryGetValue(clicked, out var c)) {
+				pair = c;
+				direction = -1;
+			} else if ((clicked == '$' || clicked == '¤') && index < Text.Length - 1 && Text[index + 1] == '{') {
+				SelectEnclosedBrackets(index + 1);
+				return;
+			} else {
+				Select(index, 1);
+				return;
+			}
+
+			var count = 0;
+			var end = direction == 1 ? Text.Length - 1 : 0;
+			for (var i = index + direction; i >= 0 && i < Text.Length; i += direction) {
+				var c = Text[i];
+				if (c == pair) {
+					count++;
+				} else if (c == clicked) {
+					count--;
+				}
+				if (count == 1) {
+					end = i;
+					break;
+				}
+			}
+
+			var start = Math.Min(index, end);
+			var length = Math.Abs(index - end) + 1;
+			if (start >= 1 && Text[start] == '{' && (Text[start - 1] == '$' || Text[start - 1] == '¤')) {
+				start--;
+				length++;
+			}
+			Select(start, length);
+		}
+
+		#endregion
+
+		#region Shortcuts
+
+		private Keys prevKeyWithCtrlShift = Keys.None;
+
+		protected override void OnKeyUp(KeyEventArgs e) {
+			if (!e.Control || !e.Shift) {
+				prevKeyWithCtrlShift = Keys.None;
+			}
+			base.OnKeyUp(e);
+		}
+
+		protected override void OnKeyDown(KeyEventArgs e) {
+			if (e.Control && e.Shift && !e.Alt && RealPlugin.Instance.cfg.EnableShortcutTemplates) {
+				var handled = true;
+				var shouldWrap = SelectionLength != 0 && RealPlugin.Instance.cfg.WrapTextWhenSelected;
+				var useAbbrev = RealPlugin.Instance.cfg.UseAbbrevInTemplates;
+				switch (e.KeyCode) {
+					// Ctrl + Shift + 4: ${}
+					case Keys.D4:
+						if (shouldWrap)
+							Paste($"${{{SelectedText}}}");
+						else
+							InsertStringOnBothSides("${", "}");
+						break;
+					// Ctrl + Shift + V/L/T/D: ${v/l/t/d:};
+					// Ctrl + Shift + P, V/L/T/D: ${pv/pl/pt/pd:};
+					case Keys.P:
+						break;
+					case Keys.V:
+					case Keys.L:
+					case Keys.T:
+					case Keys.D:
+						var varType = e.KeyCode.ToString().ToLower();
+						varType = useAbbrev ? varType : varType.Trim('v') + "var";
+						if (prevKeyWithCtrlShift == Keys.P)
+							varType = "p" + varType;
+						if (shouldWrap)
+							Paste($"${{{varType}:{SelectedText}}}");
+						else
+							InsertStringOnBothSides($"${{{varType}:", "}");
+						break;
+					// Ctrl + Shift + N: ${n:}
+					case Keys.N:
+						var numeric = useAbbrev ? "n" : "numeric";
+						if (shouldWrap)
+							Paste($"${{{numeric}: {SelectedText.TrimStart()}}}");
+						else
+							InsertStringOnBothSides($"${{{numeric}: ", "}");
+						break;
+					// Ctrl + Shift + F: ${f::}
+					case Keys.F:
+						var func = useAbbrev ? "f" : "func";
+						if (shouldWrap)
+							InsertStringOnBothSides($"${{{func}:", $":{SelectedText}}}");
+						else
+							InsertStringOnBothSides($"${{{func}:", ":}");
+						break;
+					// Ctrl + Shift + E: ${_entity[].}
+					case Keys.E:
+						var entity = useAbbrev ? "entity" : "ffxiventity";
+						if (shouldWrap)
+							InsertStringOnBothSides($"${{_{entity}[{SelectedText}].", "}");
+						else
+							InsertStringOnBothSides($"${{_{entity}[", "].}");
+						break;
+					// Ctrl + Shift + M: ${_me.id}
+					case Keys.M:
+						Paste(useAbbrev ? "${_me.id}" : "${_ffxiventity[${_ffxivplayer}].id}");
+						SelectionStart -= 3;
+						SelectionLength = 2; // select "id"
+						break;
+					// Ctrl + Shift + I: ${if: ? : }
+					case Keys.I:
+						if (shouldWrap)
+							InsertStringOnBothSides("${if: " + SelectedText.Trim() + " ? ", " :  }");
+						else
+							InsertStringOnBothSides("${if: ", " ?  :  }");
+						break;
+					// Ctrl + Shift + A: Select the next outer layer of brackets
+					case Keys.A:
+						SelectNextOuterBracket();
+						ExpTextBox?.HideAutocomplete();
+						break;
+					// Ctrl + Shift + C (in regex textboxes): named capture group (?<name>xxx)
+					case Keys.C:
+						if (ExpTextBox?.ExpressionType == SupportedExpressionTypeEnum.Regex) {
+							if (shouldWrap)
+								InsertStringOnBothSides("(?<", $">{SelectedText})");
+							else
+								InsertStringOnBothSides("(?<", ">)");
+						} else {
+							handled = false;
+						}
+						break;
+					default:
+						handled = false;
+						break;
+				}
+				prevKeyWithCtrlShift = e.KeyCode;
+				if (handled) {
+					e.SuppressKeyPress = true;
+					e.Handled = true;
+					return;
+				}
+			}
+			base.OnKeyDown(e);
+		}
+
+		public void InsertStringOnBothSides(string newTextBeforeCursor, string newTextAfterCursor = "") {
+			Paste(newTextBeforeCursor + newTextAfterCursor);
+			SelectionStart -= newTextAfterCursor.Length;
+			ExpTextBox?.ProcessAutocomplete();
+		}
+
+		public void SelectNextOuterBracket() {
+			var hasOuterLayer = false;
+			int index;
+			var counts = _leftBracketChars.ToDictionary(pair => pair.Key, _ => 0);
+			for (index = SelectionStart - 1; index >= 0; index--) {
+				var c = Text[index];
+				if (c == '\"' || c == '\'') {
+					continue;
+				}
+				if (_rightBracketChars.TryGetValue(c, out var pair)) {
+					counts[pair]--;
+				} else if (_leftBracketChars.ContainsKey(c)) {
+					if (++counts[c] == 1) {
+						hasOuterLayer = true;
+						break;
+					}
+				}
+			}
+			if (hasOuterLayer) {
+				SelectEnclosedBrackets(index);
+			} else {
+				SystemSounds.Exclamation.Play();
+			}
+		}
+
+		#endregion
+	}
 }

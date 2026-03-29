@@ -6,8 +6,8 @@ namespace Scarborough.Drawing;
 ///     Represents a Brush used to draw with a Graphics surface.
 /// </summary>
 public interface IBrush {
-    /// <summary>
-    ///     Gets or sets the Brush
-    /// </summary>
-    Brush Brush { get; set; }
+	/// <summary>
+	///     Gets or sets the Brush
+	/// </summary>
+	Brush Brush { get; set; }
 }

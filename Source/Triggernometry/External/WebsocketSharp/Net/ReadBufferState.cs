@@ -44,65 +44,60 @@
 namespace WebSocketSharp.Net;
 
 internal class ReadBufferState {
-    #region Private Fields
+	#region Private Fields
 
-    private HttpStreamAsyncResult _asyncResult;
-    private byte[] _buffer;
-    private int _count;
-    private int _initialCount;
-    private int _offset;
+	private HttpStreamAsyncResult _asyncResult;
+	private byte[] _buffer;
+	private int _count;
+	private int _initialCount;
+	private int _offset;
 
-    #endregion
+	#endregion
 
-    #region Public Constructors
+	#region Public Constructors
 
-    public ReadBufferState(
-        byte[] buffer, int offset, int count, HttpStreamAsyncResult asyncResult) {
-        _buffer = buffer;
-        _offset = offset;
-        _count = count;
-        _initialCount = count;
-        _asyncResult = asyncResult;
-    }
+	public ReadBufferState(
+		byte[] buffer, int offset, int count, HttpStreamAsyncResult asyncResult) {
+		_buffer = buffer;
+		_offset = offset;
+		_count = count;
+		_initialCount = count;
+		_asyncResult = asyncResult;
+	}
 
-    #endregion
+	#endregion
 
-    #region Public Properties
+	#region Public Properties
 
-    public HttpStreamAsyncResult AsyncResult
-    {
-        get => _asyncResult;
+	public HttpStreamAsyncResult AsyncResult {
+		get => _asyncResult;
 
-        set => _asyncResult = value;
-    }
+		set => _asyncResult = value;
+	}
 
-    public byte[] Buffer
-    {
-        get => _buffer;
+	public byte[] Buffer {
+		get => _buffer;
 
-        set => _buffer = value;
-    }
+		set => _buffer = value;
+	}
 
-    public int Count
-    {
-        get => _count;
+	public int Count {
+		get => _count;
 
-        set => _count = value;
-    }
+		set => _count = value;
+	}
 
-    public int InitialCount
-    {
-        get => _initialCount;
+	public int InitialCount {
+		get => _initialCount;
 
-        set => _initialCount = value;
-    }
+		set => _initialCount = value;
+	}
 
-    public int Offset
-    {
-        get => _offset;
+	public int Offset {
+		get => _offset;
 
-        set => _offset = value;
-    }
+		set => _offset = value;
+	}
 
-    #endregion
+	#endregion
 }

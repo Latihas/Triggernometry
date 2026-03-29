@@ -9,32 +9,32 @@ namespace Triggernometry.Core.Actions;
 [ActionCategory(ActionCategory.CategoryTypeEnum.Programming)]
 [XmlRoot(ElementName = "Placeholder")]
 public class ActionPlaceholder : ActionBase {
-    #region Implementation
+	#region Implementation
 
-    internal override string DescribeImplementation() => I18n.Translate("internal/Action/descplaceholder", "Placeholder");
+	internal override string DescribeImplementation() => I18n.Translate("internal/Action/descplaceholder", "Placeholder");
 
-    internal override void ExecuteImplementation(ActionInstance ai) {
-        // nothing to execute            
-    }
+	internal override void ExecuteImplementation(ActionInstance ai) {
+		// nothing to execute            
+	}
 
-    #endregion
+	#endregion
 
-    #region Old Action Converter
+	#region Old Action Converter
 
-    // (this)ActionOld
-    public static explicit operator ActionPlaceholder(ActionOld oldAction) {
-        var action = new ActionPlaceholder();
-        oldAction.CopyCommonPropertiesTo(action);
-        return action;
-    }
+	// (this)ActionOld
+	public static explicit operator ActionPlaceholder(ActionOld oldAction) {
+		var action = new ActionPlaceholder();
+		oldAction.CopyCommonPropertiesTo(action);
+		return action;
+	}
 
-    // (ActionOld)this
-    public static explicit operator ActionOld(ActionPlaceholder action) {
-        var oldAction = new ActionOld();
-        action.CopyCommonPropertiesTo(oldAction);
-        oldAction.ActionType = ActionOld.ActionTypeEnum.Placeholder;
-        return oldAction;
-    }
+	// (ActionOld)this
+	public static explicit operator ActionOld(ActionPlaceholder action) {
+		var oldAction = new ActionOld();
+		action.CopyCommonPropertiesTo(oldAction);
+		oldAction.ActionType = ActionOld.ActionTypeEnum.Placeholder;
+		return oldAction;
+	}
 
-    #endregion Old Action Converter
+	#endregion Old Action Converter
 }

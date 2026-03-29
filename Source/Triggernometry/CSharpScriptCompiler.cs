@@ -147,8 +147,7 @@ public static class CSharpScriptCompiler {
 				var newMembers = typeDeclarations.Concat([newClass, tempClass]).ToList();
 				var newCompilationUnit = root.WithMembers(SyntaxFactory.List(newMembers));
 				syntaxTree = syntaxTree.WithRootAndOptions(newCompilationUnit, syntaxTree.Options);
-			}
-			else syntaxTree = CSharpSyntaxTree.ParseText(scriptCode, new CSharpParseOptions(LanguageVersion.Latest));
+			} else syntaxTree = CSharpSyntaxTree.ParseText(scriptCode, new CSharpParseOptions(LanguageVersion.Latest));
 
 			var metadataReferences = new List<MetadataReference>();
 			var coreAssemblyPath = typeof(object).Assembly.Location;
@@ -164,8 +163,7 @@ public static class CSharpScriptCompiler {
 					if (!metadataReferences.Cast<PortableExecutableReference>()
 						    .Any(r => r.FilePath.Equals(asmPath, StringComparison.OrdinalIgnoreCase)))
 						metadataReferences.Add(reference);
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
 					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"添加核心程序集 {asmName} 失败：{ex.Message}");
 				}
 			}
@@ -180,15 +178,12 @@ public static class CSharpScriptCompiler {
 								var formsReference = MetadataReference.CreateFromFile(formsAssemblyPath);
 								metadataReferences.Add(formsReference);
 							}
-						}
-						else {
+						} else {
 							RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"{asm}程序集不存在：{formsAssemblyPath}");
 						}
-					}
-					else
+					} else
 						RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"未找到{asm}类型");
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
 					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"添加{asm}引用失败：{ex.Message}");
 				}
 			}
@@ -203,8 +198,7 @@ public static class CSharpScriptCompiler {
 					if (!metadataReferences.Cast<PortableExecutableReference>()
 						    .Any(r => r.FilePath.Equals(asmPath, StringComparison.OrdinalIgnoreCase)))
 						metadataReferences.Add(userReference);
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
 					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"添加用户程序集 {asmPath} 失败：{ex.Message}");
 				}
 			}
@@ -243,8 +237,7 @@ public static class CSharpScriptCompiler {
 			}
 			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"成功生成DLL：{outputPath}");
 			return true;
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"编译过程异常：{scriptCode}\n{ex}\n{ex.Message}");
 			RealPlugin.Instance.cfg.CompileFailedScripts.Add(className);
 			File.WriteAllText(outputPath + ".ori.cs", scriptCode);

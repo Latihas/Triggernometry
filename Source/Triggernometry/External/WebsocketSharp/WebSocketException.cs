@@ -37,61 +37,61 @@ namespace WebSocketSharp;
 ///     the WebSocket communication.
 /// </summary>
 public class WebSocketException : Exception {
-    #region Private Fields
+	#region Private Fields
 
-    private CloseStatusCode _code;
+	private CloseStatusCode _code;
 
-    #endregion
+	#endregion
 
-    #region Internal Constructors
+	#region Internal Constructors
 
-    internal WebSocketException()
-        : this(CloseStatusCode.Abnormal, null, null) {
-    }
+	internal WebSocketException()
+		: this(CloseStatusCode.Abnormal, null, null) {
+	}
 
-    internal WebSocketException(Exception innerException)
-        : this(CloseStatusCode.Abnormal, null, innerException) {
-    }
+	internal WebSocketException(Exception innerException)
+		: this(CloseStatusCode.Abnormal, null, innerException) {
+	}
 
-    internal WebSocketException(string message)
-        : this(CloseStatusCode.Abnormal, message, null) {
-    }
+	internal WebSocketException(string message)
+		: this(CloseStatusCode.Abnormal, message, null) {
+	}
 
-    internal WebSocketException(CloseStatusCode code)
-        : this(code, null, null) {
-    }
+	internal WebSocketException(CloseStatusCode code)
+		: this(code, null, null) {
+	}
 
-    internal WebSocketException(string message, Exception innerException)
-        : this(CloseStatusCode.Abnormal, message, innerException) {
-    }
+	internal WebSocketException(string message, Exception innerException)
+		: this(CloseStatusCode.Abnormal, message, innerException) {
+	}
 
-    internal WebSocketException(CloseStatusCode code, Exception innerException)
-        : this(code, null, innerException) {
-    }
+	internal WebSocketException(CloseStatusCode code, Exception innerException)
+		: this(code, null, innerException) {
+	}
 
-    internal WebSocketException(CloseStatusCode code, string message)
-        : this(code, message, null) {
-    }
+	internal WebSocketException(CloseStatusCode code, string message)
+		: this(code, message, null) {
+	}
 
-    internal WebSocketException(
-        CloseStatusCode code, string message, Exception innerException
-    )
-        : base(message ?? code.GetMessage(), innerException) {
-        _code = code;
-    }
+	internal WebSocketException(
+		CloseStatusCode code, string message, Exception innerException
+	)
+		: base(message ?? code.GetMessage(), innerException) {
+		_code = code;
+	}
 
-    #endregion
+	#endregion
 
-    #region Public Properties
+	#region Public Properties
 
-    /// <summary>
-    ///     Gets the status code indicating the cause of the exception.
-    /// </summary>
-    /// <value>
-    ///     One of the <see cref="CloseStatusCode" /> enum values that represents
-    ///     the status code indicating the cause of the exception.
-    /// </value>
-    public CloseStatusCode Code => _code;
+	/// <summary>
+	///     Gets the status code indicating the cause of the exception.
+	/// </summary>
+	/// <value>
+	///     One of the <see cref="CloseStatusCode" /> enum values that represents
+	///     the status code indicating the cause of the exception.
+	/// </value>
+	public CloseStatusCode Code => _code;
 
-    #endregion
+	#endregion
 }
