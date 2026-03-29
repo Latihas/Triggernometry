@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace Scarborough.PInvoke;
 
@@ -60,22 +59,4 @@ internal static class DynamicImport {
 	}
 }
 
-internal class DynamicImportException : Win32Exception {
-	public DynamicImportException() {
-	}
-
-	public DynamicImportException(int error) : base(error) {
-	}
-
-	public DynamicImportException(string message) : base(message + Environment.NewLine + "ErrorCode: " + Marshal.GetLastWin32Error()) {
-	}
-
-	public DynamicImportException(int error, string message) : base(error, message) {
-	}
-
-	public DynamicImportException(string message, Exception innerException) : base(message, innerException) {
-	}
-
-	protected DynamicImportException(SerializationInfo info, StreamingContext context) : base(info, context) {
-	}
-}
+internal class DynamicImportException(string message) : Win32Exception(message + Environment.NewLine + "ErrorCode: " + Marshal.GetLastWin32Error());

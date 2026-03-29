@@ -24,6 +24,7 @@
     <PackageReference Include="SharpDX.Direct3D11" Version="*"/>
     <PackageReference Include="System.Management" Version="*"/>
     <PackageReference Include="System.Speech" Version="*"/>
+    <PackageReference Include="WebSocketSharp-netstandard" Version="*"/>
     <Reference Include="FFXIV_ACT_Plugin">
       <HintPath>../../../external_dependencies/FFXIV_ACT_Plugin.dll</HintPath>
     </Reference>

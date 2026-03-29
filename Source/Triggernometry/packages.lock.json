@@ -30,12 +30,6 @@
           "Microsoft.CodeAnalysis.CSharp.Scripting": "[5.3.0]"
         }
       },
-      "Microsoft.NET.ILLink.Tasks": {
-        "type": "Direct",
-        "requested": "[10.0.4, )",
-        "resolved": "10.0.4",
-        "contentHash": "CCx8ojW3mOL150/LnP0DK7qpMrJEt6xxNCmJFKoX89v1h0FwpsEHqennowGPYDxp6zIkIO4f9PxynjOeLF+1zw=="
-      },
       "SharpDX.Direct2D1": {
         "type": "Direct",
         "requested": "[*, )",
@@ -69,6 +63,12 @@
         "requested": "[*, )",
         "resolved": "10.0.5",
         "contentHash": "MYkGiMGWYc9rhyvsmf2UGIHD4RVJ3+uNgllFPP1YW6ILJJDXpDN8jMcy++0E/KrG507kTPCo5EOW4tEwUOCKhQ=="
+      },
+      "WebSocketSharp-netstandard": {
+        "type": "Direct",
+        "requested": "[*, )",
+        "resolved": "1.0.1",
+        "contentHash": "knoinAv31vbdxXdypnzN2MPX5hyntVLWceq6OdWRXkr9zzqp/RWbxSuLFGbkW8De1061URgNAN43BUTlgMx1CA=="
       },
       "Microsoft.CodeAnalysis.Analyzers": {
         "type": "Transitive",

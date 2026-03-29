@@ -77,32 +77,32 @@ internal class ActionLoop : ActionBase {
 
 	internal override void ExecuteImplementation(ActionInstance ai) {
 		throw new NotImplementedException("Loop action should be handled specially for now.");
-		var ctx = ai?.ctx ?? Context.Unbound;
-		var plug = ctx.Plugin;
-
-		if (ctx.loopActionId == Id) {
-			ctx.loopIterator += (int)ctx.EvaluateNumericExpression(ActionContextLogger, ctx, IncrExpression);
-		}
-		if (LoopCondition.Enabled && LoopCondition.CheckCondition(ctx, ActionContextLogger, ctx)) {
-			var continuing = false;
-			if (ctx.loopActionId != Id) {
-				continuing = ctx.loopActionId == Guid.Empty;
-				ctx = ctx.Duplicate();
-				if (ctx.loopActionId != Guid.Empty && ctx.loopActionId != Id) {
-					ctx.id = Guid.NewGuid();
-				}
-				ctx.loopActionId = Id;
-				ctx.loopIterator = (int)ctx.EvaluateNumericExpression(ActionContextLogger, ctx, InitExpression);
-			} else {
-				continuing = true;
-			}
-			var curTime = DateTime.Now;
-			var lastAction = plug.QueueActions(ctx, curTime, null /* todo Actions proper type */, ctx.Trigger.Sequential, ai?.mutex, ActionContextLogger);
-			lastAction.LoopAction = null; // todo supposed to be a reference to this action
-			if (continuing) {
-				return;
-			}
-		}
+		// var ctx = ai?.ctx ?? Context.Unbound;
+		// var plug = ctx.Plugin;
+		//
+		// if (ctx.loopActionId == Id) {
+		// 	ctx.loopIterator += (int)ctx.EvaluateNumericExpression(ActionContextLogger, ctx, IncrExpression);
+		// }
+		// if (LoopCondition.Enabled && LoopCondition.CheckCondition(ctx, ActionContextLogger, ctx)) {
+		// 	var continuing = false;
+		// 	if (ctx.loopActionId != Id) {
+		// 		continuing = ctx.loopActionId == Guid.Empty;
+		// 		ctx = ctx.Duplicate();
+		// 		if (ctx.loopActionId != Guid.Empty && ctx.loopActionId != Id) {
+		// 			ctx.id = Guid.NewGuid();
+		// 		}
+		// 		ctx.loopActionId = Id;
+		// 		ctx.loopIterator = (int)ctx.EvaluateNumericExpression(ActionContextLogger, ctx, InitExpression);
+		// 	} else {
+		// 		continuing = true;
+		// 	}
+		// 	var curTime = DateTime.Now;
+		// 	var lastAction = plug.QueueActions(ctx, curTime, null /* todo Actions proper type */, ctx.Trigger.Sequential, ai?.mutex, ActionContextLogger);
+		// 	lastAction.LoopAction = null; // todo supposed to be a reference to this action
+		// 	if (continuing) {
+		// 		return;
+		// 	}
+		// }
 	}
 
 	#endregion

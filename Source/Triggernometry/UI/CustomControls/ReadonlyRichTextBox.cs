@@ -51,7 +51,7 @@ public class RichTextBoxHelper : ReadonlyRichTextBox // to do: change to CustomC
 		Lock();
 		if (_Expanded) {
 			Dock = DockStyle.Fill;
-			var key = "";
+			// var key = "";
 			// switch (Name)
 			// {
 			//     case "rtbVariableHelper":

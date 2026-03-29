@@ -1980,13 +1980,13 @@ public class UserInterface {
 			//     tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
 			//     tn.SelectedImageIndex = tn.ImageIndex;
 			// }
-			RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
+			_ = RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
 		}
 		if (tnupdate is Repository) {
 			var rfo = (Repository)tnupdate;
 			// tnupdate.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
 			// tnupdate.SelectedImageIndex = tnupdate.ImageIndex;
-			RealPlugin.Instance.UpdateRepositoriesAsync([rfo], false);
+			_ = RealPlugin.Instance.UpdateRepositoriesAsync([rfo], false);
 		}
 	}
 
@@ -2493,7 +2493,7 @@ public class UserInterface {
 			switch (tag) {
 				case Repository repo: {
 					if (ImGui.MenuItem("更新"))
-						RealPlugin.Instance.UpdateRepositoriesAsync([repo], false);
+						_ = RealPlugin.Instance.UpdateRepositoriesAsync([repo], false);
 					if (ImGui.MenuItem("编辑"))
 						ProxyPlugin.DalamudPlugin.RepoWindow.Open(repo);
 					break;
@@ -2504,7 +2504,7 @@ public class UserInterface {
 						AddRepo(repos, false);
 						ProxyPlugin.DalamudPlugin.RepoWindow.Open(repos);
 					}
-					if (ImGui.MenuItem("全部更新")) RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
+					if (ImGui.MenuItem("全部更新")) _ = RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
 					break;
 				}
 				case Trigger trigger: {
