@@ -33,7 +33,7 @@ public class GreyMagicMemoryBase {
 	//     => _memory.ReadBytes<T>(addr);
 	// public byte[] ReadBytes(IntPtr addr, int count, bool isRelative)
 	//     => _memory.ReadBytes(addr, count, isRelative);
-	public static byte[] ReadBytes(IntPtr addr, int count) {
+	public byte[] ReadBytes(IntPtr addr, int count) {
 		SafeMemory.ReadBytes(addr, count, out var buffer);
 		return buffer;
 	}
@@ -42,7 +42,7 @@ public class GreyMagicMemoryBase {
 	//     => _memory.Read<T>(isRelative, addrs);
 	// public T Read<T>(IntPtr addr, bool isRelative) where T : struct
 	//     => _memory.Read<T>(addr, isRelative);
-	public static T Read<T>(IntPtr addr) where T : struct {
+	public T Read<T>(IntPtr addr) where T : struct {
 		SafeMemory.Read<T>(addr, out var res);
 		return res;
 	}
@@ -66,7 +66,7 @@ public class GreyMagicMemoryBase {
 	//     => _memory.WriteBytes<T>(addr, bytes, isRelative);
 	private static Lock WriteLock = new();
 
-	public static void WriteBytes(IntPtr addr, byte[] bytes) {
+	public void WriteBytes(IntPtr addr, byte[] bytes) {
 		ExecuteWithLock(() => {
 			lock (WriteLock) {
 				RealPlugin._instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing MemoryBytes {addr} {ToMemoryView(bytes)}");
@@ -78,7 +78,7 @@ public class GreyMagicMemoryBase {
 	[DllImport("kernel32.dll")]
 	public static extern bool IsBadWritePtr(IntPtr lp, uint ucb);
 
-	public static void Write<T>(IntPtr addr, T value) where T : struct {
+	public void Write<T>(IntPtr addr, T value) where T : struct {
 		ExecuteWithLock(() => {
 			lock (WriteLock) {
 				RealPlugin._instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing Memory {addr} {value}");

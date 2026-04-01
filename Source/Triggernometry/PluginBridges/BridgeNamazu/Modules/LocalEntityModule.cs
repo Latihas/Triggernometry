@@ -1,25 +1,15 @@
 ﻿using System;
 using System.Numerics;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class LocalEntityModule : ModuleBase {
-	// FFXIVClientStructs/FFXIV/Client/Game/Character/Character.CharacterSetupContainer
-	public Func<int> CharacterSetupContainerOffset;
-
-	// FFXIVClientStructs/FFXIV/Client/Game/Character/CharacterSetupContainer
-	public IntPtr CopyFromCharacterFuncPtr;
-	public IntPtr SetupBNpcFuncPtr;
-
 	public EntityModule entityModule => BridgeNamazu.GetModule<EntityModule>();
 
 	public LocalEntityModule() {
 		ScanMethod = () => {
-			CharacterSetupContainerOffset = () => 0x1B10;
-
-			CopyFromCharacterFuncPtr = Scanner.TryScan("E8 * * * * 8B 87 ?? ?? ?? ?? 85 C0 74 ?? 83 F8", nameof(CopyFromCharacterFuncPtr));
-			SetupBNpcFuncPtr = Scanner.TryScan("E8 * * * * 45 0F B6 86 ?? ?? ?? ?? 48 8D 8F", nameof(SetupBNpcFuncPtr));
 		};
 	}
 
@@ -27,21 +17,19 @@ public class LocalEntityModule : ModuleBase {
 
 	public unsafe IntPtr GetObjectByIndex(int idx) => (IntPtr)ClientObjectManager.Instance()->GetObjectByIndex((ushort)idx);
 
-	// public unsafe IntPtr DeleteObjectByIndex(int idx, byte param)
-	// {  ClientObjectManager.Instance()->DeleteObjectByIndex((ushort)idx,param);
-	// }
+	public unsafe IntPtr DeleteObjectByIndex(int idx, byte param) {
+		ClientObjectManager.Instance()->DeleteObjectByIndex((ushort)idx, param);
+		return IntPtr.Zero; //TODO
+	}
 
-	// public IntPtr CopyFromCharacter(IntPtr targetPtr, IntPtr sourcePtr, CopyFlags flags)
-	// {
-	//     var characterSetupContainerPtr = targetPtr + CharacterSetupContainerOffset();
-	//     return Memory.CallInjected64<IntPtr>(CopyFromCharacterFuncPtr, characterSetupContainerPtr, sourcePtr, (uint)flags);
-	// }
+	public unsafe IntPtr CopyFromCharacter(IntPtr targetPtr, IntPtr sourcePtr, CopyFlags flags) {
+		((Character*)targetPtr)->CharacterSetup.CopyFromCharacter((Character*)sourcePtr, (CharacterSetupContainer.CopyFlags)(uint)flags);
+		return IntPtr.Zero;
+	}
 
-	// public void SetupBNpc(IntPtr targetPtr, uint bNpcBaseId, uint bNpcNameId = 0)
-	// {
-	//     var characterSetupContainerPtr = targetPtr + CharacterSetupContainerOffset();
-	//     Memory.CallInjected64(SetupBNpcFuncPtr, characterSetupContainerPtr, bNpcBaseId, bNpcNameId);
-	// }
+	public unsafe void SetupBNpc(IntPtr targetPtr, uint bNpcBaseId, uint bNpcNameId = 0) {
+		((Character*)targetPtr)->CharacterSetup.SetupBNpc(bNpcBaseId, bNpcNameId);
+	}
 
 	public IntPtr CreateLocalEntity(Vector3 pos, float heading = 0) {
 		var idx = CreateBattleCharacter();

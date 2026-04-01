@@ -13,7 +13,7 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 public abstract class ModuleBase {
 	public static NamazuPlugin Plugin => BridgeNamazu.NamazuPlugin;
 	public static NamazuScanner Scanner => Plugin?.SigScanner;
-
+	public static GreyMagicExternalProcessMemory Memory => Plugin.Memory;
 	public Action ScanMethod;
 
 	public void Scan() {
