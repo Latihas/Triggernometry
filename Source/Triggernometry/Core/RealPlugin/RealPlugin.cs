@@ -17,6 +17,7 @@ using Triggernometry.PluginBridges.ExternalTools;
 using Triggernometry.PScript;
 using Triggernometry.UI.CustomControls;
 using Triggernometry.Utilities;
+using TriggernometryProxy;
 using Font = System.Drawing.Font;
 
 // ReSharper disable once CheckNamespace
@@ -226,7 +227,7 @@ public partial class RealPlugin {
 			exwhere = I18n.Translate("internal/Plugin/inilanguages", "loading languages");
 			LoadLanguages();
 			exwhere = I18n.Translate("internal/Plugin/inicfg", "loading configuration");
-			_cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"));
+			ProxyPlugin.Framework.RunOnFrameworkThread(() => _cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"))).Wait();
 			SetupDefaultSecurity();
 			AutofixConfiguration();
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
