@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
+using Triggernometry.UI.CustomControls;
 using Triggernometry.Utilities;
 using static Triggernometry.UI.CustomControls.UserInterface;
 
@@ -37,11 +38,11 @@ namespace Triggernometry.Core
 
         public void AddRepositoryManifestItem(RepositoryManifestItem item, bool shouldUpdate)
         {
-            if (ui.InvokeRequired)
-            {
-                ui.Invoke(new Action(() => AddRepositoryManifestItem(item, shouldUpdate)));
-                return;
-            }
+            // if (ui.InvokeRequired)
+            // {
+            //     ui.Invoke(new Action(() => AddRepositoryManifestItem(item, shouldUpdate)));
+            //     return;
+            // }
             if (!_legalRepoPrefixes.Any(prefix => item.Address.StartsWith(prefix)))
             {
                 UnfilteredAddToLog(DebugLevelEnum.Error,
@@ -52,16 +53,15 @@ namespace Triggernometry.Core
                 return;
             }
 
-            RepositoryFolder rfo = (RepositoryFolder)ui.treeView1.Nodes[1].Tag;
-            TreeNode tn = rfo.Repositories
-                .Where(r => r.Address == item.Address)
-                .Select(r => ui.treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == r))
-                .FirstOrDefault();
+            // RepositoryFolder rfo = (RepositoryFolder)ui.treeView1.Nodes[1].Tag;
+            var tn = cfg.RepositoryRoot.Repositories
+	            // .Select(r => ui.treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == r))
+	            .FirstOrDefault(r => r.Address == item.Address);
 
             Repository repo;
             if (tn != null)
             {
-                repo = (Repository)tn.Tag;
+                repo = (Repository)tn;
                 // do not change enable state
             }
             else
@@ -84,51 +84,52 @@ namespace Triggernometry.Core
 
             if (tn == null)
             {
-                tn = new TreeNode
-                {
-                    Tag = repo,
-                };
-                rfo.Repositories.Add(repo);
-                repo.Parent = rfo;
-                ui.treeView1.Nodes[1].Nodes.Add(tn);
-                ui.treeView1.Nodes[1].Expand();
+                // tn = new TreeNode
+                // {
+                //     Tag = repo,
+                // };
+                cfg.RepositoryRoot.Repositories.Add(repo);
+                repo.Parent = cfg.RepositoryRoot;
+                // ui.treeView1.Nodes[1].Nodes.Add(tn);
+                // ui.treeView1.Nodes[1].Expand();
             }
-            tn.Text = repo.Name;
-            tn.Checked = repo.Enabled;
-            tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
-            tn.SelectedImageIndex = tn.ImageIndex;
+            // tn.Text = repo.Name;
+            // tn.Checked = repo.Enabled;
+            // tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
+            // tn.SelectedImageIndex = tn.ImageIndex;
 
-            ui.RecolorStartingFromNode(tn.Parent, tn.Parent.Checked, true);
-            ui.treeView1.Sort();
+            // ui.RecolorStartingFromNode(tn.Parent, tn.Parent.Checked, true);
+            // ui.treeView1.Sort();
             if (shouldUpdate)
             {
-                ui.ForceUpdateRepository(tn);
+                ForceUpdateRepository(tn);
             }
         }
 
         public void RemoveRepo(string partialUrl)
         {
-            if (ui.InvokeRequired)
-            {
-                ui.Invoke(new Action(() => RemoveRepo(partialUrl)));
-                return;
-            }
-            partialUrl = partialUrl.Trim();
-            RepositoryFolder rfo = (RepositoryFolder)ui.treeView1.Nodes[1].Tag;
-            var nodes = rfo.Repositories
-                .Where(repo => repo.Address.IndexOf(partialUrl, StringComparison.OrdinalIgnoreCase) >= 0)
-                .Select(repo => ui.treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
-                .ToList();
-
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                var tn = nodes[i];
-                if (tn == null) continue;
-                Repository r = (Repository)tn.Tag;
-                r.Enabled = false;
-                rfo.Repositories.Remove(r);
-                ui.treeView1.Nodes[1].Nodes.Remove(tn);
-            }
+	        UserInterface.RemoveRepo(partialUrl);
+            // if (ui.InvokeRequired)
+            // {
+            //     ui.Invoke(new Action(() => RemoveRepo(partialUrl)));
+            //     return;
+            // }
+            // partialUrl = partialUrl.Trim();
+            // RepositoryFolder rfo = (RepositoryFolder)ui.treeView1.Nodes[1].Tag;
+            // var nodes = rfo.Repositories
+            //     .Where(repo => repo.Address.IndexOf(partialUrl, StringComparison.OrdinalIgnoreCase) >= 0)
+            //     .Select(repo => ui.treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
+            //     .ToList();
+            //
+            // for (int i = 0; i < nodes.Count; i++)
+            // {
+            //     var tn = nodes[i];
+            //     if (tn == null) continue;
+            //     Repository r = (Repository)tn.Tag;
+            //     r.Enabled = false;
+            //     rfo.Repositories.Remove(r);
+            //     ui.treeView1.Nodes[1].Nodes.Remove(tn);
+            // }
         }
 
         public void LoadDefaultRepoCN(bool shouldUpdate = false)
@@ -136,7 +137,7 @@ namespace Triggernometry.Core
             try
             {
                 RepositoryManifest repoManifest = LoadRepositoryManifest(DefaultRepoManifestUrl);
-                repoManifest.Remove.ForEach(partialUrl => RemoveRepo(partialUrl));
+                repoManifest.Remove.ForEach(RemoveRepo);
                 repoManifest.Add.ForEach(item => AddRepositoryManifestItem(item, shouldUpdate));
             }
             catch (Exception ex)

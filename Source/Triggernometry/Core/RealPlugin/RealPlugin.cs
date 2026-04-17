@@ -121,7 +121,7 @@ public partial class RealPlugin {
 	public SimpleBoolDelegate ActInitedHook { get; set; }
 	public ACTEncounterLogDelegate ACTEncounterLogHook { get; set; }
 
-	public static RealPlugin _instance;
+	private static RealPlugin _instance;
 	public static RealPlugin Instance {
 		get {
 			if (_instance == null)
@@ -619,7 +619,7 @@ public partial class RealPlugin {
 				}
 				var szone = BridgeFFXIV.ZoneID;
 				foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
-					if (script!.TerritoryIds() == null || script.TerritoryIds() == szone)
+					if (script!.TerritoryIds() == null || script.TerritoryIds().Contains(szone))
 						script.MatchAll(logLine);
 				LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
 			}

@@ -1969,7 +1969,8 @@ public class UserInterface {
 	//     }
 	// }
 	//
-	private static void ForceUpdateRepository(object tnupdate) {
+
+	public static void ForceUpdateRepository(object tnupdate) {
 		if (tnupdate == null) {
 			return;
 		}

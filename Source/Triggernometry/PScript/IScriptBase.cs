@@ -8,7 +8,7 @@ using static Triggernometry.PScript.ScriptUtils;
 namespace Triggernometry.PScript;
 
 public abstract class IScriptBase : IActPluginV1 {
-	public virtual uint? TerritoryIds() => null;
+	public virtual uint[]? TerritoryIds() => null;
 	public virtual List<TargetIcon> TargetIconList => [];
 	public virtual List<StartsCasting> StartsCastingList => [];
 	public virtual List<StatusAdd> StatusAddList => [];

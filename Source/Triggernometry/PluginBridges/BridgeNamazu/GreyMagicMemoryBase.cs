@@ -69,7 +69,7 @@ public class GreyMagicMemoryBase {
 	public void WriteBytes(IntPtr addr, byte[] bytes) {
 		ExecuteWithLock(() => {
 			lock (WriteLock) {
-				RealPlugin._instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing MemoryBytes {addr} {ToMemoryView(bytes)}");
+				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing MemoryBytes {addr} {ToMemoryView(bytes)}");
 				SafeMemory.WriteBytes(addr, bytes);
 			}
 		});
@@ -81,9 +81,9 @@ public class GreyMagicMemoryBase {
 	public void Write<T>(IntPtr addr, T value) where T : struct {
 		ExecuteWithLock(() => {
 			lock (WriteLock) {
-				RealPlugin._instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing Memory {addr} {value}");
+				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing Memory {addr} {value}");
 				if (addr == IntPtr.Zero || IsBadWritePtr(addr, (uint)Marshal.SizeOf<T>()))
-					RealPlugin._instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Bad Memory {addr} {value}");
+					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Bad Memory {addr} {value}");
 				else SafeMemory.Write(addr, value);
 			}
 		});

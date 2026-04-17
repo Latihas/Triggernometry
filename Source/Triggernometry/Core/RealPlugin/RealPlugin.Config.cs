@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Variables;
@@ -91,7 +92,15 @@ public partial class RealPlugin {
 				};
 			}
 			var corruptFallback = false;
-			var lastLine = File.ReadLines(filename).LastOrDefault();
+			string? lastLine = null;
+			try {
+				lastLine = File.ReadAllLines(filename).LastOrDefault();
+			} catch {
+				Thread.Sleep(100);
+				try {
+					lastLine = File.ReadAllLines(filename).LastOrDefault();
+				} catch { }
+			}
 			if (lastLine == null || lastLine.Trim() != "</Configuration>") {
 				// configuration has been corrupted, try loading previous config file instead
 				var newfilename = filename + ".previous";
