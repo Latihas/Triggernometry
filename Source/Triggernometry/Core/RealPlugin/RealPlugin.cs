@@ -325,13 +325,17 @@ public partial class RealPlugin {
 			if (cfg.StartEndpointOnLaunch) {
 				_ep.Start();
 			}
+			RegisterDefaultNamedCallbacks();
 			// pluginStatusText.Text = I18n.Translate("internal/Plugin/iniready", "Ready");
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/inited", "Initialized"));
-			// start
-			if (I18n.IsChineseEnvironment) AddDefaultRepoCN();
-			RegisterDefaultNamedCallbacks();
-			// end
-			_ = Task.Run(() => UpdateAllRepositoriesAsync(true));
+                _ = Task.Run(async () =>
+                {
+                    if (I18n.IsChineseEnvironment)
+                    {
+                        LoadDefaultRepoCN();
+                    }
+                    await UpdateAllRepositoriesAsync(true);
+                });
 			isInitialized = true;
 		} catch (Exception ex) {
 			Log.Error(I18n.Translate("internal/Plugin/inierror", "Error while {0} ({1})", exwhere, ex.ToString()));

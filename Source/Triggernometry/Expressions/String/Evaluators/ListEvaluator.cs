@@ -3,6 +3,7 @@ using System.Linq;
 using Triggernometry.Core.Variables;
 using Triggernometry.Expressions.Maths;
 using Triggernometry.Expressions.String.Models;
+using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Localization;
 using static Triggernometry.Expressions.String.Utils.ArgHelper;
 using static Triggernometry.Expressions.String.Utils.ParserCommon;
@@ -13,7 +14,7 @@ internal static class ListEvaluator {
 	internal static Func<VariableList, string> BuildEvaluator(IndexMemberExpression expr) {
 		// invalid (only name)
 		if (expr.Indexes.Length == 0 && !expr.Member.HasValue)
-			throw new NotImplementedException("list");
+                throw new Exception($"Listt variable must include an index or property in expression '{expr.RawExpression}'.");
 
 		// lvar:Name[Index]
 		if (expr.Indexes.Length > 0) {
@@ -33,6 +34,14 @@ internal static class ListEvaluator {
 			case "size":
 			case "length":
 				return vl => vl.Size.ToString();
+
+                case "get":
+                    {
+                        CheckArgCountLocal("2");
+                        int idx = (int)MathParser.Parse(args[0]);
+                        string defaultValue = args[1];
+                        return vl => vl.Peek(idx, defaultValue).ToString();
+                    }
 
 			case "indexof":
 			case "i":

@@ -9,8 +9,10 @@ using Triggernometry.UI.CustomControls;
 
 namespace Triggernometry.Core;
 
-public partial class RealPlugin {
-	private void FixConfigurationOnStartCN() {
+public partial class RealPlugin{
+        internal const string UpdateRemotePathCN = "https://1824544011.v.123pan.cn/1824544011/Triggernometry_Release_CN/";
+        private void FixConfigurationOnStartCN()
+        {
 		cfg.ShowWelcome = false;
 		cfg.TestLiveByDefault = true;
 		cfg.TestIgnoreConditionsByDefault = true;
@@ -18,7 +20,7 @@ public partial class RealPlugin {
 		cfg.AutosaveEnabled = true;
 		cfg.UpdateNotifications = Configuration.UpdateNotificationsEnum.Yes;
 		cfg.UpdateCheckMethod = Configuration.UpdateCheckMethodEnum.External;
-		cfg.UpdateExternalChannelUrl = "https://1824544011.v.123pan.cn/1824544011/Triggernometry_Release_CN/UpdateManifest.xml";
+            cfg.UpdateExternalChannelUrl = UpdateRemotePathCN + "UpdateManifest.xml";
 		cfg.AutoUpdate = true;
 		var apis = cfg._APIUsages;
 		var utilities = apis?.FirstOrDefault(a => a.Name == "Triggernometry.Utilities");
@@ -27,6 +29,16 @@ public partial class RealPlugin {
 			utilities.AllowRemote = true;
 			utilities.AllowAdmin = true;
 		}
+            // 删除 CafeStore 中旧版插件信息（如果存在）
+            try
+            {
+                var result = PluginBridges.BridgeCafe.AutoRemoveTriggernometryFromCafeStore();
+                Instance.UnfilteredAddToLog(DebugLevelEnum.Info, "尝试从 CafeStore 移除旧版 Triggernometry 信息：" + result);
+            }
+            catch (Exception ex)
+            {
+                Instance.UnfilteredAddToLog(DebugLevelEnum.Warning, "处理 CafeStore 旧版 Triggernometry 信息时出错：" + ex.Message);
+            }
 	}
 
 	public static void CopyMissingTranslations() {
@@ -41,68 +53,5 @@ public partial class RealPlugin {
 		}
 	}
 
-	private static readonly List<string> _legalRepoPrefixes = new() {
-		"https://github.com/paissaheavyindustries/Triggernometry",
-		"https://vip.123pan.cn/1824544011/",
-		"https://1824544011.v.123pan.cn/"
-	};
 
-	public void AddRepo(Repository r, bool shouldUpdate) {
-		UserInterface.AddRepo(r, shouldUpdate);
-	}
-
-	public void AddRepos(IEnumerable<Repository> repos, bool shouldUpdate) {
-		foreach (var r in repos) {
-			AddRepo(r, shouldUpdate);
-		}
-	}
-
-	public void RemoveRepo(string partialUrl) {
-		UserInterface.RemoveRepo(partialUrl);
-	}
-
-	public Repository DefaultRepoCN(string address, string name, int updateIntervalMinutes) => new() {
-		Enabled = true,
-		Address = address,
-		AllowProcessLaunch = true,
-		AllowScriptExecution = true,
-		KeepLocalBackup = true,
-		Name = name,
-		NewBehavior = Repository.NewBehaviorEnum.AsDefined,
-		UpdatePolicy = Repository.UpdatePolicyEnum.Startup,
-		AudioOutput = Repository.AudioOutputEnum.NeverOverride,
-		AutoUpdate = true,
-		UpdateInterval = updateIntervalMinutes
-	};
-
-	public void AddDefaultRepoCN(bool shouldUpdate = false) {
-		var now = DateTime.Now;
-		var isVCPeriod = new DateTime(2026, 3, 3) < now && now < new DateTime(2026, 3, 17);
-		var repos = new List<Repository> {
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/SelfTest.xml",
-				"[工具] 问题自检工具箱 + 使用教程　　有问题请自行在此解决", 60 * 6),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/Utils.xml",
-				"[工具] 运行支持库（必需）", 60 * 6),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7a.xml",
-				"7.0 M1-4 阿卡狄亚轻量级", 60 * 24),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7b.xml",
-				"7.2 M5-8 阿卡狄亚中量级", 60 * 24),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/S7c.xml",
-				"7.4 M9-12 阿卡狄亚重量级", 60 * 24),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/Ex7.xml",
-				"7.X 极神", 60 * 24),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/temp.xml",
-				"临时推送", 60 * 24),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/U7a.xml",
-				"7.1 绝伊甸", 60 * 24),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/field.xml",
-				"特殊场景探索", 60 * 24),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/dungeon.xml",
-				"深宫", 60 * 24),
-			DefaultRepoCN("https://1824544011.v.123pan.cn/1824544011/Remote_Triggers/vc.xml",
-				"异闻迷宫", isVCPeriod ? 60 : 60 * 24)
-		};
-		RemoveRepo("vip.123pan.cn/1824544011"); // old
-		AddRepos(repos, shouldUpdate);
-	}
 }

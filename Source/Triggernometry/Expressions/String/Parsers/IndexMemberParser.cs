@@ -27,27 +27,28 @@ internal static class IndexMemberParser {
 			// ===== FFXIV =====
 
 			case "_me": // ${_me.prop}
-				if (expr.Member.Name.ToLowerInvariant() == "id" && !string.IsNullOrWhiteSpace(BridgeFFXIV.PlayerHexId)) {
-					return BridgeFFXIV.PlayerHexId;
-				}
-			{
+                    {
+                        var entity = Entity.GetMyself();
 				var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
-				return string.Join(", ", evaluator(Entity.GetMyself()));
+                        return string.Join(", ", evaluator(entity));
 			}
 
 			case "_tgt": // ${_tgt.prop}
 			{
 				var targetID = Entity.GetMyself().TargetID;
-				var tgt = Entity.GetEntityByID(targetID) ?? Entity.NullEntity();
+                        var entity = Entity.GetEntityByID(targetID) ?? Entity.NullEntity();
 				var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
-				return string.Join(", ", evaluator(tgt));
+                        return string.Join(", ", evaluator(entity));
 			}
 
 			case "_ffxivparty":
 			case "_party":
 			case "_ffxiventity":
-			case "_entity": {
-				return XivEntityParser.Parse(expr, ctx);
+                case "_entity":
+                    {
+                        var entity = XivEntityParser.GetEntity(expr, ctx);
+                        var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
+                        return string.Join(", ", evaluator(entity));
 			}
 
 			case "_job": // ${_job[jobid].prop} or ${_job[Name].prop}

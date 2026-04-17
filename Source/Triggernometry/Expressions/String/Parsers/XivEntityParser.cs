@@ -23,12 +23,13 @@ internal static class XivEntityParser {
 		return string.Join(", ", evaluator(entity));
 	}
 
-	internal static string Parse(IndexMemberExpression expr, Context ctx) {
+        internal static Entity GetEntity(IndexMemberExpression expr, Context ctx)
+        {
 		var conditionExpr = expr.Index;
 		var isParty = expr.Name.EndsWith("party");
 		var rawMemberExprs = expr.Member.RawExpression;
 
-		var entity = GetEntityFromUserInput(conditionExpr, isParty);
+            var entity = GetEntityByCondition(conditionExpr, isParty);
 
 		if (isParty && (expr.Index == "1" || expr.Index == Entity.MyName)) {
 			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
@@ -45,15 +46,14 @@ internal static class XivEntityParser {
 					expr.RawExpression, ctx?.Trigger?.FullPath ?? "null"),
 				ctx?.Trigger);
 		}
-
-		var evaluator = XivEntityEvaluator.BuildEvaluator(rawMemberExprs);
-		return string.Join(", ", evaluator(entity));
+            return entity;
 	}
 
-	internal static Entity GetEntityFromUserInput(string inputCondition, bool isParty = false)
-		=> GetEntitiesFromUserInput(inputCondition, isParty).FirstOrDefault() ?? Entity.NullEntity();
+        internal static Entity GetEntityByCondition(string inputCondition, bool isParty = false)
+            => GetEntitiesByCondition(inputCondition, isParty).FirstOrDefault() ?? Entity.NullEntity();
 
-	internal static IEnumerable<Entity> GetEntitiesFromUserInput(string inputCondition, bool isParty = false) {
+        internal static IEnumerable<Entity> GetEntitiesByCondition(string inputCondition, bool isParty = false)
+        {
 		// 1. party index: ffxivparty[n]
 		if (isParty && int.TryParse(inputCondition, out var partyIdx) && partyIdx >= 1 && partyIdx <= 8) {
 			var hexID = BridgeFFXIV.GetPartyMember(partyIdx).GetValue("id").ToString();

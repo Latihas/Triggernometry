@@ -146,14 +146,15 @@ public class VariableTable : Variable {
 		LastChanged = DateTime.Now;
 	}
 
-	public Variable Peek(int x, int y) {
-		x = ProcessColIndex(x);
-		y = ProcessRowIndex(y);
-		if (x < 0 || y < 0 || x >= Width || y >= Height) {
-			return new VariableScalar();
+        public Variable Peek(int x, int y, string defaultValue = "")
+        {
+            var col = ProcessColIndex(x);
+            var row = ProcessRowIndex(y);
+            if (col < 0 || row < 0 || col >= Width || row >= Height)
+            {
+                return new VariableScalar(defaultValue);
 		}
-		var v = Rows[y].Values[x];
-		return v != null ? v : new VariableScalar();
+            return Rows[row].Values[col] ?? new VariableScalar(defaultValue);
 	}
 
 	public void AppendVertical(VariableTable vt, string changer) {

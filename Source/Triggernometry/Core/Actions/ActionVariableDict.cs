@@ -354,9 +354,10 @@ public class ActionVariableDict : ActionBase {
 						sourcename, sPersist, targetname, tPersist));
 			}
 				break;
-			case OperationEnum.GetEntity: {
-				var filterExpr = ParseValue();
-				var entity = XivEntityParser.GetEntityFromUserInput(filterExpr);
+                case OperationEnum.GetEntity:
+                    {
+                        string filterExpr = ParseValue();
+                        var entity = XivEntityParser.GetEntityByCondition(filterExpr);
 
 				var memberExprs = string.IsNullOrWhiteSpace(Key)
 					? Entity.RecommendedEntityPropNames.Concat(Job.LegalJobPropNames)

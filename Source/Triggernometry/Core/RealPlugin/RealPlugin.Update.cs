@@ -103,8 +103,6 @@ public partial class RealPlugin {
 	private void UpdateTranslationExternal(UpdateManifest um) {
 	}
 
-	private static readonly string _updateRemotePathCN = "https://vip.123pan.cn/1824544011/Triggernometry_Release_CN/";
-
 	public void UpdatePostNamazu(string remoteVersion) {
 	}
 

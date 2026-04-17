@@ -13,7 +13,7 @@ internal static class TableEvaluator {
 	internal static Func<VariableTable, string> BuildEvaluator(IndexMemberExpression expr) {
 		// invalid (only name)
 		if (expr.Indexes.Length == 0 && !expr.Member.HasValue)
-			throw new NotImplementedException("table");
+                throw new Exception($"Table variable must include an index or property in expression '{expr.RawExpression}'.");
 
 		// tvar:Name[Col][Row]
 		if (expr.Indexes.Length > 0) {
@@ -45,6 +45,15 @@ internal static class TableEvaluator {
 			case "height":
 				CheckArgCountLocal("0");
 				return vt => vt.Height.ToString();
+
+                case "get":
+                    {
+                        CheckArgCountLocal("3");
+                        int col = (int)MathParser.Parse(args[0]);
+                        int row = (int)MathParser.Parse(args[1]);
+                        string defaultValue = args[2];
+                        return vt => vt.Peek(col, row, defaultValue).ToString();
+                    }
 
 			case "hjoin": // .hjoin(joiner1 = ",", joiner2 = LINEBREAK_PLACEHOLDER, colSlices = ":", rowSlices = ":")
 			case "vjoin": // .vjoin(joiner1 = ",", joiner2 = LINEBREAK_PLACEHOLDER, colSlices = ":", rowSlices = ":")

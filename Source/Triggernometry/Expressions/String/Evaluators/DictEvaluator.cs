@@ -11,7 +11,7 @@ internal static class DictEvaluator {
 	internal static Func<VariableDictionary, string> BuildEvaluator(IndexMemberExpression expr) {
 		// invalid (only name)
 		if (expr.Indexes.Length == 0 && !expr.Member.HasValue)
-			throw new NotImplementedException("dict");
+                throw new Exception($"Dictionary variable must include an index or property in expression '{expr.RawExpression}'.");
 
 		// dvar:Name[Key]
 		if (expr.Indexes.Length > 0) {
@@ -58,7 +58,6 @@ internal static class DictEvaluator {
 					return exist ? trueStr : falseStr;
 				};
 			}
-
 			case "count": // count(value)
 				CheckArgCountLocal("1");
 			{
@@ -66,11 +65,20 @@ internal static class DictEvaluator {
 				return vd => vd.Count(value).ToString();
 			}
 
+                case "get":
+                    CheckArgCountLocal("2");
+                    {
+                        string key = args[0];
+                        string defaultValue = args[1];
+                        return vd => vd.Values.TryGetValue(key, out var val) ? val.ToString() : defaultValue;
+                    }
+
 			case "keyof":
-				CheckArgCountLocal("1");
+                    CheckArgCountLocal("1-2");
 			{
-				var value = args[0];
-				return vd => vd.KeyOf(value);
+                        string value = args[0];
+                        string defaultKey = GetArgument(args, 1, "");
+                        return vd => vd.KeyOf(value, defaultKey);
 			}
 
 			case "keysof":
