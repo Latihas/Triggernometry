@@ -198,7 +198,7 @@ public class EntityModule : ModuleBase {
 		var (objectPtr, color) = cmd.ParseArgs<IntPtr, byte>();
 		GreyMagicMemoryBase.ExecuteWithLock(() => {
 			var character = (Character*)objectPtr;
-			character->VirtualTable->Highlight(character, (ObjectHighlightColor)color);
+			character->VirtualTable->Highlight(character, (ObjectHighlightColor)color,true);
 		});
 	}
 
