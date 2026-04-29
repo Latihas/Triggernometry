@@ -17,12 +17,12 @@
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Direct",
         "requested": "[*, )",
-        "resolved": "10.0.5",
-        "contentHash": "hQB3Hq1LlF0NkGVNyZIvwIQIY3LM7Cw1oYjNiTvdNqmzzipVAWEK1c5sj2H5aFX0udnjgPLxSYKq2fupueS8ow=="
+        "resolved": "10.0.7",
+        "contentHash": "g0Xp9A+B8jCf5pNIIhFOQXPJkte3D87shfTLY+ylwfSh22U5oQH6tvvmcUuqJvt/wtwKk0WdNp2OGEczHJlJdg=="
       },
       "Microsoft.CodeAnalysis.Scripting": {
         "type": "Direct",
-        "requested": "[*, )",
+        "requested": "[5.3.0, )",
         "resolved": "5.3.0",
         "contentHash": "QW2AzXWVJvjszELpuKT6w00zSQCscnP1bkXghWEGuELwB872d00Jq+THwzL15nwQOQKc+Mdk37B+9uiOzCMMOA==",
         "dependencies": {
@@ -54,15 +54,15 @@
       },
       "System.Management": {
         "type": "Direct",
-        "requested": "[*, )",
-        "resolved": "10.0.5",
-        "contentHash": "JhBVxvWhUJ0KAquUK0dMnc3a1Ol4JyH8fMrMQZ9GgEUkrtvPy8DE57SDnGnuvOdI0maJOdguxw87N5bh2eL87A=="
+        "requested": "[10.0.7, )",
+        "resolved": "10.0.7",
+        "contentHash": "urkYf/JYCGUSF7+95BF2yM5E+QwnpR1Sf23vBw/niZfNbIkxvwYgRV0eoOq5wmz44JLEZ2Jojxa6nvgkrPVGfg=="
       },
       "System.Speech": {
         "type": "Direct",
         "requested": "[*, )",
-        "resolved": "10.0.5",
-        "contentHash": "MYkGiMGWYc9rhyvsmf2UGIHD4RVJ3+uNgllFPP1YW6ILJJDXpDN8jMcy++0E/KrG507kTPCo5EOW4tEwUOCKhQ=="
+        "resolved": "10.0.7",
+        "contentHash": "NuWzqrK33827U2DBwoHTuFGpAIKZSodhlOxPdAKM17DkyUcTT3NUZgqvwkw1XyLR+WGcINpA2BdB7fVTv8vaaQ=="
       },
       "WebSocketSharp-netstandard": {
         "type": "Direct",
@@ -114,8 +114,8 @@
       },
       "Microsoft.Extensions.ObjectPool": {
         "type": "Transitive",
-        "resolved": "10.0.5",
-        "contentHash": "91t1kPt6F+1cTJ4dZFY89BopLr1JyGlZ2pROIkIuyE28jUXhdelOzn22UwvNk8EwW/9x8D7GXyLqiMJShgIGhQ=="
+        "resolved": "10.0.7",
+        "contentHash": "flWxDEhfc7fueGP+mvNp8Avrm5YcZVfcpyI96MkJEnGu+1X/eH8XcHfx6deBAdCU3ZPpmQ7AVp/9t4aikKP07w=="
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
@@ -178,7 +178,7 @@
         "dependencies": {
           "Machina": "[2.3.1.3, )",
           "Machina.FFXIV": "[2.4.5.7, )",
-          "Microsoft.Extensions.ObjectPool": "[*, )",
+          "Microsoft.Extensions.ObjectPool": "[10.0.7, )",
           "NetCoreServer": "[*, )",
           "OverlayPlugin.Common": "[1.0.0, )"
         }
@@ -187,15 +187,15 @@
     "net10.0-windows7.0/win-x64": {
       "System.Management": {
         "type": "Direct",
-        "requested": "[*, )",
-        "resolved": "10.0.5",
-        "contentHash": "JhBVxvWhUJ0KAquUK0dMnc3a1Ol4JyH8fMrMQZ9GgEUkrtvPy8DE57SDnGnuvOdI0maJOdguxw87N5bh2eL87A=="
+        "requested": "[10.0.7, )",
+        "resolved": "10.0.7",
+        "contentHash": "urkYf/JYCGUSF7+95BF2yM5E+QwnpR1Sf23vBw/niZfNbIkxvwYgRV0eoOq5wmz44JLEZ2Jojxa6nvgkrPVGfg=="
       },
       "System.Speech": {
         "type": "Direct",
         "requested": "[*, )",
-        "resolved": "10.0.5",
-        "contentHash": "MYkGiMGWYc9rhyvsmf2UGIHD4RVJ3+uNgllFPP1YW6ILJJDXpDN8jMcy++0E/KrG507kTPCo5EOW4tEwUOCKhQ=="
+        "resolved": "10.0.7",
+        "contentHash": "NuWzqrK33827U2DBwoHTuFGpAIKZSodhlOxPdAKM17DkyUcTT3NUZgqvwkw1XyLR+WGcINpA2BdB7fVTv8vaaQ=="
       }
     }
   }
