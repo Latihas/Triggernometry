@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Utility;
@@ -2478,6 +2479,8 @@ public class UserInterface {
 					repoFolder.Enabled = isChecked;
 					break;
 			}
+			BuildTriggerTreeFromConfiguration(null, null);
+			Task.Run(RealPlugin.Instance.SaveCurrentConfig);
 		}
 		ImGui.SameLine();
 		var isExpanded = ImGui.TreeNodeEx(
