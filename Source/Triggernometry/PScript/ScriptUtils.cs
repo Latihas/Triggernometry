@@ -284,39 +284,39 @@ public static partial class ScriptUtils {
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
+	public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null)
 		: IGBase(position, duration, Line, color ?? 0x400000FFu) {
 		public readonly Func<Vector3> Position2 = position2;
-		public readonly int Thickness = thickness;
+		public readonly float Thickness = thickness;
 
-		public IGLine(Vector3 position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
+		public IGLine(Vector3 position, Vector3 position2, long duration, float thickness = 5, uint? color = null)
 			: this(() => position, () => position2, duration, thickness, color) {
 		}
 
-		public IGLine(Vector3 position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
+		public IGLine(Vector3 position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null)
 			: this(() => position, position2, duration, thickness, color) {
 		}
 
-		public IGLine(Func<Vector3> position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
+		public IGLine(Func<Vector3> position, Vector3 position2, long duration, float thickness = 5, uint? color = null)
 			: this(position, () => position2, duration, thickness, color) {
 		}
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
+	public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null)
 		: IGBase(position, duration, Rect, color ?? 0x400000FFu) {
 		public readonly Func<Vector3> Position2 = position2;
-		public readonly int Thickness = thickness;
+		public readonly float Thickness = thickness;
 
-		public IGRect(Vector3 position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
+		public IGRect(Vector3 position, Vector3 position2, long duration, float thickness = 5, uint? color = null)
 			: this(() => position, () => position2, duration, thickness, color) {
 		}
 
-		public IGRect(Vector3 position, Func<Vector3> position2, long duration, int thickness = 5, uint? color = null)
+		public IGRect(Vector3 position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null)
 			: this(() => position, position2, duration, thickness, color) {
 		}
 
-		public IGRect(Func<Vector3> position, Vector3 position2, long duration, int thickness = 5, uint? color = null)
+		public IGRect(Func<Vector3> position, Vector3 position2, long duration, float thickness = 5, uint? color = null)
 			: this(position, () => position2, duration, thickness, color) {
 		}
 	}

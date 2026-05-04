@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Triggernometry.Core;
+using Triggernometry.Core.Variables;
 using Triggernometry.Expressions.Maths;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.FFXIV;
@@ -1109,12 +1110,12 @@ public partial class ExpressionTextBox : UserControl {
                             keys.AddRange(tmpTextNames);
                             break;
                         }
-                    case "imageaura":
-                        {
-                            keys = (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.imageitems.Keys.ToList() : RealPlugin.Instance.imageauras.Keys.ToList();
-                            keys.AddRange(tmpImageNames);
-                            break;
-                        }
+                    // case "imageaura":
+                    //     {
+                    //         keys = (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.imageitems.Keys.ToList() : RealPlugin.Instance.imageauras.Keys.ToList();
+                    //         keys.AddRange(tmpImageNames);
+                    //         break;
+                    //     }
                     case "config": keys = configurations; break;
                     case "storage": keys = RealPlugin.Instance.scriptingStorage.Keys.ToList(); break;
                 }
@@ -1139,14 +1140,14 @@ public partial class ExpressionTextBox : UserControl {
                 var key = m.Groups["key"].Value;
                 var form = this.FindForm();
                 Trigger trig = null;
-                if (form is TriggerForm tf)
-                {
-                    trig = tf.Trigger;
-                }
-                else if (form is ActionForm af)
-                {
-                    trig = af.ParentTrigger;
-                }
+                // if (form is TriggerForm tf)
+                // {
+                //     trig = tf.Trigger;
+                // }
+                // else if (form is ActionForm af)
+                // {
+                //     trig = af.ParentTrigger;
+                // }
 
                 var envKeys = trig?.Parent?.RecursiveGetEnvironmentVariables()?.Keys?.ToList() ?? new List<string>();
                 matchedStrings = GetAutocompleteSuggestions(envKeys, key);

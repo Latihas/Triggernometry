@@ -7,7 +7,8 @@ using CameraManager = FFXIVClientStructs.FFXIV.Client.Game.Control.CameraManager
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
-        public Dictionary<string, int> Offsets => Plugin.IsTC ? OffsetsTC : Plugin.IsCN ? OffsetsCN : OffsetsGlobal;
+public class CameraModule : ModuleBase {
+	public Dictionary<string, int> Offsets => Plugin.IsTC ? OffsetsTC : Plugin.IsCN ? OffsetsCN : OffsetsGlobal;
 
 	public unsafe IntPtr CameraPtr => (IntPtr)CameraManager.Instance()->GetActiveCamera();
 
@@ -169,21 +170,21 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 		}
 	};
 
-        // https://github.com/UnknownX7/Hypostasis/blob/c885579451307c18a019bd9dd9933e97a3970f17/Game/Structures/GameCamera.cs
-        public Dictionary<string, int> OffsetsTC = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) // TC 7.2
-        {
-            { "Distance", 0x114 },
-            { "MinDistance", 0x118 },
-            { "MaxDistance", 0x11C },
-            { "FoV", 0x120 },
-            { "MinFoV", 0x124 },
-            { "MaxFoV", 0x128 },
-            { "AngleH", 0x130 },
-            { "AngleV", 0x134 },
-            { "MinAngleV", 0x148 },
-            { "MaxAngleV", 0x14C },
-        };
-        
+	// https://github.com/UnknownX7/Hypostasis/blob/c885579451307c18a019bd9dd9933e97a3970f17/Game/Structures/GameCamera.cs
+	public Dictionary<string, int> OffsetsTC = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) // TC 7.2
+	{
+		{ "Distance", 0x114 },
+		{ "MinDistance", 0x118 },
+		{ "MaxDistance", 0x11C },
+		{ "FoV", 0x120 },
+		{ "MinFoV", 0x124 },
+		{ "MaxFoV", 0x128 },
+		{ "AngleH", 0x130 },
+		{ "AngleV", 0x134 },
+		{ "MinAngleV", 0x148 },
+		{ "MaxAngleV", 0x14C },
+	};
+
 	// 游戏默认
 	public readonly Dictionary<string, float> OriginalParams = new(StringComparer.OrdinalIgnoreCase) {
 		{
