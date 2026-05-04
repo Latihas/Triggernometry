@@ -130,6 +130,13 @@ public class MathParser {
 		LocalFunctions.Add("round", RoundFunction);
 		LocalFunctions.Add("max", MaxFunction);
 		LocalFunctions.Add("min", MinFunction);
+            LocalFunctions.Add("Lerp", LerpFunction);
+            LocalFunctions.Add("LerpAngle", LerpAngleFunction);
+            LocalFunctions.Add("LerpAngleCW", LerpAngleCWFunction);
+            LocalFunctions.Add("LerpAngleCCW", LerpAngleCCWFunction);
+            LocalFunctions.Add("LerpDir", LerpDirFunction);
+            LocalFunctions.Add("LerpDirCW", LerpDirCWFunction);
+            LocalFunctions.Add("LerpDirCCW", LerpDirCCWFunction);
 		LocalFunctions.Add("truncate", x => Truncate(x[0]));
 		LocalFunctions.Add("floor", x => Math.Floor(x[0] + TOLERANCE));
 		LocalFunctions.Add("ceiling", x => Math.Ceiling(x[0] - TOLERANCE));
@@ -160,6 +167,10 @@ public class MathParser {
 		LocalVariables.Add("pi0125", Math.PI / 8);
 		LocalVariables.Add("pitorad", 180.0 / Math.PI);
 		LocalVariables.Add("piofrad", Math.PI / 180.0);
+            // to-do:
+            // hex2dec(e) 按现在的逻辑会将 e 处理为常数而报错。
+            // 鉴于 Math.E 在 FF14 触发器中几乎不会使用，且 hex2dec() 进制转换方法已有 "0x" 前缀替代，
+            // 暂时不因此大改解析逻辑中的替换顺序，重构 MathParser 时再考虑。
 		LocalVariables.Add("e", Math.E);
 		LocalVariables.Add("phi", (Math.Sqrt(5) + 1) / 2);
 		LocalVariables.Add("major", (Math.Sqrt(5) - 1) / 2);
@@ -433,6 +444,93 @@ public class MathParser {
 		return min;
 	}
 
+        public static double LerpFunction(double[] input)
+        {
+            double a = input[0];
+            double b = input[1];
+            double t = input[2];
+
+            return a + (b - a) * t;
+        }
+
+        public static double LerpAngleFunction(double[] input)
+        {
+            double a = input[0];
+            double b = input[1];
+            double t = input[2];
+
+            return NormalizeRad(a + NormalizeRad(b - a) * t);
+        }
+
+        public static double LerpAngleCWFunction(double[] input)
+        {
+            double a = input[0];
+            double b = input[1];
+            double t = input[2];
+
+            return NormalizeRad(a - ModFunction(a - b, 2 * Math.PI) * t);
+        }
+
+        public static double LerpAngleCCWFunction(double[] input)
+        {
+            double a = input[0];
+            double b = input[1];
+            double t = input[2];
+
+            return NormalizeRad(a + ModFunction(b - a, 2 * Math.PI) * t);
+        }
+
+        private static double NormalizeRad(double rad)
+        {
+            return ModFunction(rad + Math.PI, 2 * Math.PI) - Math.PI;
+        }
+
+        public static double LerpDirFunction(double[] input)
+        {
+            double a = input[0];
+            double b = input[1];
+            double n = input[2];
+            double t = input[3];
+
+            return NormalizeDirValue(a + NormalizeDirDelta(b - a, n) * t, n);
+        }
+
+        public static double LerpDirCWFunction(double[] input)
+        {
+            double a = input[0];
+            double b = input[1];
+            double n = input[2];
+            double t = input[3];
+
+            double segments = Math.Abs(n);
+            return NormalizeDirValue(a - ModFunction(a - b, segments) * t, n);
+        }
+
+        public static double LerpDirCCWFunction(double[] input)
+        {
+            double a = input[0];
+            double b = input[1];
+            double n = input[2];
+            double t = input[3];
+
+            double segments = Math.Abs(n);
+            return NormalizeDirValue(a + ModFunction(b - a, segments) * t, n);
+        }
+
+        private static double NormalizeDirValue(double dir, double n)
+        {
+            double segments = Math.Abs(n);
+            return n > 0 
+                ? ModFunction(dir, segments) 
+                : ModFunction(dir + 0.5, segments) - 0.5;
+        }
+
+        private static double NormalizeDirDelta(double delta, double n)
+        {
+            double segments = Math.Abs(n);
+            return ModFunction(delta + segments / 2.0, segments) - segments / 2.0;
+        }
+
 	#endregion
 
 	#region Numeric String Functions (Definition)
@@ -571,8 +669,10 @@ public class MathParser {
 
 	public static Dictionary<string, Func<string[], double>> LocalStringFunctions { get; set; } = new();
 
+        // 暂时不用 OrdinalIgnoreCase，详见添加常数 Math.E 处注释
 	/// <summary> All variables that you want to define should be inside this property. </summary>
-	public static Dictionary<string, double> LocalVariables { get; set; } = new();
+        public static Dictionary<string, double> LocalVariables { get; set; } 
+            = new Dictionary<string, double>(/*StringComparer.OrdinalIgnoreCase*/);
 
 	/// <summary>
 	///     When converting the result from the Parse method or ProgrammaticallyParse method ToString(),
@@ -918,6 +1018,14 @@ public class MathParser {
 					op, string.Join(" ", tokens), string.Join(" ", originalTokens)));
 			}
 		}
+
+            if (tokens.Count != 1)
+            {
+                throw new ArithmeticException(I18n.Translate("internal/MathParser/basicMathExprError",
+                    "The basic math expression: '{0}' could not be parsed. Original expression: '{1}'",
+                    string.Join(" ", tokens), string.Join(" ", originalTokens)));
+            }
+
 		return double.Parse(tokens[0], CultureInfo);
 	}
 

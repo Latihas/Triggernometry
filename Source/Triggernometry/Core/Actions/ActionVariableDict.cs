@@ -281,11 +281,9 @@ public class ActionVariableDict : ActionBase {
 			return I18n.ThingToString(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, Value));
 		}
 
-		string vdchanger;
-		if (ctx.Trigger != null)
-			vdchanger = I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe());
-		else
-			vdchanger = I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
+            string changer = ctx.Trigger != null
+                ? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe())
+                : I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
 
 		switch (Operation) {
 			case OperationEnum.UnsetAll:
@@ -317,17 +315,19 @@ public class ActionVariableDict : ActionBase {
 					var vd = svs.GetDictVariable(sourcename, true);
 					ctx.dictValue = vd.GetValue(key).ToString(); // for ${_val}
 					value = ParseValue();
-					vd.SetValue(key, value, vdchanger);
+                            vd.SetValue(key, value, changer);
 				}
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictset",
 					"Value of key ({2}) in {1}dict variable ({0}) set to ({3})", sourcename, sPersist, key, value));
 			}
 				break;
-			case OperationEnum.Remove: {
-				var key = ParseKey();
-				lock (svs.Dict) {
-					var vd = svs.GetDictVariable(sourcename, true);
-					vd.RemoveKey(key, vdchanger);
+                case OperationEnum.Remove:
+                    {
+                        string key = ParseKey();
+                        lock (svs.Dict)
+                        {
+                            VariableDictionary vd = svs.GetDictVariable(sourcename, true);
+                            vd.RemoveKey(key, changer);
 				}
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictremove",
 					"Removed key ({2}) from {1}dict variable ({0})", sourcename, sPersist, key));
@@ -340,9 +340,12 @@ public class ActionVariableDict : ActionBase {
 				lock (svs.Dict) {
 					svdCopy = (VariableDictionary)svs.GetDictVariable(sourcename, false).Duplicate();
 				}
-				lock (tvs.Dict) {
-					var tvd = tvs.GetDictVariable(targetname, true);
-					tvd.Merge(svdCopy, shouldOverwrite);
+                        lock (tvs.Dict)
+                        {
+                            VariableDictionary tvd = tvs.GetDictVariable(targetname, true);
+                            tvd.Merge(svdCopy, overwriteExistingKeys: shouldOverwrite);
+                            tvd.LastChanged = DateTime.Now;
+                            tvd.LastChanger = changer;
 				}
 				if (shouldOverwrite)
 					AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictmergehard",
@@ -367,6 +370,7 @@ public class ActionVariableDict : ActionBase {
 					member => member,
 					member => XivEntityParser.EvaluateEntityMember(entity, member)
 				));
+                        vd.LastChanger = changer;
 
 				lock (svs.Dict) {
 					svs.Dict[sourcename] = vd;
@@ -389,10 +393,10 @@ public class ActionVariableDict : ActionBase {
 				if (expr.Length > 1) {
 					if (expr[1] == '\n' || expr.Substring(1).StartsWith("\r\n"))
 						expr = ParserCommon.ReplaceLineBreak(expr);
-					var kvSeparator = expr[0];
-					var pairSeparator = expr[1];
-					var splitval = expr.Substring(2);
-					vt = VariableDictionary.Build(splitval, kvSeparator, pairSeparator, vdchanger);
+                            char kvSeparator = expr[0];
+                            char pairSeparator = expr[1];
+                            string splitval = expr.Substring(2);
+                            vt = VariableDictionary.Build(splitval, kvSeparator, pairSeparator, changer);
 					AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictbuild",
 						"{1}Dictionary ({0}) built from expression ({2}) splitted by ({3}) ({4})",
 						targetname, tPersist, splitval, kvSeparator, pairSeparator));
@@ -423,7 +427,7 @@ public class ActionVariableDict : ActionBase {
 						}
 					}
 				}
-				vdResult.LastChanger = vdchanger;
+                        vdResult.LastChanger = changer;
 				vdResult.LastChanged = DateTime.Now;
 				lock (tvs.Dict) {
 					tvs.Dict[targetname] = vdResult;
@@ -452,9 +456,9 @@ public class ActionVariableDict : ActionBase {
 							ctx.listIndex = i + 1;
 							ctx.dictKey = i < vd.Size ? vd.Values.ElementAt(i).Key : "";
 							ctx.dictValue = i < vd.Size ? vd.Values.ElementAt(i).Value.ToString() : "";
-							var k = ParseKey();
-							var v = ParseValue();
-							vdNew.SetValue(k, v, vdchanger);
+                                    string k = ParseKey();
+                                    string v = ParseValue();
+                                    vdNew.SetValue(k, v, changer);
 						}
 						AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictsetallbyindex",
 							"{4} key value pairs in {1}dictionary ({0}) set to ({2}): ({3})",
@@ -464,9 +468,9 @@ public class ActionVariableDict : ActionBase {
 						foreach (var pair in vd.Values) {
 							ctx.dictKey = pair.Key;
 							ctx.dictValue = pair.Value.ToString();
-							var k = ParseKey();
-							var v = ParseValue();
-							vdNew.SetValue(k, v, vdchanger);
+                                    string k = ParseKey();
+                                    string v = ParseValue();
+                                    vdNew.SetValue(k, v, changer);
 						}
 						AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictsetall",
 							"All key value pairs in {1}dictionary ({0}) set to ({2}): ({3})",

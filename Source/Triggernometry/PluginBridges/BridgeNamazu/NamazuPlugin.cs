@@ -122,4 +122,8 @@ public class NamazuPlugin {
 
 	// Region detection
 	public bool IsCN => _plugin.IsCN;
+        public bool IsTC => FFXIV.GameLanguage.Language == FFXIV.GameLanguageEnum.TCN;
+        public IntPtr FrameworkPtr => _plugin.FrameworkPtr;
+
+    }
 }

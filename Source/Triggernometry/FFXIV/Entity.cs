@@ -184,172 +184,93 @@ public class Entity {
 
 	#endregion Get Entities
 
-	internal static readonly Dictionary<string, Func<Entity, object>> _propAccessors
-		= new(StringComparer.OrdinalIgnoreCase) {
+        private static float Round4(float value) => (float)Math.Round(value, 4);
+
+        internal readonly static Dictionary<string, Func<Entity, object>> _propAccessors
+            = new Dictionary<string, Func<Entity, object>>(StringComparer.OrdinalIgnoreCase)
 			{
-				"Exist", e => e.Exist
-			}, {
-				"PluginSource", e => e.PluginSource
-			}, {
-				"Address", e => e.Address
-			}, {
-				"HexAddress", e => e.HexAddress
-			}, {
-				"Name", e => e.Name
-			}, {
-				"ID", e => e.HexID
-			}, {
-				"IsSelf", e => e.ID == GetMyself().ID
-			}, {
-				"IsPlayer", e => e.Type == EntityType.Pc
-			}, {
-				"BNpcID", e => e.BNpcID
-			}, {
-				"OwnerID", e => e.OwnerHexID
-			}, {
-				"TypeName", e => e.Type
-			}, {
-				"Type", e => (byte)e.Type
-			}, {
-				"EffectiveDistance", e => e.EffectiveDistance
-			}, {
-				"Distance", e => e.EffectiveDistance
-			}, {
-				"ObjectStatus", e => (byte)e.ObjectStatus
-			}, {
-				"X", e => e.PosX
-			}, {
-				"PosX", e => e.PosX
-			}, {
-				"Y", e => e.PosY
-			}, {
-				"PosY", e => e.PosY
-			}, {
-				"Z", e => e.PosZ
-			}, {
-				"PosZ", e => e.PosZ
-			}, {
-				"XY", e => new Vector2(e.PosX, e.PosY)
-			}, {
-				"PosXY", e => new Vector2(e.PosX, e.PosY)
-			}, {
-				"XYZ", e => new Vector3(e.PosX, e.PosY, e.PosZ)
-			}, {
-				"Pos", e => new Vector3(e.PosX, e.PosY, e.PosZ)
-			}, {
-				"H", e => e.Heading
-			}, {
-				"Heading", e => e.Heading
-			}, {
-				"Radius", e => e.Radius
-			}, {
-				"ModelStatus", e => (int)e.ModelStatus
-			}, {
-				"IsTargetable", e => e.IsTargetable
-			}, {
-				"IsVisible", e => e.ModelStatus == ModelStatus.Visible
-			}, {
-				"HP", e => e.CurrentHP
-			}, {
-				"CurrentHP", e => e.CurrentHP
-			}, {
-				"MaxHP", e => e.MaxHP
-			}, {
-				"MP", e => e.CurrentMP
-			}, {
-				"CurrentMP", e => e.CurrentMP
-			}, {
-				"MaxMP", e => e.MaxMP
-			}, {
-				"CP", e => e.CurrentCP
-			}, {
-				"CurrentCP", e => e.CurrentCP
-			}, {
-				"MaxCP", e => e.MaxCP
-			}, {
-				"GP", e => e.CurrentGP
-			}, {
-				"CurrentGP", e => e.CurrentGP
-			}, {
-				"MaxGP", e => e.MaxGP
-			}, {
-				"TransformationID", e => e.TransformationID
-			}, {
-				"Level", e => e.Level
-			}, {
-				"MonsterType", e => (byte)e.MonsterType
-			}, {
-				"IsEnemy", e => e.IsEnemy
-			}, {
-				"IsAggressive", e => e.IsAggressive
-			}, {
-				"InCombat", e => e.InCombat
-			}, {
-				"InParty", e => e.InParty
-			}, {
-				"InAlliance", e => e.InAlliance
-			}, {
-				"IsFriend", e => e.IsFriend
-			}, {
-				"WeaponID", e => e.WeaponID
-			}, {
-				"TargetID", e => e.TargetHexID
-			}, {
-				"IsTargetingSelf", e => e.TargetID == GetMyself().TargetID
-			}, {
-				"BNpcNameID", e => e.BNpcNameID
-			}, {
-				"CurrentWorldID", e => e.CurrentWorldID
-			}, {
-				"WorldID", e => e.WorldID
-			}, {
-				"HomeWorldID", e => e.WorldID
-			}, {
-				"WorldName", e => e.Type == EntityType.Pc || e.Type == EntityType.Retainer /* Retainer needs to be tested */
+            { "Exist",          e => e.Exist },
+            { "PluginSource",   e => e.PluginSource },
+            { "Address",        e => e.Address },
+            { "HexAddress",     e => e.HexAddress },
+            { "Name",           e => e.Name },
+            { "ID",             e => e.HexID },
+            { "IsSelf",         e => e.ID == Entity.GetMyself().ID },
+            { "IsPlayer",       e => e.Type == EntityType.Pc },
+            { "BNpcID",         e => e.BNpcID },
+            { "OwnerID",        e => e.OwnerHexID },
+            { "TypeName",       e => e.Type },
+            { "Type",           e => (byte)e.Type },
+            { "EffectiveDistance",  e => e.EffectiveDistance },
+            { "Distance",       e => e.EffectiveDistance },
+            { "ObjectStatus",   e => (byte)e.ObjectStatus },
+            { "X",              e => Round4(e.PosX) },
+            { "PosX",           e => Round4(e.PosX) },
+            { "Y",              e => Round4(e.PosY) },
+            { "PosY",           e => Round4(e.PosY) },
+            { "Z",              e => Round4(e.PosZ) },
+            { "PosZ",           e => Round4(e.PosZ) },
+            { "XY",             e => new Vector2(Round4(e.PosX), Round4(e.PosY)) },
+            { "PosXY",          e => new Vector2(Round4(e.PosX), Round4(e.PosY)) },
+            { "XYZ",            e => new Vector3(Round4(e.PosX), Round4(e.PosY), Round4(e.PosZ)) },
+            { "Pos",            e => new Vector3(Round4(e.PosX), Round4(e.PosY), Round4(e.PosZ)) },
+            { "H",              e => Round4(e.Heading) },
+            { "Heading",        e => Round4(e.Heading) },
+            { "Radius",         e => e.Radius },
+            { "ModelStatus",    e => (int)e.ModelStatus },
+            { "IsTargetable",   e => e.IsTargetable },
+            { "IsVisible",      e => e.ModelStatus == ModelStatus.Visible },
+            { "HP",             e => e.CurrentHP },
+            { "CurrentHP",      e => e.CurrentHP },
+            { "MaxHP",          e => e.MaxHP },
+            { "MP",             e => e.CurrentMP },
+            { "CurrentMP",      e => e.CurrentMP },
+            { "MaxMP",          e => e.MaxMP },
+            { "CP",             e => e.CurrentCP },
+            { "CurrentCP",      e => e.CurrentCP },
+            { "MaxCP",          e => e.MaxCP },
+            { "GP",             e => e.CurrentGP },
+            { "CurrentGP",      e => e.CurrentGP },
+            { "MaxGP",          e => e.MaxGP },
+            { "TransformationID",   e => e.TransformationID },
+            { "Level",          e => e.Level },
+            { "MonsterType",    e => (byte)e.MonsterType },
+            { "IsEnemy",        e => e.IsEnemy },
+            { "IsAggressive",   e => e.IsAggressive },
+            { "InCombat",       e => e.InCombat },
+            { "InParty",        e => e.InParty },
+            { "InAlliance",     e => e.InAlliance },
+            { "IsFriend",       e => e.IsFriend },
+            { "WeaponID",       e => e.WeaponID },
+            { "TargetID",       e => e.TargetHexID },
+            { "IsTargetingSelf",e => e.TargetID == GetMyself().TargetID },
+            { "BNpcNameID",     e => e.BNpcNameID },
+            { "CurrentWorldID", e => e.CurrentWorldID },
+            { "WorldID",        e => e.WorldID },
+            { "HomeWorldID",    e => e.WorldID },
+            { "WorldName",      e => (e.Type == EntityType.Pc || e.Type == EntityType.Retainer /* Retainer needs to be tested */)
 					? BridgeFFXIV.GetIdEntity(e.HexID).GetValue("worldname").ToString()
-					: ""
-			}, {
-				"IsCasting", e => e.IsCasting
-			}, {
-				"CastType", e => e.CastType
-			}, {
-				"CastID", e => e.CastID
-			}, {
-				"CastHexID", e => e.CastHexID
-			}, {
-				"CastTargetID", e => e.IsCasting ? e.CastTargetID.ToString("X") : "0"
-			}, {
-				"CastX", e => e.CastPosX
-			}, {
-				"CastPosX", e => e.CastPosX
-			}, {
-				"CastY", e => e.CastPosY
-			}, {
-				"CastPosY", e => e.CastPosY
-			}, {
-				"CastZ", e => e.CastPosZ
-			}, {
-				"CastPosZ", e => e.CastPosZ
-			}, {
-				"CastPos", e => new Vector3(e.CastPosX, e.CastPosY, e.CastPosZ)
-			}, {
-				"CastTime", e => e.CastTime
-			}, {
-				"MaxCastTime", e => e.MaxCastTime
-			}, {
-				"Order", _ => 0
-			}, // Obsolete
-			{
-				"StatusIDs", e => e.Statuses.Select(s => s.StatusID)
-			}, {
-				"StatusHexIDs", e => e.Statuses.Select(s => s.StatusHexID)
-			}, {
-				"StatusCount", e => e.Statuses.Count
-			}, {
-				"Marker", e => Memory.TargetMarkerOnEntity(e.ID)
-			}, {
-				"MarkerID", e => (int)Memory.TargetMarkerOnEntity(e.ID)
-			}
+                                    : "" },
+            { "IsCasting",      e => e.IsCasting },
+            { "CastType",       e => e.CastType },
+            { "CastID",         e => e.CastID },
+            { "CastHexID",      e => e.CastHexID },
+            { "CastTargetID",   e => e.IsCasting ? e.CastTargetID.ToString("X") : "0" },
+            { "CastX",          e => Round4(e.CastPosX) },
+            { "CastPosX",       e => Round4(e.CastPosX) },
+            { "CastY",          e => Round4(e.CastPosY) },
+            { "CastPosY",       e => Round4(e.CastPosY) },
+            { "CastZ",          e => Round4(e.CastPosZ) },
+            { "CastPosZ",       e => Round4(e.CastPosZ) },
+            { "CastPos",        e => new Vector3(Round4(e.CastPosX), Round4(e.CastPosY), Round4(e.CastPosZ)) },
+            { "CastTime",       e => e.CastTime },
+            { "MaxCastTime",    e => e.MaxCastTime },
+            { "Order",          e => 0 },  // Obsolete
+            { "StatusIDs",      e => e.Statuses.Select(s => s.StatusID) },
+            { "StatusHexIDs",   e => e.Statuses.Select(s => s.StatusHexID) },
+            { "StatusCount",    e => e.Statuses.Count },
+            { "Marker",         e => Memory.TargetMarkerOnEntity(e.ID) },
+            { "MarkerID",       e => (int)Memory.TargetMarkerOnEntity(e.ID) },
 		};
 
 	internal static readonly Dictionary<string, Func<Entity, string[], object>> _methodAccessors
