@@ -8,6 +8,7 @@ using Advanced_Combat_Tracker;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Triggernometry.Core;
 using static TriggernometryProxy.ProxyPlugin;
 using static Triggernometry.PScript.ScriptUtils.ShapeType;
 
@@ -234,6 +235,7 @@ public static partial class ScriptUtils {
 		Cone,
 		Line,
 		Rect,
+		Ray,
 		Ring
 	}
 
@@ -241,6 +243,7 @@ public static partial class ScriptUtils {
 	public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
 		public readonly Func<Vector3> Position = position;
 		public long EndTime = DateTime.Now.Ticks / 10000 + duration;
+		public readonly long Duration = duration;
 		public readonly ShapeType ShapeType = shapeType;
 		public readonly uint Color = color;
 		public bool toRecycle;
@@ -322,6 +325,26 @@ public static partial class ScriptUtils {
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+	public class IGRay(Func<Vector3> position, float length, Func<float> rotation, long duration, float thickness = 5, uint? color = null)
+		: IGBase(position, duration, Ray, color ?? 0x400000FFu) {
+		public readonly Func<float> Rotation = rotation;
+		public readonly float Length = length;
+		public readonly float Thickness = thickness;
+
+		public IGRay(Vector3 position, float length, float rotation, long duration, float thickness = 5, uint? color = null)
+			: this(() => position, length, () => rotation, duration, thickness, color) {
+		}
+
+		public IGRay(Vector3 position, float length, Func<float> rotation, long duration, float thickness = 5, uint? color = null)
+			: this(() => position, length, rotation, duration, thickness, color) {
+		}
+
+		public IGRay(Func<Vector3> position, float length, float rotation, long duration, float thickness = 5, uint? color = null)
+			: this(position, length, () => rotation, duration, thickness, color) {
+		}
+	}
+
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class IGRing(Func<Vector3> position, double R, double r, long duration, uint? color = null)
 		: IGBase(position, duration, Ring, color ?? 0x40FFFF00u) {
 		public readonly float R = (float)R;
@@ -356,6 +379,9 @@ public static partial class ScriptUtils {
 					break;
 				case Rect:
 					bdl.DrawIGRect((IGRect)shape);
+					break;
+				case Ray:
+					bdl.DrawIGRay((IGRay)shape);
 					break;
 				case Ring:
 					bdl.DrawIGRing((IGRing)shape);
@@ -429,6 +455,13 @@ public static partial class ScriptUtils {
 			bdl.PathClear();
 		}
 
+		private void DrawIGRay(IGRay ray) {
+			var startPos = ray.Position();
+			var rad = ray.Rotation();
+			var endPos = startPos + new Vector3(MathF.Sin(rad), 0, MathF.Cos(rad)) * ray.Length;
+			bdl.DrawIGRect(new IGRect(startPos, endPos, ray.Duration, ray.Thickness, ray.Color));
+		}
+
 		private void DrawIGRing(IGRing ring) {
 			var worldPosition = ring.Position();
 			var outerScreenPoints = new Vector2[DefaultCircleSegments + 1];
@@ -459,5 +492,14 @@ public static partial class ScriptUtils {
 		}
 
 		#endregion Draw
+	}
+
+	public static void ShowTexts(string[] strs) {
+		Task.Run(async () => {
+			foreach (var s in strs) {
+				RealPlugin.Instance.InvokeNamedCallback("command", $"/e {s}");
+				await Task.Delay(100);
+			}
+		});
 	}
 }
