@@ -2,13 +2,14 @@
 using System.Numerics;
 using System.Threading.Tasks;
 using Dalamud;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using Triggernometry.PScript;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
 public abstract class Vfx {
-	public IntPtr Ptr { get; set; }
+	public unsafe VfxObject* Ptr { get; set; }
 	public string Path { get; set; }
 	public string Tag { get; set; }
 	public bool Removed { get; set; } = false;
@@ -21,11 +22,15 @@ public abstract class Vfx {
 	public abstract bool TryRemove();
 
 	public void ScheduleRemove(double duration) {
-		if (duration > 0 && Ptr != IntPtr.Zero) {
+		bool b;
+		unsafe {
+			b = duration > 0 && ((IntPtr)Ptr != IntPtr.Zero);
+		}
+		if (b) {
 			Task.Run(async () => {
 				try {
 					await Task.Delay(TimeSpan.FromSeconds(duration)).ConfigureAwait(false);
-					GreyMagicMemoryBase.ExecuteWithLock(() => TryRemove());
+					GreyMagicMemoryBase.ExecuteWithLock(TryRemove);
 				} catch (Exception ex) {
 					Module.ErrorLog($"[PictoACT] 延迟移除时出错：\n{ex}");
 				}
@@ -38,25 +43,22 @@ public abstract class Vfx {
 		Flag |= 0x2;
 	}
 
-	public byte Flag {
-		get {
-			SafeMemory.Read<byte>(Ptr + 0x38, out var flag);
-			return flag;
-		}
+	public unsafe byte Flag {
+		get => (byte)Ptr->ObjectFlags;
 		set {
 			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x38, value);
+			Ptr->ObjectFlags = value;
 		}
 	}
 
-	public Vector3 Pos {
+	public unsafe Vector3 Pos {
 		get {
-			SafeMemory.Read<Vector3>(Ptr + 0x50, out var raw);
+			var raw = Ptr->Position;
 			return new Vector3(raw.X, raw.Z, raw.Y);
 		}
 		set {
 			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x50, new Vector3(value.X, value.Z, value.Y));
+			Ptr->Position = new Vector3(value.X, value.Z, value.Y);
 		}
 	}
 
@@ -65,9 +67,9 @@ public abstract class Vfx {
 		set => Angles = new Vector3(value, 0, 0);
 	}
 
-	public Vector3 Angles {
+	public unsafe Vector3 Angles {
 		get {
-			SafeMemory.Read<Vector4>(Ptr + 0x60, out var raw);
+			var raw = Ptr->Rotation;
 			var q = new Quaternion(raw.X, raw.Z, raw.Y, raw.W);
 
 			float yaw;
@@ -94,84 +96,69 @@ public abstract class Vfx {
 		set {
 			if (Removed) return;
 			var q = Quaternion.CreateFromYawPitchRoll(value.Z, value.Y, value.X); // θy, θx, θ
-			SafeMemory.Write(Ptr + 0x60, new Vector4(q.X, q.Z, q.Y, q.W));
+			Ptr->Rotation =new Quaternion(q.X, q.Z, q.Y, q.W) ;
 		}
 	}
 
-	public Vector3 Scales {
+	public unsafe Vector3 Scales {
 		get {
-			SafeMemory.Read<Vector3>(Ptr + 0x70, out var raw);
+			var raw = Ptr->Scale;
 			return new Vector3(raw.X, raw.Z, raw.Y);
 		}
 		set {
 			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x70, new Vector3(value.X, value.Z, value.Y));
+			Ptr->Scale = new Vector3(value.X, value.Z, value.Y);
 		}
 	}
 
-	public uint ActorVfxSource {
-		get {
-			SafeMemory.Read<uint>(Ptr + 0x128, out var result);
-			return result;
-		}
+	public unsafe int ActorVfxSource {
+		get => Ptr->ActorCaster;
 		set {
 			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x128, value);
+			Ptr->ActorCaster = value;
 		}
 	}
 
-	public uint ActorVfxTarget {
+	public unsafe int ActorVfxTarget {
+		get => Ptr->ActorTarget;
+		set {
+			if (Removed) return;
+			Ptr->ActorTarget = value;
+		}
+	}
+
+	public unsafe int StaticVfxSource {
+		get => Ptr->StaticCaster;
+		set {
+			if (Removed) return;
+			Ptr->StaticCaster = value;
+		}
+	}
+
+	public unsafe int StaticVfxTarget {
+		get => Ptr->StaticTarget;
+		set {
+			if (Removed) return;
+			Ptr->StaticTarget = value;
+		}
+	}
+
+	public unsafe float Speed {
 		get {
-			SafeMemory.Read<uint>(Ptr + 0x130, out var res);
+			SafeMemory.Read<float>((IntPtr)(Ptr + 0x250), out var res);
 			return res;
 		}
 		set {
 			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x130, value);
+			SafeMemory.Write((IntPtr)(Ptr + 0x250), value);
 		}
 	}
 
-	public uint StaticVfxSource {
-		get {
-			SafeMemory.Read<uint>(Ptr + 0x1B8, out var res);
-			return res;
-		}
+	public unsafe Vector4 Color {
+		get => Ptr->Color;
 		set {
 			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x1B8, value);
-		}
-	}
-
-	public uint StaticVfxTarget {
-		get {
-			SafeMemory.Read<uint>(Ptr + 0x1C0, out var res);
-			return res;
-		}
-		set {
-			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x1C0, value);
-		}
-	}
-
-	public float Speed {
-		get {
-			SafeMemory.Read<float>(Ptr + 0x250, out var res);
-			return res;
-		}
-		set {
-			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x250, value);
-		}
-	}
-
-	public Vector4 Color {
-		get {
-			SafeMemory.Read<Vector4>(Ptr + 0x260, out var res);
-			return res;
-		}
-		set {
-			if (Removed) return;
-			SafeMemory.Write(Ptr + 0x260, value);
+			Ptr->Color = value;
 		}
 	}
 }

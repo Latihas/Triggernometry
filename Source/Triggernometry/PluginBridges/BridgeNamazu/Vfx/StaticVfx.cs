@@ -25,9 +25,9 @@ public class StaticVfx : Vfx {
 	public static StaticVfx Create(string fullPath, string tag = null)
 		=> Module.StaticVfxCreate(fullPath, tag);
 
-	public void Run()
+	public unsafe void Run()
 		=> Module.StaticVfxRun(Ptr);
 
-	public override bool TryRemove()
+	public unsafe override bool TryRemove()
 		=> Module.TryStaticVfxRemove(Ptr);
 }

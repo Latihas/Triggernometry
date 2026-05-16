@@ -11,6 +11,6 @@ public class ActorVfx : Vfx {
 	public static ActorVfx Create(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null)
 		=> Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
 
-	public override bool TryRemove()
+	public override unsafe bool TryRemove()
 		=> Module.TryActorVfxRemove(Ptr);
 }
