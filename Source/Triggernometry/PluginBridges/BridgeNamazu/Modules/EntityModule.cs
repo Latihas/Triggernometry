@@ -51,7 +51,7 @@ public class EntityModule : ModuleBase {
 	/// <summary> SetHighlightColor 虚函数索引。</summary>
 	public Func<int> SetHighlightColorVTableIdx = () => 26; // 7.0
 	/// <summary> GetStatusManager 虚函数索引。</summary>
-	public Func<int> GetStatusManagerVTableIdx = () => 77; // 7.0
+        public Func<int> GetStatusManagerVTableIdx = () => Plugin.IsTC ? 77 : 78; // 7.0
 
 	public EntityModule() {
 		ScanMethod = () => { };

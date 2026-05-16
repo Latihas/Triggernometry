@@ -54,6 +54,19 @@ public class NamazuPlugin {
 
 	public Dictionary<string, bool> ActionEnabled => _plugin.ActionEnabled;
 
+        public bool IsActionEnabled(string cmdOrModuleName)
+        {
+            if (!_commandToModuleNames.TryGetValue(cmdOrModuleName, out var moduleName))
+            { 
+                moduleName = cmdOrModuleName;
+            }
+            if (!ActionEnabled.TryGetValue(moduleName, out bool enabled))
+            {
+                throw new KeyNotFoundException($"Module '{moduleName}' not found.");
+            }
+            return enabled;
+        }
+
 	public void DoAction(string command, string payload)
 		=> _plugin.DoAction(command, payload);
 

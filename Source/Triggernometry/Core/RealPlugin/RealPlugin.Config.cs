@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Variables;
 using Triggernometry.Localization;
+using Triggernometry.UI.Forms;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
@@ -55,22 +56,53 @@ public partial class RealPlugin {
 		};
 	}
 
-	public void BackupConfiguration() {
-		var curver = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-		var cfgver = cfg.PluginVersion ?? "pre1.0.4.4";
-		cfg.PrevPluginVersion = cfgver;
-		if (cfgver != curver) {
-			var oldfn = Path.Combine(ConfigPath, pluginName + ".config.xml");
-			var bacfn = Path.Combine(ConfigPath, pluginName + "." + cfgver + ".config.xml");
-			if (File.Exists(oldfn)) {
-				if (!File.Exists(bacfn)) {
-					FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgbackupupdate", "Plugin updated from {0} to {1}, backing up configuration as {2}", cfgver, curver, bacfn));
+        public void HandleVersionUpdate()
+        {
+            string currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string prevVersion = cfg.PluginVersion ?? "pre1.0.4.4";
+            if (prevVersion != currentVersion)
+            {
+                // Inform the user to view the changelog after a version change.
+                // If this version was already notified after an auto-update, do not show it again.
+                AskChangeLogOnStart(prevVersion, currentVersion);
+
+                BackupConfiguration(prevVersion, currentVersion);
+                cfg.PluginVersion = currentVersion;
+            }
+        }
+
+        private void AskChangeLogOnStart(string prevVersion, string currentVersion)
+        {
+            if (cfg.PreviousNotifiedPluginVersion != currentVersion)
+            {
+                cfg.PreviousNotifiedPluginVersion = currentVersion;
+                var title = I18n.Translate("internal/Plugin/triggernometryupdate", "Triggernometry Update");
+                var msg = I18n.Translate("internal/Plugin/triggernometryupdated",
+                        "The plugin had been updated from {0} to {1}. \r\nWould you like to view the changelog?",
+                        prevVersion, currentVersion);
+                var tray = TraySlider.Info(2, msg, title);
+                tray.OnClick1 = () => ShowChangeLog();
+                tray.Show();
+            }
+        }
+
+        private void BackupConfiguration(string prevVersion, string currentVersion)
+        {
+            string oldfn = Path.Combine(ConfigPath, pluginName + ".config.xml");
+            string bacfn = Path.Combine(ConfigPath, pluginName + "." + prevVersion + ".config.xml");
+            if (File.Exists(oldfn) == true)
+            {
+                if (File.Exists(bacfn) == false)
+                {
+                    FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgbackupupdate", "Plugin updated from {0} to {1}, backing up configuration as {2}", 
+                        prevVersion, currentVersion, bacfn));
 					File.Copy(oldfn, bacfn, false);
-				} else {
-					FilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Plugin/cfgbackupdatewarn", "Plugin updated from {0} to {1}, but a backup configuration file already exists, not overwriting", cfgver, curver));
+                }
+                else
+                {
+                    FilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Plugin/cfgbackupdatewarn", "Plugin updated from {0} to {1}, but a backup configuration file already exists, not overwriting", 
+                        prevVersion, currentVersion));
 				}
-			}
-			cfg.PluginVersion = curver;
 		}
 	}
 

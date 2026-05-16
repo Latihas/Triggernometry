@@ -136,8 +136,10 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, -1.0)); // 默认不移除
 		CheckIfVfxNameTooShort(vfxName, "LockOn");
-		var vfx = LockOnCreate(tgtAddress, vfxName);
-		ScheduleActorVfxRemove(vfx.Ptr, duration, true);
+            var vfx = Memory.ExecuteWithLock(() => LockOnCreate(tgtAddress, vfxName));
+            if (vfx == null) return;
+            IntPtr vfxPtr = vfx.Ptr;
+            ScheduleActorVfxRemove(vfxPtr, duration, true);
 	}
 
 	/// <summary> 连线特效 </summary>
@@ -147,8 +149,10 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "Channeling");
-		var vfx = ChannelingCreate(srcAddress, tgtAddress, vfxName);
-		ScheduleActorVfxRemove(vfx.Ptr, duration);
+            var vfx = Memory.ExecuteWithLock(() => ChannelingCreate(srcAddress, tgtAddress, vfxName));
+            if (vfx == null) return;
+            IntPtr vfxPtr = vfx.Ptr;
+            ScheduleActorVfxRemove(vfxPtr, duration);
 	}
 
 	/// <summary> 咏唱特效 </summary>
@@ -158,8 +162,10 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "CastVfx");
-		var vfx = CastVfxCreate(srcAddress, vfxName);
-		ScheduleActorVfxRemove(vfx.Ptr, duration);
+            var vfx = Memory.ExecuteWithLock(() => CastVfxCreate(srcAddress, vfxName));
+            if (vfx == null) return;
+            IntPtr vfxPtr = vfx.Ptr;
+            ScheduleActorVfxRemove(vfxPtr, duration);
 	}
 
 	/// <summary> 通用 ActorVfx </summary>
@@ -169,8 +175,10 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "ActorVfx");
-		var vfx = ActorVfxCreate(srcAddress, tgtAddress, vfxName);
-		ScheduleActorVfxRemove(vfx.Ptr, duration);
+            var vfx = Memory.ExecuteWithLock(() => ActorVfxCreate(srcAddress, tgtAddress, vfxName));
+            if (vfx == null) return;
+            IntPtr vfxPtr = vfx.Ptr;
+            ScheduleActorVfxRemove(vfxPtr, duration);
 	}
 
 	public ActorVfx LockOnCreate(IntPtr tgtAddress, string vfxName, string tag = Vfx.Vfx.DefaultTag)
@@ -288,21 +296,19 @@ public class VfxModule : ModuleBase {
 			var scales = new Vector3(scaleX, rawScaleY ?? scaleX, rawScaleZ ?? scaleX);
 			var color = new Vector4(r, g, b, a);
 
-			var vfx = StaticVfxCreate(vfxPath);
-			vfx.Run();
+            var vfx = StaticVfxCreate(vfxPath);
+            vfx.Run();
 
-			vfx.Pos = pos;
-			vfx.Angle = h;
-			if (scales != Vector3.One) vfx.Scales = scales;
-			if (color != Vector4.One) vfx.Color = color;
-			vfx.Update();
+            vfx.Pos = pos;
+            vfx.Angle = h;
+            if (scales != Vector3.One) vfx.Scales = scales;
+            if (color != Vector4.One) vfx.Color = color;
+            vfx.Update();
 
 			vfx.ScheduleRemove(t);
 		});
 	}
 
-	private byte[] staticVfxCreateBytesDebug;
-	private DateTime lastRead;
 
 	public StaticVfx StaticVfxCreate(string fullPath, string tag = Vfx.Vfx.DefaultTag) {
 		return GreyMagicMemoryBase.ExecuteWithLock(() => {

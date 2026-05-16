@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -58,11 +60,20 @@ public class Configuration {
 		External
 	}
 
-	[XmlAttribute] public UpdateNotificationsEnum UpdateNotifications { get; set; } = UpdateNotificationsEnum.Undefined;
+        /// <summary> Whether to check for updates and show update notifications. </summary>
+        [XmlAttribute]
+        public UpdateNotificationsEnum UpdateNotifications { get; set; } = UpdateNotificationsEnum.Yes;
 
-	[XmlAttribute] public UpdateCheckMethodEnum UpdateCheckMethod { get; set; } = UpdateCheckMethodEnum.ACT;
+        private int _UpdateInterval = 60;
+        [XmlAttribute]
+        public int UpdateInterval
+        {
+            get => _UpdateInterval;
+            set => _UpdateInterval = value < 5 ? 5 : value;
+        }
 
-	[XmlAttribute] public bool AutoUpdate { get; set; }
+        [XmlAttribute]
+        public UpdateCheckMethodEnum UpdateCheckMethod { get; set; } = UpdateCheckMethodEnum.ACT;
 
 	[XmlAttribute] public string UpdateExternalChannelUrl { get; set; } = "";
 
@@ -459,11 +470,14 @@ public class Configuration {
 
 	#endregion
 
-	[XmlAttribute] public int Version { get; set; } = 1;
+        /// <summary>
+        /// Last plugin version for which the changelog prompt has already been shown. <br />
+        /// Used to avoid showing the same changelog prompt again after an auto-update or restart.
+        /// </summary>
+        [XmlAttribute]
+        public string PreviousNotifiedPluginVersion { get; set; } = "1";
 
 	[XmlAttribute] public string PluginVersion { get; set; } = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
-	[XmlIgnore] public string PrevPluginVersion { get; set; }
 
 	internal bool isnew = true;
 	internal DateTime lastWrite = DateTime.Now;

@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
+using Triggernometry.UI.CustomControls;
+using Triggernometry.UI.Forms;
+using Triggernometry.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
@@ -16,8 +22,13 @@ public partial class RealPlugin {
 
 	#region Plugin Update
 
-	internal void CheckForUpdates(bool isManual = false) {
-		switch (cfg.UpdateCheckMethod) {
+        internal DateTime UpdateLastChecked = DateTime.MinValue;
+
+        internal void CheckForUpdates(bool isManual = false)
+        {
+            UpdateLastChecked = DateTime.Now;
+            switch (cfg.UpdateCheckMethod)
+            {
 			case Configuration.UpdateCheckMethodEnum.ACT:
 				CheckForUpdatesACT();
 				break;
@@ -25,7 +36,7 @@ public partial class RealPlugin {
 				CheckForUpdatesBuiltin(isManual);
 				break;
 			case Configuration.UpdateCheckMethodEnum.External:
-				CheckForUpdatesExternal(cfg.UpdateExternalChannelUrl, isManual);
+                    CheckForUpdatesExternal(cfg.UpdateExternalChannelUrl, notifyIfLatest: isManual);
 				break;
 		}
 	}
@@ -105,6 +116,20 @@ public partial class RealPlugin {
 
 	public void UpdatePostNamazu(string remoteVersion) {
 	}
+
+        public void ShowChangeLog()
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://docs.qq.com/doc/DTFZFZFF0dGh2eWhm",
+                UseShellExecute = true
+            });
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/MnFeN/Triggernometry/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97",
+                UseShellExecute = true
+            });
+        }
 
 	#endregion Plugin Update (External)
 

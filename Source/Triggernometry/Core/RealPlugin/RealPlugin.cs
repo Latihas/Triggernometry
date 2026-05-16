@@ -224,14 +224,16 @@ public partial class RealPlugin {
 			exwhere = I18n.Translate("internal/Plugin/inifilename", "determining filename");
 			pluginName = Path.GetFileNameWithoutExtension(pluginName);
 			FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/filenameis", "Plugin filename is '{0}' at '{1}'", pluginName, pluginPath));
+                
 			exwhere = I18n.Translate("internal/Plugin/inilanguages", "loading languages");
 			LoadLanguages();
+
 			exwhere = I18n.Translate("internal/Plugin/inicfg", "loading configuration");
 			ProxyPlugin.Framework.RunOnFrameworkThread(() => _cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"))).Wait();
 			SetupDefaultSecurity();
 			AutofixConfiguration();
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-			BackupConfiguration();
+                HandleVersionUpdate();
 			FixDuplicateFolderReferences(null, cfg, null);
 			BridgeFFXIV.cfg = cfg;
 			// start
