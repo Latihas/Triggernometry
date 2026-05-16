@@ -22,8 +22,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.3.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="*"/>
     <PackageReference Include="SharpDX.Direct3D11" Version="*"/>
-    <PackageReference Include="System.Management" Version="10.0.7" />
-    <PackageReference Include="System.Speech" Version="*"/>
+    <PackageReference Include="System.Management" Version="10.0.8" />
+    <PackageReference Include="System.Speech" Version="10.0.8" />
     <PackageReference Include="WebSocketSharp-netstandard" Version="*"/>
     <Reference Include="FFXIV_ACT_Plugin">
       <HintPath>../../../external_dependencies/FFXIV_ACT_Plugin.dll</HintPath>
