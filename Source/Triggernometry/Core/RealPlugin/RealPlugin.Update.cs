@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
 using Triggernometry.UI.CustomControls;
@@ -102,7 +101,7 @@ public partial class RealPlugin {
 		[XmlAttribute] public string Message { get; set; }
 	}
 
-	public void CheckForUpdatesExternal(string manifestUrl = null, bool alwaysNotify = false, bool forceAutoUpdate = false) {
+	public void CheckForUpdatesExternal(string manifestUrl = null, bool notifyIfLatest = false, bool forceAutoUpdate = false){
 	}
 
 	private void UpdatePluginExternal(UpdateManifest um, Version localVersion) {
