@@ -28,6 +28,6 @@ public class StaticVfx : Vfx {
 	public unsafe void Run()
 		=> Module.StaticVfxRun(Ptr);
 
-	public unsafe override bool TryRemove()
+	public override unsafe bool TryRemove()
 		=> Module.TryStaticVfxRemove(Ptr);
 }
