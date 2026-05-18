@@ -36,7 +36,7 @@ public class VfxModule : ModuleBase {
 	public static void ClearVfxCache() {
 		lock (_actorVfxs) _actorVfxs.Clear();
 		lock (_staticVfxs) _staticVfxs.Clear();
-		if (RealPlugin.Instance.cfg.UseImGui4VfxModule) ClearAllIGShape();
+		// if (RealPlugin.Instance.cfg.UseImGui4VfxModule) ClearAllIGShape();
 	}
 
 	public unsafe VfxModule() {
@@ -69,11 +69,6 @@ public class VfxModule : ModuleBase {
 
 	public static unsafe VfxObject* StaticVfxRemoveDetour(VfxObject* vfxPtr) {
 		if (RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(nameof(VfxModule))) return ProxyPlugin.StaticVfxRemoveHook.Original(vfxPtr);
-		try {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Info, $"StaticVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>((IntPtr)vfxPtr, 1)![0]:X},vfxPtr:{(IntPtr)vfxPtr:X}");
-		} catch (Exception e) {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoving Log Err: {e}");
-		}
 		Task.Run(() => {
 			lock (_staticVfxs) {
 				if (_staticVfxs.TryGetValue((IntPtr)vfxPtr, out var vfx)) {
@@ -90,11 +85,6 @@ public class VfxModule : ModuleBase {
 
 	public static unsafe VfxObject* ActorVfxRemoveDetour(VfxObject*  vfxPtr, char a2) {
 		if (RealPlugin.Instance.cfg.PostnamazuModuleDisabled.Contains(nameof(VfxModule))) return ProxyPlugin.ActorVfxRemoveHook.Original(vfxPtr, a2);
-		try {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Info, $"ActorVfxRemoving,vfxPtrV:{SafeMemory.Read<IntPtr>((IntPtr)vfxPtr, 1)![0]:X},vfxPtr:{(IntPtr)vfxPtr:X}");
-		} catch (Exception e) {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoving Log Err: {e}");
-		}
 		Task.Run(() => {
 			lock (_actorVfxs) {
 				if (_actorVfxs.TryGetValue((IntPtr)vfxPtr, out var vfx)) {
@@ -199,27 +189,22 @@ public class VfxModule : ModuleBase {
 			if ((long)srcAddress <= 0xFFFF || (long)tgtAddress <= 0xFFFF)
 				throw new Exception($"[鲶鱼精邮差扩展] ActorVfxCreate ({fullPath}) 实体地址无效：src = {(long)srcAddress:X}, tgt = {(long)tgtAddress:X}");
 			ActorVfx vfx = null;
-			if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
-				// if(ImGuiReplaceDict.TryGetValue(fullPath,out var type))
-				// vfx = new ActorVfx {
-				//     Ptr = 0,
-				//     Path = fullPath,
-				//     Tag = tag
-				// imguiobj
-				// };
-				// Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
-				//TODO Collect data
-				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"ActorVfx not in dict: {fullPath}({tag})");
-			}
+			// if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
+			// 	// if(ImGuiReplaceDict.TryGetValue(fullPath,out var type))
+			// 	// vfx = new ActorVfx {
+			// 	//     Ptr = 0,
+			// 	//     Path = fullPath,
+			// 	//     Tag = tag
+			// 	// imguiobj
+			// 	// };
+			// 	// Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
+			// 	//TODO Collect data
+			// 	RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"ActorVfx not in dict: {fullPath}({tag})");
+			// }
 			if (vfx == null) {
 				var vfxPtr = ActorVfxCreateD(fullPath, srcAddress, tgtAddress, unknownParamTest, (char)0, 0, (char)0);
-				try {
-					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxCreate,vfxPtrV:{SafeMemory.Read<IntPtr>((IntPtr)vfxPtr, 1)![0]:X},Path:{fullPath},Tag:{tag},vfxPtr:{(IntPtr)vfxPtr}");
-				} catch (Exception e) {
-					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxCreate Log Err: {e}");
-				}
 				vfx = new ActorVfx {
-					Ptr = (VfxObject*)vfxPtr,
+					Ptr = vfxPtr,
 					Path = fullPath,
 					Tag = tag
 				};
@@ -251,11 +236,6 @@ public class VfxModule : ModuleBase {
 						return false;
 					}
 					vfx.Removed = true;
-					try {
-						RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemove,vfxPtrV:{SafeMemory.Read<IntPtr>((IntPtr)vfxPtr, 1)![0]:X},Path:{vfx.Path},Tag:{vfx.Tag},vfxPtr:{(IntPtr)vfxPtr:X}");
-					} catch (Exception e) {
-						RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemove Log Err: {e}");
-					}
 				}
 				ActorVfxRemoveD(vfxPtr, (char)1);
 			} finally {
@@ -317,24 +297,19 @@ public class VfxModule : ModuleBase {
 			CheckIfVfxPathValid(fullPath);
 			const string pool = "Client.System.Scheduler.Instance.VfxObject";
 			StaticVfx vfx = null;
-			if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
-				if (ImGuiReplaceDict.TryGetValue(fullPath, out var type))
-					vfx = new StaticVfx {
-						Ptr = (VfxObject*)0,
-						Path = fullPath,
-						Tag = tag
-					};
-				// Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
-				//TODO Collect data
-				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"StaticVfx not in dict: {fullPath}({tag})");
-			}
+			// if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
+			// 	if (ImGuiReplaceDict.TryGetValue(fullPath, out var type))
+			// 		vfx = new StaticVfx {
+			// 			Ptr = (VfxObject*)0,
+			// 			Path = fullPath,
+			// 			Tag = tag
+			// 		};
+			// 	// Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
+			// 	//TODO Collect data
+			// 	RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"StaticVfx not in dict: {fullPath}({tag})");
+			// }
 			if (vfx == null) {
 				var vfxPtr = StaticVfxCreateD(new Utf8String(fullPath).StringPtr, new Utf8String(pool).StringPtr);
-				try {
-					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxCreate,vfxPtrV:{SafeMemory.Read<IntPtr>((IntPtr)vfxPtr, 1)![0]:X},Path:{fullPath},Tag:{tag},vfxPtr:{(IntPtr)vfxPtr}");
-				} catch (Exception e) {
-					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxCreate Log Err: {e}");
-				}
 				vfx = new StaticVfx {
 					Ptr = vfxPtr,
 					Path = fullPath,
@@ -377,11 +352,6 @@ public class VfxModule : ModuleBase {
 						return false;
 					}
 					vfx.Removed = true;
-					try {
-						RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemove,vfxPtrV:{SafeMemory.Read<IntPtr>((IntPtr)vfxPtr, 1)![0]:X},Path:{vfx.Path},Tag:{vfx.Tag},vfxPtr:{(IntPtr)vfxPtr:X}");
-					} catch (Exception e) {
-						RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemove Log Err: {e}");
-					}
 				}
 				StaticVfxRemoveD(vfxPtr);
 			} finally {
