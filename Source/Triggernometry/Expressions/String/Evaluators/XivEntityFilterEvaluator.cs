@@ -50,11 +50,11 @@ internal static class XivEntityFilterEvaluator // to-do: sortings
 			}
 
 			// entity method with args: search for the matching ")"
-                int depth = 1;
-                bool paired = false;
+                var depth = 1;
+                var paired = false;
                 var methodArgs = new List<string>();
                 var currentArgTokens = new List<string>();
-                for (int j = i + 3; j < rawTokenList.Count; j++) // start from the token after "("
+                for (var j = i + 3; j < rawTokenList.Count; j++) // start from the token after "("
 			{
                     var currentToken = rawTokenList[j];
                     if (currentToken == "," && depth == 1) // split args by comma at depth 1

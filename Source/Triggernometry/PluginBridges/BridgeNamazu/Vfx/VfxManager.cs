@@ -112,7 +112,7 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx {
 		#region 延迟移除
 
 		private static readonly Lock RemoveWorkerLock = new();
-		private static bool RemoveWorkerStarted;
+		// private static bool RemoveWorkerStarted;
 
 		public static unsafe void ScheduleRemove(VfxBase? vfx, double duration) {
 			if (vfx == null || vfx.Vfx == null || (IntPtr)vfx.Vfx == IntPtr.Zero || duration < 0) return;
@@ -121,19 +121,19 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx {
 		}
 
 		private static void EnsureRemoveWorkerStarted() {
-			lock (RemoveWorkerLock) {
-				if (RemoveWorkerStarted)
-					return;
-
-				RemoveWorkerStarted = true;
-				ProxyPlugin.Framework.Update += RemoveWorkerLoop;
+			// lock (RemoveWorkerLock) {
+				// if (RemoveWorkerStarted)
+				// 	return;
+				//
+				// RemoveWorkerStarted = true;
+				// ProxyPlugin.Framework.Update += RemoveWorkerLoop;
 				// var thread = new Thread() {
 				// 	IsBackground = true,
 				// 	Name = "VFX Remove Worker"
 				// };
 				//
 				// thread.Start();
-			}
+			// }
 		}
 
 		internal static void RemoveWorkerLoop(IFramework _) {
@@ -150,11 +150,11 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx {
 				expired.AddRange(StaticVfxs.Values
 					.Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now));
 			foreach (var vfx in expired) {
-				try {
+				// try {
 					vfx.TryRemove();
-				} catch (Exception ex) {
-					Module.ErrorLog($"[PictoACT] 移除过期 VFX 时出错：\n{ex}");
-				}
+				// } catch (Exception ex) {
+				// 	Module.ErrorLog($"[PictoACT] 移除过期 VFX 时出错：\n{ex}");
+				// }
 			}
 		}
 

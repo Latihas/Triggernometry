@@ -75,8 +75,8 @@ namespace Triggernometry.PluginBridges.BridgeMachina
                     .ThenBy(x => int.Parse("0" + x.match.Groups[2].Value)) // 这样可以让 XXX4 XXX8 排在 XXX16 前面
                     .Select(x => x.kv))
                 {
-                    ushort oldVal = kv.Value.Item1;
-                    ushort newVal = kv.Value.Item2;
+                    var oldVal = kv.Value.Item1;
+                    var newVal = kv.Value.Item2;
                     sb.AppendLine($"  - {kv.Key}: 0x{oldVal:X} => 0x{newVal:X}");
                 }
                 sb.AppendLine();
@@ -127,7 +127,7 @@ namespace Triggernometry.PluginBridges.BridgeMachina
 
             var dict = new Dictionary<string, ushort>(StringComparer.OrdinalIgnoreCase);
             var lines = rawOpcodes
-                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Trim())
                 .Where(line => line.Length > 0 && !line.StartsWith("//") && !line.StartsWith("#"));
 
@@ -143,7 +143,7 @@ namespace Triggernometry.PluginBridges.BridgeMachina
                 if (key.Length == 0 || valStr.Length == 0)
                     throw new Exception("Invalid line (empty key or value): " + line);
 
-                if (!ushort.TryParse(valStr, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ushort value))
+                if (!ushort.TryParse(valStr, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var value))
                     throw new Exception("Unable to parse hex value: " + valStr);
 
                 dict[key] = value;
@@ -230,7 +230,7 @@ namespace Triggernometry.PluginBridges.BridgeMachina
                 isInitOnly?.SetValue(field, false);
 
                 var instance = Activator.CreateInstance(ServerMessageType);
-                if (replaceDict.TryGetValue(field.Name, out ushort newVal))
+                if (replaceDict.TryGetValue(field.Name, out var newVal))
                     internalValueProp.SetValue(instance, newVal);
 
                 field.SetValue(null, instance);
@@ -265,10 +265,10 @@ namespace Triggernometry.PluginBridges.BridgeMachina
 
         private static void SetOpcodeManagerRegion(object opcodeManagerInstance, string regionName)
         {
-            var setRegionMethod = OpcodeManagerType.GetMethod("SetRegion", new[] { GameRegionType })
+            var setRegionMethod = OpcodeManagerType.GetMethod("SetRegion", [GameRegionType])
                 ?? throw ReflectFail("OpcodeManager.SetRegion Method");
 
-            setRegionMethod.Invoke(opcodeManagerInstance, new[] { GetMachinaRegion(regionName) });
+            setRegionMethod.Invoke(opcodeManagerInstance, [GetMachinaRegion(regionName)]);
         }
 
         private static void UpdateOpcodeManagerBackingStore(object opcodeManagerInstance, string regionName, Dictionary<string, ushort> opcodes)
@@ -329,7 +329,7 @@ namespace Triggernometry.PluginBridges.BridgeMachina
             var iocGetService = iocContainer.GetType().GetMethod("GetService")
                 ?? throw ReflectFail("iocContainer.GetService Method");
 
-            return iocGetService.Invoke(iocContainer, new object[] { PacketHandlerMediatorType })
+            return iocGetService.Invoke(iocContainer, [PacketHandlerMediatorType])
                 ?? throw ReflectFail("PacketHandlerMediator Instance");
         }
 

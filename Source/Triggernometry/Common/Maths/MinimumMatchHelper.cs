@@ -44,7 +44,7 @@ public static class MinimumMatchHelper {
 		if (src.Length != tgt.Length) throw new ArgumentException("src 和 tgt 的长度必须相同。");
 
 		var n = src.Length;
-		if (n == 0) return (new int[0], 0);
+		if (n == 0) return ([], 0);
 		if (n > 30) throw new ArgumentOutOfRangeException(nameof(src), "元素数量过大。");
 
 		var cost = new double[n, n];

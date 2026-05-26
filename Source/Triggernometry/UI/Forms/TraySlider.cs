@@ -90,10 +90,10 @@ internal partial class TraySliderForm : Form {
 		tlpButtons.ColumnStyles.Clear();
 		tlpButtons.ColumnCount = buttonCount;
 
-		for (int i = 0; i < buttons.Length; i++)
+		for (var i = 0; i < buttons.Length; i++)
 			buttons[i].Visible = i < buttonCount;
 
-		for (int i = 0; i < buttonCount; i++) {
+		for (var i = 0; i < buttonCount; i++) {
 			tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / buttonCount));
 			buttons[i].Dock = DockStyle.Fill;
 			tlpButtons.Controls.Add(buttons[i], i, 0);
@@ -161,7 +161,7 @@ internal partial class TraySliderForm : Form {
 		Button2.Enabled = true;
 		Button3.Enabled = true;
 
-		Rectangle workingArea = Screen.PrimaryScreen.WorkingArea;
+		var workingArea = Screen.PrimaryScreen.WorkingArea;
 
 		Location = new Point(workingArea.Right - Width, workingArea.Bottom);
 		_targetTop = workingArea.Bottom - Height;
@@ -182,7 +182,7 @@ internal partial class TraySliderForm : Form {
 	private const int SlideDurationMs = 600;
 
 	private void tmrSlideIn_Tick(object sender, EventArgs e) {
-		double t = (Environment.TickCount - _slideStartTick) / (double)SlideDurationMs;
+		var t = (Environment.TickCount - _slideStartTick) / (double)SlideDurationMs;
 
 		if (t >= 1.0) {
 			Top = _targetTop;
@@ -194,10 +194,10 @@ internal partial class TraySliderForm : Form {
 		if (t < 0.0)
 			t = 0.0;
 
-		double eased = t * t * (3.0 - 2.0 * t);
+		var eased = t * t * (3.0 - 2.0 * t);
 		Top = _slideStartTop + (int)Math.Round((_targetTop - _slideStartTop) * eased);
 
-		double fadeInT = Math.Min(1.0, t / 0.25);
+		var fadeInT = Math.Min(1.0, t / 0.25);
 		Opacity = fadeInT;
 	}
 
@@ -286,12 +286,12 @@ internal partial class TraySliderForm : Form {
 	}
 
 	private static bool IsForegroundFullScreen() {
-		Screen screen = Screen.PrimaryScreen;
+		var screen = Screen.PrimaryScreen;
 
-		RECT rect = new RECT();
+		var rect = new RECT();
 		GetWindowRect(new HandleRef(null, GetForegroundWindow()), ref rect);
 
-		Rectangle foreground = new Rectangle(
+		var foreground = new Rectangle(
 			rect.left,
 			rect.top,
 			rect.right - rect.left,
@@ -363,7 +363,7 @@ public class TraySlider {
 			return;
 		}
 
-		Action show = () => {
+		var show = () => {
 			try {
 				var form = new TraySliderForm(ButtonCount, DurationMs, ForceShow) {
 					OnClick1 = OnClick1,
@@ -408,7 +408,7 @@ public class TraySlider {
 	}
 
 	private static (string, string) ParseTitleAndMessage(string s) {
-		var parts = (s ?? "").Split(new[] { "\r\n", "\r", "\n" }, 2, StringSplitOptions.None);
+		var parts = (s ?? "").Split(["\r\n", "\r", "\n"], 2, StringSplitOptions.None);
 		var title = parts.Length > 1 ? parts[0] : "";
 		var message = parts.Length > 1 ? parts[1] : parts[0];
 		return (title, message);

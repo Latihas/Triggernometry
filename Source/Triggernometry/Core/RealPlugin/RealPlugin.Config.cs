@@ -58,8 +58,8 @@ public partial class RealPlugin {
 
         public void HandleVersionUpdate()
         {
-            string currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            string prevVersion = cfg.PluginVersion ?? "pre1.0.4.4";
+            var currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            var prevVersion = cfg.PluginVersion ?? "pre1.0.4.4";
             if (prevVersion != currentVersion)
             {
                 // Inform the user to view the changelog after a version change.
@@ -88,8 +88,8 @@ public partial class RealPlugin {
 
         private void BackupConfiguration(string prevVersion, string currentVersion)
         {
-            string oldfn = Path.Combine(ConfigPath, pluginName + ".config.xml");
-            string bacfn = Path.Combine(ConfigPath, pluginName + "." + prevVersion + ".config.xml");
+            var oldfn = Path.Combine(ConfigPath, pluginName + ".config.xml");
+            var bacfn = Path.Combine(ConfigPath, pluginName + "." + prevVersion + ".config.xml");
             if (File.Exists(oldfn))
             {
                 if (!File.Exists(bacfn))

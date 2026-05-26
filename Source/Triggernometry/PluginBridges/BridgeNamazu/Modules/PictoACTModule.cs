@@ -90,7 +90,6 @@ public class PictoACTModule : ModuleBase {
 
 	private static readonly Dictionary<VfxType, string> _actorCommandTemplates = new() {
 		[VfxType.LockOn] = "vfx/lockon/eff/{0}.avfx",
-
 		[VfxType.Channeling] = "vfx/channeling/eff/{0}.avfx",
 		[VfxType.CastVfx] = "vfx/common/eff/{0}.avfx",
 		//{ VfxType.StatusLoopVfx, "" },
@@ -168,7 +167,7 @@ public class PictoACTModule : ModuleBase {
 		}
 
 		// 如果提供了时间参数，则安排移除
-		if (data.TryGet(out string rawTime, "Time", "t")) {
+		if (data.TryGet(out var rawTime, "Time", "t")) {
 			var duration = rawTime.ParseData<double>();
 			vfx.ScheduleRemove(duration);
 		}
@@ -605,29 +604,29 @@ public class PictoACTModule : ModuleBase {
 	}
 
 	private static Dictionary<string, string> _omenAbbrevs = new(StringComparer.OrdinalIgnoreCase) {
-		{ "Rect", "general02f" },
-		{ "Rect2", "general_x02f" }, // 前后双向
-		{ "Circle", "general_1bf" },
-		{ "Cross", "n4fg_betaest_o0p" }, // 十字形线条
-		{ "Fan15", "gl_fan015_0x" },
-		{ "Fan20", "gl_fan020_0f" },
-		{ "Fan30", "gl_fan030_1bf" },
-		{ "Fan40", "z5fc_fan40_o0g" },
-		{ "Fan45", "gl_fan045_1bf" },
-		{ "Fan60", "gl_fan060_1bf" },
-		{ "Fan80", "gl_fan80_o0g" },
-		{ "Fan90", "gl_fan090_1bf" },
-		{ "Fan100", "er_gl_fan100_o0v" },
-		{ "Fan120", "gl_fan120_1bf" },
-		{ "Fan130", "gl_fan130_0x" },
-		{ "Fan135", "gl_fan135_c0g" },
-		{ "Fan145", "m0501_fan145_d1" },
-		{ "Fan150", "gl_fan150_1bf" },
-		{ "Fan180", "gl_fan180_1bf" },
-		{ "Fan210", "gl_fan210_1bf" },
-		{ "Fan225", "gl_fan225_c0k1" },
-		{ "Fan240", "x6d3_b1_fan240_p1" },
-		{ "Fan270", "gl_fan270_0100af" },
+		["Rect"] = "general02f",
+		["Rect2"] = "general_x02f", // 前后双向
+		["Circle"] = "general_1bf",
+		["Cross"] = "n4fg_betaest_o0p", // 十字形线条
+		["Fan15"] = "gl_fan015_0x",
+		["Fan20"] = "gl_fan020_0f",
+		["Fan30"] = "gl_fan030_1bf",
+		["Fan40"] = "z5fc_fan40_o0g",
+		["Fan45"] = "gl_fan045_1bf",
+		["Fan60"] = "gl_fan060_1bf",
+		["Fan80"] = "gl_fan80_o0g",
+		["Fan90"] = "gl_fan090_1bf",
+		["Fan100"] = "er_gl_fan100_o0v",
+		["Fan120"] = "gl_fan120_1bf",
+		["Fan130"] = "gl_fan130_0x",
+		["Fan135"] = "gl_fan135_c0g",
+		["Fan145"] = "m0501_fan145_d1",
+		["Fan150"] = "gl_fan150_1bf",
+		["Fan180"] = "gl_fan180_1bf",
+		["Fan210"] = "gl_fan210_1bf",
+		["Fan225"] = "gl_fan225_c0k1",
+		["Fan240"] = "x6d3_b1_fan240_p1",
+		["Fan270"] = "gl_fan270_0100af",
 	};
 }
 

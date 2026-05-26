@@ -178,7 +178,7 @@ public class VariableList : Variable {
 
         public Variable Peek(int rawIndex, string defaultValue = "")
         {
-            int idx = ProcessRawIndex(rawIndex);
+            var idx = ProcessRawIndex(rawIndex);
             if (idx < 0 || idx >= Values.Count)
             {
                 return new VariableScalar(defaultValue);

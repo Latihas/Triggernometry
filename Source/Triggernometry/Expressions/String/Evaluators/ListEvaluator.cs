@@ -37,8 +37,8 @@ internal static class ListEvaluator {
                 case "get":
                     {
                         CheckArgCountLocal("2");
-                        int idx = (int)MathParser.Parse(args[0]);
-                        string defaultValue = args[1];
+                        var idx = (int)MathParser.Parse(args[0]);
+                        var defaultValue = args[1];
                         return vl => vl.Peek(idx, defaultValue).ToString();
                     }
 

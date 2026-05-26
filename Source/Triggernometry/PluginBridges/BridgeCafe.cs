@@ -46,8 +46,8 @@ namespace Triggernometry.PluginBridges
             if (cafeStore == null)
                 return "CafeStore 不存在或未加载。";
 
-            object mainView = GetMainView();
-            string result = "";
+            var mainView = GetMainView();
+            var result = "";
             Exception error = null;
 
             void action()
@@ -145,9 +145,9 @@ namespace Triggernometry.PluginBridges
 
         static IList GetPluginListSource(object mainView)          
         {
-            object listView = GetVisualTree(mainView)
-                .FirstOrDefault(x => listViewType.IsInstanceOfType(x))
-                ?? throw new Exception("没找到 ListView");
+            var listView = GetVisualTree(mainView)
+	                           .FirstOrDefault(x => listViewType.IsInstanceOfType(x))
+                           ?? throw new Exception("没找到 ListView");
 
             return GetPropertyValue(listView, "ItemsSource") as IList
                 ?? throw new Exception("ItemsSource 不是 IList");
@@ -176,7 +176,7 @@ namespace Triggernometry.PluginBridges
                 BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance,
                 null,
                 dispatcher,
-                new object[] { action });
+                [action]);
         }
 
         static object GetPropertyValue(object obj, string propertyName)
@@ -210,21 +210,21 @@ namespace Triggernometry.PluginBridges
 
             yield return root;
 
-            int count = (int)visualTreeHelperType.InvokeMember(
+            var count = (int)visualTreeHelperType.InvokeMember(
                 "GetChildrenCount",
                 BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
                 null,
                 null,
-                new[] { root });
+                [root]);
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
-                object child = visualTreeHelperType.InvokeMember(
+                var child = visualTreeHelperType.InvokeMember(
                     "GetChild",
                     BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
                     null,
                     null,
-                    new[] { root, i });
+                    [root, i]);
 
                 foreach (var x in GetVisualTree(child))
                     yield return x;

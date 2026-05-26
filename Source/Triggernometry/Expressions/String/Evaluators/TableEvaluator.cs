@@ -49,9 +49,9 @@ internal static class TableEvaluator {
                 case "get":
                     {
                         CheckArgCountLocal("3");
-                        int col = (int)MathParser.Parse(args[0]);
-                        int row = (int)MathParser.Parse(args[1]);
-                        string defaultValue = args[2];
+                        var col = (int)MathParser.Parse(args[0]);
+                        var row = (int)MathParser.Parse(args[1]);
+                        var defaultValue = args[2];
                         return vt => vt.Peek(col, row, defaultValue).ToString();
                     }
 

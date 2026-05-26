@@ -281,7 +281,7 @@ public class ActionVariableDict : ActionBase {
 			return I18n.ThingToString(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, Value));
 		}
 
-            string changer = ctx.Trigger != null
+            var changer = ctx.Trigger != null
                 ? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe())
                 : I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
 
@@ -323,10 +323,10 @@ public class ActionVariableDict : ActionBase {
 				break;
                 case OperationEnum.Remove:
                     {
-                        string key = ParseKey();
+                        var key = ParseKey();
                         lock (svs.Dict)
                         {
-                            VariableDictionary vd = svs.GetDictVariable(sourcename, true);
+                            var vd = svs.GetDictVariable(sourcename, true);
                             vd.RemoveKey(key, changer);
 				}
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictremove",
@@ -342,7 +342,7 @@ public class ActionVariableDict : ActionBase {
 				}
                         lock (tvs.Dict)
                         {
-                            VariableDictionary tvd = tvs.GetDictVariable(targetname, true);
+                            var tvd = tvs.GetDictVariable(targetname, true);
                             tvd.Merge(svdCopy, overwriteExistingKeys: shouldOverwrite);
                             tvd.LastChanged = DateTime.Now;
                             tvd.LastChanger = changer;
@@ -359,7 +359,7 @@ public class ActionVariableDict : ActionBase {
 				break;
                 case OperationEnum.GetEntity:
                     {
-                        string filterExpr = ParseValue();
+                        var filterExpr = ParseValue();
                         var entity = XivEntityParser.GetEntityByCondition(filterExpr);
 
 				var memberExprs = string.IsNullOrWhiteSpace(Key)
@@ -393,9 +393,9 @@ public class ActionVariableDict : ActionBase {
 				if (expr.Length > 1) {
 					if (expr[1] == '\n' || expr.Substring(1).StartsWith("\r\n"))
 						expr = ParserCommon.ReplaceLineBreak(expr);
-                            char kvSeparator = expr[0];
-                            char pairSeparator = expr[1];
-                            string splitval = expr.Substring(2);
+                            var kvSeparator = expr[0];
+                            var pairSeparator = expr[1];
+                            var splitval = expr.Substring(2);
                             vt = VariableDictionary.Build(splitval, kvSeparator, pairSeparator, changer);
 					AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictbuild",
 						"{1}Dictionary ({0}) built from expression ({2}) splitted by ({3}) ({4})",
@@ -456,8 +456,8 @@ public class ActionVariableDict : ActionBase {
 							ctx.listIndex = i + 1;
 							ctx.dictKey = i < vd.Size ? vd.Values.ElementAt(i).Key : "";
 							ctx.dictValue = i < vd.Size ? vd.Values.ElementAt(i).Value.ToString() : "";
-                                    string k = ParseKey();
-                                    string v = ParseValue();
+                                    var k = ParseKey();
+                                    var v = ParseValue();
                                     vdNew.SetValue(k, v, changer);
 						}
 						AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictsetallbyindex",
@@ -468,8 +468,8 @@ public class ActionVariableDict : ActionBase {
 						foreach (var pair in vd.Values) {
 							ctx.dictKey = pair.Key;
 							ctx.dictValue = pair.Value.ToString();
-                                    string k = ParseKey();
-                                    string v = ParseValue();
+                                    var k = ParseKey();
+                                    var v = ParseValue();
                                     vdNew.SetValue(k, v, changer);
 						}
 						AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictsetall",

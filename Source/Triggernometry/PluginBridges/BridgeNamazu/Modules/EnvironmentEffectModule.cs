@@ -86,7 +86,7 @@ public class EnvironmentEffectModule : ModuleBase {
 		var contentDirectorPtr = ContentDirectorPtr;
             if (contentDirectorPtr != IntPtr.Zero)
             {
-                bool success = Plugin.Call<bool>(MapEffectFunctionPtr, contentDirectorPtr, index, flag);
+                var success = Plugin.Call<bool>(MapEffectFunctionPtr, contentDirectorPtr, index, flag);
                 if (!success)
                 {
 				WarningLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 中 MapEffect ({index}, {flag}) 调用失败。");

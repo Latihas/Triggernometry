@@ -99,64 +99,37 @@ public static class EntityOld {
 		var role = subrole & RoleType.MainRole;
 		var isT = role == RoleType.Tank;
 		var isH = role == RoleType.Healer;
-		var isM = subrole == RoleType.StrengthMelee || subrole == RoleType.DexterityMelee;
-		var isR = subrole == RoleType.PhysicalRanged || subrole == RoleType.MagicalRanged;
+		var isM = subrole is RoleType.StrengthMelee or RoleType.DexterityMelee;
+		var isR = subrole is RoleType.PhysicalRanged or RoleType.MagicalRanged;
 		var isC = role == RoleType.Crafter;
 		var isG = role == RoleType.Gatherer;
 		jobs[id] = new Dictionary<string, string> {
-			{
-				"role", (subrole & RoleType.MainRole).ToString()
-			}, {
-				"subrole", subrole.ToString()
-			}, {
-				"roleid", ((int)subrole).ToString(CultureInfo.InvariantCulture)
-			}, {
-				"jobid", id
-			}, {
-				"isT", isT ? "1" : "0"
-			}, {
-				"isH", isH ? "1" : "0"
-			}, {
-				"isTH", isT || isH ? "1" : "0"
-			}, {
-				"isD", isM || isR ? "1" : "0"
-			}, {
-				"isM", isM ? "1" : "0"
-			}, {
-				"isR", isR ? "1" : "0"
-			}, {
-				"isTM", isT || isM ? "1" : "0"
-			}, {
-				"isHR", isH || isR ? "1" : "0"
-			}, {
-				"isC", isC ? "1" : "0"
-			}, {
-				"isG", isG ? "1" : "0"
-			}, {
-				"isCG", isC || isG ? "1" : "0"
-			}, {
-				"jobCN1", jobCN1
-			}, {
-				"jobCN2", jobCN2
-			}, {
-				"job", jobEN3
-			}, {
-				"jobEN3", jobEN3
-			}, {
-				"jobJP1", jobJP1
-			}, {
-				"jobCN", jobCN
-			}, {
-				"jobDE", jobDE
-			}, {
-				"jobEN", jobEN
-			}, {
-				"jobFR", jobFR
-			}, {
-				"jobJP", jobJP
-			}, {
-				"jobKR", jobKR
-			}
+			["role"] = role.ToString(),
+			["subrole"] = subrole.ToString(),
+			["roleid"] = ((int)subrole).ToString(CultureInfo.InvariantCulture),
+			["jobid"] = id,
+			["isT"] = isT ? "1" : "0",
+			["isH"] = isH ? "1" : "0",
+			["isTH"] = isT || isH ? "1" : "0",
+			["isD"] = isM || isR ? "1" : "0",
+			["isM"] = isM ? "1" : "0",
+			["isR"] = isR ? "1" : "0",
+			["isTM"] = isT || isM ? "1" : "0",
+			["isHR"] = isH || isR ? "1" : "0",
+			["isC"] = isC ? "1" : "0",
+			["isG"] = isG ? "1" : "0",
+			["isCG"] = isC || isG ? "1" : "0",
+			["jobCN1"] = jobCN1,
+			["jobCN2"] = jobCN2,
+			["job"] = jobEN3,
+			["jobEN3"] = jobEN3,
+			["jobJP1"] = jobJP1,
+			["jobCN"] = jobCN,
+			["jobDE"] = jobDE,
+			["jobEN"] = jobEN,
+			["jobFR"] = jobFR,
+			["jobJP"] = jobJP,
+			["jobKR"] = jobKR
 		};
 
 		jobNameToIdMap[id] = id;

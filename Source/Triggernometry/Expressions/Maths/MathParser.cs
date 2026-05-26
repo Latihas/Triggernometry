@@ -446,36 +446,36 @@ public class MathParser {
 
         public static double LerpFunction(double[] input)
         {
-            double a = input[0];
-            double b = input[1];
-            double t = input[2];
+            var a = input[0];
+            var b = input[1];
+            var t = input[2];
 
             return a + (b - a) * t;
         }
 
         public static double LerpAngleFunction(double[] input)
         {
-            double a = input[0];
-            double b = input[1];
-            double t = input[2];
+            var a = input[0];
+            var b = input[1];
+            var t = input[2];
 
             return NormalizeRad(a + NormalizeRad(b - a) * t);
         }
 
         public static double LerpAngleCWFunction(double[] input)
         {
-            double a = input[0];
-            double b = input[1];
-            double t = input[2];
+            var a = input[0];
+            var b = input[1];
+            var t = input[2];
 
             return NormalizeRad(a - ModFunction(a - b, 2 * Math.PI) * t);
         }
 
         public static double LerpAngleCCWFunction(double[] input)
         {
-            double a = input[0];
-            double b = input[1];
-            double t = input[2];
+            var a = input[0];
+            var b = input[1];
+            var t = input[2];
 
             return NormalizeRad(a + ModFunction(b - a, 2 * Math.PI) * t);
         }
@@ -487,39 +487,39 @@ public class MathParser {
 
         public static double LerpDirFunction(double[] input)
         {
-            double a = input[0];
-            double b = input[1];
-            double n = input[2];
-            double t = input[3];
+            var a = input[0];
+            var b = input[1];
+            var n = input[2];
+            var t = input[3];
 
             return NormalizeDirValue(a + NormalizeDirDelta(b - a, n) * t, n);
         }
 
         public static double LerpDirCWFunction(double[] input)
         {
-            double a = input[0];
-            double b = input[1];
-            double n = input[2];
-            double t = input[3];
+            var a = input[0];
+            var b = input[1];
+            var n = input[2];
+            var t = input[3];
 
-            double segments = Math.Abs(n);
+            var segments = Math.Abs(n);
             return NormalizeDirValue(a - ModFunction(a - b, segments) * t, n);
         }
 
         public static double LerpDirCCWFunction(double[] input)
         {
-            double a = input[0];
-            double b = input[1];
-            double n = input[2];
-            double t = input[3];
+            var a = input[0];
+            var b = input[1];
+            var n = input[2];
+            var t = input[3];
 
-            double segments = Math.Abs(n);
+            var segments = Math.Abs(n);
             return NormalizeDirValue(a + ModFunction(b - a, segments) * t, n);
         }
 
         private static double NormalizeDirValue(double dir, double n)
         {
-            double segments = Math.Abs(n);
+            var segments = Math.Abs(n);
             return n > 0 
                 ? ModFunction(dir, segments) 
                 : ModFunction(dir + 0.5, segments) - 0.5;
@@ -527,7 +527,7 @@ public class MathParser {
 
         private static double NormalizeDirDelta(double delta, double n)
         {
-            double segments = Math.Abs(n);
+            var segments = Math.Abs(n);
             return ModFunction(delta + segments / 2.0, segments) - segments / 2.0;
         }
 

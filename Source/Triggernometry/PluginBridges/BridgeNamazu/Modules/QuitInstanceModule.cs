@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Triggernometry.Expressions.String.Utils;
+using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
@@ -10,7 +11,7 @@ public class QuitInstanceModule : ModuleBase {
 	public delegate IntPtr QuitInstanceDelegate(byte shouldForceQuit);
 
 	public QuitInstanceModule() {
-		ScanMethod = () => { QuitInstanceD = Marshal.GetDelegateForFunctionPointer<QuitInstanceDelegate>(Scanner.TryScan("48 83 EC ?? 0F B6 D1 45 33 C9", "QuitInstancePtr")); };
+		ScanMethod = () => { QuitInstanceD = Marshal.GetDelegateForFunctionPointer<QuitInstanceDelegate>(ProxyPlugin.SigScanner.ScanText("48 83 EC ?? 0F B6 D1 45 33 C9")); };
 	}
 
 	[CallbackMethod("QuitInstance")]

@@ -55,18 +55,15 @@ public class NamazuPlugin {
 
 	public Dictionary<string, bool> ActionEnabled => _plugin.ActionEnabled;
 
-        public bool IsActionEnabled(string cmdOrModuleName)
-        {
-            if (!_commandToModuleNames.TryGetValue(cmdOrModuleName, out var moduleName))
-            { 
-                moduleName = cmdOrModuleName;
-            }
-            if (!ActionEnabled.TryGetValue(moduleName, out bool enabled))
-            {
-                throw new KeyNotFoundException($"Module '{moduleName}' not found.");
-            }
-            return enabled;
-        }
+	public bool IsActionEnabled(string cmdOrModuleName) {
+		if (!_commandToModuleNames.TryGetValue(cmdOrModuleName, out var moduleName)) {
+			moduleName = cmdOrModuleName;
+		}
+		if (!ActionEnabled.TryGetValue(moduleName, out var enabled)) {
+			throw new KeyNotFoundException($"Module '{moduleName}' not found.");
+		}
+		return enabled;
+	}
 
 	public void DoAction(string command, string payload)
 		=> _plugin.DoAction(command, payload);
@@ -107,31 +104,18 @@ public class NamazuPlugin {
 
 	private static readonly IReadOnlyDictionary<string, string> _commandToModuleNames
 		= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
-			{
-				"command", "Command"
-			}, {
-				"DoTextCommand", "Command"
-			}, {
-				"mark", "Mark"
-			}, {
-				"normalcommand", "NormalCommand"
-			}, {
-				"DoNormalTextCommand", "NormalCommand"
-			}, {
-				"preset", "Preset"
-			}, {
-				"DoInsertPreset", "Preset"
-			}, {
-				"queue", "Queue"
-			}, {
-				"DoQueueActions", "Queue"
-			}, {
-				"sendkey", "DoSendKey"
-			}, {
-				"place", "WayMark"
-			}, {
-				"DoWaymarks", "WayMark"
-			}
+			["command"] = "Command",
+			["DoTextCommand"] = "Command",
+			["mark"] = "Mark",
+			["normalcommand"] = "NormalCommand",
+			["DoNormalTextCommand"] = "NormalCommand",
+			["preset"] = "Preset",
+			["DoInsertPreset"] = "Preset",
+			["queue"] = "Queue",
+			["DoQueueActions"] = "Queue",
+			["sendkey"] = "DoSendKey",
+			["place"] = "WayMark",
+			["DoWaymarks"] = "WayMark"
 		};
 
 	// Region detection
@@ -139,44 +123,36 @@ public class NamazuPlugin {
 	public bool IsTC => GameLanguage.Language == GameLanguageEnum.TCN;
 	public IntPtr FrameworkPtr => _plugin.FrameworkPtr;
 
-        public void ExecuteInFrameLock(Action action)
-        {
-            _plugin.ExecuteInFrameLock(action);
-        }
+	public void ExecuteInFrameLock(Action action) {
+		_plugin.ExecuteInFrameLock(action);
+	}
 
-        public T ExecuteInFrameLock<T>(Func<T> func)
-        {
-            return _plugin.ExecuteInFrameLock<T>(func);
-        }
+	public T ExecuteInFrameLock<T>(Func<T> func) {
+		return _plugin.ExecuteInFrameLock<T>(func);
+	}
 
-        public void Call(IntPtr ptr, params object[] args)
-        {
-            _plugin.Call(ptr, args);
-        }
+	public void Call(IntPtr ptr, params object[] args) {
+		_plugin.Call(ptr, args);
+	}
 
-        public T Call<T>(IntPtr ptr, params object[] args) where T : struct
-        {
-            return _plugin.Call<T>(ptr, args);
-        }
+	public T Call<T>(IntPtr ptr, params object[] args) where T : struct {
+		return _plugin.Call<T>(ptr, args);
+	}
 
-        public void DirectCall(IntPtr ptr, params object[] args)
-        {
-            _plugin.DirectCall(ptr, args);
-        }
+	public void DirectCall(IntPtr ptr, params object[] args) {
+		_plugin.DirectCall(ptr, args);
+	}
 
-        public T DirectCall<T>(IntPtr ptr, params object[] args) where T : struct
-        {
-            return _plugin.DirectCall<T>(ptr, args);
-        }
+	public T DirectCall<T>(IntPtr ptr, params object[] args) where T : struct {
+		return _plugin.DirectCall<T>(ptr, args);
+	}
 
-        public void CallVirtualFunction(IntPtr objAddress, int vFuncIndex, params object[] args)
-            => CallVirtualFunction<IntPtr>(objAddress, vFuncIndex, args);
+	public void CallVirtualFunction(IntPtr objAddress, int vFuncIndex, params object[] args)
+		=> CallVirtualFunction<IntPtr>(objAddress, vFuncIndex, args);
 
-        public T CallVirtualFunction<T>(IntPtr objAddress, int vFuncIndex, params object[] args) where T : struct
-        {
-            IntPtr vTablePtr = Memory.Read<IntPtr>(objAddress);
-            IntPtr vFuncPtr = Memory.Read<IntPtr>(vTablePtr + 8 * vFuncIndex);
-            return Call<T>(vFuncPtr, new object[] { objAddress }.Concat(args).ToArray());
-        }
-
-    }
+	public T CallVirtualFunction<T>(IntPtr objAddress, int vFuncIndex, params object[] args) where T : struct {
+		var vTablePtr = Memory.Read<IntPtr>(objAddress);
+		var vFuncPtr = Memory.Read<IntPtr>(vTablePtr + 8 * vFuncIndex);
+		return Call<T>(vFuncPtr, new object[] { objAddress }.Concat(args).ToArray());
+	}
+}

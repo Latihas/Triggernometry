@@ -81,7 +81,7 @@ namespace Triggernometry.Expressions.String.Utils
             try
             {
                 // Nullable<T>
-                Type underlyingType = Nullable.GetUnderlyingType(targetType);
+                var underlyingType = Nullable.GetUnderlyingType(targetType);
                 if (underlyingType != null)
                 {
                     if (string.IsNullOrEmpty(input))
@@ -100,7 +100,7 @@ namespace Triggernometry.Expressions.String.Utils
 
                 if (targetType == typeof(bool))
                 {
-                    if (bool.TryParse(input, out bool b))
+                    if (bool.TryParse(input, out var b))
                     {
                         result = b;
                         return true;
@@ -131,7 +131,7 @@ namespace Triggernometry.Expressions.String.Utils
 
                 if (targetType == typeof(Guid))
                 {
-                    if (Guid.TryParse(input, out Guid g))
+                    if (Guid.TryParse(input, out var g))
                     {
                         result = g;
                         return true;
@@ -147,7 +147,7 @@ namespace Triggernometry.Expressions.String.Utils
 
                 if (targetType.IsNumericType())
                 {
-                    double d = MathParser.Parse(input);
+                    var d = MathParser.Parse(input);
                     result = Convert.ChangeType(d, targetType, CultureInfo.InvariantCulture);
                     return true;
                 }
@@ -192,19 +192,19 @@ namespace Triggernometry.Expressions.String.Utils
 
         public static object RawInvoke(this Delegate _delegate, params string[] rawArgs)
         {
-            ParameterInfo[] paramsInfo = _delegate.Method.GetParameters();
+            var paramsInfo = _delegate.Method.GetParameters();
 
-            rawArgs = rawArgs ?? new string[0];
+            rawArgs = rawArgs ?? [];
             if (rawArgs.Length > paramsInfo.Length)
                 throw new ArgumentException($"参数数量过多：期望最多 {paramsInfo.Length} 个参数，但提供了 {rawArgs.Length} 个");
 
-            object[] parameters = new object[paramsInfo.Length];
+            var parameters = new object[paramsInfo.Length];
 
-            for (int i = 0; i < paramsInfo.Length; i++)
+            for (var i = 0; i < paramsInfo.Length; i++)
             {
                 if (i < rawArgs.Length)
                 {
-                    Type paramType = paramsInfo[i].ParameterType;
+                    var paramType = paramsInfo[i].ParameterType;
                     try
                     {
                         parameters[i] = rawArgs[i].ParseData(paramType);
@@ -224,7 +224,7 @@ namespace Triggernometry.Expressions.String.Utils
             }
 
             // 调用内置的 DynamicInvoke 方法执行委托
-            object result = _delegate.DynamicInvoke(parameters);
+            var result = _delegate.DynamicInvoke(parameters);
             return _delegate.Method.ReturnType == typeof(void) ? "" : result;
         }
 

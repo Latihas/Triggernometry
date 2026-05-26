@@ -115,7 +115,7 @@ internal class ObsController : IDisposable {
 				WSConnection = new WebSocket(endpoint);
 				WSConnection.WaitTime = new TimeSpan(0, 0, 2);
 				WSConnection.OnMessage += WSConnection_OnMessage;
-				helloCallback = resp => { HandleHelloOp(resp, password); };
+				helloCallback = resp => HandleHelloOp(resp, password); 
 				authRespReceived.Reset();
 				WSConnection.Connect();
 				if (!authRespReceived.WaitOne(2000))

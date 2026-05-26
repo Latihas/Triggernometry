@@ -19,22 +19,22 @@ namespace Triggernometry.Core
 
         private static RepositoryManifest LoadRepositoryManifest(string url)
         {
-            byte[] raw = HttpHelper.GetBytesAsync(url).GetAwaiter().GetResult();
-            string xml = Encoding.UTF8.GetString(raw);
+            var raw = HttpHelper.GetBytesAsync(url).GetAwaiter().GetResult();
+            var xml = Encoding.UTF8.GetString(raw);
 
-            XmlSerializer serializer = new XmlSerializer(typeof(RepositoryManifest));
-            using (StringReader reader = new StringReader(xml))
+            var serializer = new XmlSerializer(typeof(RepositoryManifest));
+            using (var reader = new StringReader(xml))
             {
                 return (RepositoryManifest)serializer.Deserialize(reader);
             }
         }
 
 
-        private static readonly List<string> _legalRepoPrefixes = new List<string> {
-            "https://github.com/paissaheavyindustries/Triggernometry",
-            "https://vip.123pan.cn/1824544011/",
-            "https://1824544011.v.123pan.cn/",
-        };
+        private static readonly List<string> _legalRepoPrefixes = [
+	        "https://github.com/paissaheavyindustries/Triggernometry",
+	        "https://vip.123pan.cn/1824544011/",
+	        "https://1824544011.v.123pan.cn/"
+        ];
 
         public void AddRepositoryManifestItem(RepositoryManifestItem item, bool shouldUpdate)
         {
@@ -136,7 +136,7 @@ namespace Triggernometry.Core
         {
             try
             {
-                RepositoryManifest repoManifest = LoadRepositoryManifest(DefaultRepoManifestUrl);
+                var repoManifest = LoadRepositoryManifest(DefaultRepoManifestUrl);
                 repoManifest.Remove.ForEach(RemoveRepo);
                 repoManifest.Add.ForEach(item => AddRepositoryManifestItem(item, shouldUpdate));
             }
@@ -151,11 +151,11 @@ namespace Triggernometry.Core
         {
             [XmlArray("Add")]
             [XmlArrayItem("Repo")]
-            public List<RepositoryManifestItem> Add { get; set; } = new List<RepositoryManifestItem>();
+            public List<RepositoryManifestItem> Add { get; set; } = [];
 
             [XmlArray("Remove")]
             [XmlArrayItem("Item")]
-            public List<string> Remove { get; set; } = new List<string>();
+            public List<string> Remove { get; set; } = [];
         }
 
         public class RepositoryManifestItem
