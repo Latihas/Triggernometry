@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using Triggernometry.Core;
 using Triggernometry.Expressions.Maths;
-using Triggernometry.Localization;
 
 namespace Triggernometry.Expressions.String.Utils
 {

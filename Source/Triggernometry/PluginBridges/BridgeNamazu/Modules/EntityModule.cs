@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Dalamud;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
-using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using Triggernometry.Core;
 using Triggernometry.Expressions.String.Evaluators;
 using Triggernometry.Expressions.String.Utils;
@@ -191,7 +190,7 @@ public class EntityModule : ModuleBase {
 	}
 
 	[CallbackMethod("SetHighlightColor")]
-	internal unsafe void CbSetHighlightColor(string cmd) {
+	internal void CbSetHighlightColor(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, color) = cmd.ParseArgs<IntPtr, byte>();
             SetHighlightColor(objectPtr, color);

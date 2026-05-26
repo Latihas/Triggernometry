@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
+using System.Text;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
 using Triggernometry.UI.CustomControls;
@@ -20,7 +20,7 @@ namespace Triggernometry.Core
         private static RepositoryManifest LoadRepositoryManifest(string url)
         {
             byte[] raw = HttpHelper.GetBytesAsync(url).GetAwaiter().GetResult();
-            string xml = System.Text.Encoding.UTF8.GetString(raw);
+            string xml = Encoding.UTF8.GetString(raw);
 
             XmlSerializer serializer = new XmlSerializer(typeof(RepositoryManifest));
             using (StringReader reader = new StringReader(xml))
@@ -179,13 +179,13 @@ namespace Triggernometry.Core
             public bool AllowScriptExecution { get; set; } = true;
 
             [XmlAttribute]
-            public bool AllowDiskOperations { get; set; } = false;
+            public bool AllowDiskOperations { get; set; }
 
             [XmlAttribute]
-            public bool AllowWindowMessages { get; set; } = false;
+            public bool AllowWindowMessages { get; set; }
 
             [XmlAttribute]
-            public bool AllowObsControl { get; set; } = false;
+            public bool AllowObsControl { get; set; }
 
             [XmlAttribute]
             public bool KeepLocalBackup { get; set; } = true;

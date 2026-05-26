@@ -90,9 +90,9 @@ public partial class RealPlugin {
         {
             string oldfn = Path.Combine(ConfigPath, pluginName + ".config.xml");
             string bacfn = Path.Combine(ConfigPath, pluginName + "." + prevVersion + ".config.xml");
-            if (File.Exists(oldfn) == true)
+            if (File.Exists(oldfn))
             {
-                if (File.Exists(bacfn) == false)
+                if (!File.Exists(bacfn))
                 {
                     FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgbackupupdate", "Plugin updated from {0} to {1}, backing up configuration as {2}", 
                         prevVersion, currentVersion, bacfn));

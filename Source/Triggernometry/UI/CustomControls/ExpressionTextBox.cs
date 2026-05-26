@@ -312,7 +312,7 @@ public partial class ExpressionTextBox : UserControl {
             "LocalDirTo(x, y, ±segments, digits=0)",
             "LocalToWorld(dx, dy)", "LocalToWorld(dx, dy, dz)",
             "WorldToLocal(dx, dy)", "WorldToLocal(dx, dy, dz)",
-        }.Concat(FFXIV.Entity.ValidEntityPropNames).Concat(FFXIV.Job.LegalJobPropNames).ToList();
+        }.Concat(Entity.ValidEntityPropNames).Concat(Job.LegalJobPropNames).ToList();
 
 	// Job, Role, etc.
 	public static List<string> XivJobProps = Job.LegalJobPropNames.ToList();
@@ -1138,7 +1138,7 @@ public partial class ExpressionTextBox : UserControl {
             if (m.Success)
             {
                 var key = m.Groups["key"].Value;
-                var form = this.FindForm();
+                var form = FindForm();
                 Trigger trig = null;
                 // if (form is TriggerForm tf)
                 // {

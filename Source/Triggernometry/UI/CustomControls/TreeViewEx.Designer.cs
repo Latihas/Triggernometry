@@ -1,11 +1,13 @@
-﻿namespace Triggernometry.UI.CustomControls
+﻿using System.ComponentModel;
+
+namespace Triggernometry.UI.CustomControls
 {
     partial class TreeViewEx
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -28,7 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            components = new Container();
         }
 
         #endregion

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using Triggernometry.Utilities.Maths;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
-public class StaticVfx : Vfx {
+public class StaticVfx : VfxBase {
 	/// <summary> 上一次设置的坐标系中心 </summary>
 	internal XIVCoord PrevCenter;
 	/// <summary> 上一次设置的坐标系角度 </summary>
@@ -23,6 +22,6 @@ public class StaticVfx : Vfx {
 	public static IReadOnlyDictionary<IntPtr, StaticVfx> Storage
 		=> VfxManager.StaticVfxs;
 
-	public override bool TryRemove()
-		=> VfxManager.Remove(this);
+	// public override bool TryRemove()
+	// 	=> VfxManager.Remove(this);
 }

@@ -1,48 +1,44 @@
 ﻿using System;
 using System.Numerics;
-using System.Threading.Tasks;
 using Dalamud;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
-using Triggernometry.PluginBridges.BridgeNamazu.Modules;
-using Triggernometry.PScript;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
-public abstract class Vfx {
-	public unsafe VfxObject* Ptr { get; set; }
+public abstract class VfxBase {
+	public unsafe VfxObject* Vfx { get; set; }
 	public string Path { get; set; }
 	public string Tag { get; set; }
-	public bool Removed { get; set; } = false;
+	public bool Removed { get; set; }
 	public DateTime? ExpireAtUtc { get; internal set; }
 
 	public const string DefaultTag = "Auto";
-	public static GreyMagicExternalProcessMemory Memory => BridgeNamazu.NamazuPlugin.Memory;
-	public abstract bool TryRemove();
+	public  bool TryRemove()=>VfxManager.Remove(this);
 
 	public void ScheduleRemove(double duration)
 		=> VfxManager.ScheduleRemove(this, duration);
 
-	public void Update() {
+	public unsafe void Update() {
 		if (Removed) return;
-		Flag |= 0x2;
+		Vfx->UpdateTransforms( true );
 	}
 
 	public unsafe byte Flag {
-		get => (byte)Ptr->ObjectFlags;
+		get => (byte)Vfx->ObjectFlags;
 		set {
 			if (Removed) return;
-			Ptr->ObjectFlags = value;
+			Vfx->ObjectFlags = value;
 		}
 	}
 
 	public unsafe Vector3 Pos {
 		get {
-			var raw = Ptr->Position;
+			var raw = Vfx->Position;
 			return new Vector3(raw.X, raw.Z, raw.Y);
 		}
 		set {
 			if (Removed) return;
-			Ptr->Position = new Vector3(value.X, value.Z, value.Y);
+			Vfx->Position = new Vector3(value.X, value.Z, value.Y);
 		}
 	}
 
@@ -53,7 +49,7 @@ public abstract class Vfx {
 
 	public unsafe Vector3 Angles {
 		get {
-			var raw = Ptr->Rotation;
+			var raw = Vfx->Rotation;
 			var q = new Quaternion(raw.X, raw.Z, raw.Y, raw.W);
 
 			float yaw;
@@ -80,69 +76,69 @@ public abstract class Vfx {
 		set {
 			if (Removed) return;
 			var q = Quaternion.CreateFromYawPitchRoll(value.Z, value.Y, value.X); // θy, θx, θ
-			Ptr->Rotation = new Quaternion(q.X, q.Z, q.Y, q.W);
+			Vfx->Rotation = new Quaternion(q.X, q.Z, q.Y, q.W);
 		}
 	}
 
 	public unsafe Vector3 Scales {
 		get {
-			var raw = Ptr->Scale;
+			var raw = Vfx->Scale;
 			return new Vector3(raw.X, raw.Z, raw.Y);
 		}
 		set {
 			if (Removed) return;
-			Ptr->Scale = new Vector3(value.X, value.Z, value.Y);
+			Vfx->Scale = new Vector3(value.X, value.Z, value.Y);
 		}
 	}
 
 	public unsafe int ActorVfxSource {
-		get => Ptr->ActorCaster;
+		get => Vfx->ActorCaster;
 		set {
 			if (Removed) return;
-			Ptr->ActorCaster = value;
+			Vfx->ActorCaster = value;
 		}
 	}
 
 	public unsafe int ActorVfxTarget {
-		get => Ptr->ActorTarget;
+		get => Vfx->ActorTarget;
 		set {
 			if (Removed) return;
-			Ptr->ActorTarget = value;
+			Vfx->ActorTarget = value;
 		}
 	}
 
 	public unsafe int StaticVfxSource {
-		get => Ptr->StaticCaster;
+		get => Vfx->StaticCaster;
 		set {
 			if (Removed) return;
-			Ptr->StaticCaster = value;
+			Vfx->StaticCaster = value;
 		}
 	}
 
 	public unsafe int StaticVfxTarget {
-		get => Ptr->StaticTarget;
+		get => Vfx->StaticTarget;
 		set {
 			if (Removed) return;
-			Ptr->StaticTarget = value;
+			Vfx->StaticTarget = value;
 		}
 	}
 
 	public unsafe float Speed {
 		get {
-			SafeMemory.Read<float>((IntPtr)(Ptr + 0x250), out var res);
+			SafeMemory.Read<float>((IntPtr)(Vfx + 0x250), out var res);
 			return res;
 		}
 		set {
 			if (Removed) return;
-			SafeMemory.Write((IntPtr)(Ptr + 0x250), value);
+			SafeMemory.Write((IntPtr)(Vfx + 0x250), value);
 		}
 	}
 
 	public unsafe Vector4 Color {
-		get => Ptr->Color;
+		get => Vfx->Color;
 		set {
 			if (Removed) return;
-			Ptr->Color = value;
+			Vfx->Color = value;
 		}
 	}
 }

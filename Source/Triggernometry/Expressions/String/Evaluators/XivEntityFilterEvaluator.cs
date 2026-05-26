@@ -61,7 +61,6 @@ internal static class XivEntityFilterEvaluator // to-do: sortings
                     {
                         methodArgs.Add(string.Join("", currentArgTokens));
                         currentArgTokens.Clear();
-                        continue;
                     }
                     else if (currentToken == "(")
                     {

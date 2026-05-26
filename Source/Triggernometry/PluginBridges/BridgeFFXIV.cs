@@ -599,7 +599,7 @@ public static class BridgeFFXIV {
 		public override ushort MaxCP => (ushort)_entity.MaxCP; // uint
 		public override ushort CurrentGP => (ushort)_entity.CurrentGP; // uint
 		public override ushort MaxGP => (ushort)_entity.MaxGP; // uint
-		public override Job Job => FFXIV.Job.TryGetJob(_entity.Job /*int*/, out Job result) ? result : Job.GetJob(0);
+		public override Job Job => Job.TryGetJob(_entity.Job /*int*/, out Job result) ? result : Job.GetJob(0);
 		public override byte Level => (byte)_entity.Level; // int
 		//public override bool InCombat { get; set; }
 		public override bool InParty => (int)_entity.PartyType == 1;

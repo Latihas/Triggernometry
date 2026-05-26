@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Media;
@@ -6,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Triggernometry.Core;
 using Triggernometry.Localization;
-using System.ComponentModel;
 
 namespace Triggernometry.UI.Forms;
 
@@ -313,7 +313,7 @@ public enum TraySliderLevel {
 public class TraySlider {
 	public string Message { get; set; }
 	public string Title { get; set; } = "";
-	public int ButtonCount { get; set; } = 0;
+	public int ButtonCount { get; set; }
 	public int DurationMs { get; set; } = 15000;
 	public bool ForceShow { get; set; } = true;
 	public TraySliderLevel Level { get; set; } = TraySliderLevel.Info;

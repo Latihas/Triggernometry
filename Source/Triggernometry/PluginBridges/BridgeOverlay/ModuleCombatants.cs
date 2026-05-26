@@ -157,7 +157,7 @@ internal static class ModuleCombatants {
 		public override ushort CurrentGP => _entity.CurrentGP;
 		public override ushort MaxGP => _entity.MaxGP;
 		public override short TransformationID => _entity.TransformationId;
-		public override Job Job => FFXIV.Job.TryGetJob(_entity.Job /*numeric id*/, out Job result) ? result : Job.GetJob(0);
+		public override Job Job => Job.TryGetJob(_entity.Job /*numeric id*/, out Job result) ? result : Job.GetJob(0);
 		public override byte Level => _entity.Level;
 		public override MonsterType MonsterType { get; set; } //=> _entity.MonsterType; (not updated yet)
 		public override bool IsEnemy { get; set; } //=> _entity.IsEnemy; (not updated yet)

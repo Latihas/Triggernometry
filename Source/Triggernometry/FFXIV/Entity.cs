@@ -195,7 +195,7 @@ public class Entity {
             { "HexAddress",     e => e.HexAddress },
             { "Name",           e => e.Name },
             { "ID",             e => e.HexID },
-            { "IsSelf",         e => e.ID == Entity.GetMyself().ID },
+            { "IsSelf",         e => e.ID == GetMyself().ID },
             { "IsPlayer",       e => e.Type == EntityType.Pc },
             { "BNpcID",         e => e.BNpcID },
             { "OwnerID",        e => e.OwnerHexID },

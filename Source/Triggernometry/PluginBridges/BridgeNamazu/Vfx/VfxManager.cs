@@ -2,33 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx {
 	internal static class VfxManager {
-		private static readonly Dictionary<IntPtr, ActorVfx> _actorVfxs = new Dictionary<IntPtr, ActorVfx>();
+		public static readonly Dictionary<IntPtr, ActorVfx> ActorVfxs = [];
 
-		private static readonly Dictionary<IntPtr, StaticVfx> _staticVfxs = new Dictionary<IntPtr, StaticVfx>();
+		public static readonly Dictionary<IntPtr, StaticVfx> StaticVfxs = [];
 
-		public static IReadOnlyDictionary<IntPtr, ActorVfx> ActorVfxs {
-			get {
-				lock (_actorVfxs) {
-					return new Dictionary<IntPtr, ActorVfx>(_actorVfxs);
-				}
-			}
-		}
-
-		public static IReadOnlyDictionary<IntPtr, StaticVfx> StaticVfxs {
-			get {
-				lock (_staticVfxs) {
-					return new Dictionary<IntPtr, StaticVfx>(_staticVfxs);
-				}
-			}
-		}
+		// public static IReadOnlyDictionary<IntPtr, ActorVfx> ActorVfxs {
+		// 	get {
+		// 		lock (_actorVfxs) {
+		// 			return new Dictionary<IntPtr, ActorVfx>(_actorVfxs);
+		// 		}
+		// 	}
+		// }
+		//
+		// public static IReadOnlyDictionary<IntPtr, StaticVfx> StaticVfxs {
+		// 	get {
+		// 		lock (_staticVfxs) {
+		// 			return new Dictionary<IntPtr, StaticVfx>(_staticVfxs);
+		// 		}
+		// 	}
+		// }
 
 		internal static VfxModule Module => BridgeNamazu.GetModule<VfxModule>();
 
@@ -40,73 +38,73 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx {
 			var vfxPtr = Module.StaticVfxCreate(fullPath);
 
 			var vfx = new StaticVfx {
-				Ptr = vfxPtr,
+				Vfx = vfxPtr,
 				Path = fullPath,
-				Tag = tag ?? Vfx.DefaultTag
+				Tag = tag ?? VfxBase.DefaultTag
 			};
 
 			Register(vfx);
-			Module.StaticVfxRun(vfx.Ptr);
+			Module.StaticVfxRun(vfx.Vfx);
 
 			return vfx;
 		}
 
-		public static unsafe bool Remove(Vfx? vfx) {
-			if (vfx == null || vfx.Ptr == null || (IntPtr)vfx.Ptr == IntPtr.Zero)
+		public static unsafe bool Remove(VfxBase? vfx) {
+			if (vfx == null || vfx.Vfx == null || (IntPtr)vfx.Vfx == IntPtr.Zero)
 				return false;
-			if (vfx is ActorVfx actor)
-				return Module.TryActorVfxRemove(actor.Ptr);
-			if (vfx is StaticVfx stat)
-				return Module.TryStaticVfxRemove(stat.Ptr);
+			if (vfx is ActorVfx)
+				return Module.TryActorVfxRemove(vfx.Vfx);
+			if (vfx is StaticVfx)
+				return Module.TryStaticVfxRemove(vfx.Vfx);
 			return false;
 		}
 
 		public static void Clear() {
-			lock (_actorVfxs) {
-				_actorVfxs.Clear();
+			lock (ActorVfxs) {
+				ActorVfxs.Clear();
 			}
 
-			lock (_staticVfxs) {
-				_staticVfxs.Clear();
+			lock (StaticVfxs) {
+				StaticVfxs.Clear();
 			}
 		}
 
 		public static unsafe void Register(ActorVfx? vfx) {
-			if (vfx == null || vfx.Ptr == null || (IntPtr)vfx.Ptr == IntPtr.Zero)
+			if (vfx == null || vfx.Vfx == null || (IntPtr)vfx.Vfx == IntPtr.Zero)
 				return;
 
-			lock (_actorVfxs) {
-				_actorVfxs[(IntPtr)vfx.Ptr] = vfx;
+			lock (ActorVfxs) {
+				ActorVfxs[(IntPtr)vfx.Vfx] = vfx;
 			}
 		}
 
 		public static unsafe void Register(StaticVfx? vfx) {
-			if (vfx == null || vfx.Ptr == null || (IntPtr)vfx.Ptr == IntPtr.Zero)
+			if (vfx == null || vfx.Vfx == null || (IntPtr)vfx.Vfx == IntPtr.Zero)
 				return;
 
-			lock (_staticVfxs) {
-				_staticVfxs[(IntPtr)vfx.Ptr] = vfx;
+			lock (StaticVfxs) {
+				StaticVfxs[(IntPtr)vfx.Vfx] = vfx;
 			}
 		}
 
 		public static bool TryUnregisterActor(IntPtr ptr, out ActorVfx vfx) {
-			lock (_actorVfxs) {
-				if (!_actorVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
+			lock (ActorVfxs) {
+				if (!ActorVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
 					return false;
 
 				vfx.Removed = true;
-				_actorVfxs.Remove(ptr);
+				ActorVfxs.Remove(ptr);
 				return true;
 			}
 		}
 
 		public static bool TryUnregisterStatic(IntPtr ptr, out StaticVfx vfx) {
-			lock (_staticVfxs) {
-				if (!_staticVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
+			lock (StaticVfxs) {
+				if (!StaticVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
 					return false;
 
 				vfx.Removed = true;
-				_staticVfxs.Remove(ptr);
+				StaticVfxs.Remove(ptr);
 				return true;
 			}
 		}
@@ -116,8 +114,8 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx {
 		private static readonly Lock RemoveWorkerLock = new();
 		private static bool RemoveWorkerStarted;
 
-		public static unsafe void ScheduleRemove(Vfx? vfx, double duration) {
-			if (vfx == null || vfx.Ptr == null || (IntPtr)vfx.Ptr == IntPtr.Zero || duration < 0) return;
+		public static unsafe void ScheduleRemove(VfxBase? vfx, double duration) {
+			if (vfx == null || vfx.Vfx == null || (IntPtr)vfx.Vfx == IntPtr.Zero || duration < 0) return;
 			vfx.ExpireAtUtc = DateTime.UtcNow.AddSeconds(duration);
 			EnsureRemoveWorkerStarted();
 		}
@@ -144,12 +142,12 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx {
 
 		private static void RemoveExpiredVfxs() {
 			var now = DateTime.UtcNow;
-			List<Vfx> expired = [];
-			lock (_actorVfxs)
-				expired.AddRange(_actorVfxs.Values
+			List<VfxBase> expired = [];
+			lock (ActorVfxs)
+				expired.AddRange(ActorVfxs.Values
 					.Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now));
-			lock (_staticVfxs)
-				expired.AddRange(_staticVfxs.Values
+			lock (StaticVfxs)
+				expired.AddRange(StaticVfxs.Values
 					.Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now));
 			foreach (var vfx in expired) {
 				try {

@@ -1,17 +1,20 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Triggernometry.Expressions.String.Utils;
+using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class UseActionModule : ModuleBase {
-	public IntPtr MouseToWorldPtr;
+	private MouseToWorldDelegate MouseToWorldD;
+
+	private unsafe delegate void MouseToWorldDelegate(ActionManager* a1, uint spellid, byte a3, byte* result);
 
 	public UseActionModule() {
 		ScanMethod = () => {
-			MouseToWorldPtr = Scanner.TryScan(
-				"4C 8B DC 49 89 5B ?? 49 89 6B ?? 49 89 73 ?? 57 48 81 EC ?? ?? ?? ?? 33 C0", nameof(MouseToWorldPtr));
+			MouseToWorldD = Marshal.GetDelegateForFunctionPointer<MouseToWorldDelegate>(ProxyPlugin.SigScanner.ScanText(
+				"4C 8B DC 49 89 5B ?? 49 89 6B ?? 49 89 73 ?? 57 48 81 EC ?? ?? ?? ?? 33 C0"));
 		};
 	}
 
@@ -19,18 +22,18 @@ public class UseActionModule : ModuleBase {
 	internal void CbUseAction(string command) {
 		CheckBeforeExecution(command);
 		var (actionType, actionId, targetId, mode)
-			= command.ParseArgs<ActionType, uint, uint, UseActionMode>(
+			= command.ParseArgs<ActionType, uint, uint, ActionManager.UseActionMode>(
 				(2, 0xE0000000),
-				(3, UseActionMode.None)
+				(3, ActionManager.UseActionMode.None)
 			);
-            UseAction(actionType, actionId, targetId, mode);
+		UseAction(actionType, actionId, targetId, mode);
 	}
 
-	public unsafe bool UseAction(ActionType actionType, uint actionId, uint targetId, UseActionMode mode = UseActionMode.None) {
+	public unsafe bool UseAction(ActionType actionType, uint actionId, uint targetId, ActionManager.UseActionMode mode = ActionManager.UseActionMode.None) {
 		CheckIfAnyZeroPtr();
 		var extraParam = (uint)(actionType == ActionType.Item ? 0xFFFF : 0);
-		uint comboRouteID = 0;
-		var result = ActionManager.Instance()->UseAction((FFXIVClientStructs.FFXIV.Client.Game.ActionType)(int)actionType, actionId, targetId, extraParam, (ActionManager.UseActionMode)(int)mode, comboRouteID, (bool*)0);
+		const uint comboRouteID = 0;
+		var result = ActionManager.Instance()->UseAction((ActionType)(int)actionType, actionId, targetId, extraParam, (ActionManager.UseActionMode)(int)mode, comboRouteID, (bool*)0);
 		if (result) {
 			NamazuLog($"[UseAction] {actionType} ({(int)actionType}), action = {actionId} (0x{actionId:X}), target = {targetId:X}, mode = {mode} ({(int)mode})");
 		}
@@ -46,7 +49,7 @@ public class UseActionModule : ModuleBase {
 				(2, 0), (3, 0), (4, 0),
 				(5, 0)
 			);
-            UseActionLocation(actionType, actionId, x, y, z, extraParam);
+		UseActionLocation(actionType, actionId, x, y, z, extraParam);
 	}
 
 	public unsafe bool UseActionLocation(ActionType actionType, uint actionId, float x, float y, float z, uint extraParam = 0) {
@@ -55,99 +58,34 @@ public class UseActionModule : ModuleBase {
 		// IntPtr posPtr = default;
 		bool result = default;
 		var posPtr = new Vector3(x, z, y);
-		ActionManager.Instance()->UseActionLocation((FFXIVClientStructs.FFXIV.Client.Game.ActionType)(int)actionType, actionId, targetId, &posPtr, extraParam);
+		ActionManager.Instance()->UseActionLocation((ActionType)(int)actionType, actionId, targetId, &posPtr, extraParam);
 		if (result) {
 			NamazuLog($"[UseActionLocation]: {actionType} ({(byte)actionType}); action = {actionId} (0x{actionId:X}) @ ({x:0.##}, {y:0.##}, {z:0.##})");
 		}
 		return result;
 	}
 
+	//https://github.com/44451516/SmartCast/blob/master/SmartCast.cs
+	private unsafe void MouseToWorld(out bool mouseOnWorld, out bool success, out Vector3 worldPos, uint actionId = 0xFFFFFFFF, byte actionType = (byte)ActionType.FieldMarker) {
+		CheckIfAnyZeroPtr();
+		var resultPtr = stackalloc byte[0x20];
+		MouseToWorldD(ActionManager.Instance(), actionId, actionType, resultPtr);
+		mouseOnWorld = resultPtr[0] == 1;
+		success = resultPtr[1] == 1;
+		worldPos = *(Vector3*)(resultPtr + 0x10);
+	}
+
 	// 似乎是借用尝试放置标点时调用的函数获取鼠标位置
-	// [ScriptingMethod("MouseToWorld")]
-	// public Vector3? MouseToWorld()
-	// {
-	// CheckIfAnyZeroPtr();
-	// uint actionId = 0xFFFFFFFF;
-	// ActionType actionType = ActionType.Waymark;
-	// IntPtr resultPtr = IntPtr.Zero;
-	// try
-	// {
-	//     
-	//     resultPtr = Memory.AllocateMemory(0x20);
-	//     Memory.CallInjected64<long>(MouseToWorldPtr, ActionManagerPtr, actionId, (byte)actionType, resultPtr);
-	//     // bool canUseAction = Memory.Read<bool>(resultPtr + 0x1); 似乎代表这个位置是否视线未遮挡
-	//     if (Memory.Read<bool>(resultPtr + 0x0)) // 代表确实指向了一个有效位置（一定距离内已加载的有碰撞的模型）
-	//     {
-	//         var pos = Memory.Read<Vector3>(resultPtr + 0x10);
-	//         return new Vector3(pos.X, pos.Z, pos.Y);
-	//     }
-	//     else return null;
-	// }
-	// finally
-	// {
-	//     if (resultPtr != IntPtr.Zero)
-	//         Memory.FreeMemory(resultPtr);
-	// }
-	// }
-	//TODO
+	[ScriptingMethod("MouseToWorld")]
+	public Vector3? MouseToWorld() {
+		MouseToWorld(out var mouseOnWorld, out var success, out var worldPos);
+		if (success && mouseOnWorld) return worldPos;
+		return null;
+	}
 
-	// [ScriptingMethod("IsMouseInSight")]
-	// public bool IsMouseInSight()
-	// {
-	//     CheckIfAnyZeroPtr();
-	//     uint actionId = 0xFFFFFFFF;
-	//     ActionType actionType = ActionType.Waymark;
-	//     IntPtr resultPtr = IntPtr.Zero;
-	//     try
-	//     {
-	//         resultPtr = Memory.AllocateMemory(0x20);
-	//         Memory.CallInjected64<long>(MouseToWorldPtr, ActionManagerPtr, actionId, (byte)actionType, resultPtr);
-	//         return Memory.Read<bool>(resultPtr + 0x1);
-	//     }
-	//     finally
-	//     {
-	//         if (resultPtr != IntPtr.Zero)
-	//             Memory.FreeMemory(resultPtr);
-	//     }
-	// }
-	//TODO
-}
-
-public enum ActionType : byte {
-	None = 0,
-	Normal = 1,
-	Action = 1, // Spell, Weaponskill, Ability
-	Item = 2,
-	KeyItem = 3,
-	Ability = 4, // Not in UseActionHelper (??)
-	General = 5,
-	GeneralAction = 5,
-	Buddy = 6,
-	BuddyAction = 6,
-	Main = 7,
-	MainCommand = 7,
-	Companion = 8,
-	Craft = 9,
-	CraftAction = 9,
-	Unk_10 = 10, // Fishing per Sapphire? Something to do with items.
-	Pet = 11,
-	PetAction = 11,
-	Unk_12 = 12, // Not in UseActionHelper. Sapphire says CompanyAction, but not actually triggered.
-	Mount = 13,
-	PvP = 14,
-	PvPAction = 14,
-	Waymark = 15,
-	FieldMarker = 15,
-	ChocoboRaceAbility = 16,
-	ChocoboRaceItem = 17,
-	Unk_18 = 18, // Not in UseActionHelper (?)
-	BgcArmyAction = 0x19,
-	Ornament = 0x20
-}
-
-public enum UseActionMode {
-	None = 0, // usual action execution, e.g. a hotbar button press
-	Queue = 1, // previously queued action is now ready and is being executed (=> will ignore queue)
-	Macro = 2, // action execution originating from a macro (=> won't be queued)
-	Combo = 3 // action execution is from a single-button combo
+	[ScriptingMethod("IsMouseInSight")]
+	public bool IsMouseInSight() {
+		MouseToWorld(out _, out var success, out _);
+		return success;
+	}
 }

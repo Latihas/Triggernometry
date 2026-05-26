@@ -7,7 +7,6 @@ using Triggernometry.Expressions.String.Models;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.FFXIV;
 using Triggernometry.Localization;
-using Triggernometry.PluginBridges;
 using Triggernometry.Utilities;
 using static Triggernometry.Core.Configuration;
 

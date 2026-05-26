@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
-using Triggernometry.UI.CustomControls;
-using Triggernometry.UI.Forms;
-using Triggernometry.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;

@@ -215,7 +215,7 @@ namespace Triggernometry.PluginBridges
                 BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
                 null,
                 null,
-                new object[] { root });
+                new[] { root });
 
             for (int i = 0; i < count; i++)
             {
@@ -224,7 +224,7 @@ namespace Triggernometry.PluginBridges
                     BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
                     null,
                     null,
-                    new object[] { root, i });
+                    new[] { root, i });
 
                 foreach (var x in GetVisualTree(child))
                     yield return x;

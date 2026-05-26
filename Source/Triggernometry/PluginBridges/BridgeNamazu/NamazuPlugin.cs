@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Dalamud.Plugin.Services;
+using Triggernometry.FFXIV;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu;
 
@@ -135,7 +136,7 @@ public class NamazuPlugin {
 
 	// Region detection
 	public bool IsCN => _plugin.IsCN;
-	public bool IsTC => FFXIV.GameLanguage.Language == FFXIV.GameLanguageEnum.TCN;
+	public bool IsTC => GameLanguage.Language == GameLanguageEnum.TCN;
 	public IntPtr FrameworkPtr => _plugin.FrameworkPtr;
 
         public void ExecuteInFrameLock(Action action)
