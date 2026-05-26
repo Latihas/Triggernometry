@@ -167,27 +167,22 @@ public class PictoACTModule : ModuleBase {
 	private StaticVfx CreateStaticVfx(MultiLineRawArgs data, VfxType vfxType, string vfxPath, bool shouldLog, Action<StaticVfx> createModifier = null) {
 		var tag = ParseTag(data);
 		// 创建并运行
-		var vfx = StaticVfx.Create(vfxPath, tag);
-		vfx.Run();
+            var vfx = VfxManager.InitStatic(vfxPath, tag);
 
 		// 设置 vfx 参数并更新
-
-		// to-do：这里才设置初始几何参数，如果在创建和设置之间有其他动作异步 Modify 时调用初始参数就会出问题
-		// vfx 加一个 ready 参数？
 		var modifiers = ParseStaticVfxModifiers(data, true);
 		foreach (var mod in modifiers) {
 			mod(vfx);
 		}
 
 		// 如果提供了时间参数，则安排移除
-		_ = data.TryGet(out var rawTime, "Time", "t");
-		if (rawTime != null) {
-			vfx.ScheduleRemove(rawTime.ParseData<double>());
+            if (data.TryGet(out string rawTime, "Time", "t"))
+            {
+                var duration = rawTime.ParseData<double>();
+                vfx.ScheduleRemove(duration);
 		}
 		// 额外的修饰（目前用于延迟执行额外操作）
-		if (createModifier != null) {
-			createModifier(vfx);
-		}
+            createModifier(vfx);
 		return vfx;
 	}
 
@@ -215,9 +210,9 @@ public class PictoACTModule : ModuleBase {
 
 		var vfxs = new Dictionary<StaticVfx, IsoscelesTriangle>();
 		// 对每个剖分出的等腰三角形创建 vfx
-		foreach (var tri in isoscelesTriangles) {
-			var vfx = StaticVfx.Create(vfxPath, tag);
-			vfx.Run();
+            foreach (var tri in isoscelesTriangles)
+            {
+                var vfx = VfxManager.InitStatic(vfxPath, tag);
 			vfxs[vfx] = tri;
 		}
 		foreach (var pair in vfxs) {
@@ -395,9 +390,9 @@ public class PictoACTModule : ModuleBase {
 
 		// 执行移除
 		if (isActor && GetConfig<bool>("ActorVfx") != false)
-			ActorVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => GreyMagicMemoryBase.ExecuteWithLock(vfx.TryRemove));
+                ActorVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => vfx.TryRemove());
 		if (isStatic && GetConfig<bool>("StaticVfx") != false)
-			StaticVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => GreyMagicMemoryBase.ExecuteWithLock(vfx.TryRemove));
+                StaticVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => vfx.TryRemove());
 	}
 
 	private void ParseTypeAndPath(MultiLineRawArgs data, out VfxType vfxType, out string vfxPath, out bool isActor) {

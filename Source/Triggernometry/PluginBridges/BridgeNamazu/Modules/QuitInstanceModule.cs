@@ -17,7 +17,7 @@ public class QuitInstanceModule : ModuleBase {
 	internal void CbQuitInstance(string cmd) {
 		CheckBeforeExecution(cmd);
 		var shouldForceQuit = cmd.ParseDataOrDefault(false);
-		GreyMagicMemoryBase.ExecuteWithLock(() => QuitInstance(shouldForceQuit));
+            QuitInstance(shouldForceQuit);
 	}
 
 	public void QuitInstance(bool shouldForceQuit) {

@@ -66,7 +66,6 @@ public class EnvironmentEffectModule : ModuleBase {
 				ErrorLog($"[鲶鱼精邮差扩展] MapEffect 参数错误：{ex.Message}");
 			}
 		}
-		GreyMagicMemoryBase.ExecuteWithLock(() => {
 			foreach (var (index, unknownFlag, flag) in args) {
 				if (!unknownFlag.HasValue) {
 					NamazuLog($"[MapEffect] index = {index}, flag = {flag} ({flag:X4}????:{index:X2})");
@@ -77,8 +76,7 @@ public class EnvironmentEffectModule : ModuleBase {
 					MapEffectOld(index, unknownFlag.Value, flag);
 #pragma warning restore CS0618
 				}
-			}
-		});
+			};
 	}
 
 	/// <summary> MapEffect 底层函数。 </summary>
@@ -86,11 +84,11 @@ public class EnvironmentEffectModule : ModuleBase {
 	public bool MapEffect(uint index, ushort flag) {
 		CheckIfAnyZeroPtr();
 		var contentDirectorPtr = ContentDirectorPtr;
-		if (contentDirectorPtr != IntPtr.Zero) {
-			var success = false;
-			// Memory.CallInjected64<bool>(MapEffectFunctionPtr, contentDirectorPtr, index, flag);
-			//TODO
-			if (!success) {
+            if (contentDirectorPtr != IntPtr.Zero)
+            {
+                bool success = Plugin.Call<bool>(MapEffectFunctionPtr, contentDirectorPtr, index, flag);
+                if (!success)
+                {
 				WarningLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 中 MapEffect ({index}, {flag}) 调用失败。");
 			}
 			return success;
@@ -104,10 +102,12 @@ public class EnvironmentEffectModule : ModuleBase {
 	public void MapEffectOld(uint index, ushort unknownFlag, ushort flag) {
 		CheckIfAnyZeroPtr();
 		var contentDirectorPtr = ContentDirectorPtr;
-		if (contentDirectorPtr != IntPtr.Zero) {
-			// Memory.CallInjected64<IntPtr>(MapEffectOldFunctionPtr, contentDirectorPtr, index, unknownFlag, flag);
-			//TODO
-		} else {
+            if (contentDirectorPtr != IntPtr.Zero)
+            {
+                Plugin.Call<IntPtr>(MapEffectOldFunctionPtr, contentDirectorPtr, index, unknownFlag, flag);
+            }
+            else
+            {
 			ErrorLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 不存在 Director，无法调用 MapEffect (Old) ({index}, {unknownFlag}, {flag})。");
 		}
 	}
@@ -117,7 +117,7 @@ public class EnvironmentEffectModule : ModuleBase {
 		var weatherId = command.ParseData<byte>();
 		CheckBeforeExecution(command);
 		NamazuLog($"[ChangeWeather] {weatherId}");
-		GreyMagicMemoryBase.ExecuteWithLock(() => ChangeWeather(weatherId));
+            ChangeWeather(weatherId);
 	}
 
 	// FFXIVClientStructs/FFXIV/Client/Graphics/Environment/EnvManager.cs

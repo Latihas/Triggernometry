@@ -87,21 +87,21 @@ public class EntityModule : ModuleBase {
 	internal void CbSetDefaultPos(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, x, y, z) = cmd.ParseArgs<IntPtr, float, float, float>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetDefaultPos(objectPtr, x, y, z));
+            SetDefaultPos(objectPtr, x, y, z);
 	}
 
 	[CallbackMethod("SetPos", "Kairos")]
 	internal void CbSetPos(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, x, y, z) = cmd.ParseArgs<IntPtr, float, float, float>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetPos(objectPtr, x, y, z));
+            SetPos(objectPtr, x, y, z);
 	}
 
 	[CallbackMethod("SetModelRelPos")]
 	internal void CbSetModelRelPos(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, dx, dy, dz) = cmd.ParseArgs<IntPtr, float, float, float>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetModelRelPos(objectPtr, dx, dy, dz));
+            SetModelRelPos(objectPtr, dx, dy, dz);
 	}
 
 	[CallbackMethod("Teleport", "Kairos")]
@@ -109,21 +109,21 @@ public class EntityModule : ModuleBase {
 		CheckBeforeExecution(cmd);
 		var objectPtr = Entity.GetMyself().Address;
 		var (x, y, z) = cmd.ParseArgs<float, float, float>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetPos(objectPtr, x, y, z));
+            SetPos(objectPtr, x, y, z);
 	}
 
 	[CallbackMethod("SetDefaultHeading")]
 	internal void CbSetDefaultHeading(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, heading) = cmd.ParseArgs<IntPtr, float>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetDefaultHeading(objectPtr, heading));
+            SetDefaultHeading(objectPtr, heading);
 	}
 
 	[CallbackMethod("SetHeading")]
 	internal void CbSetHeading(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, heading) = cmd.ParseArgs<IntPtr, float>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetHeading(objectPtr, heading));
+            SetHeading(objectPtr, heading);
 	}
 
 	[CallbackMethod("Target")]
@@ -146,7 +146,7 @@ public class EntityModule : ModuleBase {
 	internal void CbSetModelStatus(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, modelStatus) = cmd.ParseArgs<IntPtr, int>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetModelStatus(objectPtr, modelStatus));
+            SetModelStatus(objectPtr, modelStatus);
 	}
 
 	// 新方法 直接修改实体参数并重绘
@@ -155,7 +155,7 @@ public class EntityModule : ModuleBase {
 		CheckBeforeExecution(cmd);
 		if (GetConfig<bool>("ObjectScale") == false) return; // ignored
 		var (objectPtr, scale) = cmd.ParseArgs<IntPtr, float>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetObjectScale(objectPtr, scale));
+            SetObjectScale(objectPtr, scale);
 	}
 
 	// 旧方法 临时修改已经绘制生成的实体模型
@@ -164,7 +164,7 @@ public class EntityModule : ModuleBase {
 		CheckBeforeExecution(cmd);
 		if (GetConfig<bool>("ObjectScale") == false) return; // ignored
 		var (objectPtr, scaleX, scaleY, scaleZ) = cmd.ParseArgs<IntPtr, float, float?, float?>((2, null), (3, null));
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetObjectScaleTemp(objectPtr, scaleX, scaleY ?? scaleX, scaleZ ?? scaleX));
+            SetObjectScaleTemp(objectPtr, scaleX, scaleY ?? scaleX, scaleZ ?? scaleX);
 	}
 
 	[CallbackMethod("SetOpacity")]
@@ -172,55 +172,50 @@ public class EntityModule : ModuleBase {
 		CheckBeforeExecution(cmd);
 		if (GetConfig<bool>("Opacity") == false) return; // ignored
 		var (objectPtr, opacity) = cmd.ParseArgs<IntPtr, float>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => SetOpacity(objectPtr, opacity));
+            SetOpacity(objectPtr, opacity);
 	}
 
 	[CallbackMethod("SetStatusLoopVfx")]
 	internal void CbSetStatusLoopVfx(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, vfxId) = cmd.ParseArgs<IntPtr, ushort>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => {
 			SetStatusLoopVfx(objectPtr, vfxId);
 			ReDraw(objectPtr);
-		});
 	}
 
 	[CallbackMethod("Redraw")]
 	internal void CbRedraw(string cmd) {
 		CheckBeforeExecution(cmd);
 		var objectPtr = cmd.ParseData<IntPtr>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => ReDraw(objectPtr));
+            ReDraw(objectPtr);
 	}
 
 	[CallbackMethod("SetHighlightColor")]
 	internal unsafe void CbSetHighlightColor(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, color) = cmd.ParseArgs<IntPtr, byte>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => {
-			var character = (Character*)objectPtr;
-			character->Highlight((ObjectHighlightColor)color);
-		});
+            SetHighlightColor(objectPtr, color);
 	}
 
 	[CallbackMethod("RemoveStatus")]
 	internal void CbRemoveStatus(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, statusId) = cmd.ParseArgs<IntPtr, ushort>();
-		GreyMagicMemoryBase.ExecuteWithLock(() => RemoveStatus(objectPtr, statusId));
+            RemoveStatus(objectPtr, statusId);
 	}
 
 	[CallbackMethod("EObjAnimation")]
 	internal void CbEObjAnimation(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, animationId, slotMask, context) = cmd.ParseArgs<IntPtr, ushort, ushort, long>((3, 0L));
-		GreyMagicMemoryBase.ExecuteWithLock(() => EObjAnimation(objectPtr, animationId, slotMask, context));
+            EObjAnimation(objectPtr, animationId, slotMask, context);
 	}
 
 	[CallbackMethod("PlayActionTimeline")]
 	internal void CbPlayActionTimeline(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, timelineId, a3, a4) = cmd.ParseArgs<IntPtr, ushort, long, bool>((2, 0L), (3, false));
-		GreyMagicMemoryBase.ExecuteWithLock(() => PlayActionTimeline(objectPtr, timelineId, a3, a4));
+		PlayActionTimeline(objectPtr, timelineId, a3, a4);
 	}
 
 	public void SetPos(IntPtr objectAddress, float x, float y, float z) {

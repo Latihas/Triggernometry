@@ -13,30 +13,16 @@ public abstract class Vfx {
 	public string Path { get; set; }
 	public string Tag { get; set; }
 	public bool Removed { get; set; } = false;
+        public DateTime? ExpireAtUtc { get; internal set; }
 
 	public ScriptUtils.IGBase? ImGuiObject;
 
 	public const string DefaultTag = "Auto";
-	public static VfxModule Module => BridgeNamazu.GetModule<VfxModule>();
 	public static GreyMagicExternalProcessMemory Memory => BridgeNamazu.NamazuPlugin.Memory;
 	public abstract bool TryRemove();
 
-	public void ScheduleRemove(double duration) {
-		bool b;
-		unsafe {
-			b = duration > 0 && ((IntPtr)Ptr != IntPtr.Zero);
-		}
-		if (b) {
-			Task.Run(async () => {
-				try {
-					await Task.Delay(TimeSpan.FromSeconds(duration)).ConfigureAwait(false);
-					GreyMagicMemoryBase.ExecuteWithLock(TryRemove);
-				} catch (Exception ex) {
-					Module.ErrorLog($"[PictoACT] 延迟移除时出错：\n{ex}");
-				}
-			});
-		}
-	}
+        public void ScheduleRemove(double duration)
+            => VfxManager.ScheduleRemove(this, duration);
 
 	public void Update() {
 		if (Removed) return;

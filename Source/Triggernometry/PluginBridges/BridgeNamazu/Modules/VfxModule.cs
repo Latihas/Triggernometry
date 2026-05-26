@@ -12,6 +12,17 @@ using Triggernometry.Expressions.String.Utils;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 using TriggernometryProxy;
 using static Triggernometry.PScript.ScriptUtils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using Triggernometry.Core;
+using Triggernometry.Expressions.String.Utils;
+using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
@@ -129,7 +140,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, -1.0)); // 默认不移除
 		CheckIfVfxNameTooShort(vfxName, "LockOn");
-		var vfx = GreyMagicMemoryBase.ExecuteWithLock(() => LockOnCreate(tgtAddress, vfxName));
+            var vfx = LockOnCreate(tgtAddress, vfxName);
 		if (vfx == null) return;
 		var vfxPtr = vfx.Ptr;
 		ScheduleActorVfxRemove(vfxPtr, duration, true);
@@ -142,7 +153,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "Channeling");
-		var vfx = GreyMagicMemoryBase.ExecuteWithLock(() => ChannelingCreate(srcAddress, tgtAddress, vfxName));
+            var vfx = ChannelingCreate(srcAddress, tgtAddress, vfxName);
 		if (vfx == null) return;
 		var vfxPtr = vfx.Ptr;
 		ScheduleActorVfxRemove(vfxPtr, duration);
@@ -155,7 +166,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "CastVfx");
-		var vfx = GreyMagicMemoryBase.ExecuteWithLock(() => CastVfxCreate(srcAddress, vfxName));
+            var vfx = CastVfxCreate(srcAddress, vfxName);
 		if (vfx == null) return;
 		var vfxPtr = vfx.Ptr;
 		ScheduleActorVfxRemove(vfxPtr, duration);
@@ -168,7 +179,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "ActorVfx");
-		var vfx = GreyMagicMemoryBase.ExecuteWithLock(() => ActorVfxCreate(srcAddress, tgtAddress, vfxName));
+            var vfx = ActorVfxCreate(srcAddress, tgtAddress, vfxName);
 		if (vfx == null) return;
 		var vfxPtr = vfx.Ptr;
 		ScheduleActorVfxRemove(vfxPtr, duration);
@@ -212,9 +223,7 @@ public class VfxModule : ModuleBase {
 				};
 				if (!scheduleRemovalByGame) // 临时应对方式，暂时未能检测 LockOn 是否已经被移除，所以不主动注册
 				{
-					lock (_actorVfxs) {
-						_actorVfxs[(IntPtr)vfxPtr] = vfx;
-					}
+                VfxManager.Register(vfx);
 				}
 				Custom2Log($"[ActorVfxCreate] {fullPath} @ {(long)vfxPtr:X}");
 			}
@@ -224,36 +233,36 @@ public class VfxModule : ModuleBase {
 
 	public unsafe bool TryActorVfxRemove(VfxObject* vfxPtr, bool scheduleRemovalByGame = false) // 待优化：判断是否存在 vfx
 	{
-		return GreyMagicMemoryBase.ExecuteWithLock(() => {
+		
 			CheckIfAnyZeroPtr();
-			if (vfxPtr == null) return false;
-			var ptr = (IntPtr)vfxPtr;
+			var found = VfxManager.TryUnregisterActor(vfxPtr, out var vfx);
+
+			if (!found && !scheduleRemovalByGame)
+			{
+				Custom2Log($"[ActorVfx] 移除特效：（已移除）@{(long)vfxPtr:X}");
+				return false;
+			}
 			if (!ProxyPlugin.ActorVfxRemoveHook.IsEnabled) {
 				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoveHook未就绪，不移除特效 {ptr:X}"); //TODO
 				return false;
 			}
-			try {
-				lock (_actorVfxs) {
-					if (!scheduleRemovalByGame) return false;
-					if (!_actorVfxs.TryGetValue(ptr, out var vfx)) {
-						Custom2Log($"[ActorVfx] 移除特效：（已移除）@{ptr:X}");
-						return false;
-					}
-					vfx.Removed = true;
-				}
-				ActorVfxRemoveD(vfxPtr, (char)1);
-			} finally {
-				lock (_actorVfxs) _actorVfxs.Remove(ptr);
-				Custom2Log($"[ActorVfx] 移除特效： @ {ptr:X}");
+			try
+			{
+				ActorVfxRemoveD( vfxPtr, (char)1); // a2: bool freeMemory
 			}
+			finally
+			{
+				Custom2Log($"[ActorVfx] 移除特效：{vfx?.Path ?? "unknown"} @ {(long)vfxPtr:X}");
+			}
+
 			return true;
-		});
+	
 	}
 
 
 	public unsafe void ScheduleActorVfxRemove(VfxObject* vfxPtr, double duration, bool scheduleRemovalByGame = false) {
 		if (duration >= 0 && vfxPtr != null && (IntPtr)vfxPtr != IntPtr.Zero) {
-			Task.Delay((int)(duration * 1000)).ContinueWith(_ => GreyMagicMemoryBase.ExecuteWithLock(() => TryActorVfxRemove(vfxPtr, scheduleRemovalByGame)));
+			Task.Delay((int)(duration * 1000)).ContinueWith(_ => TryActorVfxRemove(vfxPtr, scheduleRemovalByGame));
 		}
 	}
 
@@ -281,8 +290,7 @@ public class VfxModule : ModuleBase {
 			var scales = new Vector3(scaleX, rawScaleY ?? scaleX, rawScaleZ ?? scaleX);
 			var color = new Vector4(r, g, b, a);
 
-			var vfx = StaticVfxCreate(vfxPath);
-			vfx.Run();
+            var vfx = VfxManager.InitStatic(vfxPath, Vfx.Vfx.DefaultTag);
 
 			vfx.Pos = pos;
 			vfx.Angle = h;
@@ -300,39 +308,15 @@ public class VfxModule : ModuleBase {
 			CheckIfAnyZeroPtr();
 			CheckIfVfxPathValid(fullPath);
 			const string pool = "Client.System.Scheduler.Instance.VfxObject";
-			StaticVfx vfx = null;
-			// if (RealPlugin.Instance.cfg.UseImGui4VfxModule) {
-			// 	if (ImGuiReplaceDict.TryGetValue(fullPath, out var type))
-			// 		vfx = new StaticVfx {
-			// 			Ptr = (VfxObject*)0,
-			// 			Path = fullPath,
-			// 			Tag = tag
-			// 		};
-			// 	// Triggernometry.PScript.ScriptUtils.ScriptDrawList.Add(new IGRect(Me_Position, GetGameObjectById_Position(s)
-			// 	//TODO Collect data
-			// 	RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"StaticVfx not in dict: {fullPath}({tag})");
-			// }
-			if (vfx == null) {
-				var vfxPtr = StaticVfxCreateD(new Utf8String(fullPath).StringPtr, new Utf8String(pool).StringPtr);
-				vfx = new StaticVfx {
-					Ptr = vfxPtr,
-					Path = fullPath,
-					Tag = tag
-				};
-				lock (_staticVfxs) {
-					_staticVfxs[(IntPtr)vfxPtr] = vfx;
-				}
-				Custom2Log($"[StaticVfxCreate] {fullPath} @ {(long)vfxPtr:X}");
-			}
-			return vfx;
+			var vfxPtr = StaticVfxCreateD(new Utf8String(fullPath).StringPtr, new Utf8String(pool).StringPtr);
+			Custom2Log($"[StaticVfxCreate] {fullPath} @ {(long)vfxPtr:X}");
+			return vfxPtr;
 		});
 	}
 
 	public unsafe void StaticVfxRun(VfxObject* vfxPtr) {
-		GreyMagicMemoryBase.ExecuteWithLock(() => {
 			CheckIfAnyZeroPtr();
 			StaticVfxRunD(vfxPtr, 0.0f, -1);
-		});
 	}
 
 	// private void StaticVfxFadeout(IntPtr vfxPtr, float fadeFrames60)
@@ -343,29 +327,17 @@ public class VfxModule : ModuleBase {
 	// }
 
 	public unsafe bool TryStaticVfxRemove(VfxObject* vfxPtr) {
-		return GreyMagicMemoryBase.ExecuteWithLock(() => {
-			CheckIfAnyZeroPtr();
-			if (vfxPtr == null) return false;
-			var ptr = (IntPtr)vfxPtr;
-			if (!ProxyPlugin.StaticVfxRemoveHook.IsEnabled) {
-				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoveHook未就绪，不移除特效 {ptr:X}");
-				return false;
-			}
-			try {
-				lock (_staticVfxs) {
-					if (!_staticVfxs.TryGetValue(ptr, out var vfx)) {
-						Custom2Log($"[StaticVfx] 移除特效：（已移除）@{ptr:X}");
-						return false;
-					}
-					vfx.Removed = true;
-				}
-				StaticVfxRemoveD(vfxPtr);
-			} finally {
-				lock (_staticVfxs) _staticVfxs.Remove(ptr);
-				Custom2Log($"[StaticVfx] 已移除特效记录 @ {ptr:X}");
-			}
-			return true;
-		});
+		CheckIfAnyZeroPtr();
+
+		if (!VfxManager.TryUnregisterStatic(vfxPtr, out var vfx))
+		{
+			Custom2Log($"[StaticVfx] 移除特效：（已移除）@{(long)vfxPtr:X}");
+			return false;
+		}
+
+		StaticVfxFadeout(vfxPtr, 10f);
+		Custom2Log($"[StaticVfx] 已淡出特效记录：{vfx.Path} @ {(long)vfxPtr:X}");
+		return true;
 	}
 
 	public unsafe void ScheduleStaticVfxRemove(VfxObject* vfxPtr, double duration) {
