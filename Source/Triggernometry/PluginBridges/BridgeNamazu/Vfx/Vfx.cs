@@ -13,16 +13,14 @@ public abstract class Vfx {
 	public string Path { get; set; }
 	public string Tag { get; set; }
 	public bool Removed { get; set; } = false;
-        public DateTime? ExpireAtUtc { get; internal set; }
-
-	public ScriptUtils.IGBase? ImGuiObject;
+	public DateTime? ExpireAtUtc { get; internal set; }
 
 	public const string DefaultTag = "Auto";
 	public static GreyMagicExternalProcessMemory Memory => BridgeNamazu.NamazuPlugin.Memory;
 	public abstract bool TryRemove();
 
-        public void ScheduleRemove(double duration)
-            => VfxManager.ScheduleRemove(this, duration);
+	public void ScheduleRemove(double duration)
+		=> VfxManager.ScheduleRemove(this, duration);
 
 	public void Update() {
 		if (Removed) return;
@@ -82,7 +80,7 @@ public abstract class Vfx {
 		set {
 			if (Removed) return;
 			var q = Quaternion.CreateFromYawPitchRoll(value.Z, value.Y, value.X); // θy, θx, θ
-			Ptr->Rotation =new Quaternion(q.X, q.Z, q.Y, q.W) ;
+			Ptr->Rotation = new Quaternion(q.X, q.Z, q.Y, q.W);
 		}
 	}
 

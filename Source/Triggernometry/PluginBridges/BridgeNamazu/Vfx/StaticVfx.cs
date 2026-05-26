@@ -18,12 +18,11 @@ public class StaticVfx : Vfx {
 	/// <summary> 上一次设置的相对坐标 </summary>
 	internal XIVCoord PrevPos;
 	/// <summary> 上一次设置的相对朝向 </summary>
-        internal Vector3 PrevAngles; // 似乎应该是 V3? 而不是 V3
+	internal Vector3 PrevAngles; // 似乎应该是 V3? 而不是 V3
 	/// <summary> 注意 lock </summary>
-        public static IReadOnlyDictionary<IntPtr, StaticVfx> Storage 
-            => VfxManager.StaticVfxs;
+	public static IReadOnlyDictionary<IntPtr, StaticVfx> Storage
+		=> VfxManager.StaticVfxs;
 
-        public override bool TryRemove()
-            => VfxManager.Remove(this);
-
+	public override bool TryRemove()
+		=> VfxManager.Remove(this);
 }

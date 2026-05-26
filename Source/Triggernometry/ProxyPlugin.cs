@@ -11,6 +11,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Triggernometry.Core;
 using Triggernometry.PluginBridges;
+using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 using static Triggernometry.PluginBridges.BridgeNamazu.Modules.VfxModule;
 using static Triggernometry.PScript.ScriptUtils;
 
@@ -127,9 +128,9 @@ public class ProxyPlugin : IActPluginV1 {
 		RealPlugin.Instance.InitAura();
 	}
 
-	private static void OnLogout(int type, int code) => ClearVfxCache();
+	private static void OnLogout(int type, int code) => VfxManager.Clear();
 
-	private void DrawScriptBdl() {
+	private static void DrawScriptBdl() {
 		var bdl = ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
 		var now = DateTime.Now.Ticks / 10000;
 		lock (ScriptDrawList) {
@@ -167,6 +168,7 @@ public class ProxyPlugin : IActPluginV1 {
 		ActGlobals.oFormActMain.OnLogLineRead -= OFormActMain_OnLogLineRead;
 		ActGlobals.oFormActMain.BeforeLogLineRead -= OFormActMain_BeforeLogLineRead;
 		PluginInterface.UiBuilder.Draw -= DrawScriptBdl;
+		Framework.Update -= VfxManager.RemoveWorkerLoop;
 		ClientState.Logout -= OnLogout;
 		StaticVfxRemoveHook.Disable();
 		StaticVfxRemoveHook.Dispose();

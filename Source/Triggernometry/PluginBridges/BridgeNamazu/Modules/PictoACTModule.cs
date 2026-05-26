@@ -89,25 +89,17 @@ public class PictoACTModule : ModuleBase {
 	}
 
 	private static readonly Dictionary<VfxType, string> _actorCommandTemplates = new() {
-		{
-			VfxType.LockOn, "vfx/lockon/eff/{0}.avfx"
-		}, {
-			VfxType.Channeling, "vfx/channeling/eff/{0}.avfx"
-		}, {
-			VfxType.CastVfx, "vfx/common/eff/{0}.avfx"
-		},
+		[VfxType.LockOn] = "vfx/lockon/eff/{0}.avfx",
+
+		[VfxType.Channeling] = "vfx/channeling/eff/{0}.avfx",
+		[VfxType.CastVfx] = "vfx/common/eff/{0}.avfx",
 		//{ VfxType.StatusLoopVfx, "" },
-		{
-			VfxType.ActorVfx, "{0}"
-		}
+		[VfxType.ActorVfx] = "{0}"
 	};
 
 	private static readonly Dictionary<VfxType, string> _staticCommandTemplates = new() {
-		{
-			VfxType.Omen, "vfx/omen/eff/{0}.avfx"
-		}, {
-			VfxType.StaticVfx, "{0}"
-		}
+		[VfxType.Omen] = "vfx/omen/eff/{0}.avfx",
+		[VfxType.StaticVfx] = "{0}"
 	};
 
 	private void Execute(MultiLineRawArgs data, Action<StaticVfx> createModifier = null) {
@@ -167,7 +159,7 @@ public class PictoACTModule : ModuleBase {
 	private StaticVfx CreateStaticVfx(MultiLineRawArgs data, VfxType vfxType, string vfxPath, bool shouldLog, Action<StaticVfx> createModifier = null) {
 		var tag = ParseTag(data);
 		// 创建并运行
-            var vfx = VfxManager.InitStatic(vfxPath, tag);
+		var vfx = VfxManager.InitStatic(vfxPath, tag);
 
 		// 设置 vfx 参数并更新
 		var modifiers = ParseStaticVfxModifiers(data, true);
@@ -176,13 +168,12 @@ public class PictoACTModule : ModuleBase {
 		}
 
 		// 如果提供了时间参数，则安排移除
-            if (data.TryGet(out string rawTime, "Time", "t"))
-            {
-                var duration = rawTime.ParseData<double>();
-                vfx.ScheduleRemove(duration);
+		if (data.TryGet(out string rawTime, "Time", "t")) {
+			var duration = rawTime.ParseData<double>();
+			vfx.ScheduleRemove(duration);
 		}
 		// 额外的修饰（目前用于延迟执行额外操作）
-            createModifier(vfx);
+		createModifier(vfx);
 		return vfx;
 	}
 
@@ -210,9 +201,8 @@ public class PictoACTModule : ModuleBase {
 
 		var vfxs = new Dictionary<StaticVfx, IsoscelesTriangle>();
 		// 对每个剖分出的等腰三角形创建 vfx
-            foreach (var tri in isoscelesTriangles)
-            {
-                var vfx = VfxManager.InitStatic(vfxPath, tag);
+		foreach (var tri in isoscelesTriangles) {
+			var vfx = VfxManager.InitStatic(vfxPath, tag);
 			vfxs[vfx] = tri;
 		}
 		foreach (var pair in vfxs) {
@@ -390,9 +380,9 @@ public class PictoACTModule : ModuleBase {
 
 		// 执行移除
 		if (isActor && GetConfig<bool>("ActorVfx") != false)
-                ActorVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => vfx.TryRemove());
+			ActorVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => vfx.TryRemove());
 		if (isStatic && GetConfig<bool>("StaticVfx") != false)
-                StaticVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => vfx.TryRemove());
+			StaticVfx.Storage.Values.Where(vfx => filter(vfx.Tag)).ToList().ForEach(vfx => vfx.TryRemove());
 	}
 
 	private void ParseTypeAndPath(MultiLineRawArgs data, out VfxType vfxType, out string vfxPath, out bool isActor) {
