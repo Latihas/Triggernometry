@@ -1993,12 +1993,13 @@ public class UserInterface {
 	}
 
 	private static void ForceFireTrigger(Trigger t, TriggerForceTypeEnum force) {
-		var ctx = new Context(t);
-		ctx.testByPlaceholder = false;
-		ctx.soundhook = RealPlugin.Instance.SoundPlaybackSmart;
-		ctx.ttshook = RealPlugin.Instance.TtsPlaybackSmart;
-		ctx.triggeredTime = DateTime.UtcNow;
-		ctx.forceType = force;
+		var ctx = new Context(t) {
+			testByPlaceholder = false,
+			soundhook = RealPlugin.Instance.SoundPlaybackSmart,
+			ttshook = RealPlugin.Instance.TtsPlaybackSmart,
+			triggeredTime = DateTime.UtcNow,
+			forceType = force
+		};
 		if ((t.TestInput?.Length ?? 0) == 0)
 			t.Fire(ctx);
 		else {

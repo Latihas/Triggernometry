@@ -48,7 +48,7 @@ public class Trigger {
 	///     Represents the cached regular expression used internally for pattern matching operations. <br />
 	///     Null if the regular expression is invalid or empty.
 	/// </summary>
-	internal Regex regexCache;
+	internal Regex? regexCache;
 
 	private string _regularExpression = "";
 
@@ -86,7 +86,7 @@ public class Trigger {
 	///     A <see cref="Match" /> object if the trigger has a non-empty valid regex and matches successfully; otherwise,
 	///     <c>null</c>.
 	/// </returns>
-	public Match CheckMatch(string input) {
+	public Match? CheckMatch(string? input) {
 		var regex = regexCache; // snapshot
 		if (regex == null || input == null)
 			return null;

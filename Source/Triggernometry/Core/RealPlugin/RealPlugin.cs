@@ -226,8 +226,7 @@ public partial class RealPlugin {
 			FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/filenameis", "Plugin filename is '{0}' at '{1}'", pluginName, pluginPath));
 
 			exwhere = I18n.Translate("internal/Plugin/inilanguages", "loading languages");
-			LoadLanguages();
-
+			ProxyPlugin.Framework.RunOnFrameworkThread(LoadLanguages).Wait();
 			exwhere = I18n.Translate("internal/Plugin/inicfg", "loading configuration");
 			ProxyPlugin.Framework.RunOnFrameworkThread(() => _cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"))).Wait();
 			SetupDefaultSecurity();

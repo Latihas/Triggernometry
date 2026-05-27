@@ -21,8 +21,8 @@ internal static class ModuleCombatants {
 	///     null: Before initialization
 	/// </summary>
 	public static bool? Ready;
-	private static dynamic _combatantMemoryManager;
-	private static dynamic _currentCombatantMemory;
+	private static CombatantMemoryManager _combatantMemoryManager;
+	private static CombatantMemory _currentCombatantMemory;
 	private static FFXIVMemory memory => _currentCombatantMemory.memory;
 	private static IntPtr charmapAddress => _currentCombatantMemory.charmapAddress;
 	private static int numMemoryCombatants => _currentCombatantMemory.numMemoryCombatants;
@@ -34,12 +34,12 @@ internal static class ModuleCombatants {
 
 	internal static void Initialize() {
 		try {
-			_combatantMemoryManager = BridgeOverlay.Container.Resolve<ICombatantMemory>();
-			_currentCombatantMemory = _combatantMemoryManager.memory;
+			_combatantMemoryManager = BridgeOverlay.Container.Resolve<ICombatantMemory>() as CombatantMemoryManager;
+			_currentCombatantMemory = _combatantMemoryManager.memory as CombatantMemory;
 			if (_currentCombatantMemory == null) // OverlayPlugin is still scanning memory
 			{
 				_combatantMemoryManager.ScanPointers();
-				_currentCombatantMemory = _combatantMemoryManager.memory;
+				_currentCombatantMemory = _combatantMemoryManager.memory as CombatantMemory;
 				if (_currentCombatantMemory == null) {
 					Ready = false;
 					RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate(
@@ -119,7 +119,7 @@ internal static class ModuleCombatants {
 	}
 
 	/// <returns>Null if not found.</returns>
-	private static dynamic GetMobFromByteArray(byte[] source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
+	private static Combatant GetMobFromByteArray(byte[] source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
 
 	/// <returns>OpEntity.NullEntity() if not found.</returns>
 	internal static Entity InternalGetEntityByID(uint id) {
@@ -131,7 +131,7 @@ internal static class ModuleCombatants {
 
 	// OverlayPlugin/OverlayPlugin.Core/MemoryProcessors/Combatant/Common.cs
 	public class OpEntity : Entity {
-		private readonly dynamic _entity; // the original combatant object from OverlayPlugin, properties DO NOT change over time
+		private readonly Combatant _entity; // the original combatant object from OverlayPlugin, properties DO NOT change over time
 		public override PluginSource PluginSource { get; set; } = PluginSource.OverlayPlugin;
 		public override IntPtr Address { get; set; } // .Address (not updated yet)
 		public override string Name => _entity.Name;
@@ -211,7 +211,7 @@ internal static class ModuleCombatants {
 		public override float CastTime => _entity.CastDurationCurrent;
 		public override float MaxCastTime => _entity.CastDurationMax;
 
-		internal OpEntity(object opCombatantObj, IntPtr address) {
+		internal OpEntity(Combatant opCombatantObj, IntPtr address) {
 			_entity = opCombatantObj;
 			Address = address;
 		}

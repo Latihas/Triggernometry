@@ -144,9 +144,9 @@ public class Entity {
 		=> GetEntities(useOverlay).Where(filter);
 
 	public static IEnumerable<Entity> GetEntities() {
-		var result = ModuleCombatants.InternalGetEntities();
+		var result = ModuleCombatants.InternalGetEntities().ToList();
 		if (!result.Any())
-			result = BridgeFFXIV.InternalGetEntities();
+			result = BridgeFFXIV.InternalGetEntities().ToList();
 		return result;
 	}
 

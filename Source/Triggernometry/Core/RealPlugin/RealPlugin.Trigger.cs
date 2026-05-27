@@ -126,9 +126,7 @@ public partial class RealPlugin {
 			Match match = null;
 			if ((forceType & ActionOld.TriggerForceTypeEnum.SkipRegexp) == 0) {
 				match = trigger.CheckMatch(logEvent.Text);
-				if (match == null) {
-					return;
-				}
+				if (match == null) return;
 				trigger.AddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trigmatches", "Trigger '{0}' matches log line '{1}'", trigger.LogName, logEvent.Text));
 			}
 			if ((forceType & ActionOld.TriggerForceTypeEnum.SkipActive) == 0) {
@@ -140,9 +138,8 @@ public partial class RealPlugin {
 			if ((forceType & ActionOld.TriggerForceTypeEnum.SkipParent) == 0) {
 				var reason = trigger.Parent.PassesFilter(logEvent);
 				if (reason != Folder.FilterFailReason.Passed) {
-					if (reason != Folder.FilterFailReason.NotEnabled) {
+					if (reason != Folder.FilterFailReason.NotEnabled) 
 						trigger.AddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trigparentfail", "Trigger '{0}' doesn't pass parent folder '{1}' filter(s): {2}", trigger.LogName, trigger.Parent.Name, reason.ToString()));
-					}
 					return;
 				}
 			}
@@ -153,9 +150,10 @@ public partial class RealPlugin {
 				}
 			}
 			trigger.AddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/trigfiring", "Firing trigger '{0}'", trigger.LogName));
-			var ctx = new Context(trigger);
-			ctx.soundhook = SoundPlaybackSmart;
-			ctx.ttshook = TtsPlaybackSmart;
+			var ctx = new Context(trigger) {
+				soundhook = SoundPlaybackSmart,
+				ttshook = TtsPlaybackSmart
+			};
 
 			if ((forceType & ActionOld.TriggerForceTypeEnum.SkipRegexp) == 0) {
 				ctx.RecordCaptureGroups(trigger, match);

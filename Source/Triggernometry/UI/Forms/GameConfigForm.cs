@@ -582,9 +582,9 @@ public class BijectDictionary<TKey, TValue> {
 		}
 	}
 
-	public TValue this[TKey key] => _dict.TryGetValue(key, out var value) ? value : default;
+	public TValue this[TKey key] => _dict.GetValueOrDefault(key);
 
-	public TKey GetKey(TValue value) => _revDict.TryGetValue(value, out var key) ? key : default;
+	public TKey GetKey(TValue value) => _revDict.GetValueOrDefault(value);
 
 	public bool RemoveKey(TKey key) {
 		lock (this) {

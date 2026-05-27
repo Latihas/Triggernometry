@@ -35,6 +35,7 @@ public partial class Job {
 	public bool IsCrafter => Role == RoleType.Crafter;
 	public bool IsGatherer => Role == RoleType.Gatherer;
 
+	[Flags]
 	public enum RoleType {
 		None = 0,
 		Tank = 8,
@@ -106,38 +107,37 @@ public partial class Job {
 	/// <summary> All property names that could be used to query a property. </summary>
 	public static IEnumerable<string> LegalJobPropNames => _propAccessors.Keys;
 
-	private static Dictionary<string, Func<Job, object>> _propAccessors
-		= new(StringComparer.OrdinalIgnoreCase) {
-			["Role"] = job => job.Role,
-			["SubRole"] = job => job.SubRole,
-			["RoleID"] = job => (int)job.SubRole,
-			["IsT"] = job => job.IsTank,
-			["IsH"] = job => job.IsHealer,
-			["IsTH"] = job => job.IsTank || job.IsHealer,
-			["IsD"] = job => job.IsDPS,
-			["IsM"] = job => job.IsMeleeDPS,
-			["IsR"] = job => job.IsRangedDPS,
-			["IsTM"] = job => job.IsTank || job.IsMeleeDPS,
-			["IsHR"] = job => job.IsHealer || job.IsRangedDPS,
-			["IsC"] = job => job.IsCrafter,
-			["IsG"] = job => job.IsGatherer,
-			["IsCG"] = job => job.IsCrafter || job.IsGatherer,
-			["JobID"] = job => job.JobID,
-			["JobCN"] = job => job.NameCN,
-			["JobDE"] = job => job.NameDE,
-			["JobEN"] = job => job.NameEN,
-			["JobFR"] = job => job.NameFR,
-			["JobJP"] = job => job.NameJP,
-			["JobKR"] = job => job.NameKR,
-			["JobTCN"] = job => job.NameTCN,
-			["JobCN1"] = job => job.NameCN1,
-			["JobCN2"] = job => job.NameCN2,
-			["Job"] = job => job.NameEN3,
-			["JobEN3"] = job => job.NameEN3,
-			["JobJP1"] = job => job.NameJP1,
-			["JobTCN1"] = job => job.NameTCN1,
-			["JobTCN2"] = job => job.NameTCN2
-		};
+	private static readonly Dictionary<string, Func<Job, object>> _propAccessors = new(StringComparer.OrdinalIgnoreCase) {
+		["Role"] = job => job.Role,
+		["SubRole"] = job => job.SubRole,
+		["RoleID"] = job => (int)job.SubRole,
+		["IsT"] = job => job.IsTank,
+		["IsH"] = job => job.IsHealer,
+		["IsTH"] = job => job.IsTank || job.IsHealer,
+		["IsD"] = job => job.IsDPS,
+		["IsM"] = job => job.IsMeleeDPS,
+		["IsR"] = job => job.IsRangedDPS,
+		["IsTM"] = job => job.IsTank || job.IsMeleeDPS,
+		["IsHR"] = job => job.IsHealer || job.IsRangedDPS,
+		["IsC"] = job => job.IsCrafter,
+		["IsG"] = job => job.IsGatherer,
+		["IsCG"] = job => job.IsCrafter || job.IsGatherer,
+		["JobID"] = job => job.JobID,
+		["JobCN"] = job => job.NameCN,
+		["JobDE"] = job => job.NameDE,
+		["JobEN"] = job => job.NameEN,
+		["JobFR"] = job => job.NameFR,
+		["JobJP"] = job => job.NameJP,
+		["JobKR"] = job => job.NameKR,
+		["JobTCN"] = job => job.NameTCN,
+		["JobCN1"] = job => job.NameCN1,
+		["JobCN2"] = job => job.NameCN2,
+		["Job"] = job => job.NameEN3,
+		["JobEN3"] = job => job.NameEN3,
+		["JobJP1"] = job => job.NameJP1,
+		["JobTCN1"] = job => job.NameTCN1,
+		["JobTCN2"] = job => job.NameTCN2
+	};
 
 	/// <summary>Query a property of the Job object based on the specified property name (case-insensitive).</summary>
 	/// <param name="propName">The name of the property to query, case-insensitive.</param>

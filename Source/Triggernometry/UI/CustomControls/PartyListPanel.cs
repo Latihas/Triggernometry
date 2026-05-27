@@ -9,6 +9,7 @@ using Triggernometry.Core;
 using Triggernometry.Core.Variables;
 using Triggernometry.FFXIV;
 using Triggernometry.PluginBridges;
+using TriggernometryProxy;
 
 namespace Triggernometry.UI.CustomControls;
 
@@ -94,7 +95,7 @@ public class PartyListPanel : TableLayoutPanel {
 		"BRD", "ARC", "MCH", "DNC", "BLM", "THM", "PCT", "RDM", "SMN", "ACN", "BLU"
 	];
 
-	private List<Entity> GetSortedPartyMembers() {
+	private List<Entity?> GetSortedPartyMembers() {
 		var entities = Entity.GetEntities()
 			.Where(e => e.HexID.StartsWith("10")) // is player
 			.OrderByDescending(e => e.InParty) // is party member
@@ -103,10 +104,11 @@ public class PartyListPanel : TableLayoutPanel {
 			.ThenBy(e => e.Job.JobID) // unknown jobs: sort by job id
 			.ThenBy(e => e.Name)
 			.Take(PlayerCount)
+			.Cast<Entity?>()
 			.ToList();
 
 		while (entities.Count < PlayerCount) {
-			entities.Add(new Entity());
+			entities.Add(null);
 		}
 
 		if (entities.Count == 8 // Double Caster => D2 / D4
@@ -198,10 +200,10 @@ public class PartyListPanel : TableLayoutPanel {
 
 	public class PlayerLabel : Label {
 		public PartyListPanel ParentTable;
-		public string PlayerName;
-		public Job.RoleType SubRole;
-		public string JobName;
-		public string HexID;
+		public string? PlayerName;
+		public Job.RoleType? SubRole;
+		public string? JobName;
+		public string? HexID;
 		private Label _draggingClone;
 
 		private int _order;
@@ -211,7 +213,7 @@ public class PartyListPanel : TableLayoutPanel {
 			get => _order;
 			set {
 				_order = value;
-				Text = $"[{ParentTable.PlayerDescriptions[_order]}] {JobName}\n" + PlayerName.Replace(" ", "\n");
+				Text = $"[{ParentTable.PlayerDescriptions[_order]}] {JobName??""}\n" + PlayerName?.Replace(" ", "\n");
 				RefreshLocation();
 			}
 		}
@@ -232,24 +234,26 @@ public class PartyListPanel : TableLayoutPanel {
 			}
 		}
 
-		public PlayerLabel(PartyListPanel parent, Entity entity, int order) {
+		public PlayerLabel(PartyListPanel parent, Entity? entity, int order) {
 			ParentTable = parent;
-			PlayerName = entity.Name;
-			SubRole = entity.Job.SubRole;
-			JobName = CultureInfo.CurrentCulture.Name.StartsWith("zh-")
-				? entity.Job.NameCN2
-				: entity.Job.NameEN3;
-			HexID = entity.HexID;
+			if (entity != null) {
+				PlayerName = entity.Name;
+				SubRole = entity.Job.SubRole;
+				JobName = CultureInfo.CurrentCulture.Name.StartsWith("zh-")
+					? entity.Job.NameCN2
+					: entity.Job.NameEN3;
+				HexID = entity.HexID;
+			}
 			Order = order;
-			ForeColor = GetForeColorByRole();
-			Margin = new Padding(10);
-			AutoSize = false;
-			Anchor = AnchorStyles.None;
-			TextAlign = ContentAlignment.MiddleCenter;
-			Cursor = Cursors.SizeAll;
-			MouseDown += PlayerLabel_MouseDown;
-			MouseMove += PlayerLabel_MouseMove;
-			MouseUp += PlayerLabel_MouseUp;
+			// ForeColor = GetForeColorByRole();
+			// Margin = new Padding(10);
+			// AutoSize = false;
+			// Anchor = AnchorStyles.None;
+			// TextAlign = ContentAlignment.MiddleCenter;
+			// Cursor = Cursors.SizeAll;
+			// MouseDown += PlayerLabel_MouseDown;
+			// MouseMove += PlayerLabel_MouseMove;
+			// MouseUp += PlayerLabel_MouseUp;
 		}
 
 		/// <summary> Set the label to the correct position in the parent table according to Order.  </summary>
