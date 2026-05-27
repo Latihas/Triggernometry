@@ -541,11 +541,4 @@ public static class Memory {
 	}
 
 	#endregion MarkingController
-
-	public static IntPtr GetCameraAddress() {
-		var moduleData = ReadModuleData(XivProc);
-		var relativeAddress = ScanPoint(moduleData, "4C 8D 35 * * * * 48 8B 09", false) ?? throw ScanNotFoundException("camaraAddress");
-		var pointerValue = Read<IntPtr>(XivProc.Handle, XivBaseAddress + relativeAddress);
-		return pointerValue;
-	}
 }

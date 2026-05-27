@@ -33,15 +33,11 @@ public class ProxyPlugin : IActPluginV1 {
 	// for backward compatibility: auto-detect the registrant
 	public int RegisterNamedCallback(string name, CustomCallbackDelegate callback, object o) {
 		var registrant = "";
-
 		var callingFrame = new StackTrace().GetFrame(1);
 		if (callingFrame != null) {
 			var callingMethod = callingFrame.GetMethod();
-			var callingMethodName = callingMethod.Name;
-			var callingClassName = callingMethod.DeclaringType.FullName;
-			registrant = $"{callingClassName}.{callingMethodName}";
+			registrant = $"{callingMethod?.DeclaringType?.FullName}.{callingMethod?.Name}";
 		}
-
 		return RegisterNamedCallback(name, callback, o, registrant);
 	}
 
@@ -55,8 +51,8 @@ public class ProxyPlugin : IActPluginV1 {
 		// this is to prevent errors when users don't shut down ACT in between updates, and the old realplugin is still loaded in
 		// (and might not expose the hooks that are expected by a newer version of the proxy)
 		try {
-			var mi = GetType().GetMethod(methodname);
-			var pi = Instance.GetType().GetProperty(hookname);
+			var mi = GetType().GetMethod(methodname)!;
+			var pi = Instance.GetType().GetProperty(hookname)!;
 			var dob = Delegate.CreateDelegate(pi.PropertyType, this, mi);
 			pi.SetValue(Instance, dob);
 		} catch (Exception) {

@@ -9,7 +9,7 @@ internal class JsonParser {
 	private JsonSerializerOptions opts;
 
 	private class ObjectConverter : JsonConverter<object> {
-		public override object Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {
+		public override object? Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {
 			switch (reader.TokenType) {
 				case JsonTokenType.Null:
 					return null;
@@ -22,8 +22,7 @@ internal class JsonParser {
 				case JsonTokenType.Number:
 					return reader.GetDecimal();
 			}
-			var converter = options.GetConverter(typeof(JsonElement)) as JsonConverter<JsonElement>;
-			if (converter != null) {
+			if (options.GetConverter(typeof(JsonElement)) is JsonConverter<JsonElement> converter) {
 				return converter.Read(ref reader, type, options);
 			}
 			throw new JsonException();
@@ -61,8 +60,8 @@ internal class JsonParser {
 		return ox;
 	}
 
-	private List<object> FixArray(JsonElement ele) {
-		var ox = new List<object>();
+	private List<object?> FixArray(JsonElement ele) {
+		var ox = new List<object?>();
 		foreach (var ex in ele.EnumerateArray()) {
 			switch (ex.ValueKind) {
 				case JsonValueKind.Null:

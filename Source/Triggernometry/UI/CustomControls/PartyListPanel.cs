@@ -9,7 +9,6 @@ using Triggernometry.Core;
 using Triggernometry.Core.Variables;
 using Triggernometry.FFXIV;
 using Triggernometry.PluginBridges;
-using TriggernometryProxy;
 
 namespace Triggernometry.UI.CustomControls;
 
@@ -124,14 +123,14 @@ public class PartyListPanel : TableLayoutPanel {
 		return entities;
 	}
 
-	private void PartyListPanel_DragEnter(object sender, DragEventArgs e) {
+	private void PartyListPanel_DragEnter(object? sender, DragEventArgs e) {
 		if (e.Data.GetDataPresent(typeof(PlayerLabel))) {
 			e.Effect = DragDropEffects.Move;
 		}
 	}
 
 	/// <summary> Get dragged label and target label, then update Order.</summary>
-	private void PartyListPanel_DragDrop(object sender, DragEventArgs e) {
+	private void PartyListPanel_DragDrop(object? sender, DragEventArgs e) {
 		var draggedLabel = (PlayerLabel)e.Data.GetData(typeof(PlayerLabel));
 		var clientPoint = PointToClient(new Point(e.X, e.Y));
 		var control = GetChildAtPoint(clientPoint);
@@ -206,14 +205,13 @@ public class PartyListPanel : TableLayoutPanel {
 		public string? HexID;
 		private Label _draggingClone;
 
-		private int _order;
 		/// <summary> Start from 0. </summary>
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public int Order {
-			get => _order;
+			get;
 			set {
-				_order = value;
-				Text = $"[{ParentTable.PlayerDescriptions[_order]}] {JobName??""}\n" + PlayerName?.Replace(" ", "\n");
+				field = value;
+				Text = $"[{ParentTable.PlayerDescriptions[field]}] {JobName ?? ""}\n" + PlayerName?.Replace(" ", "\n");
 				RefreshLocation();
 			}
 		}
@@ -245,15 +243,15 @@ public class PartyListPanel : TableLayoutPanel {
 				HexID = entity.HexID;
 			}
 			Order = order;
-			// ForeColor = GetForeColorByRole();
-			// Margin = new Padding(10);
-			// AutoSize = false;
-			// Anchor = AnchorStyles.None;
-			// TextAlign = ContentAlignment.MiddleCenter;
-			// Cursor = Cursors.SizeAll;
-			// MouseDown += PlayerLabel_MouseDown;
-			// MouseMove += PlayerLabel_MouseMove;
-			// MouseUp += PlayerLabel_MouseUp;
+			ForeColor = GetForeColorByRole();
+			Margin = new Padding(10);
+			AutoSize = false;
+			Anchor = AnchorStyles.None;
+			TextAlign = ContentAlignment.MiddleCenter;
+			Cursor = Cursors.SizeAll;
+			MouseDown += PlayerLabel_MouseDown;
+			MouseMove += PlayerLabel_MouseMove;
+			MouseUp += PlayerLabel_MouseUp;
 		}
 
 		/// <summary> Set the label to the correct position in the parent table according to Order.  </summary>
@@ -264,7 +262,7 @@ public class PartyListPanel : TableLayoutPanel {
 			ParentTable.Controls.Add(this, col, row);
 		}
 
-		private void PlayerLabel_MouseDown(object sender, MouseEventArgs e) {
+		private void PlayerLabel_MouseDown(object? sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
 				/*  To-Do
 				_draggingClone = new Label
@@ -284,7 +282,7 @@ public class PartyListPanel : TableLayoutPanel {
 			}
 		}
 
-		private void PlayerLabel_MouseMove(object sender, MouseEventArgs e) {
+		private void PlayerLabel_MouseMove(object? sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left && _draggingClone != null) {
 				var newLocation = ParentTable.PointToClient(Cursor.Position);
 				newLocation.Offset(-_draggingClone.Width / 2, -_draggingClone.Height / 2);
@@ -292,7 +290,7 @@ public class PartyListPanel : TableLayoutPanel {
 			}
 		}
 
-		private void PlayerLabel_MouseUp(object sender, MouseEventArgs e) {
+		private void PlayerLabel_MouseUp(object? sender, MouseEventArgs e) {
 			if (_draggingClone != null) {
 				ParentTable.Controls.Remove(_draggingClone);
 				_draggingClone.Dispose();

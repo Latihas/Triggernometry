@@ -77,12 +77,12 @@ public static class HttpHelper {
 	/// </exception>
 	/// <exception cref="TimeoutException"> Thrown when the HTTP request was cancelled due to timeout. </exception>
 	/// <exception cref="HttpRequestException"> Thrown when the server returns a non-success status code. </exception>
-	public static async Task DownloadAndReplaceAsync(string url, string filePath, string backupPath = null) {
+	public static async Task DownloadAndReplaceAsync(string url, string filePath, string? backupPath = null) {
 		var tempPath = filePath + ".tmp";
 
 		// download tmp file
 		var data = await GetBytesAsync(url);
-		File.WriteAllBytes(tempPath, data);
+		await File.WriteAllBytesAsync(tempPath, data);
 
 		// backup old file
 		if (backupPath != null && File.Exists(filePath)) {
@@ -117,13 +117,12 @@ public static class HttpHelper {
 		using (var req = new HttpRequestMessage(HttpMethod.Head, url)) {
 			req.Headers.UserAgent.ParseAdd(USER_AGENT);
 			try {
-				using (var resp = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token)) {
-					resp.EnsureSuccessStatusCode();
-					if (resp.Content.Headers.ContentLength.HasValue)
-						contentLength = resp.Content.Headers.ContentLength.Value;
-					if (resp.Content.Headers.LastModified.HasValue)
-						lastModified = resp.Content.Headers.LastModified.Value.UtcDateTime;
-				}
+				using var resp = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
+				resp.EnsureSuccessStatusCode();
+				if (resp.Content.Headers.ContentLength.HasValue)
+					contentLength = resp.Content.Headers.ContentLength.Value;
+				if (resp.Content.Headers.LastModified.HasValue)
+					lastModified = resp.Content.Headers.LastModified.Value.UtcDateTime;
 			} catch (TaskCanceledException ex) {
 				if (token.IsCancellationRequested)
 					throw new OperationCanceledException(ex.Message, token); // cancelled by caller
@@ -142,13 +141,12 @@ public static class HttpHelper {
 			req.Headers.UserAgent.ParseAdd(USER_AGENT);
 			req.Headers.Range = new RangeHeaderValue(0, 0);
 			try {
-				using (var resp = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token)) {
-					resp.EnsureSuccessStatusCode();
-					if (resp.Content.Headers.ContentRange?.Length.HasValue == true)
-						contentLength = resp.Content.Headers.ContentRange.Length.Value;
-					if (resp.Content.Headers.LastModified.HasValue)
-						lastModified = resp.Content.Headers.LastModified.Value.UtcDateTime;
-				}
+				using var resp = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
+				resp.EnsureSuccessStatusCode();
+				if (resp.Content.Headers.ContentRange?.Length.HasValue == true)
+					contentLength = resp.Content.Headers.ContentRange.Length.Value;
+				if (resp.Content.Headers.LastModified.HasValue)
+					lastModified = resp.Content.Headers.LastModified.Value.UtcDateTime;
 			} catch (TaskCanceledException ex) {
 				if (token.IsCancellationRequested)
 					throw new OperationCanceledException(ex.Message, token); // cancelled by caller

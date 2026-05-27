@@ -196,9 +196,9 @@ internal static class ModuleCombatants {
 				//var xivEntity = BridgeFFXIV.InternalGetEntityByID(ID);
 				//return xivEntity.Statuses;
 				// Overlay 现在有 bug！（修了？）
-				if (_entity.Effects is IEnumerable<dynamic> opEffects)
-					return opEffects.Select(e => (Status)new OpStatus(e, this)).ToList();
-				return [];
+				// if (_entity.Effects is IEnumerable<EffectEntry> opEffects)
+				// if (_entity.Effects is IEnumerable<EffectEntry> opEffects)
+				return _entity.Effects.Select(Status (e) => new OpStatus(e, this)).ToList();
 			}
 		}
 		public override bool IsCasting => (_entity.IsCasting1 & 1) == 1;
@@ -226,7 +226,7 @@ internal static class ModuleCombatants {
 	public class OpStatus : Status {
 		public override PluginSource PluginSource { get; set; } = PluginSource.OverlayPlugin;
 
-		private readonly dynamic _rawEffectEntry;
+		private readonly EffectEntry _rawEffectEntry;
 		public override ushort StatusID => _rawEffectEntry.BuffID;
 		public override ushort Stack => _rawEffectEntry.Stack;
 		public override float Timer => _rawEffectEntry.Timer;
@@ -235,7 +235,7 @@ internal static class ModuleCombatants {
 		private readonly Entity _target;
 		public override Entity Target => _target;
 
-		public OpStatus(dynamic opEffectEntry, Entity target) {
+		public OpStatus(EffectEntry opEffectEntry, Entity target) {
 			_rawEffectEntry = opEffectEntry;
 			_target = target;
 		}

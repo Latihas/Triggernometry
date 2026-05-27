@@ -26,8 +26,6 @@ public static class BridgeFFXIV {
 	public static long TickNum;
 	public static uint ZoneID => ProxyPlugin.ClientState.TerritoryType;
 
-	private delegate void NetworkReceiveDelegate(string connection, long epoch, byte[] message);
-
 	static BridgeFFXIV() {
 		SetupNullCombatant();
 	}
@@ -53,20 +51,17 @@ public static class BridgeFFXIV {
 		return wrap;
 	}
 
-	public static object GetInstance() => GetWrappedPlugin().pluginObj;
+	public static object? GetInstance() => GetWrappedPlugin().pluginObj;
 
-	public static PropertyInfo GetDataRepository(object plug) => plug?.GetType()?.GetProperty("DataRepository", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+	public static PropertyInfo? GetDataRepository(object? plug) => plug?.GetType()?.GetProperty("DataRepository", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-	public static object GetDataRepositoryInstance(object plug) => GetDataRepository(plug)?.GetValue(plug);
+	public static object? GetDataRepositoryInstance(object? plug) => GetDataRepository(plug)?.GetValue(plug);
 
-	public static Process GetProcess() {
+	public static Process? GetProcess() {
 		try {
 			var plug = GetInstance();
 			var dataRepositoryInstance = GetDataRepositoryInstance(plug);
-			if (dataRepositoryInstance == null) {
-				return null;
-			}
-			return (Process)dataRepositoryInstance.GetType().GetMethod("GetCurrentFFXIVProcess").Invoke(dataRepositoryInstance, null);
+			return dataRepositoryInstance?.GetType().GetMethod("GetCurrentFFXIVProcess")?.Invoke(dataRepositoryInstance, null) as  Process;
 		} catch (Exception ex) {
 			LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/procexception", "Exception in FFXIV process retrieve: {0}", ex.Message));
 		}
@@ -81,9 +76,7 @@ public static class BridgeFFXIV {
 		try {
 			var plug = GetInstance();
 			var dataRepositoryInstance = GetDataRepositoryInstance(plug);
-			if (dataRepositoryInstance == null) {
-				return null;
-			}
+			if (dataRepositoryInstance == null) return "";
 			var result = dataRepositoryInstance.GetType().GetMethod("GetGameVersion")?.Invoke(dataRepositoryInstance, null);
 			return result?.ToString() ?? "";
 		} catch (Exception ex) {
@@ -716,13 +709,12 @@ public static class BridgeFFXIV {
 
 	internal static IEnumerable<Entity> InternalGetEntities() {
 		try {
-			object plug = null;
-			plug = GetInstance();
+			var plug = GetInstance();
 			if (plug != null) {
 				var pi = GetDataRepository(plug);
 				var cd = GetCombatants(plug, pi);
 				var combatants = cd.Combatants as IEnumerable<dynamic>;
-				return combatants.Select(c => (Entity)new XivEntity(c));
+				return combatants.Select(Entity (c) => new XivEntity(c));
 			}
 		} catch (Exception ex) {
 			LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/allentitiesexception",

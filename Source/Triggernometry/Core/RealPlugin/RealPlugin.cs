@@ -41,7 +41,7 @@ public partial class RealPlugin {
 	}
 
 	public class PluginWrapper {
-		public object pluginObj { get; set; }
+		public object? pluginObj { get; set; }
 		// public Panel PnlInfo { get; set; }
 		// public TabPage TabPage { get; set; }
 		// public FileInfo  PluginFile { get; set; }
