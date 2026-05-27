@@ -311,7 +311,7 @@ public partial class ExpressionTextBox : UserControl {
 		"DirTo(x, y, ±segments, digits=0)",
 		"LocalDirTo(x, y, ±segments, digits=0)",
 		"LocalToWorld(dx, dy)", "LocalToWorld(dx, dy, dz)",
-		"WorldToLocal(dx, dy)", "WorldToLocal(dx, dy, dz)",
+		"WorldToLocal(dx, dy)", "WorldToLocal(dx, dy, dz)"
 	}.Concat(Entity.ValidEntityPropNames).Concat(Job.LegalJobPropNames).ToList();
 
 	// Job, Role, etc.
@@ -976,7 +976,7 @@ public partial class ExpressionTextBox : UserControl {
 			matchedStrings = GetAutocompleteSuggestions(headers, m.Groups["key"].Value);
 			if (matchedStrings.Count() > 0) {
 				CurrentMatch = m.Groups["key"].Value;
-				suffix = (m.Groups["name1"].Value != "") ? "][" : "]}";
+				suffix = m.Groups["name1"].Value != "" ? "][" : "]}";
 				ShowAutocomplete(matchedStrings);
 			} else {
 				HideAutocomplete();
@@ -1044,7 +1044,7 @@ public partial class ExpressionTextBox : UserControl {
 			switch (m.Groups["struct"].Value) {
 				case "const": keys = RealPlugin.Instance.cfg.Constants.Keys.ToList(); break;
 				case "textaura": {
-					keys = (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.textitems.Keys.ToList() : RealPlugin.Instance.textauras.Keys.ToList();
+					keys = RealPlugin.Instance.sc != null ? RealPlugin.Instance.sc.textitems.Keys.ToList() : RealPlugin.Instance.textauras.Keys.ToList();
 					keys.AddRange(tmpTextNames);
 					break;
 				}

@@ -26,28 +26,27 @@ internal static class IndexMemberParser {
 			// ===== FFXIV =====
 
 			case "_me": // ${_me.prop}
-                    {
-                        var entity = Entity.GetMyself();
+			{
+				var entity = Entity.GetMyself();
 				var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
-                        return string.Join(", ", evaluator(entity));
+				return string.Join(", ", evaluator(entity));
 			}
 
 			case "_tgt": // ${_tgt.prop}
 			{
 				var targetID = Entity.GetMyself().TargetID;
-                        var entity = Entity.GetEntityByID(targetID) ?? Entity.NullEntity();
+				var entity = Entity.GetEntityByID(targetID) ?? Entity.NullEntity();
 				var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
-                        return string.Join(", ", evaluator(entity));
+				return string.Join(", ", evaluator(entity));
 			}
 
 			case "_ffxivparty":
 			case "_party":
 			case "_ffxiventity":
-                case "_entity":
-                    {
-                        var entity = XivEntityParser.GetEntity(expr, ctx);
-                        var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
-                        return string.Join(", ", evaluator(entity));
+			case "_entity": {
+				var entity = XivEntityParser.GetEntity(expr, ctx);
+				var evaluator = XivEntityEvaluator.BuildEvaluator(expr);
+				return string.Join(", ", evaluator(entity));
 			}
 
 			case "_job": // ${_job[jobid].prop} or ${_job[Name].prop}

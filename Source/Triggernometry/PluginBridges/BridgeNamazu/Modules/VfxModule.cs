@@ -81,7 +81,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, -1.0)); // 默认不移除
 		CheckIfVfxNameTooShort(vfxName, "LockOn");
-		var vfx = LockOnCreate(tgtAddress, vfxName);
+		var vfx = RunOnFrameworkThread(() => LockOnCreate(tgtAddress, vfxName));
 		if (vfx == null) return;
 		var vfxPtr = vfx.Vfx;
 		ScheduleActorVfxRemove(vfxPtr, duration, true);
@@ -94,7 +94,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "Channeling");
-		var vfx = ChannelingCreate(srcAddress, tgtAddress, vfxName);
+		var vfx = RunOnFrameworkThread(() => ChannelingCreate(srcAddress, tgtAddress, vfxName));
 		if (vfx == null) return;
 		var vfxPtr = vfx.Vfx;
 		ScheduleActorVfxRemove(vfxPtr, duration);
@@ -107,7 +107,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, string, double>((2, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "CastVfx");
-		var vfx = CastVfxCreate(srcAddress, vfxName);
+		var vfx = RunOnFrameworkThread(() => CastVfxCreate(srcAddress, vfxName));
 		if (vfx == null) return;
 		var vfxPtr = vfx.Vfx;
 		ScheduleActorVfxRemove(vfxPtr, duration);
@@ -120,7 +120,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "ActorVfx");
-		var vfx = ActorVfxCreate(srcAddress, tgtAddress, vfxName);
+		var vfx = RunOnFrameworkThread(() => ActorVfxCreate(srcAddress, tgtAddress, vfxName));
 		if (vfx == null) return;
 		var vfxPtr = vfx.Vfx;
 		ScheduleActorVfxRemove(vfxPtr, duration);
@@ -157,7 +157,6 @@ public class VfxModule : ModuleBase {
 
 	public unsafe bool TryActorVfxRemove(VfxObject* vfxPtr, bool isDetour = false, bool scheduleRemovalByGame = false) // 待优化：判断是否存在 vfx
 	{
-		// return ProxyPlugin.Framework.RunOnFrameworkThread(() => {
 		CheckIfAnyZeroPtr();
 		if (vfxPtr == null || (IntPtr)vfxPtr == IntPtr.Zero) return false;
 		var found = VfxManager.TryUnregisterActor((IntPtr)vfxPtr, out var vfx);
@@ -166,12 +165,11 @@ public class VfxModule : ModuleBase {
 			return false;
 		}
 		if (!ProxyPlugin.ActorVfxRemoveHook.IsEnabled) {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoveHook未就绪，不移除特效 {(IntPtr)vfxPtr:X}"); 
+			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoveHook未就绪，不移除特效 {(IntPtr)vfxPtr:X}");
 			return false;
 		}
-		if (!isDetour) ActorVfxRemoveD(vfx.Vfx, (char)1); // a2: bool freeMemory
+		if (!isDetour) ProxyPlugin.Framework.RunOnFrameworkThread(() => ActorVfxRemoveD(vfx.Vfx, (char)1)); // a2: bool freeMemory
 		return true;
-		// }).Result;
 	}
 
 	public unsafe void ScheduleActorVfxRemove(VfxObject* vfxPtr, double duration, bool scheduleRemovalByGame = false) {
@@ -237,7 +235,6 @@ public class VfxModule : ModuleBase {
 	// }
 
 	public unsafe bool TryStaticVfxRemove(VfxObject* vfxPtr, bool isDetour = false) {
-		// return ProxyPlugin.Framework.RunOnFrameworkThread(() => {
 		CheckIfAnyZeroPtr();
 		if (vfxPtr == null || (IntPtr)vfxPtr == IntPtr.Zero) return false;
 		if (!VfxManager.TryUnregisterStatic((IntPtr)vfxPtr, out _)) {
@@ -245,12 +242,11 @@ public class VfxModule : ModuleBase {
 			return false;
 		}
 		if (!ProxyPlugin.StaticVfxRemoveHook.IsEnabled) {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoveHook未就绪，不移除特效 {(IntPtr)vfxPtr:X}"); 
+			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoveHook未就绪，不移除特效 {(IntPtr)vfxPtr:X}");
 			return false;
 		}
-		if (!isDetour) StaticVfxRemoveD(vfxPtr);
+		if (!isDetour) ProxyPlugin.Framework.RunOnFrameworkThread(() => StaticVfxRemoveD(vfxPtr));
 		return true;
-		// }).Result;
 	}
 
 	private void CheckIfVfxNameTooShort(string vfxName, string methodName) {

@@ -13,14 +13,14 @@ public abstract class VfxBase {
 	public DateTime? ExpireAtUtc { get; internal set; }
 
 	public const string DefaultTag = "Auto";
-	public  bool TryRemove()=>VfxManager.Remove(this);
+	public bool TryRemove() => VfxManager.Remove(this);
 
 	public void ScheduleRemove(double duration)
 		=> VfxManager.ScheduleRemove(this, duration);
 
 	public unsafe void Update() {
 		if (Removed) return;
-		Vfx->UpdateTransforms( true );
+		Vfx->UpdateTransforms(true);
 	}
 
 	public unsafe byte Flag {

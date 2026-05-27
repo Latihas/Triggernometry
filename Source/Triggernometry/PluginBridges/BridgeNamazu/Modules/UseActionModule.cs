@@ -26,7 +26,7 @@ public class UseActionModule : ModuleBase {
 				(2, 0xE0000000),
 				(3, ActionManager.UseActionMode.None)
 			);
-		UseAction(actionType, actionId, targetId, mode);
+		RunOnFrameworkThreadV(() => UseAction(actionType, actionId, targetId, mode));
 	}
 
 	public unsafe bool UseAction(ActionType actionType, uint actionId, uint targetId, ActionManager.UseActionMode mode = ActionManager.UseActionMode.None) {
@@ -49,7 +49,7 @@ public class UseActionModule : ModuleBase {
 				(2, 0), (3, 0), (4, 0),
 				(5, 0)
 			);
-		UseActionLocation(actionType, actionId, x, y, z, extraParam);
+		RunOnFrameworkThreadV(() => UseActionLocation(actionType, actionId, x, y, z, extraParam));
 	}
 
 	public unsafe bool UseActionLocation(ActionType actionType, uint actionId, float x, float y, float z, uint extraParam = 0) {

@@ -19,7 +19,7 @@ public class LocalEntityModule : ModuleBase {
 
 	public unsafe IntPtr DeleteObjectByIndex(int idx, byte param) {
 		ClientObjectManager.Instance()->DeleteObjectByIndex((ushort)idx, param);
-		return IntPtr.Zero; 
+		return IntPtr.Zero;
 	}
 
 	public unsafe IntPtr CopyFromCharacter(IntPtr targetPtr, IntPtr sourcePtr, CopyFlags flags) {

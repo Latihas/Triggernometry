@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Dalamud;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using Triggernometry.Expressions.Maths;
 using CameraManager = FFXIVClientStructs.FFXIV.Client.Game.Control.CameraManager;
 
@@ -24,15 +25,15 @@ public class CameraModule : ModuleBase {
 				["AngleH"] = "DirH",
 				["AngleV"] = "DirV",
 				["MinAngleV"] = "DirVMin",
-				["MaxAngleV"] = "DirVMax",
+				["MaxAngleV"] = "DirVMax"
 			};
 			foreach (var (k, v) in fields)
-				field[k] = typeof(FFXIVClientStructs.FFXIV.Client.Game.Camera).GetField(v).GetCustomAttribute<FieldOffsetAttribute>().Value;
+				field[k] = typeof(Camera).GetField(v).GetCustomAttribute<FieldOffsetAttribute>().Value;
 			return field;
 		}
 	}
 
-	public static unsafe FFXIVClientStructs.FFXIV.Client.Game.Camera* Camera => CameraManager.Instance()->GetActiveCamera();
+	public static unsafe Camera* Camera => CameraManager.Instance()->GetActiveCamera();
 
 	public CameraModule() {
 		ScanMethod = () => { };
@@ -133,7 +134,7 @@ public class CameraModule : ModuleBase {
 				break;
 		}
 	}
-	
+
 	// 游戏默认
 	public readonly Dictionary<string, float> OriginalParams = new(StringComparer.OrdinalIgnoreCase) {
 		["MinDistance"] = 1.5f,

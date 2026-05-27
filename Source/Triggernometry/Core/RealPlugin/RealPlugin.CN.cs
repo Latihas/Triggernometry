@@ -7,10 +7,10 @@ using Triggernometry.Localization;
 
 namespace Triggernometry.Core;
 
-public partial class RealPlugin{
-        internal const string UpdateRemotePathCN = "https://1824544011.v.123pan.cn/1824544011/Triggernometry_Release_CN/";
-        private void FixConfigurationOnStartCN()
-        {
+public partial class RealPlugin {
+	internal const string UpdateRemotePathCN = "https://1824544011.v.123pan.cn/1824544011/Triggernometry_Release_CN/";
+
+	private void FixConfigurationOnStartCN() {
 		cfg.ShowWelcome = false;
 		cfg.TestLiveByDefault = true;
 		cfg.TestIgnoreConditionsByDefault = true;
@@ -18,7 +18,7 @@ public partial class RealPlugin{
 		cfg.AutosaveEnabled = true;
 		cfg.UpdateNotifications = Configuration.UpdateNotificationsEnum.Yes;
 		cfg.UpdateCheckMethod = Configuration.UpdateCheckMethodEnum.External;
-            cfg.UpdateExternalChannelUrl = UpdateRemotePathCN + "UpdateManifest.xml";
+		cfg.UpdateExternalChannelUrl = UpdateRemotePathCN + "UpdateManifest.xml";
 		var apis = cfg._APIUsages;
 		var utilities = apis?.FirstOrDefault(a => a.Name == "Triggernometry.Utilities");
 		if (utilities != null) {
@@ -26,18 +26,18 @@ public partial class RealPlugin{
 			utilities.AllowRemote = true;
 			utilities.AllowAdmin = true;
 		}
-            // 删除 CafeStore 中旧版插件信息（如果存在）
-            /*
-            try
-            {
-                var result = PluginBridges.BridgeCafe.AutoRemoveTriggernometryFromCafeStore();
-                Instance.UnfilteredAddToLog(DebugLevelEnum.Info, "尝试从 CafeStore 移除旧版 Triggernometry 信息：" + result);
-            }
-            catch (Exception ex)
-            {
-                Instance.UnfilteredAddToLog(DebugLevelEnum.Warning, "处理 CafeStore 旧版 Triggernometry 信息时出错：" + ex.Message);
-            }
-            */
+		// 删除 CafeStore 中旧版插件信息（如果存在）
+		/*
+		try
+		{
+		    var result = PluginBridges.BridgeCafe.AutoRemoveTriggernometryFromCafeStore();
+		    Instance.UnfilteredAddToLog(DebugLevelEnum.Info, "尝试从 CafeStore 移除旧版 Triggernometry 信息：" + result);
+		}
+		catch (Exception ex)
+		{
+		    Instance.UnfilteredAddToLog(DebugLevelEnum.Warning, "处理 CafeStore 旧版 Triggernometry 信息时出错：" + ex.Message);
+		}
+		*/
 	}
 
 	public static void CopyMissingTranslations() {
@@ -51,6 +51,4 @@ public partial class RealPlugin{
 			MessageBox.Show("Missing translations copied to clipboard.");
 		}
 	}
-
-
 }

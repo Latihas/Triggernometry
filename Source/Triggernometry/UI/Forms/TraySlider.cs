@@ -28,7 +28,7 @@ internal partial class TraySliderForm : Form {
 	private SystemSound _sound;
 
 	private const int SW_SHOWNOACTIVATE = 4;
-	private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+	private static readonly IntPtr HWND_TOPMOST = new(-1);
 	private const uint SWP_NOACTIVATE = 16u;
 
 	private bool _activated;
@@ -308,7 +308,7 @@ public enum TraySliderLevel {
 }
 
 /// <summary>
-/// Wrapper class for thread-safe showing a tray slider notification.
+///     Wrapper class for thread-safe showing a tray slider notification.
 /// </summary>
 public class TraySlider {
 	public string Message { get; set; }
@@ -339,19 +339,19 @@ public class TraySlider {
 		ForceShow = forceShow;
 	}
 
-	/// <summary> Create a <see cref="TraySliderLevel.Info"/> level <see cref="TraySlider"/> instance.</summary>
+	/// <summary> Create a <see cref="TraySliderLevel.Info" /> level <see cref="TraySlider" /> instance.</summary>
 	public static TraySlider Info(int buttonCount, string message, string title = "", int durationMs = 15000, bool forceShow = true)
-		=> new TraySlider(buttonCount, message, title, TraySliderLevel.Info, durationMs, forceShow);
+		=> new(buttonCount, message, title, TraySliderLevel.Info, durationMs, forceShow);
 
-	/// <summary> Create a <see cref="TraySliderLevel.Warning"/> level <see cref="TraySlider"/> instance.</summary>
+	/// <summary> Create a <see cref="TraySliderLevel.Warning" /> level <see cref="TraySlider" /> instance.</summary>
 	public static TraySlider Warning(int buttonCount, string message, string title = "", int durationMs = 15000, bool forceShow = true)
-		=> new TraySlider(buttonCount, message, title, TraySliderLevel.Warning, durationMs, forceShow);
+		=> new(buttonCount, message, title, TraySliderLevel.Warning, durationMs, forceShow);
 
-	/// <summary> Create a <see cref="TraySliderLevel.Error"/> level <see cref="TraySlider"/> instance.</summary>
+	/// <summary> Create a <see cref="TraySliderLevel.Error" /> level <see cref="TraySlider" /> instance.</summary>
 	public static TraySlider Error(int buttonCount, string message, string title = "", int durationMs = 15000, bool forceShow = true)
-		=> new TraySlider(buttonCount, message, title, TraySliderLevel.Error, durationMs, forceShow);
+		=> new(buttonCount, message, title, TraySliderLevel.Error, durationMs, forceShow);
 
-	/// <summary> Thread-safe create and show a <see cref="TraySliderForm"/> from the <see cref="TraySlider"/> info. </summary>
+	/// <summary> Thread-safe create and show a <see cref="TraySliderForm" /> from the <see cref="TraySlider" /> info. </summary>
 	public void Show() {
 		var mainForm = Application.OpenForms
 			.Cast<Form>()
@@ -368,7 +368,7 @@ public class TraySlider {
 				var form = new TraySliderForm(ButtonCount, DurationMs, ForceShow) {
 					OnClick1 = OnClick1,
 					OnClick2 = OnClick2,
-					OnClick3 = OnClick3,
+					OnClick3 = OnClick3
 				};
 
 				form.SetLevel(Level);

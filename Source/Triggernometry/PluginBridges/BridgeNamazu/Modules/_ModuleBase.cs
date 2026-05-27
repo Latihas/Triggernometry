@@ -7,6 +7,7 @@ using System.Runtime.ExceptionServices;
 using Triggernometry.Core;
 using Triggernometry.Core.Variables;
 using Triggernometry.Expressions.String.Utils;
+using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
@@ -15,9 +16,11 @@ public abstract class ModuleBase {
 	public static NamazuScanner Scanner => Plugin?.SigScanner;
 	public static GreyMagicExternalProcessMemory Memory => Plugin.Memory;
 	public Action ScanMethod;
+	public static void RunOnFrameworkThreadV(Action a) => ProxyPlugin.Framework.RunOnFrameworkThread(a);
+	public static T RunOnFrameworkThread<T>(Func<T> a) => ProxyPlugin.Framework.RunOnFrameworkThread(a).Result;
 
 	public void Scan() {
-		_ = ScanMethod ?? throw new Exception($"[鲶鱼精邮差扩展] {GetType().Name} 扫描方法 ScanMethod 未设置。");
+		if (ScanMethod == null) throw new Exception($"[鲶鱼精邮差扩展] {GetType().Name} 扫描方法 ScanMethod 未设置。");
 		ScanMethod();
 	}
 

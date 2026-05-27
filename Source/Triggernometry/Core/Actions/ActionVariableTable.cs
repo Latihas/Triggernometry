@@ -831,9 +831,9 @@ public class ActionVariableTable : ActionBase {
 				break;
 			case OperationEnum.GetAllEntities: {
 				var entities = string.IsNullOrWhiteSpace(Y)
-                            ? Entity.GetEntities()
-                            : XivEntityParser.GetEntitiesByCondition(
-                                ctx.EvaluateStringExpression(ActionContextLogger, ctx, Y));
+					? Entity.GetEntities()
+					: XivEntityParser.GetEntitiesByCondition(
+						ctx.EvaluateStringExpression(ActionContextLogger, ctx, Y));
 
 				var propNames = string.IsNullOrWhiteSpace(X)
 					? Entity.RecommendedEntityPropNames.Select(x => x.ToLower()).Concat(Job.LegalJobPropNames).OrderBy(s => s)

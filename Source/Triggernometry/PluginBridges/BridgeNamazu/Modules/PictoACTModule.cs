@@ -626,7 +626,7 @@ public class PictoACTModule : ModuleBase {
 		["Fan210"] = "gl_fan210_1bf",
 		["Fan225"] = "gl_fan225_c0k1",
 		["Fan240"] = "x6d3_b1_fan240_p1",
-		["Fan270"] = "gl_fan270_0100af",
+		["Fan270"] = "gl_fan270_0100af"
 	};
 }
 

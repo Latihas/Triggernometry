@@ -176,14 +176,12 @@ public class VariableList : Variable {
 		}
 	}
 
-        public Variable Peek(int rawIndex, string defaultValue = "")
-        {
-            var idx = ProcessRawIndex(rawIndex);
-            if (idx < 0 || idx >= Values.Count)
-            {
-                return new VariableScalar(defaultValue);
+	public Variable Peek(int rawIndex, string defaultValue = "") {
+		var idx = ProcessRawIndex(rawIndex);
+		if (idx < 0 || idx >= Values.Count) {
+			return new VariableScalar(defaultValue);
 		}
-            return Values[idx] ?? new VariableScalar(defaultValue);
+		return Values[idx] ?? new VariableScalar(defaultValue);
 	}
 
 	public void RemoveAll(string changer) {

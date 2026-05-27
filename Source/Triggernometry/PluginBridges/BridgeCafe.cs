@@ -5,230 +5,205 @@ using System.Linq;
 using System.Reflection;
 using Triggernometry.Core;
 
-namespace Triggernometry.PluginBridges
-{
-    public static class BridgeCafe
-    {
-        static object cafeStore;
+namespace Triggernometry.PluginBridges;
 
-        static Type dependencyObjectType;
-        static Type dispatcherObjectType;
-        static Type visualTreeHelperType;
-        static Type listViewType;
-        static Type notifyCollectionChangedType;
+public static class BridgeCafe {
+	private static object cafeStore;
 
-        static object observedSource;
-        static Delegate collectionChangedHandler;
+	private static Type dependencyObjectType;
+	private static Type dispatcherObjectType;
+	private static Type visualTreeHelperType;
+	private static Type listViewType;
+	private static Type notifyCollectionChangedType;
 
-        static BridgeCafe()
-        {
-            cafeStore = RealPlugin.InstanceHook(null, "CafeStore.CafeStorePlugin")?.pluginObj;
-            if (cafeStore == null) return;
+	private static object observedSource;
+	private static Delegate collectionChangedHandler;
 
-            dependencyObjectType = Type.GetType("System.Windows.DependencyObject, WindowsBase")
-                ?? throw new Exception("没找到 DependencyObject");
+	static BridgeCafe() {
+		cafeStore = RealPlugin.InstanceHook(null, "CafeStore.CafeStorePlugin")?.pluginObj;
+		if (cafeStore == null) return;
 
-            dispatcherObjectType = Type.GetType("System.Windows.Threading.DispatcherObject, WindowsBase")
-                ?? throw new Exception("没找到 DispatcherObject");
+		dependencyObjectType = Type.GetType("System.Windows.DependencyObject, WindowsBase")
+		                       ?? throw new Exception("没找到 DependencyObject");
 
-            visualTreeHelperType = Type.GetType("System.Windows.Media.VisualTreeHelper, PresentationCore")
-                ?? throw new Exception("没找到 VisualTreeHelper");
+		dispatcherObjectType = Type.GetType("System.Windows.Threading.DispatcherObject, WindowsBase")
+		                       ?? throw new Exception("没找到 DispatcherObject");
 
-            listViewType = Type.GetType("System.Windows.Controls.ListView, PresentationFramework")
-                ?? throw new Exception("没找到 ListView");
+		visualTreeHelperType = Type.GetType("System.Windows.Media.VisualTreeHelper, PresentationCore")
+		                       ?? throw new Exception("没找到 VisualTreeHelper");
 
-            notifyCollectionChangedType = Type.GetType("System.Collections.Specialized.NotifyCollectionChangedEventHandler, System")
-                ?? throw new Exception("没找到 NotifyCollectionChangedEventHandler");
-        }
+		listViewType = Type.GetType("System.Windows.Controls.ListView, PresentationFramework")
+		               ?? throw new Exception("没找到 ListView");
 
-        public static string AutoRemoveTriggernometryFromCafeStore()
-        {
-            if (cafeStore == null)
-                return "CafeStore 不存在或未加载。";
+		notifyCollectionChangedType = Type.GetType("System.Collections.Specialized.NotifyCollectionChangedEventHandler, System")
+		                              ?? throw new Exception("没找到 NotifyCollectionChangedEventHandler");
+	}
 
-            var mainView = GetMainView();
-            var result = "";
-            Exception error = null;
+	public static string AutoRemoveTriggernometryFromCafeStore() {
+		if (cafeStore == null)
+			return "CafeStore 不存在或未加载。";
 
-            void action()
-            {
-                try
-                {
-                    var source = GetPluginListSource(mainView);
+		var mainView = GetMainView();
+		var result = "";
+		Exception error = null;
 
-                    UnsubscribeCollectionChanged_NoThrow();
+		void action() {
+			try {
+				var source = GetPluginListSource(mainView);
 
-                    var method = typeof(BridgeCafe).GetMethod(
-                        nameof(OnPluginCollectionChanged),
-                        BindingFlags.Static | BindingFlags.NonPublic);
+				UnsubscribeCollectionChanged_NoThrow();
 
-                    collectionChangedHandler = Delegate.CreateDelegate(
-                        notifyCollectionChangedType,
-                        method);
+				var method = typeof(BridgeCafe).GetMethod(
+					nameof(OnPluginCollectionChanged),
+					BindingFlags.Static | BindingFlags.NonPublic);
 
-                    source.GetType().GetEvent("CollectionChanged")
-                        ?.AddEventHandler(source, collectionChangedHandler);
+				collectionChangedHandler = Delegate.CreateDelegate(
+					notifyCollectionChangedType,
+					method);
 
-                    observedSource = source;
+				source.GetType().GetEvent("CollectionChanged")
+					?.AddEventHandler(source, collectionChangedHandler);
 
-                    // 安装监听后，立刻删一次
-                    var target = FindOldTriggernometryEntry(source);
-                    if (target != null)
-                    { 
-                        result = "已移除列表项，";
-                        source.Remove(target);
-                    }
+				observedSource = source;
 
-                    result += "开始监听 CafeStore 插件列表刷新。";
-                }
-                catch (Exception ex)
-                {
-                    error = ex;
-                }
-            }
+				// 安装监听后，立刻删一次
+				var target = FindOldTriggernometryEntry(source);
+				if (target != null) {
+					result = "已移除列表项，";
+					source.Remove(target);
+				}
 
-            InvokeByDispatcher(mainView, action);
+				result += "开始监听 CafeStore 插件列表刷新。";
+			} catch (Exception ex) {
+				error = ex;
+			}
+		}
 
-            if (error != null)
-                throw error;
+		InvokeByDispatcher(mainView, action);
 
-            return result;
-        }
+		if (error != null)
+			throw error;
 
-        static void OnPluginCollectionChanged(object sender, object e)
-        {
-            try
-            {
-                var source = sender as IList;
-                if (source == null)
-                    return;
+		return result;
+	}
 
-                var target = FindOldTriggernometryEntry(source);
-                if (target != null)
-                    source.Remove(target);
-            }
-            catch
-            {
-            }
-        }
+	private static void OnPluginCollectionChanged(object sender, object e) {
+		try {
+			var source = sender as IList;
+			if (source == null)
+				return;
 
-        static void UnsubscribeCollectionChanged_NoThrow()
-        {
-            try
-            {
-                if (observedSource == null || collectionChangedHandler == null)
-                    return;
+			var target = FindOldTriggernometryEntry(source);
+			if (target != null)
+				source.Remove(target);
+		} catch {
+		}
+	}
 
-                observedSource.GetType().GetEvent("CollectionChanged")
-                    ?.RemoveEventHandler(observedSource, collectionChangedHandler);
-            }
-            catch
-            {
-            }
+	private static void UnsubscribeCollectionChanged_NoThrow() {
+		try {
+			if (observedSource == null || collectionChangedHandler == null)
+				return;
 
-            observedSource = null;
-            collectionChangedHandler = null;
-        }
+			observedSource.GetType().GetEvent("CollectionChanged")
+				?.RemoveEventHandler(observedSource, collectionChangedHandler);
+		} catch {
+		}
 
-        static object GetMainView()
-        {
-            var mainView = cafeStore.GetType()
-                .GetField("_mainView", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                ?.GetValue(cafeStore)
-                ?? throw new Exception("没找到 mainView");
+		observedSource = null;
+		collectionChangedHandler = null;
+	}
 
-            if (!dependencyObjectType.IsInstanceOfType(mainView))
-                throw new Exception("mainView 不是 DependencyObject");
+	private static object GetMainView() {
+		var mainView = cafeStore.GetType()
+			               .GetField("_mainView", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+			               ?.GetValue(cafeStore)
+		               ?? throw new Exception("没找到 mainView");
 
-            return mainView;
-        }
+		if (!dependencyObjectType.IsInstanceOfType(mainView))
+			throw new Exception("mainView 不是 DependencyObject");
 
-        static IList GetPluginListSource(object mainView)          
-        {
-            var listView = GetVisualTree(mainView)
-	                           .FirstOrDefault(x => listViewType.IsInstanceOfType(x))
-                           ?? throw new Exception("没找到 ListView");
+		return mainView;
+	}
 
-            return GetPropertyValue(listView, "ItemsSource") as IList
-                ?? throw new Exception("ItemsSource 不是 IList");
-        }
+	private static IList GetPluginListSource(object mainView) {
+		var listView = GetVisualTree(mainView)
+			               .FirstOrDefault(x => listViewType.IsInstanceOfType(x))
+		               ?? throw new Exception("没找到 ListView");
 
-        static object FindOldTriggernometryEntry(IList source)
-        {
-            return source.Cast<object>()
-                .FirstOrDefault(x => GetFriendlyName(x)?.StartsWith("Triggernometry") == true);
-        }
+		return GetPropertyValue(listView, "ItemsSource") as IList
+		       ?? throw new Exception("ItemsSource 不是 IList");
+	}
 
-        static void InvokeByDispatcher(object mainView, Action action)
-        {
-            if (mainView == null)
-                throw new ArgumentNullException(nameof(mainView));
-            if (action == null)
-                throw new ArgumentNullException(nameof(action));
+	private static object FindOldTriggernometryEntry(IList source) {
+		return source.Cast<object>()
+			.FirstOrDefault(x => GetFriendlyName(x)?.StartsWith("Triggernometry") == true);
+	}
 
-            var dispatcher = dispatcherObjectType
-                .GetProperty("Dispatcher", BindingFlags.Public | BindingFlags.Instance)
-                .GetValue(mainView, null)
-                ?? throw new Exception("没找到 Dispatcher");
+	private static void InvokeByDispatcher(object mainView, Action action) {
+		if (mainView == null)
+			throw new ArgumentNullException(nameof(mainView));
+		if (action == null)
+			throw new ArgumentNullException(nameof(action));
 
-            dispatcher.GetType().InvokeMember(
-                "Invoke",
-                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance,
-                null,
-                dispatcher,
-                [action]);
-        }
+		var dispatcher = dispatcherObjectType
+			                 .GetProperty("Dispatcher", BindingFlags.Public | BindingFlags.Instance)
+			                 .GetValue(mainView, null)
+		                 ?? throw new Exception("没找到 Dispatcher");
 
-        static object GetPropertyValue(object obj, string propertyName)
-        {
-            if (obj == null)
-                return null;
+		dispatcher.GetType().InvokeMember(
+			"Invoke",
+			BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance,
+			null,
+			dispatcher,
+			[action]);
+	}
 
-            var prop = obj.GetType().GetProperty(
-                propertyName,
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+	private static object GetPropertyValue(object obj, string propertyName) {
+		if (obj == null)
+			return null;
 
-            return prop?.GetValue(obj, null);
-        }
+		var prop = obj.GetType().GetProperty(
+			propertyName,
+			BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-        static string GetFriendlyName(object item)
-        {
-            if (item == null)
-                return null;
+		return prop?.GetValue(obj, null);
+	}
 
-            var meta = GetPropertyValue(item, "Meta");
-            if (meta == null)
-                return null;
+	private static string GetFriendlyName(object item) {
+		if (item == null)
+			return null;
 
-            return GetPropertyValue(meta, "FriendlyName") as string;
-        }
+		var meta = GetPropertyValue(item, "Meta");
+		if (meta == null)
+			return null;
 
-        static IEnumerable<object> GetVisualTree(object root)
-        {
-            if (root == null)
-                yield break;
+		return GetPropertyValue(meta, "FriendlyName") as string;
+	}
 
-            yield return root;
+	private static IEnumerable<object> GetVisualTree(object root) {
+		if (root == null)
+			yield break;
 
-            var count = (int)visualTreeHelperType.InvokeMember(
-                "GetChildrenCount",
-                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
-                null,
-                null,
-                [root]);
+		yield return root;
 
-            for (var i = 0; i < count; i++)
-            {
-                var child = visualTreeHelperType.InvokeMember(
-                    "GetChild",
-                    BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
-                    null,
-                    null,
-                    [root, i]);
+		var count = (int)visualTreeHelperType.InvokeMember(
+			"GetChildrenCount",
+			BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
+			null,
+			null,
+			[root]);
 
-                foreach (var x in GetVisualTree(child))
-                    yield return x;
-            }
-        }
-    }
+		for (var i = 0; i < count; i++) {
+			var child = visualTreeHelperType.InvokeMember(
+				"GetChild",
+				BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
+				null,
+				null,
+				[root, i]);
+
+			foreach (var x in GetVisualTree(child))
+				yield return x;
+		}
+	}
 }

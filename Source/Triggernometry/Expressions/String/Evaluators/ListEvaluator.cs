@@ -13,7 +13,7 @@ internal static class ListEvaluator {
 	internal static Func<VariableList, string> BuildEvaluator(IndexMemberExpression expr) {
 		// invalid (only name)
 		if (expr.Indexes.Length == 0 && !expr.Member.HasValue)
-                throw new Exception($"List variable must include an index or property in expression '{expr.RawExpression}'.");
+			throw new Exception($"List variable must include an index or property in expression '{expr.RawExpression}'.");
 
 		// lvar:Name[Index]
 		if (expr.Indexes.Length > 0) {
@@ -34,13 +34,12 @@ internal static class ListEvaluator {
 			case "length":
 				return vl => vl.Size.ToString();
 
-                case "get":
-                    {
-                        CheckArgCountLocal("2");
-                        var idx = (int)MathParser.Parse(args[0]);
-                        var defaultValue = args[1];
-                        return vl => vl.Peek(idx, defaultValue).ToString();
-                    }
+			case "get": {
+				CheckArgCountLocal("2");
+				var idx = (int)MathParser.Parse(args[0]);
+				var defaultValue = args[1];
+				return vl => vl.Peek(idx, defaultValue).ToString();
+			}
 
 			case "indexof":
 			case "i":

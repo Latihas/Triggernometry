@@ -17,13 +17,11 @@ public partial class RealPlugin {
 
 	#region Plugin Update
 
-        internal DateTime UpdateLastChecked = DateTime.MinValue;
+	internal DateTime UpdateLastChecked = DateTime.MinValue;
 
-        internal void CheckForUpdates(bool isManual = false)
-        {
-            UpdateLastChecked = DateTime.Now;
-            switch (cfg.UpdateCheckMethod)
-            {
+	internal void CheckForUpdates(bool isManual = false) {
+		UpdateLastChecked = DateTime.Now;
+		switch (cfg.UpdateCheckMethod) {
 			case Configuration.UpdateCheckMethodEnum.ACT:
 				CheckForUpdatesACT();
 				break;
@@ -31,7 +29,7 @@ public partial class RealPlugin {
 				CheckForUpdatesBuiltin(isManual);
 				break;
 			case Configuration.UpdateCheckMethodEnum.External:
-                    CheckForUpdatesExternal(cfg.UpdateExternalChannelUrl, notifyIfLatest: isManual);
+				CheckForUpdatesExternal(cfg.UpdateExternalChannelUrl, isManual);
 				break;
 		}
 	}
@@ -97,7 +95,7 @@ public partial class RealPlugin {
 		[XmlAttribute] public string Message { get; set; }
 	}
 
-	public void CheckForUpdatesExternal(string manifestUrl = null, bool notifyIfLatest = false, bool forceAutoUpdate = false){
+	public void CheckForUpdatesExternal(string manifestUrl = null, bool notifyIfLatest = false, bool forceAutoUpdate = false) {
 	}
 
 	private void UpdatePluginExternal(UpdateManifest um, Version localVersion) {
@@ -112,19 +110,16 @@ public partial class RealPlugin {
 	public void UpdatePostNamazu(string remoteVersion) {
 	}
 
-        public void ShowChangeLog()
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://docs.qq.com/doc/DTFZFZFF0dGh2eWhm",
-                UseShellExecute = true
-            });
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://github.com/MnFeN/Triggernometry/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97",
-                UseShellExecute = true
-            });
-        }
+	public void ShowChangeLog() {
+		Process.Start(new ProcessStartInfo {
+			FileName = "https://docs.qq.com/doc/DTFZFZFF0dGh2eWhm",
+			UseShellExecute = true
+		});
+		Process.Start(new ProcessStartInfo {
+			FileName = "https://github.com/MnFeN/Triggernometry/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97",
+			UseShellExecute = true
+		});
+	}
 
 	#endregion Plugin Update (External)
 

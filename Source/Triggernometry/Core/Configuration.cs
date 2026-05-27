@@ -58,20 +58,19 @@ public class Configuration {
 		External
 	}
 
-        /// <summary> Whether to check for updates and show update notifications. </summary>
-        [XmlAttribute]
-        public UpdateNotificationsEnum UpdateNotifications { get; set; } = UpdateNotificationsEnum.Yes;
+	/// <summary> Whether to check for updates and show update notifications. </summary>
+	[XmlAttribute]
+	public UpdateNotificationsEnum UpdateNotifications { get; set; } = UpdateNotificationsEnum.Yes;
 
-        private int _UpdateInterval = 60;
-        [XmlAttribute]
-        public int UpdateInterval
-        {
-            get => _UpdateInterval;
-            set => _UpdateInterval = value < 5 ? 5 : value;
-        }
+	private int _UpdateInterval = 60;
+	[XmlAttribute]
+	public int UpdateInterval {
+		get => _UpdateInterval;
+		set => _UpdateInterval = value < 5 ? 5 : value;
+	}
 
-        [XmlAttribute]
-        public UpdateCheckMethodEnum UpdateCheckMethod { get; set; } = UpdateCheckMethodEnum.ACT;
+	[XmlAttribute]
+	public UpdateCheckMethodEnum UpdateCheckMethod { get; set; } = UpdateCheckMethodEnum.ACT;
 
 	[XmlAttribute] public string UpdateExternalChannelUrl { get; set; } = "";
 
@@ -468,12 +467,12 @@ public class Configuration {
 
 	#endregion
 
-        /// <summary>
-        /// Last plugin version for which the changelog prompt has already been shown. <br />
-        /// Used to avoid showing the same changelog prompt again after an auto-update or restart.
-        /// </summary>
-        [XmlAttribute]
-        public string PreviousNotifiedPluginVersion { get; set; } = "1";
+	/// <summary>
+	///     Last plugin version for which the changelog prompt has already been shown. <br />
+	///     Used to avoid showing the same changelog prompt again after an auto-update or restart.
+	/// </summary>
+	[XmlAttribute]
+	public string PreviousNotifiedPluginVersion { get; set; } = "1";
 
 	[XmlAttribute] public string PluginVersion { get; set; } = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 

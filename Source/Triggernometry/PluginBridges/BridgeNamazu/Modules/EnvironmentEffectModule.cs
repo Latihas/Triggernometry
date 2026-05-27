@@ -2,28 +2,35 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Dalamud;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
+using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Environment;
 using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class EnvironmentEffectModule : ModuleBase {
-	public IntPtr MapEffectOldFunctionPtr;
-	public IntPtr MapEffectFunctionPtr;
+	public unsafe delegate void MapEffectOldFunction(ContentDirector* p1, uint p2, ushort p3, ushort p4);
+
+	public MapEffectOldFunction MapEffectOldD;
+
+	public unsafe delegate bool MapEffectFunction(ContentDirector* p1, uint p2, ushort p3);
+
+	public MapEffectFunction MapEffectD;
+
 
 	// Hyperborea/Hyperborea/Utils.cs
 	// GetMapEffectModule() => *(nint*)(((nint)EventFramework.Instance()) + 344);
 	// FFCS: ContentDirector (没提供偏移)
 	/// <summary> 可能为 0，代表当前地图不存在 Director </summary>
-	public unsafe IntPtr ContentDirectorPtr => (IntPtr)EventFramework.Instance() + 0x158;
+	public unsafe ContentDirector* ContentDirector => EventFramework.Instance()->DirectorModule.ActiveContentDirector;
 
 	public EnvironmentEffectModule() {
 		ScanMethod = () => {
-			MapEffectOldFunctionPtr = Scanner.TryScan("44 0F B7 40 ? E9 * * * * C3", nameof(MapEffectOldFunctionPtr));
-			MapEffectFunctionPtr = Scanner.TryScan("E8 * * * * 3C ? 75 ? 80 64 B3 ? ?", nameof(MapEffectFunctionPtr));
+			MapEffectOldD = Marshal.GetDelegateForFunctionPointer<MapEffectOldFunction>(Scanner.TryScan("44 0F B7 40 ? E9 * * * * C3", nameof(MapEffectOldD)));
+			MapEffectD = Marshal.GetDelegateForFunctionPointer<MapEffectFunction>(Scanner.TryScan("E8 * * * * 3C ? 75 ? 80 64 B3 ? ?", nameof(MapEffectD)));
 		};
 	}
 
@@ -66,6 +73,7 @@ public class EnvironmentEffectModule : ModuleBase {
 				ErrorLog($"[鲶鱼精邮差扩展] MapEffect 参数错误：{ex.Message}");
 			}
 		}
+		RunOnFrameworkThreadV(() => {
 			foreach (var (index, unknownFlag, flag) in args) {
 				if (!unknownFlag.HasValue) {
 					NamazuLog($"[MapEffect] index = {index}, flag = {flag} ({flag:X4}????:{index:X2})");
@@ -76,19 +84,18 @@ public class EnvironmentEffectModule : ModuleBase {
 					MapEffectOld(index, unknownFlag.Value, flag);
 #pragma warning restore CS0618
 				}
-			};
+			}
+		});
 	}
 
 	/// <summary> MapEffect 底层函数。 </summary>
 	/// <returns> 是否调用成功。</returns>
-	public bool MapEffect(uint index, ushort flag) {
+	public unsafe bool MapEffect(uint index, ushort flag) {
 		CheckIfAnyZeroPtr();
-		var contentDirectorPtr = ContentDirectorPtr;
-            if (contentDirectorPtr != IntPtr.Zero)
-            {
-                var success = Plugin.Call<bool>(MapEffectFunctionPtr, contentDirectorPtr, index, flag);
-                if (!success)
-                {
+		var contentDirectorPtr = ContentDirector;
+		if (contentDirectorPtr != null) {
+			var success = MapEffectD(contentDirectorPtr, index, flag);
+			if (!success) {
 				WarningLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 中 MapEffect ({index}, {flag}) 调用失败。");
 			}
 			return success;
@@ -99,15 +106,12 @@ public class EnvironmentEffectModule : ModuleBase {
 
 	/// <summary> <see cref="MapEffect" /> 的上一层函数，第二个参数并未实际使用。 </summary>
 	[Obsolete("Use MapEffect(uint index, ushort flag)")]
-	public void MapEffectOld(uint index, ushort unknownFlag, ushort flag) {
+	public unsafe void MapEffectOld(uint index, ushort unknownFlag, ushort flag) {
 		CheckIfAnyZeroPtr();
-		var contentDirectorPtr = ContentDirectorPtr;
-            if (contentDirectorPtr != IntPtr.Zero)
-            {
-                Plugin.Call<IntPtr>(MapEffectOldFunctionPtr, contentDirectorPtr, index, unknownFlag, flag);
-            }
-            else
-            {
+		var contentDirectorPtr = ContentDirector;
+		if (contentDirectorPtr != null) {
+			MapEffectOldD(contentDirectorPtr, index, unknownFlag, flag);
+		} else {
 			ErrorLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 不存在 Director，无法调用 MapEffect (Old) ({index}, {unknownFlag}, {flag})。");
 		}
 	}
@@ -117,14 +121,14 @@ public class EnvironmentEffectModule : ModuleBase {
 		var weatherId = command.ParseData<byte>();
 		CheckBeforeExecution(command);
 		NamazuLog($"[ChangeWeather] {weatherId}");
-            ChangeWeather(weatherId);
+		RunOnFrameworkThreadV(() => ChangeWeather(weatherId));
 	}
 
 	// FFXIVClientStructs/FFXIV/Client/Graphics/Environment/EnvManager.cs
 	public unsafe void ChangeWeather(byte weatherId) {
 		CheckIfAnyZeroPtr();
-		var envManagerPtr = (IntPtr)EnvManager.Instance();
-		SafeMemory.Write(envManagerPtr + 0x27, weatherId); // ActiveWeather
-		SafeMemory.Write<float>(envManagerPtr + 0x28, 1); // TransitionTime
+		var envManagerPtr = EnvManager.Instance();
+		envManagerPtr->ActiveWeather = weatherId; // ActiveWeather
+		envManagerPtr->TransitionTime = 1; // TransitionTime
 	}
 }

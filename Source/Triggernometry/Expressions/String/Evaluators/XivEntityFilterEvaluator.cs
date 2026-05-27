@@ -19,11 +19,10 @@ internal static class XivEntityFilterEvaluator // to-do: sortings
 		};
 	}
 
-        private static List<Func<Entity, string>> BuildEntityTokenPipeline(string rawFilterExpression)
-        {
-            // "X=0 && HasStatus(min(0x32, 0x33), 0x34)"
+	private static List<Func<Entity, string>> BuildEntityTokenPipeline(string rawFilterExpression) {
+		// "X=0 && HasStatus(min(0x32, 0x33), 0x34)"
 		var rawTokenList = MathParser.Lexer(rawFilterExpression);
-            // "X"   "="   "0"   "&&"   "HasStatus"    " *"   "("  "min"   "("   "0x32"   ","   "0x33"   ")"   ","   "0x34"   ")"
+		// "X"   "="   "0"   "&&"   "HasStatus"    " *"   "("  "min"   "("   "0x32"   ","   "0x33"   ")"   ","   "0x34"   ")"
 		var funcTokens = new List<Func<Entity, string>>();
 		for (var i = 0; i < rawTokenList.Count; i++) {
 			var token = rawTokenList[i];
@@ -35,14 +34,14 @@ internal static class XivEntityFilterEvaluator // to-do: sortings
 				var possibleMemberExpr = new MemberExpression(token, null, token);
 				var accessor = XivEntityEvaluator.TryGetSingleAccessor(possibleMemberExpr);
 				if (accessor != null) // found
-                        funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // to-do: spaces in MathParser
+					funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // to-do: spaces in MathParser
 				else
 					funcTokens.Add(_ => token); // normal numeric token
 				continue;
 			}
 
 			// token followed by parentheses
-                // "HasStatus"    " *"   "("  "min"   "("   "0x32"   ","   "0x33"   ")"   ","   "0x34"   ")"
+			// "HasStatus"    " *"   "("  "min"   "("   "0x32"   ","   "0x33"   ")"   ","   "0x34"   ")"
 			if (!Entity.ValidEntityMethodNames.Contains(token)) // normal numeric tokens
 			{
 				funcTokens.Add(_ => token);
@@ -50,46 +49,40 @@ internal static class XivEntityFilterEvaluator // to-do: sortings
 			}
 
 			// entity method with args: search for the matching ")"
-                var depth = 1;
-                var paired = false;
-                var methodArgs = new List<string>();
-                var currentArgTokens = new List<string>();
-                for (var j = i + 3; j < rawTokenList.Count; j++) // start from the token after "("
+			var depth = 1;
+			var paired = false;
+			var methodArgs = new List<string>();
+			var currentArgTokens = new List<string>();
+			for (var j = i + 3; j < rawTokenList.Count; j++) // start from the token after "("
 			{
-                    var currentToken = rawTokenList[j];
-                    if (currentToken == "," && depth == 1) // split args by comma at depth 1
-                    {
-                        methodArgs.Add(string.Join("", currentArgTokens));
-                        currentArgTokens.Clear();
-                    }
-                    else if (currentToken == "(")
-                    {
+				var currentToken = rawTokenList[j];
+				if (currentToken == "," && depth == 1) // split args by comma at depth 1
+				{
+					methodArgs.Add(string.Join("", currentArgTokens));
+					currentArgTokens.Clear();
+				} else if (currentToken == "(") {
 					depth++;
-                        currentArgTokens.Add(currentToken);
-                    }
-                    else if (currentToken == ")")
-                    {
+					currentArgTokens.Add(currentToken);
+				} else if (currentToken == ")") {
 					depth--;
 					if (depth == 0) // closed
 					{
-                            if (currentArgTokens.Count > 0 || methodArgs.Count > 0) // not empty args like "HasStatus()"
-                            {
-                                methodArgs.Add(string.Join("", currentArgTokens)); // add the last arg
-                            }
+						if (currentArgTokens.Count > 0 || methodArgs.Count > 0) // not empty args like "HasStatus()"
+						{
+							methodArgs.Add(string.Join("", currentArgTokens)); // add the last arg
+						}
 
-                            // token: "HasStatus", methodArgs: ["min(0x32,0x33)", "0x34"]
-                            var methodExpr = new MemberExpression(token, methodArgs.ToArray());
+						// token: "HasStatus", methodArgs: ["min(0x32,0x33)", "0x34"]
+						var methodExpr = new MemberExpression(token, methodArgs.ToArray());
 						var accessor = XivEntityEvaluator.GetSingleAccessor(methodExpr);
-                            funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // to-do: spaces in MathParser
+						funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // to-do: spaces in MathParser
 						i = j;
 						paired = true;
 						break;
 					}
-                        currentArgTokens.Add(currentToken);
-                    }
-                    else
-                    {
-                        currentArgTokens.Add(currentToken);
+					currentArgTokens.Add(currentToken);
+				} else {
+					currentArgTokens.Add(currentToken);
 				}
 			}
 			if (!paired) funcTokens.Add(_ => token);

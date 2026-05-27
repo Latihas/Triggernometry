@@ -224,7 +224,7 @@ public partial class RealPlugin {
 			exwhere = I18n.Translate("internal/Plugin/inifilename", "determining filename");
 			pluginName = Path.GetFileNameWithoutExtension(pluginName);
 			FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/filenameis", "Plugin filename is '{0}' at '{1}'", pluginName, pluginPath));
-                
+
 			exwhere = I18n.Translate("internal/Plugin/inilanguages", "loading languages");
 			LoadLanguages();
 
@@ -233,7 +233,7 @@ public partial class RealPlugin {
 			SetupDefaultSecurity();
 			AutofixConfiguration();
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-                HandleVersionUpdate();
+			HandleVersionUpdate();
 			FixDuplicateFolderReferences(null, cfg, null);
 			BridgeFFXIV.cfg = cfg;
 			// start
@@ -330,14 +330,12 @@ public partial class RealPlugin {
 			RegisterDefaultNamedCallbacks();
 			// pluginStatusText.Text = I18n.Translate("internal/Plugin/iniready", "Ready");
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/inited", "Initialized"));
-                _ = Task.Run(async () =>
-                {
-                    if (I18n.IsChineseEnvironment)
-                    {
-                        LoadDefaultRepoCN();
-                    }
-                    await UpdateAllRepositoriesAsync(true);
-                });
+			_ = Task.Run(async () => {
+				if (I18n.IsChineseEnvironment) {
+					LoadDefaultRepoCN();
+				}
+				await UpdateAllRepositoriesAsync(true);
+			});
 			isInitialized = true;
 		} catch (Exception ex) {
 			Log.Error(I18n.Translate("internal/Plugin/inierror", "Error while {0} ({1})", exwhere, ex.ToString()));

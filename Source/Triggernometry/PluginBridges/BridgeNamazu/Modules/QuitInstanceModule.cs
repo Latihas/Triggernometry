@@ -18,7 +18,7 @@ public class QuitInstanceModule : ModuleBase {
 	internal void CbQuitInstance(string cmd) {
 		CheckBeforeExecution(cmd);
 		var shouldForceQuit = cmd.ParseDataOrDefault(false);
-            QuitInstance(shouldForceQuit);
+		RunOnFrameworkThreadV(() => QuitInstance(shouldForceQuit));
 	}
 
 	public void QuitInstance(bool shouldForceQuit) {

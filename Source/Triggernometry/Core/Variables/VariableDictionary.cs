@@ -199,12 +199,11 @@ public sealed class VariableDictionary : Variable {
 		return min;
 	}
 
-        public string KeyOf(string value, string defaultResult)
-        {
-            return Values
-                .Where(pair => pair.Value.ToString() == value)
-                .Select(pair => pair.Key)
-                .FirstOrDefault() ?? defaultResult;
+	public string KeyOf(string value, string defaultResult) {
+		return Values
+			.Where(pair => pair.Value.ToString() == value)
+			.Select(pair => pair.Key)
+			.FirstOrDefault() ?? defaultResult;
 	}
 
 	public string KeysOf(string value, string joiner) {
