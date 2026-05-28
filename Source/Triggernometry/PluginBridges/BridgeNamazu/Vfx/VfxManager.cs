@@ -145,43 +145,10 @@ internal static class VfxManager {
 	}
 
 	private static void EnsureWorkerStarted() {
-		// lock (WorkerLock) {
-		// 	if (WorkerStarted)
-		// 		return;
-		//
-		// 	WorkerStopping = false;
-		// 	WorkerStarted = true;
-		//
-		// 	WorkerThread = new Thread(WorkerLoop) {
-		// 		IsBackground = true,
-		// 		Name = "VFX Worker"
-		// 	};
-		//
-		// 	WorkerThread.Start();
-		// }
 	}
 
 	public static void WorkerLoop(IFramework _) {
-		// while (!WorkerStopping) {
-		// try {
 		ProcessVfxs();
-		// } catch (Exception ex) {
-		// 	Module.ErrorLog($"[PictoACT] 定期处理 VFX 时出错：\n{ex}");
-		// }
-
-		// var interval = ModuleBase.GetConfig<int>("WorkerIntervalMs") ?? 10;
-		// if (interval <= 0) {
-		// 	interval = 10;
-		// 	ModuleBase.SetConfig("WorkerIntervalMs", interval);
-		// }
-
-		// Thread.Sleep(interval);
-		// }
-
-		// lock (WorkerLock) {
-		// 	WorkerStarted = false;
-		// 	WorkerThread = null;
-		// }
 	}
 
 	public static void Shutdown() {

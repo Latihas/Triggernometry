@@ -6,8 +6,8 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class AbilityRangeCheckModule : ModuleBase {
 	public IntPtr PatchPtr;
-	public byte[] PatchedBytes = [0xB8, 0x00, 0x00, 0x00, 0x00];
-	public byte[] OriginalBytes = [0xB8, 0x36, 0x02, 0x00, 0x00];
+	public readonly byte[] PatchedBytes = [0xB8, 0x00, 0x00, 0x00, 0x00];
+	public readonly byte[] OriginalBytes = [0xB8, 0x36, 0x02, 0x00, 0x00];
 
 	public AbilityRangeCheckModule() {
 		ScanMethod = () => {
