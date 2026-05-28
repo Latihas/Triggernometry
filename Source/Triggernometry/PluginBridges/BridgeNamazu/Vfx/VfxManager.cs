@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Dalamud.Plugin.Services;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
+using static Triggernometry.PluginBridges.BridgeNamazu.Modules.ModuleBase;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
@@ -33,11 +34,11 @@ internal static class VfxManager {
 	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null) => Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
 
 	public static unsafe StaticVfx InitStatic(string fullPath, string? tag = null) {
-		var vfx = new StaticVfx {
+		var vfx = RunOnFrameworkThread(() => new  StaticVfx {
 			Vfx = Module.StaticVfxCreate(fullPath),
 			Path = fullPath,
 			Tag = tag ?? VfxBase.DefaultTag
-		};
+		});
 		Register(vfx);
 		Module.StaticVfxRun(vfx.Vfx);
 		return vfx;

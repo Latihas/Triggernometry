@@ -190,7 +190,7 @@ public class VfxModule : ModuleBase {
 	internal void CbStaticVfx(string command)
 		=> ProcessStaticVfx(command);
 
-	private void ProcessStaticVfx(string rawArgs, string nameFormatTemplate = null) {
+	private void ProcessStaticVfx(string rawArgs, string? nameFormatTemplate = null) {
 		CheckBeforeExecution(rawArgs);
 		if (GetConfig<bool>("StaticVfx") == false) return; // ignored
 		var (vfxName, t, x, y, z, h, scaleX, rawScaleY, rawScaleZ, r, g, b, a)
@@ -204,13 +204,11 @@ public class VfxModule : ModuleBase {
 		var color = new Vector4(r, g, b, a);
 
 		var vfx = VfxManager.InitStatic(vfxPath, VfxBase.DefaultTag);
-
 		vfx.Pos = pos;
 		vfx.Angle = h;
 		if (scales != Vector3.One) vfx.Scales = scales;
 		if (color != Vector4.One) vfx.Color = color;
 		vfx.Update();
-
 		vfx.ScheduleRemove(t);
 	}
 
@@ -219,8 +217,8 @@ public class VfxModule : ModuleBase {
 		CheckIfAnyZeroPtr();
 		CheckIfVfxPathValid(fullPath);
 		const string pool = "Client.System.Scheduler.Instance.VfxObject";
-		var vfxPtr =RunOnFrameworkThread<Pointer<VfxObject>>(() =>  StaticVfxCreateD(new Utf8String(fullPath).StringPtr, new Utf8String(pool).StringPtr));
-		Custom2Log($"[StaticVfxCreate] {fullPath} @ {(IntPtr)vfxPtr.Value:X}");
+		var vfxPtr =StaticVfxCreateD(new Utf8String(fullPath).StringPtr, new Utf8String(pool).StringPtr);
+		Custom2Log($"[StaticVfxCreate] {fullPath} @ {(IntPtr)vfxPtr:X}");
 		return vfxPtr;
 	}
 

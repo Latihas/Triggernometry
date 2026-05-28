@@ -624,7 +624,6 @@ public static class BridgeFFXIV {
 
 		internal XivEntity(object xivEntity) {
 			_entity = xivEntity;
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,_entity.GetType().ToString());
 		}
 
 		internal new static Entity NullEntity() => new() {
