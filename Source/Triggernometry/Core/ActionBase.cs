@@ -192,7 +192,7 @@ public abstract class ActionBase {
 	public class ActionInstance : IComparable {
 		internal DateTime when { get; set; }
 		internal long ordinal { get; set; }
-		internal MutexInformation mutex { get; set; }
+		internal MutexInformation? mutex { get; set; }
 		internal ActionOld act { get; set; }
 		internal Context ctx { get; set; }
 		internal bool releaseMutex { get; set; }
@@ -206,7 +206,7 @@ public abstract class ActionBase {
 			this.releaseMutex = releaseMutex;
 		}
 
-		public int CompareTo(object o) {
+		public int CompareTo(object? o) {
 			var b = (ActionInstance)o;
 			var ex = when.CompareTo(b.when);
 			if (ex != 0) {
@@ -710,7 +710,7 @@ public abstract class ActionBase {
 	/// </summary>
 	/// <param name="sender">ExpressionTextBox</param>
 	/// <param name="e">Unused</param>
-	private void Etb_TextChanged(object sender, EventArgs e) {
+	private void Etb_TextChanged(object? sender, EventArgs e) {
 		var etb = (ExpressionTextBox)sender;
 		var pi = (PropertyInfo)etb.Tag;
 		pi.SetValue(this, etb.Text);
@@ -767,7 +767,7 @@ public abstract class ActionBase {
 		pi.SetValue(this, newval);
 	}
 
-	private void BrowseBtn_Click(object sender, EventArgs e) {
+	private void BrowseBtn_Click(object? sender, EventArgs e) {
 		var b = (Button)sender;
 		var prop = ((PropertyInfo prop, ActionAttribute attr, ExpressionTextBox target))b.Tag;
 		using (var ofd = new OpenFileDialog()) {

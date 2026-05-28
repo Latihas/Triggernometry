@@ -73,19 +73,18 @@ public class EnvironmentEffectModule : ModuleBase {
 				ErrorLog($"[鲶鱼精邮差扩展] MapEffect 参数错误：{ex.Message}");
 			}
 		}
-		RunOnFrameworkThreadV(() => {
-			foreach (var (index, unknownFlag, flag) in args) {
-				if (!unknownFlag.HasValue) {
-					NamazuLog($"[MapEffect] index = {index}, flag = {flag} ({flag:X4}????:{index:X2})");
-					MapEffect(index, flag);
-				} else {
-					NamazuLog($"[MapEffect] index = {index}, flag = {flag} ({flag:X4}{unknownFlag:X4}:{index:X2})");
+
+		foreach (var (index, unknownFlag, flag) in args) {
+			if (!unknownFlag.HasValue) {
+				NamazuLog($"[MapEffect] index = {index}, flag = {flag} ({flag:X4}????:{index:X2})");
+				MapEffect(index, flag);
+			} else {
+				NamazuLog($"[MapEffect] index = {index}, flag = {flag} ({flag:X4}{unknownFlag:X4}:{index:X2})");
 #pragma warning disable CS0618 // 使用弃用方法的警告
-					MapEffectOld(index, unknownFlag.Value, flag);
+				MapEffectOld(index, unknownFlag.Value, flag);
 #pragma warning restore CS0618
-				}
 			}
-		});
+		}
 	}
 
 	/// <summary> MapEffect 底层函数。 </summary>
@@ -94,7 +93,7 @@ public class EnvironmentEffectModule : ModuleBase {
 		CheckIfAnyZeroPtr();
 		var contentDirectorPtr = ContentDirector;
 		if (contentDirectorPtr != null) {
-			var success = MapEffectD(contentDirectorPtr, index, flag);
+			var success = RunOnFrameworkThread(() => MapEffectD(contentDirectorPtr, index, flag));
 			if (!success) {
 				WarningLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 中 MapEffect ({index}, {flag}) 调用失败。");
 			}
@@ -110,7 +109,7 @@ public class EnvironmentEffectModule : ModuleBase {
 		CheckIfAnyZeroPtr();
 		var contentDirectorPtr = ContentDirector;
 		if (contentDirectorPtr != null) {
-			MapEffectOldD(contentDirectorPtr, index, unknownFlag, flag);
+			RunOnFrameworkThreadV(() => MapEffectOldD(contentDirectorPtr, index, unknownFlag, flag));
 		} else {
 			ErrorLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 不存在 Director，无法调用 MapEffect (Old) ({index}, {unknownFlag}, {flag})。");
 		}
@@ -121,14 +120,16 @@ public class EnvironmentEffectModule : ModuleBase {
 		var weatherId = command.ParseData<byte>();
 		CheckBeforeExecution(command);
 		NamazuLog($"[ChangeWeather] {weatherId}");
-		RunOnFrameworkThreadV(() => ChangeWeather(weatherId));
+		ChangeWeather(weatherId);
 	}
 
 	// FFXIVClientStructs/FFXIV/Client/Graphics/Environment/EnvManager.cs
 	public unsafe void ChangeWeather(byte weatherId) {
 		CheckIfAnyZeroPtr();
 		var envManagerPtr = EnvManager.Instance();
-		envManagerPtr->ActiveWeather = weatherId; // ActiveWeather
-		envManagerPtr->TransitionTime = 1; // TransitionTime
+		RunOnFrameworkThreadV(() => {
+			envManagerPtr->ActiveWeather = weatherId; // ActiveWeather
+			envManagerPtr->TransitionTime = 1; // TransitionTime
+		});
 	}
 }

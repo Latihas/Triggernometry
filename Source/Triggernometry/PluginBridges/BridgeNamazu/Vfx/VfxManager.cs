@@ -33,17 +33,13 @@ internal static class VfxManager {
 	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null) => Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
 
 	public static unsafe StaticVfx InitStatic(string fullPath, string? tag = null) {
-		var vfxPtr = Module.StaticVfxCreate(fullPath);
-
 		var vfx = new StaticVfx {
-			Vfx = vfxPtr,
+			Vfx = Module.StaticVfxCreate(fullPath),
 			Path = fullPath,
 			Tag = tag ?? VfxBase.DefaultTag
 		};
-
 		Register(vfx);
 		Module.StaticVfxRun(vfx.Vfx);
-
 		return vfx;
 	}
 
@@ -119,24 +115,9 @@ internal static class VfxManager {
 	}
 
 	private static void EnsureRemoveWorkerStarted() {
-		// lock (RemoveWorkerLock) {
-		// if (RemoveWorkerStarted)
-		// 	return;
-		//
-		// RemoveWorkerStarted = true;
-		// ProxyPlugin.Framework.Update += RemoveWorkerLoop;
-		// var thread = new Thread() {
-		// 	IsBackground = true,
-		// 	Name = "VFX Remove Worker"
-		// };
-		//
-		// thread.Start();
-		// }
 	}
 
-	internal static void RemoveWorkerLoop(IFramework _) {
-		RemoveExpiredVfxs();
-	}
+	internal static void RemoveWorkerLoop(IFramework _) => RemoveExpiredVfxs();
 
 	private static void RemoveExpiredVfxs() {
 		var now = DateTime.UtcNow;

@@ -93,7 +93,7 @@ public partial class RealPlugin {
 	internal Endpoint _ep;
 	private bool firstevent = true;
 	internal bool isRunningAsAdmin;
-	internal string currentZone;
+	internal string? currentZone;
 	internal DateTime LastDelayWarning = DateTime.Now;
 	public VariableStore sessionvars = new();
 	internal ObsController _obs;

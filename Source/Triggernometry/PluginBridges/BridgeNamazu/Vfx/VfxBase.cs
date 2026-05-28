@@ -2,6 +2,7 @@
 using System.Numerics;
 using Dalamud;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
+using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
@@ -20,7 +21,7 @@ public abstract class VfxBase {
 
 	public unsafe void Update() {
 		if (Removed) return;
-		Vfx->UpdateTransforms(true);
+		ModuleBase.RunOnFrameworkThreadV(() => Vfx->UpdateTransforms(true));
 	}
 
 	public unsafe byte Flag {

@@ -20,12 +20,12 @@ public class AbilityRangeCheckModule : ModuleBase {
 	internal void CbDisableAbilityRangeCheck(string cmd) {
 		CheckBeforeExecution(cmd);
 		var shouldDisable = cmd.ParseDataOrDefault(true);
-		DisableAbilityRangeCheck(shouldDisable);
+		 DisableAbilityRangeCheck(shouldDisable);
 	}
 
 	public void DisableAbilityRangeCheck(bool shouldDisable) {
 		CheckIfAnyZeroPtr();
-		SafeMemory.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes);
+		RunOnFrameworkThreadV(() => SafeMemory.WriteBytes(PatchPtr, shouldDisable ? PatchedBytes : OriginalBytes));
 		CustomLog(shouldDisable ? "[Kairos] 开启屏蔽技能距离检测。" : "[Kairos] 已恢复技能距离检测。");
 	}
 }

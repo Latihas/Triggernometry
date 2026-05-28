@@ -26,17 +26,16 @@ public class UseActionModule : ModuleBase {
 				(2, 0xE0000000),
 				(3, ActionManager.UseActionMode.None)
 			);
-		RunOnFrameworkThreadV(() => UseAction(actionType, actionId, targetId, mode));
+		UseAction(actionType, actionId, targetId, mode);
 	}
 
 	public unsafe bool UseAction(ActionType actionType, uint actionId, uint targetId, ActionManager.UseActionMode mode = ActionManager.UseActionMode.None) {
 		CheckIfAnyZeroPtr();
 		var extraParam = (uint)(actionType == ActionType.Item ? 0xFFFF : 0);
 		const uint comboRouteID = 0;
-		var result = ActionManager.Instance()->UseAction((ActionType)(int)actionType, actionId, targetId, extraParam, (ActionManager.UseActionMode)(int)mode, comboRouteID, (bool*)0);
-		if (result) {
+		var result =RunOnFrameworkThread(() => ActionManager.Instance()->UseAction((ActionType)(int)actionType, actionId, targetId, extraParam, (ActionManager.UseActionMode)(int)mode, comboRouteID, (bool*)0));
+		if (result) 
 			NamazuLog($"[UseAction] {actionType} ({(int)actionType}), action = {actionId} (0x{actionId:X}), target = {targetId:X}, mode = {mode} ({(int)mode})");
-		}
 		return result;
 	}
 
@@ -54,11 +53,9 @@ public class UseActionModule : ModuleBase {
 
 	public unsafe bool UseActionLocation(ActionType actionType, uint actionId, float x, float y, float z, uint extraParam = 0) {
 		CheckIfAnyZeroPtr();
-		var targetId = DataStringHelper.HexOrDecId.Default;
-		// IntPtr posPtr = default;
-		bool result = default;
+		const uint targetId = DataStringHelper.HexOrDecId.Default;
 		var posPtr = new Vector3(x, z, y);
-		ActionManager.Instance()->UseActionLocation((ActionType)(int)actionType, actionId, targetId, &posPtr, extraParam);
+		var result = ActionManager.Instance()->UseActionLocation((ActionType)(int)actionType, actionId, targetId, &posPtr, extraParam);
 		if (result) {
 			NamazuLog($"[UseActionLocation]: {actionType} ({(byte)actionType}); action = {actionId} (0x{actionId:X}) @ ({x:0.##}, {y:0.##}, {z:0.##})");
 		}

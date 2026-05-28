@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
@@ -14,10 +15,16 @@ using static Triggernometry.Expressions.String.Utils.DataStringHelper;
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 public class EntityModule : ModuleBase {
-	public int ModelPosOffset = 80; // 6.0
+	private delegate IntPtr EObjAnimationFunc(IntPtr p1, ushort p2, ushort p3, long p4);
+
+	private EObjAnimationFunc EObjAnimationD;
 
 	public EntityModule() {
-		ScanMethod = () => { };
+		ScanMethod = () => {
+			EObjAnimationD = Marshal.GetDelegateForFunctionPointer<EObjAnimationFunc>(Scanner.TryScanMultiple([
+				"45 33 C9 0F B7 54 24 ?? 48 8B CB E8 * * * *" // 7.4
+			], nameof(EObjAnimationD)));
+		};
 	}
 
 	[CallbackMethod("InvokeOnMultipleEntities")]
@@ -49,21 +56,21 @@ public class EntityModule : ModuleBase {
 	internal void CbSetDefaultPos(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, x, y, z) = cmd.ParseArgs<IntPtr, float, float, float>();
-		RunOnFrameworkThreadV(() => SetDefaultPos(objectPtr, x, y, z));
+		SetDefaultPos(objectPtr, x, y, z);
 	}
 
 	[CallbackMethod("SetPos", "Kairos")]
 	internal void CbSetPos(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, x, y, z) = cmd.ParseArgs<IntPtr, float, float, float>();
-		RunOnFrameworkThreadV(() => SetPos(objectPtr, x, y, z));
+		SetPos(objectPtr, x, y, z);
 	}
 
 	[CallbackMethod("SetModelRelPos")]
 	internal void CbSetModelRelPos(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, dx, dy, dz) = cmd.ParseArgs<IntPtr, float, float, float>();
-		RunOnFrameworkThreadV(() => SetModelRelPos(objectPtr, dx, dy, dz));
+		SetModelRelPos(objectPtr, dx, dy, dz);
 	}
 
 	[CallbackMethod("Teleport", "Kairos")]
@@ -71,28 +78,28 @@ public class EntityModule : ModuleBase {
 		CheckBeforeExecution(cmd);
 		var objectPtr = Entity.GetMyself().Address;
 		var (x, y, z) = cmd.ParseArgs<float, float, float>();
-		RunOnFrameworkThreadV(() => SetPos(objectPtr, x, y, z));
+		SetPos(objectPtr, x, y, z);
 	}
 
 	[CallbackMethod("SetDefaultHeading")]
 	internal void CbSetDefaultHeading(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, heading) = cmd.ParseArgs<IntPtr, float>();
-		RunOnFrameworkThreadV(() => SetDefaultHeading(objectPtr, heading));
+		SetDefaultHeading(objectPtr, heading);
 	}
 
 	[CallbackMethod("SetHeading")]
 	internal void CbSetHeading(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, heading) = cmd.ParseArgs<IntPtr, float>();
-		RunOnFrameworkThreadV(() => SetHeading(objectPtr, heading));
+		SetHeading(objectPtr, heading);
 	}
 
 	[CallbackMethod("Target")]
 	internal void CbTarget(string cmd) {
 		CheckBeforeExecution(cmd);
 		(uint id, var hard, var soft) = cmd.ParseArgs<HexOrDecId, bool, bool>((1, true), (2, true));
-		IntPtr objectPtr = default;
+		IntPtr objectPtr = 0;
 
 		if (id != HexOrDecId.Default) {
 			var entity = Entity.GetEntityByID(id);
@@ -108,7 +115,7 @@ public class EntityModule : ModuleBase {
 	internal void CbSetModelStatus(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, modelStatus) = cmd.ParseArgs<IntPtr, int>();
-		RunOnFrameworkThreadV(() => SetModelStatus(objectPtr, modelStatus));
+		SetModelStatus(objectPtr, modelStatus);
 	}
 
 	// 新方法 直接修改实体参数并重绘
@@ -117,7 +124,7 @@ public class EntityModule : ModuleBase {
 		CheckBeforeExecution(cmd);
 		if (GetConfig<bool>("ObjectScale") == false) return; // ignored
 		var (objectPtr, scale) = cmd.ParseArgs<IntPtr, float>();
-		RunOnFrameworkThreadV(() => SetObjectScale(objectPtr, scale));
+		SetObjectScale(objectPtr, scale);
 	}
 
 	// 旧方法 临时修改已经绘制生成的实体模型
@@ -126,7 +133,7 @@ public class EntityModule : ModuleBase {
 		CheckBeforeExecution(cmd);
 		if (GetConfig<bool>("ObjectScale") == false) return; // ignored
 		var (objectPtr, scaleX, scaleY, scaleZ) = cmd.ParseArgs<IntPtr, float, float?, float?>((2, null), (3, null));
-		RunOnFrameworkThreadV(() => SetObjectScaleTemp(objectPtr, scaleX, scaleY ?? scaleX, scaleZ ?? scaleX));
+		SetObjectScaleTemp(objectPtr, scaleX, scaleY ?? scaleX, scaleZ ?? scaleX);
 	}
 
 	[CallbackMethod("SetOpacity")]
@@ -134,85 +141,88 @@ public class EntityModule : ModuleBase {
 		CheckBeforeExecution(cmd);
 		if (GetConfig<bool>("Opacity") == false) return; // ignored
 		var (objectPtr, opacity) = cmd.ParseArgs<IntPtr, float>();
-		RunOnFrameworkThreadV(() => SetOpacity(objectPtr, opacity));
+		SetOpacity(objectPtr, opacity);
 	}
 
 	[CallbackMethod("SetStatusLoopVfx")]
 	internal void CbSetStatusLoopVfx(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, vfxId) = cmd.ParseArgs<IntPtr, ushort>();
-		RunOnFrameworkThreadV(() => {
-			SetStatusLoopVfx(objectPtr, vfxId);
-			ReDraw(objectPtr);
-		});
+		SetStatusLoopVfx(objectPtr, vfxId);
 	}
 
 	[CallbackMethod("Redraw")]
 	internal void CbRedraw(string cmd) {
 		CheckBeforeExecution(cmd);
 		var objectPtr = cmd.ParseData<IntPtr>();
-		RunOnFrameworkThreadV(() => ReDraw(objectPtr));
+		ReDraw(objectPtr);
 	}
 
 	[CallbackMethod("SetHighlightColor")]
 	internal void CbSetHighlightColor(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, color) = cmd.ParseArgs<IntPtr, byte>();
-		RunOnFrameworkThreadV(() => SetHighlightColor(objectPtr, color));
+		SetHighlightColor(objectPtr, color);
 	}
 
 	[CallbackMethod("RemoveStatus")]
 	internal void CbRemoveStatus(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, statusId) = cmd.ParseArgs<IntPtr, ushort>();
-		RunOnFrameworkThreadV(() => RemoveStatus(objectPtr, statusId));
+		RemoveStatus(objectPtr, statusId);
 	}
 
 	[CallbackMethod("EObjAnimation")]
 	internal void CbEObjAnimation(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, animationId, slotMask, context) = cmd.ParseArgs<IntPtr, ushort, ushort, long>((3, 0L));
-		RunOnFrameworkThreadV(() => EObjAnimation(objectPtr, animationId, slotMask, context));
+		EObjAnimation(objectPtr, animationId, slotMask, context);
 	}
 
 	[CallbackMethod("PlayActionTimeline")]
 	internal void CbPlayActionTimeline(string cmd) {
 		CheckBeforeExecution(cmd);
-		var (objectPtr, timelineId, a3, a4) = cmd.ParseArgs<IntPtr, ushort, long, bool>((2, 0L), (3, false));
-		RunOnFrameworkThreadV(() => PlayActionTimeline(objectPtr, timelineId, a3, a4));
+		var (objectPtr, timelineId, a3, a4) = cmd.ParseArgs<IntPtr, ushort, ushort, bool>((2, 0L), (3, false));
+		 PlayActionTimeline(objectPtr, timelineId, a3, a4);
 	}
 
 	public unsafe void SetPos(IntPtr objectAddress, float x, float y, float z) {
 		var pos = new Vector3(x, z, y); // 注意 Y Z 轴交换
 		var gameObject = (GameObject*)objectAddress;
 		var modelAddress = gameObject->DrawObject;
-		gameObject->Position = pos;
-		if (modelAddress != null)
-			modelAddress->Position = pos;
+		RunOnFrameworkThreadV(() => {
+			gameObject->Position = pos;
+			if (modelAddress != null)
+				modelAddress->Position = pos;
+		});
 	}
 
 	public unsafe void SetDefaultPos(IntPtr objectAddress, float x, float y, float z) =>
-		((GameObject*)objectAddress)->DefaultPosition = new Vector3(x, z, y); // 注意 Y Z 轴交换
+		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->DefaultPosition = new Vector3(x, z, y)); // 注意 Y Z 轴交换
 
 	public unsafe void SetModelRelPos(IntPtr objectAddress, float dx, float dy, float dz) =>
-		((GameObject*)objectAddress)->DrawOffset = new Vector3(dx, dz, dy); // 注意 Y Z 轴交换
+		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->DrawOffset = new Vector3(dx, dz, dy)); // 注意 Y Z 轴交换
 
 	public unsafe void SetHeading(IntPtr objectAddress, float h) {
 		var gameObject = (GameObject*)objectAddress;
 		var modelAddress = gameObject->DrawObject;
-		gameObject->Rotation = h;
-		// 四元数
-		modelAddress->Rotation.Y = (float)Math.Sin(h / 2);
-		modelAddress->Rotation.W = (float)Math.Cos(h / 2);
+		RunOnFrameworkThreadV(() => {
+			gameObject->Rotation = h;
+			// 四元数
+			modelAddress->Rotation.Y = (float)Math.Sin(h / 2);
+			modelAddress->Rotation.W = (float)Math.Cos(h / 2);
+		});
 	}
 
 	public unsafe void SetDefaultHeading(IntPtr objectAddress, float h) =>
-		((GameObject*)objectAddress)->DefaultRotation = h;
+		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->DefaultRotation = h);
 
 	public unsafe void Target(IntPtr address, bool hard = true, bool soft = true) {
 		CheckIfAnyZeroPtr();
-		if (hard) TargetSystem.Instance()->Target = (GameObject*)address;
-		if (soft) TargetSystem.Instance()->SoftTarget = (GameObject*)address;
+		RunOnFrameworkThreadV(() => {
+			if (hard) TargetSystem.Instance()->Target = (GameObject*)address;
+			if (soft) TargetSystem.Instance()->SoftTarget = (GameObject*)address;
+		});
 	}
 
 	/// <summary> 见 status 参数描述 </summary>
@@ -224,26 +234,23 @@ public class EntityModule : ModuleBase {
 	///     8192: 不重绘：有模型无名牌、不可选；重绘/移动/攻击：恢复 0 <br />
 	///     16384: 不重绘：有模型无名牌、不可选；重绘：不变，刷新模型 <br />
 	/// </param>
-	public unsafe void SetModelStatus(IntPtr objectAddress, int status) {
-		((GameObject*)objectAddress)->RenderFlags = (VisibilityFlags)status;
-	}
+	public unsafe void SetModelStatus(IntPtr objectAddress, int status) =>
+		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->RenderFlags = (VisibilityFlags)status);
 
-	public unsafe void SetObjectScaleTemp(IntPtr objectAddress, float scaleX, float scaleY, float scaleZ) {
-		((GameObject*)objectAddress)->DrawObject->Scale = new Vector3(scaleX, scaleZ, scaleY);
-	}
+	public unsafe void SetObjectScaleTemp(IntPtr objectAddress, float scaleX, float scaleY, float scaleZ) =>
+		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->DrawObject->Scale = new Vector3(scaleX, scaleZ, scaleY));
 
 	public unsafe void SetObjectScale(IntPtr objectAddress, float scale) {
-		((GameObject*)objectAddress)->Scale = scale;
+		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->Scale = scale);
 		ReDraw(objectAddress);
 	}
 
 	// FFXIVClientStructs/FFXIV/Client/Game/Character/Character.cs    public float Alpha;
-	public unsafe void SetOpacity(IntPtr objectAddress, float opacity) {
-		((Character*)objectAddress)->Alpha = opacity;
-	}
+	public unsafe void SetOpacity(IntPtr objectAddress, float opacity) =>
+		RunOnFrameworkThreadV(() => ((Character*)objectAddress)->Alpha = opacity);
 
 	public unsafe void SetStatusLoopVfx(IntPtr objectAddress, ushort id) {
-		((GameObject*)objectAddress)->GimmickId = id;
+		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->GimmickId = id);
 		ReDraw(objectAddress);
 	}
 
@@ -266,32 +273,38 @@ public class EntityModule : ModuleBase {
 		EnableDraw(address);
 	}
 
-	public unsafe void SetHighlightColor(IntPtr character, byte color) {
-		((GameObject*)character)->Highlight((ObjectHighlightColor)color);
-	}
+	public unsafe void SetHighlightColor(IntPtr character, byte color) =>
+		RunOnFrameworkThreadV(() => ((GameObject*)character)->Highlight((ObjectHighlightColor)color));
 
 	public unsafe void RemoveStatus(IntPtr address, ushort statusId) {
 		CheckIfAnyZeroPtr();
 		var sm = ((Character*)address)->GetStatusManager();
-		sm->RemoveStatus((int)sm->GetStatusId(statusId));
+		RunOnFrameworkThreadV(() => sm->RemoveStatus((int)sm->GetStatusId(statusId)));
 	}
 
 	public void EObjAnimation(IntPtr objectPtr, ushort animationId, ushort slotMask, long context = 0) {
-		// CheckIfAnyZeroPtr(objectPtr, EObjAnimationPtr);
-		// var obj = Entity.GetEntities(e => e.Address == objectPtr).FirstOrDefault();
-		// if (obj == null) {
-		//     WarningLog("[EObjAnimation] 未找到对应的实体");
-		//     return;
-		// }
-		// if (obj.Type != EntityType.EventObj) {
-		//     throw new Exception($"[EObjAnimation] 指定实体 \"{obj.Name}\" ({obj.ID:X8}) @ {(long)objectPtr:X} 类型 {obj.Type} 不是 EventObject");
-		// }
-		// EventObject._ = Memory.CallInjected64<IntPtr>(EObjAnimationPtr, objectPtr, animationId, slotMask, context);
+		CheckIfAnyZeroPtr();
+		var obj = Entity.GetEntities(e => e.Address == objectPtr).FirstOrDefault();
+		if (obj == null) {
+			WarningLog("[EObjAnimation] 未找到对应的实体");
+			return;
+		}
+		if (obj.Type != EntityType.EventObj) {
+			throw new Exception($"[EObjAnimation] 指定实体 \"{obj.Name}\" ({obj.ID:X8}) @ {(long)objectPtr:X} 类型 {obj.Type} 不是 EventObject");
+		}
+		RunOnFrameworkThreadV(() => EObjAnimationD(objectPtr, animationId, slotMask, context));
 	}
 
-	public bool PlayActionTimeline(IntPtr objectPtr, ushort timelineId, long a3 = 0, bool a4 = false) =>
-		// var character = (Character*)objectPtr;
-		// character->Timeline.PlayActionTimeline(timelineId);
-		true;
-	// return Memory.CallInjected64<bool>(PlayActionTimelinePtr, timelineContainerPtr, timelineId, a3, a4);
+	//TODO Verify
+	public unsafe bool PlayActionTimeline(IntPtr objectPtr, ushort introId, ushort loopId = 0, bool a4 = false) {
+		// a4: should skip mount/submodel timeline
+		// 原函数是 实体->TimelineContainer 的方法，这里封装改用了实体本身的地址
+		CheckIfAnyZeroPtr();
+		var chara = (Character*)objectPtr;
+		RunOnFrameworkThreadV(() => {
+			chara->Timeline.BaseOverride = (ushort)(a4 ? 1 : 0);
+			chara->Timeline.PlayActionTimeline(introId, loopId);
+		});
+		return true;
+	}
 }

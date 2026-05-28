@@ -83,7 +83,7 @@ public class CameraModule : ModuleBase {
 			default:
 				if (Offsets.TryGetValue(param, out var offset)) {
 					var address = (IntPtr)Camera + offset;
-					SafeMemory.Write(address, newValue);
+					RunOnFrameworkThreadV(() => SafeMemory.Write(address, newValue));
 					Custom2Log($"[鲶鱼精邮差扩展] 成功设置相机参数 {param} = {newValue}");
 				} else {
 					ErrorLog($"[鲶鱼精邮差扩展] 错误的相机参数 ({param})。");
@@ -99,40 +99,41 @@ public class CameraModule : ModuleBase {
 	[CallbackMethod("SetCameraParams")]
 	public void SetCameraParams(string cmd) {
 		CheckBeforeExecution(cmd);
-		switch (cmd.Trim().ToLower()) {
-			case "reset": // 临时重置当前视距、视角及其范围为游戏默认值
-				foreach (var kvp in OriginalParams) {
-					SetParam(kvp.Key, kvp.Value);
-				}
-				break;
-			case "apply": // 将配置中的当前视距、视角及其范围应用到游戏
-				//if (GetConfig<bool>("camera_enabled") != true) return;
-				foreach (var kvp in OriginalParams) {
-					var value = GetConfig<float>($"camera_{kvp.Key}");
-					if (value == null) continue;
-					SetParam(kvp.Key, value.Value);
-				}
-				break;
-			case "clearconfig": // 清除相关配置，并恢复游戏默认值
-				SetConfig("camera_enabled", false);
-				SetCameraParams("reset");
-				break;
-			case "initconfig": // 初始化相关配置并应用到游戏
-				foreach (var kvp in DefaultEditedParams) {
-					SetConfig($"camera_{kvp.Key}", kvp.Value);
-					SetParam(kvp.Key, kvp.Value);
-				}
-				break;
-			default:
-				var kvps = cmd.Split('\n').Select(data => data.Split(['=', ':'], 2)).Where(data => data.Length == 2);
-				foreach (var kvp in kvps) {
-					var key = kvp[0].Trim();
-					if (!Offsets.ContainsKey(key)) continue;
-					var value = (float)MathParser.Parse(kvp[1]);
-					SetParam(key, value);
-				}
-				break;
-		}
+			switch (cmd.Trim().ToLower()) {
+				case "reset": // 临时重置当前视距、视角及其范围为游戏默认值
+					foreach (var kvp in OriginalParams) {
+						SetParam(kvp.Key, kvp.Value);
+					}
+					break;
+				case "apply": // 将配置中的当前视距、视角及其范围应用到游戏
+					//if (GetConfig<bool>("camera_enabled") != true) return;
+					foreach (var kvp in OriginalParams) {
+						var value = GetConfig<float>($"camera_{kvp.Key}");
+						if (value == null) continue;
+						SetParam(kvp.Key, value.Value);
+					}
+					break;
+				case "clearconfig": // 清除相关配置，并恢复游戏默认值
+					SetConfig("camera_enabled", false);
+					SetCameraParams("reset");
+					break;
+				case "initconfig": // 初始化相关配置并应用到游戏
+					foreach (var kvp in DefaultEditedParams) {
+						SetConfig($"camera_{kvp.Key}", kvp.Value);
+						SetParam(kvp.Key, kvp.Value);
+					}
+					break;
+				default:
+					var kvps = cmd.Split('\n').Select(data => data.Split(['=', ':'], 2)).Where(data => data.Length == 2);
+					foreach (var kvp in kvps) {
+						var key = kvp[0].Trim();
+						if (!Offsets.ContainsKey(key)) continue;
+						var value = (float)MathParser.Parse(kvp[1]);
+						SetParam(key, value);
+					}
+					break;
+			}
+		
 	}
 
 	// 游戏默认

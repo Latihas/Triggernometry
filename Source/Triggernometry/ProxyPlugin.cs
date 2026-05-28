@@ -191,9 +191,7 @@ public class ProxyPlugin : IActPluginV1 {
 
 	public bool InCombat() => ActGlobals.oFormActMain.InCombat;
 
-	public void EndCombat() {
-		ActGlobals.oFormActMain.EndCombat(false);
-	}
+	public void EndCombat() => ActGlobals.oFormActMain.EndCombat(false);
 
 	public void SetCombatState(bool inCombat) {
 		if (inCombat) {

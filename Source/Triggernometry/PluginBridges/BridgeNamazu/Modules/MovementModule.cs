@@ -36,11 +36,11 @@ public class MovementModule : ModuleBase {
 
 	public void SetMoveSpeedMultiplier(float multiplier) {
 		CheckIfAnyZeroPtr();
-		SafeMemory.Write(MoveSpeedPtr, 6f * multiplier);
+		RunOnFrameworkThreadV(() => SafeMemory.Write(MoveSpeedPtr, 6f * multiplier));
 	}
 
 	public void SetJumpHeightMultiplier(float multiplier) {
 		CheckIfAnyZeroPtr();
-		SafeMemory.Write(JumpHeightPtr, 10.4f * multiplier);
+		RunOnFrameworkThreadV(() => SafeMemory.Write(JumpHeightPtr, 10.4f * multiplier));
 	}
 }
