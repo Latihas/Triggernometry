@@ -30,7 +30,7 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx
         /// Create 时使用 GetCreateTag() 获取默认值；Modify/Remove 时 null 表示不过滤 Tag。
         /// </summary>
         internal string Tag;
-        public string CreateTag => Tag ?? Vfx.DefaultTag;
+        public string CreateTag => Tag ?? VfxBase.DefaultTag;
 
         internal string Regex;
 

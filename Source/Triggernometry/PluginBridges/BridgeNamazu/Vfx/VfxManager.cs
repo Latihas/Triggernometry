@@ -33,8 +33,8 @@ internal static class VfxManager {
 	// }
 
 	internal static VfxModule Module => BridgeNamazu.GetModule<VfxModule>();
-	private sealed class DelayedAction
-	{
+
+	private sealed class DelayedAction {
 		public DateTime ExecuteAtUtc;
 		public string Tag;
 		public Action Action;
@@ -43,47 +43,39 @@ internal static class VfxManager {
 	private static readonly object DelayedActionLock = new object();
 	private static readonly List<DelayedAction> DelayedActions = new List<DelayedAction>();
 
-        public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null)
-        {
-            return Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
-        }
+	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null) {
+		return Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
+	}
 
-        public  static unsafe StaticVfx InitStatic(string fullPath, string tag = null)
-        {
-	        lock (StaticVfxs)
-	        {
-		        var vfxPtr = Module.StaticVfxCreate(fullPath);
+	public static unsafe StaticVfx InitStatic(string fullPath, string tag = null, Action<StaticVfx> modifier = null) {
+		return RunOnFrameworkThread(() => {
+			var vfxPtr = Module.StaticVfxCreate(fullPath);
 
-		        var vfx = new StaticVfx()
-		        {
-			        Ptr = vfxPtr,
-			        Path = fullPath,
-			        Tag = tag ?? Vfx.DefaultTag
-		        };
+			var vfx = new StaticVfx() {
+				Vfx = vfxPtr,
+				Path = fullPath,
+				Tag = tag ?? VfxBase.DefaultTag
+			};
+			lock (StaticVfxs) {
+				StaticVfxs[(IntPtr)vfx.Vfx] = vfx;
+			}
+			EnsureWorkerStarted();
 
-		        _staticVfxs[vfx.Ptr] = vfx;
-		        EnsureWorkerStarted();
+			try {
+				modifier?.Invoke(vfx);
 
-		        try
-		        {
-			        modifier?.Invoke(vfx);
+				if (!vfx.Removed)
+					Module.StaticVfxRun(vfx.Vfx);
 
-			        if (!vfx.Removed)
-				        Module.StaticVfxRun(vfx.Ptr);
+				return vfx;
+			} catch {
+				try {
+					vfx.TryRemove();
+				} catch { }
 
-			        return vfx;
-		        }
-		        catch
-		        {
-			        try
-			        {
-				        vfx.TryRemove();
-			        }
-			        catch { }
-
-			        throw;
-		        }
-	        }
+				throw;
+			}
+		});
 	}
 
 	public static unsafe bool Remove(VfxBase? vfx) {
@@ -114,7 +106,7 @@ internal static class VfxManager {
 			ActorVfxs[(IntPtr)vfx.Vfx] = vfx;
 		}
 
-            EnsureWorkerStarted();
+		EnsureWorkerStarted();
 	}
 
 	public static bool TryUnregisterActor(IntPtr ptr, out ActorVfx vfx) {
@@ -139,478 +131,411 @@ internal static class VfxManager {
 		}
 	}
 
-        #region VFX 循环
+	#region VFX 循环
 
-        private static Thread WorkerThread;
-        private static volatile bool WorkerStopping;
-        private static readonly object WorkerLock = new object();
-        private static bool WorkerStarted;
+	// private static Thread WorkerThread;
+	// private static volatile bool WorkerStopping;
+	// private static readonly object WorkerLock = new object();
+	// private static bool WorkerStarted;
 
 	public static unsafe void ScheduleRemove(VfxBase? vfx, double duration) {
 		if (vfx == null || vfx.Vfx == null || (IntPtr)vfx.Vfx == IntPtr.Zero || duration < 0) return;
 		vfx.ExpireAtUtc = DateTime.UtcNow.AddSeconds(duration);
-            EnsureWorkerStarted();
+		EnsureWorkerStarted();
 	}
 
-        private static void EnsureWorkerStarted()
-        {
-            lock (WorkerLock)
-            {
-                if (WorkerStarted)
-                    return;
-
-                WorkerStopping = false;
-                WorkerStarted = true;
-
-                WorkerThread = new Thread(WorkerLoop)
-                {
-                    IsBackground = true,
-                    Name = "VFX Worker"
-                };
-
-                WorkerThread.Start();
-            }
+	private static void EnsureWorkerStarted() {
+		// lock (WorkerLock) {
+		// 	if (WorkerStarted)
+		// 		return;
+		//
+		// 	WorkerStopping = false;
+		// 	WorkerStarted = true;
+		//
+		// 	WorkerThread = new Thread(WorkerLoop) {
+		// 		IsBackground = true,
+		// 		Name = "VFX Worker"
+		// 	};
+		//
+		// 	WorkerThread.Start();
+		// }
 	}
 
-        private static void WorkerLoop()
-        {
-            while (!WorkerStopping)
-            {
-                try
-                {
-                    ProcessVfxs();
-                }
-                catch (Exception ex)
-                {
-                    Module.ErrorLog($"[PictoACT] 定期处理 VFX 时出错：\n{ex}");
-                }
+	public static void WorkerLoop(IFramework _) {
+		// while (!WorkerStopping) {
+		// try {
+		ProcessVfxs();
+		// } catch (Exception ex) {
+		// 	Module.ErrorLog($"[PictoACT] 定期处理 VFX 时出错：\n{ex}");
+		// }
 
-                var interval = ModuleBase.GetConfig<int>("WorkerIntervalMs") ?? 10;
-                if (interval <= 0)
-                {
-                    interval = 10;
-                    ModuleBase.SetConfig("WorkerIntervalMs", interval);
-                }
+		// var interval = ModuleBase.GetConfig<int>("WorkerIntervalMs") ?? 10;
+		// if (interval <= 0) {
+		// 	interval = 10;
+		// 	ModuleBase.SetConfig("WorkerIntervalMs", interval);
+		// }
 
-                Thread.Sleep(interval);
-            }
+		// Thread.Sleep(interval);
+		// }
 
-            lock (WorkerLock)
-            {
-                WorkerStarted = false;
-                WorkerThread = null;
-            }
-        }
+		// lock (WorkerLock) {
+		// 	WorkerStarted = false;
+		// 	WorkerThread = null;
+		// }
+	}
 
-        public static void Shutdown()
-        {
-            WorkerStopping = true;
+	public static void Shutdown() {
+		// WorkerStopping = true;
 
-            lock (DelayedActionLock)
-            {
-                DelayedActions.Clear();
-            }
+		lock (DelayedActionLock) {
+			DelayedActions.Clear();
+		}
 
-            lock (ActorVfxs)
-            {
-	            ActorVfxs.Clear();
-            }
+		lock (ActorVfxs) {
+			ActorVfxs.Clear();
+		}
 
-            lock (StaticVfxs)
-            {
-	            StaticVfxs.Clear();
-            }
-        }
-
-        /// <summary>
-        /// 每轮先检查并移除过期 VFX，再刷新仍然存活且依赖实体动态参数的 StaticVfx。
-        /// </summary>
-        private static void ProcessVfxs()
-        {
-		var now = DateTime.UtcNow;
-
-            ExecuteDueDelayedActions(now);
-
-            var expired = new List<Vfx>();
-            var refreshList = new List<StaticVfx>();
-
-            lock (_actorVfxs)
-            {
-                expired.AddRange(_actorVfxs.Values
-                    .Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now)
-                    .Cast<Vfx>());
-            }
-
-            lock (_staticVfxs)
-            {
-                foreach (var vfx in _staticVfxs.Values)
-                {
-                    if (vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now)
-                    {
-                        expired.Add(vfx);
-                        continue;
-                    }
-
-                    if (vfx.PendingUpdate || vfx.RequiresRefresh)
-                    {
-                        refreshList.Add(vfx);
-                    }
-                }
-            }
-
-            RemoveExpiredVfxs(expired);
-
-            if (refreshList.Count == 0)
-                return;
-
-            RefreshStaticVfxs(refreshList);
-        }
-
-        private static void ExecuteDueDelayedActions(DateTime now)
-        {
-            List<DelayedAction> dueActions = null;
-
-            lock (DelayedActionLock)
-            {
-                for (var i = DelayedActions.Count - 1; i >= 0; i--)
-                {
-                    var item = DelayedActions[i];
-                    if (item.ExecuteAtUtc <= now)
-                    {
-                        if (dueActions == null)
-                            dueActions = new List<DelayedAction>();
-
-                        dueActions.Add(item);
-                        DelayedActions.RemoveAt(i);
-                    }
-                }
-            }
-
-            if (dueActions == null)
-                return;
-
-            // 反转，尽量按注册顺序执行。
-            foreach (var item in dueActions.Reverse<DelayedAction>())
-            {
-                try
-                {
-                    item.Action();
-                }
-                catch (Exception ex)
-                {
-                    Module.ErrorLog($"[PictoACT] 执行延迟 VFX 操作时出错：\n{ex}");
-                }
-            }
-        }
-
-        private static void RemoveExpiredVfxs(List<Vfx> expired)
-        {
-            foreach (var vfx in expired)
-            {
-                try
-                {
-			vfx.TryRemove();
-			// } catch (Exception ex) {
-			// 	Module.ErrorLog($"[PictoACT] 移除过期 VFX 时出错：\n{ex}");
-			// }
+		lock (StaticVfxs) {
+			StaticVfxs.Clear();
 		}
 	}
 
-        private static void RefreshStaticVfxs(List<StaticVfx> refreshList)
-        {
-            // 有需要动态刷新的 VFX 时，缓存实体列表。
-            var entities = BuildEntityMap();
+	/// <summary>
+	/// 每轮先检查并移除过期 VFX，再刷新仍然存活且依赖实体动态参数的 StaticVfx。
+	/// </summary>
+	private static void ProcessVfxs() {
+		var now = DateTime.UtcNow;
 
-            foreach (var vfx in refreshList)
-            {
-                try
-                {
-                    if (vfx.Removed || vfx.Ptr == IntPtr.Zero)
-                        continue;
+		ExecuteDueDelayedActions(now);
 
-                    var pendingUpdate = vfx.PendingUpdate;
-                    var stateApplied = ApplyResolvedStaticState(vfx, entities);
+		var expired = new List<VfxBase>();
+		var refreshList = new List<StaticVfx>();
 
-                    if (pendingUpdate || stateApplied)
-                    {
-                        vfx.Update();
-                        vfx.PendingUpdate = false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Module.ErrorLog($"[PictoACT] 刷新动态 VFX 时出错：\n{ex}");
-                }
-            }
-        }
+		lock (ActorVfxs) {
+			expired.AddRange(ActorVfxs.Values
+				.Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now)
+				.Cast<VfxBase>());
+		}
 
-        /// <summary>
-        /// 刷新 StaticVfx 的实际 Pos / Angles / Scales 等 VFX 属性。<br />
-        /// 可提供缓存的实体列表 entities，以供解析位姿和线性变换参数时查询实体坐标和朝向。<br />
-        /// 若未提供，则每次解析时直接查找实体。
-        /// </summary>
-        public static bool ApplyResolvedStaticState(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities)
-        {
-            if (vfx == null || vfx.Ptr == IntPtr.Zero || vfx.Removed)
-                return false;
+		lock (StaticVfxs) {
+			foreach (var vfx in StaticVfxs.Values) {
+				if (vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now) {
+					expired.Add(vfx);
+					continue;
+				}
 
-            var changed = false;
-            changed |= RefreshPoseAndTransform(vfx, entities, out double? distance);
-            changed |= RefreshScale(vfx, distance);
+				if (vfx.PendingUpdate || vfx.RequiresRefresh) {
+					refreshList.Add(vfx);
+				}
+			}
+		}
 
-            return changed;
-        }
+		RemoveExpiredVfxs(expired);
 
-        /// <summary>
-        /// 自动解析位姿和线性变换参数，并写回 vfx.Pos / vfx.Angles。
-        /// </summary>
-        private static bool RefreshPoseAndTransform(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, out double? distance)
-        {
-            distance = null;
+		if (refreshList.Count == 0)
+			return;
 
-            if (vfx.PosArg == null && vfx.TargetArg == null && !vfx.Angle3DArg.HasValue && !vfx.HasTransformArgs)
-                return false;
+		RefreshStaticVfxs(refreshList);
+	}
 
-            var pos = ResolveCoordArg(entities, vfx.PosArg);
-            var angles = ResolveAngles(vfx, entities, pos, out distance);
+	private static void ExecuteDueDelayedActions(DateTime now) {
+		List<DelayedAction> dueActions = null;
 
-            // 尚未指定过位姿参数，跳过后续流程（说明 Create 流程还没结束，可能出现于异步创建和修改的情况）
-            if (pos == null || !angles.HasValue)
-                return false;
+		lock (DelayedActionLock) {
+			for (var i = DelayedActions.Count - 1; i >= 0; i--) {
+				var item = DelayedActions[i];
+				if (item.ExecuteAtUtc <= now) {
+					if (dueActions == null)
+						dueActions = new List<DelayedAction>();
 
-            // 每次刷新时临时构造具体数学变换参数
-            if (vfx.HasTransformArgs)
-            {
-                var transform = ResolveLinearTransformArgs(vfx, entities);
-                if (transform == null)
-                    return false;
+					dueActions.Add(item);
+					DelayedActions.RemoveAt(i);
+				}
+			}
+		}
 
-                vfx.Pos = (Vector3)transform.TransformCoord(pos);
-                vfx.Angles = transform.TransformAngle3D(angles.Value);
-            }
-            else
-            {
-                vfx.Pos = (Vector3)pos;
-                vfx.Angles = angles.Value;
-            }
+		if (dueActions == null)
+			return;
 
-            return true;
-        }
+		// 反转，尽量按注册顺序执行。
+		foreach (var item in dueActions.Reverse<DelayedAction>()) {
+			try {
+				item.Action();
+			} catch (Exception ex) {
+				Module.ErrorLog($"[PictoACT] 执行延迟 VFX 操作时出错：\n{ex}");
+			}
+		}
+	}
 
-        /// <summary>
-        /// 自动解析两点位姿模式（如果指定了 Target）或单点位姿模式（如果指定了 Angle3D），并返回最终朝向。若两者都未指定，则返回 null。
-        /// </summary>
-        private static Vector3? ResolveAngles(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, XIVCoord resolvedPos, out double? distance)
-        {
-            distance = null;
+	private static void RemoveExpiredVfxs(List<VfxBase> expired) {
+		foreach (var vfx in expired) {
+			try {
+				vfx.TryRemove();
+			} catch (Exception ex) {
+				Module.ErrorLog($"[PictoACT] 移除过期 VFX 时出错：\n{ex}");
+			}
+		}
+	}
 
-            // 给定了 Target，则为两点位姿模式，以 Pos - Target 方向作为朝向，同时输出距离供后续使用。
-            if (vfx.TargetArg != null)
-            {
-                var pos = resolvedPos;
-                if (pos == null)
-                    return null;
+	private static unsafe void RefreshStaticVfxs(List<StaticVfx> refreshList) {
+		// 有需要动态刷新的 VFX 时，缓存实体列表。
+		var entities = BuildEntityMap();
 
-                var target = ResolveCoordArg(entities, vfx.TargetArg);
-                if (target == null)
-                    return null;
+		foreach (var vfx in refreshList) {
+			try {
+				if (vfx.Removed || vfx.Vfx == null)
+					continue;
 
-                var theta = AngleFromTo(pos, target);
-                distance = Distance(pos, target);
-                return new Vector3(theta, 0, 0);
-            }
+				var pendingUpdate = vfx.PendingUpdate;
+				var stateApplied = ApplyResolvedStaticState(vfx, entities);
 
-            // 否则说明没有指定 Target 的单点位姿模式，如果指定了角度则返回，否则为默认值 null
-            return vfx.Angle3DArg;
-        }
+				if (pendingUpdate || stateApplied) {
+					vfx.Update();
+					vfx.PendingUpdate = false;
+				}
+			} catch (Exception ex) {
+				Module.ErrorLog($"[PictoACT] 刷新动态 VFX 时出错：\n{ex}");
+			}
+		}
+	}
 
-        /// <summary>
-        /// 将线性变换相关参数中的实体动态参数中解析为坐标，并根据参数优先级解析为纯数学的线性变换参数。
-        /// </summary>
-        private static LinearTransformArgs ResolveLinearTransformArgs(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities)
-        {
-            var transform = new LinearTransformArgs(false);
+	/// <summary>
+	/// 刷新 StaticVfx 的实际 Pos / Angles / Scales 等 VFX 属性。<br />
+	/// 可提供缓存的实体列表 entities，以供解析位姿和线性变换参数时查询实体坐标和朝向。<br />
+	/// 若未提供，则每次解析时直接查找实体。
+	/// </summary>
+	public static unsafe bool ApplyResolvedStaticState(StaticVfx? vfx, IReadOnlyDictionary<uint, Entity> entities) {
+		if (vfx == null || vfx.Vfx == null || vfx.Removed)
+			return false;
 
-            // 解析坐标系中心 O
-            if (vfx.TransformCenterArg != null)
-            {
-                var center = ResolveCoordArg(entities, vfx.TransformCenterArg);
-                if (center == null)
-                    return null;
+		var changed = false;
+		changed |= RefreshPoseAndTransform(vfx, entities, out double? distance);
+		changed |= RefreshScale(vfx, distance);
 
-                transform.Center = center;
-            }
+		return changed;
+	}
 
-            // 如果坐标系正北以坐标形式指定，以 O - North 解析正北角度
-            if (vfx.TransformNorthCoordArg != null)
-            {
-                var center = transform.Center;
-                var target = ResolveCoordArg(entities, vfx.TransformNorthCoordArg);
-                if (target == null)
-                    return null;
+	/// <summary>
+	/// 自动解析位姿和线性变换参数，并写回 vfx.Pos / vfx.Angles。
+	/// </summary>
+	private static bool RefreshPoseAndTransform(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, out double? distance) {
+		distance = null;
 
-                transform.Rotation = AngleFromTo(center, target);
-            }
-            // 如果坐标系正北以角度形式指定，直接使用
-            else if (vfx.TransformNorthAngle.HasValue)
-            {
-                transform.Rotation = vfx.TransformNorthAngle.Value;
-            }
-            // 如果没指定坐标系正北，但中心是动态实体，则以该实体当前朝向作为坐标系正北
-            else if (vfx.TransformCenterArg?.IsDynamic == true)
-            {
-                var heading = ResolveEntityHeading(entities, vfx.TransformCenterArg.EntityId);
-                if (!heading.HasValue)
-                    return null;
+		if (vfx.PosArg == null && vfx.TargetArg == null && !vfx.Angle3DArg.HasValue && !vfx.HasTransformArgs)
+			return false;
 
-                transform.Rotation = heading.Value;
-            }
+		var pos = ResolveCoordArg(entities, vfx.PosArg);
+		var angles = ResolveAngles(vfx, entities, pos, out distance);
 
-            // 写入 KeepX / KeepY
-            if (vfx.TransformKeepX.HasValue)
-                transform.KeepX = vfx.TransformKeepX.Value;
+		// 尚未指定过位姿参数，跳过后续流程（说明 Create 流程还没结束，可能出现于异步创建和修改的情况）
+		if (pos == null || !angles.HasValue)
+			return false;
 
-            if (vfx.TransformKeepY.HasValue)
-                transform.KeepY = vfx.TransformKeepY.Value;
+		// 每次刷新时临时构造具体数学变换参数
+		if (vfx.HasTransformArgs) {
+			var transform = ResolveLinearTransformArgs(vfx, entities);
+			if (transform == null)
+				return false;
 
-            return transform;
-        }
+			vfx.Pos = (Vector3)transform.TransformCoord(pos);
+			vfx.Angles = transform.TransformAngle3D(angles.Value);
+		} else {
+			vfx.Pos = (Vector3)pos;
+			vfx.Angles = angles.Value;
+		}
 
-        private static bool RefreshScale(StaticVfx vfx, double? distance)
-        {
-            if (vfx.ScaleArg == null)
-                return false;
+		return true;
+	}
 
-            if (vfx.ScaleArg.HasDistanceToken)
-            {
-                if (vfx.PosArg == null || vfx.TargetArg == null)
-                    return false;
+	/// <summary>
+	/// 自动解析两点位姿模式（如果指定了 Target）或单点位姿模式（如果指定了 Angle3D），并返回最终朝向。若两者都未指定，则返回 null。
+	/// </summary>
+	private static Vector3? ResolveAngles(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, XIVCoord resolvedPos, out double? distance) {
+		distance = null;
 
-                if (!distance.HasValue)
-                    return false;
-            }
+		// 给定了 Target，则为两点位姿模式，以 Pos - Target 方向作为朝向，同时输出距离供后续使用。
+		if (vfx.TargetArg != null) {
+			var pos = resolvedPos;
+			if (pos == null)
+				return null;
 
-            vfx.Scales = vfx.ScaleArg.Resolve(distance ?? 0.0);
-            return true;
-        }
+			var target = ResolveCoordArg(entities, vfx.TargetArg);
+			if (target == null)
+				return null;
 
-        private static XIVCoord ResolveCoordArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg arg)
-        {
-            if (arg == null)
-                return null;
+			var theta = AngleFromTo(pos, target);
+			distance = Distance(pos, target);
+			return new Vector3(theta, 0, 0);
+		}
 
-            if (arg.IsFixed)
-                return arg.FixedCoord.Duplicate();
+		// 否则说明没有指定 Target 的单点位姿模式，如果指定了角度则返回，否则为默认值 null
+		return vfx.Angle3DArg;
+	}
 
-            if (entities?.TryGetValue(arg.EntityId, out var entity) != true)
-            {
-                entity = Entity.GetEntityByID(arg.EntityId);
-            }
+	/// <summary>
+	/// 将线性变换相关参数中的实体动态参数中解析为坐标，并根据参数优先级解析为纯数学的线性变换参数。
+	/// </summary>
+	private static LinearTransformArgs ResolveLinearTransformArgs(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities) {
+		var transform = new LinearTransformArgs(false);
 
-            if (entity == null)
-                return null;
+		// 解析坐标系中心 O
+		if (vfx.TransformCenterArg != null) {
+			var center = ResolveCoordArg(entities, vfx.TransformCenterArg);
+			if (center == null)
+				return null;
 
-            return new CartesianCoord(entity.PosX, entity.PosY, entity.PosZ);
-        }
+			transform.Center = center;
+		}
 
-        private static float? ResolveEntityHeading(IReadOnlyDictionary<uint, Entity> entities, uint entityId)
-        {
-            if (entities?.TryGetValue(entityId, out var entity) != true)
-            {
-                entity = Entity.GetEntityByID(entityId);
-            }
+		// 如果坐标系正北以坐标形式指定，以 O - North 解析正北角度
+		if (vfx.TransformNorthCoordArg != null) {
+			var center = transform.Center;
+			var target = ResolveCoordArg(entities, vfx.TransformNorthCoordArg);
+			if (target == null)
+				return null;
 
-            if (entity == null)
-                return null;
+			transform.Rotation = AngleFromTo(center, target);
+		}
+		// 如果坐标系正北以角度形式指定，直接使用
+		else if (vfx.TransformNorthAngle.HasValue) {
+			transform.Rotation = vfx.TransformNorthAngle.Value;
+		}
+		// 如果没指定坐标系正北，但中心是动态实体，则以该实体当前朝向作为坐标系正北
+		else if (vfx.TransformCenterArg?.IsDynamic == true) {
+			var heading = ResolveEntityHeading(entities, vfx.TransformCenterArg.EntityId);
+			if (!heading.HasValue)
+				return null;
 
-            return entity.Heading;
-        }
+			transform.Rotation = heading.Value;
+		}
 
-        /// <summary>
-        /// 扫描当前实体列表，并建立 EntityId 到完整 Entity 对象的映射。
-        /// 后续每个 VFX 刷新时直接从这个字典取实体，再按需读取 Pos / Heading / TargetID 等字段。
-        /// </summary>
-        private static Dictionary<uint, Entity> BuildEntityMap()
-        {
-            var result = new Dictionary<uint, Entity>();
+		// 写入 KeepX / KeepY
+		if (vfx.TransformKeepX.HasValue)
+			transform.KeepX = vfx.TransformKeepX.Value;
 
-            foreach (var entity in Entity.GetEntities())
-            {
-                if (entity == null)
-                    continue;
+		if (vfx.TransformKeepY.HasValue)
+			transform.KeepY = vfx.TransformKeepY.Value;
 
-                var id = entity.ID;
-                if (id == 0)
-                    continue;
+		return transform;
+	}
 
-                result[id] = entity;
-            }
+	private static bool RefreshScale(StaticVfx vfx, double? distance) {
+		if (vfx.ScaleArg == null)
+			return false;
 
-            return result;
-        }
+		if (vfx.ScaleArg.HasDistanceToken) {
+			if (vfx.PosArg == null || vfx.TargetArg == null)
+				return false;
 
-        private static double Distance(XIVCoord a, XIVCoord b)
-        {
-            if (a == null || b == null)
-                return 0;
+			if (!distance.HasValue)
+				return false;
+		}
 
-            var va = (Vector3)a;
-            var vb = (Vector3)b;
-            return Vector3.Distance(va, vb);
-        }
+		vfx.Scales = vfx.ScaleArg.Resolve(distance ?? 0.0);
+		return true;
+	}
 
-        private static float AngleFromTo(XIVCoord from, XIVCoord to)
-        {
-            if (from == null || to == null)
-                return (float)Math.PI;
+	private static XIVCoord ResolveCoordArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg arg) {
+		if (arg == null)
+			return null;
 
-            var a = (Vector3)from;
-            var b = (Vector3)to;
+		if (arg.IsFixed)
+			return arg.FixedCoord.Duplicate();
 
-            return (float)Math.Atan2(b.X - a.X, b.Y - a.Y);
-        }
+		if (entities?.TryGetValue(arg.EntityId, out var entity) != true) {
+			entity = Entity.GetEntityByID(arg.EntityId);
+		}
 
-        public static void ScheduleDelayedAction(string tag, double delaySeconds, Action action)
-        {
-            if (action == null)
-                throw new ArgumentNullException(nameof(action));
+		if (entity == null)
+			return null;
 
-            if (delaySeconds < 0)
-                delaySeconds = 0;
+		return new CartesianCoord(entity.PosX, entity.PosY, entity.PosZ);
+	}
 
-            var item = new DelayedAction
-            {
-                Tag = tag ?? Vfx.DefaultTag,
-                ExecuteAtUtc = DateTime.UtcNow.AddSeconds(delaySeconds),
-                Action = action,
-            };
+	private static float? ResolveEntityHeading(IReadOnlyDictionary<uint, Entity> entities, uint entityId) {
+		if (entities?.TryGetValue(entityId, out var entity) != true) {
+			entity = Entity.GetEntityByID(entityId);
+		}
 
-            lock (DelayedActionLock)
-            {
-                DelayedActions.Add(item);
-            }
+		if (entity == null)
+			return null;
 
-            EnsureWorkerStarted();
-        }
+		return entity.Heading;
+	}
 
-        public static void CancelDelayedActions(Func<string, bool> tagFilter)
-        {
-            if (tagFilter == null)
-                return;
+	/// <summary>
+	/// 扫描当前实体列表，并建立 EntityId 到完整 Entity 对象的映射。
+	/// 后续每个 VFX 刷新时直接从这个字典取实体，再按需读取 Pos / Heading / TargetID 等字段。
+	/// </summary>
+	private static Dictionary<uint, Entity> BuildEntityMap() {
+		var result = new Dictionary<uint, Entity>();
 
-            lock (DelayedActionLock)
-            {
-                for (var i = DelayedActions.Count - 1; i >= 0; i--)
-                {
-                    var item = DelayedActions[i];
-                    if (tagFilter(item.Tag))
-                    {
-                        DelayedActions.RemoveAt(i);
-                    }
-                }
-            }
-        }
+		foreach (var entity in Entity.GetEntities()) {
+			if (entity == null)
+				continue;
 
-        #endregion VFX 循环
-    }
+			var id = entity.ID;
+			if (id == 0)
+				continue;
+
+			result[id] = entity;
+		}
+
+		return result;
+	}
+
+	private static double Distance(XIVCoord? a, XIVCoord? b) {
+		if (a == null || b == null)
+			return 0;
+
+		var va = (Vector3)a;
+		var vb = (Vector3)b;
+		return Vector3.Distance(va, vb);
+	}
+
+	private static float AngleFromTo(XIVCoord? from, XIVCoord? to) {
+		if (from == null || to == null)
+			return (float)Math.PI;
+
+		var a = (Vector3)from;
+		var b = (Vector3)to;
+
+		return (float)Math.Atan2(b.X - a.X, b.Y - a.Y);
+	}
+
+	public static void ScheduleDelayedAction(string tag, double delaySeconds, Action action) {
+		if (action == null)
+			throw new ArgumentNullException(nameof(action));
+
+		if (delaySeconds < 0)
+			delaySeconds = 0;
+
+		var item = new DelayedAction {
+			Tag = tag ?? VfxBase.DefaultTag,
+			ExecuteAtUtc = DateTime.UtcNow.AddSeconds(delaySeconds),
+			Action = action,
+		};
+
+		lock (DelayedActionLock) {
+			DelayedActions.Add(item);
+		}
+
+		EnsureWorkerStarted();
+	}
+
+	public static void CancelDelayedActions(Func<string, bool> tagFilter) {
+		if (tagFilter == null)
+			return;
+
+		lock (DelayedActionLock) {
+			for (var i = DelayedActions.Count - 1; i >= 0; i--) {
+				var item = DelayedActions[i];
+				if (tagFilter(item.Tag)) {
+					DelayedActions.RemoveAt(i);
+				}
+			}
+		}
+	}
+
+	#endregion VFX 循环
 }

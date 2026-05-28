@@ -2,7 +2,7 @@
 using System.Numerics;
 using Dalamud;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
-using Triggernometry.PluginBridges.BridgeNamazu.Modules;
+using static Triggernometry.PluginBridges.BridgeNamazu.Modules.ModuleBase;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
@@ -14,21 +14,21 @@ public abstract class VfxBase {
 	public DateTime? ExpireAtUtc { get; internal set; }
 
 	public const string DefaultTag = "Auto";
-	public bool TryRemove() => VfxManager.Remove(this);
+	public virtual bool TryRemove() => VfxManager.Remove(this);
 
 	public void ScheduleRemove(double duration)
 		=> VfxManager.ScheduleRemove(this, duration);
 
 	public unsafe void Update() {
 		if (Removed) return;
-		ModuleBase.RunOnFrameworkThreadV(() => Vfx->UpdateTransforms(true));
+		RunOnFrameworkThreadV(() => Vfx->UpdateTransforms(true));
 	}
 
 	public unsafe byte Flag {
 		get => (byte)Vfx->ObjectFlags;
 		set {
 			if (Removed) return;
-			Vfx->ObjectFlags = value;
+			RunOnFrameworkThreadV(() => Vfx->ObjectFlags = value);
 		}
 	}
 
@@ -39,7 +39,7 @@ public abstract class VfxBase {
 		}
 		set {
 			if (Removed) return;
-			Vfx->Position = new Vector3(value.X, value.Z, value.Y);
+			RunOnFrameworkThreadV(() => Vfx->Position = new Vector3(value.X, value.Z, value.Y));
 		}
 	}
 
@@ -77,7 +77,7 @@ public abstract class VfxBase {
 		set {
 			if (Removed) return;
 			var q = Quaternion.CreateFromYawPitchRoll(value.Z, value.Y, value.X); // θy, θx, θ
-			Vfx->Rotation = new Quaternion(q.X, q.Z, q.Y, q.W);
+			RunOnFrameworkThreadV(() => Vfx->Rotation = new Quaternion(q.X, q.Z, q.Y, q.W));
 		}
 	}
 
@@ -88,7 +88,7 @@ public abstract class VfxBase {
 		}
 		set {
 			if (Removed) return;
-			Vfx->Scale = new Vector3(value.X, value.Z, value.Y);
+			RunOnFrameworkThreadV(() => Vfx->Scale = new Vector3(value.X, value.Z, value.Y));
 		}
 	}
 
@@ -96,7 +96,7 @@ public abstract class VfxBase {
 		get => Vfx->ActorCaster;
 		set {
 			if (Removed) return;
-			Vfx->ActorCaster = value;
+			RunOnFrameworkThreadV(() => Vfx->ActorCaster = value);
 		}
 	}
 
@@ -104,7 +104,7 @@ public abstract class VfxBase {
 		get => Vfx->ActorTarget;
 		set {
 			if (Removed) return;
-			Vfx->ActorTarget = value;
+			RunOnFrameworkThreadV(() => Vfx->ActorTarget = value);
 		}
 	}
 
@@ -112,7 +112,7 @@ public abstract class VfxBase {
 		get => Vfx->StaticCaster;
 		set {
 			if (Removed) return;
-			Vfx->StaticCaster = value;
+			RunOnFrameworkThreadV(() => Vfx->StaticCaster = value);
 		}
 	}
 
@@ -120,7 +120,7 @@ public abstract class VfxBase {
 		get => Vfx->StaticTarget;
 		set {
 			if (Removed) return;
-			Vfx->StaticTarget = value;
+			RunOnFrameworkThreadV(() => Vfx->StaticTarget = value);
 		}
 	}
 
@@ -131,7 +131,7 @@ public abstract class VfxBase {
 		}
 		set {
 			if (Removed) return;
-			SafeMemory.Write((IntPtr)(Vfx + 0x250), value);
+			RunOnFrameworkThreadV(() => SafeMemory.Write((IntPtr)(Vfx + 0x250), value));
 		}
 	}
 
@@ -139,7 +139,7 @@ public abstract class VfxBase {
 		get => Vfx->Color;
 		set {
 			if (Removed) return;
-			Vfx->Color = value;
+			RunOnFrameworkThreadV(() => Vfx->Color = value);
 		}
 	}
 }

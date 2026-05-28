@@ -7,7 +7,7 @@ using Triggernometry.Utilities.Maths;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx
 {
-    public class StaticVfx : Vfx
+    public class StaticVfx : VfxBase
     {
         /// <summary> 脏状态标记，Modify 后等待 VFX 循环统一刷新并 Update。 </summary>
         internal bool PendingUpdate;

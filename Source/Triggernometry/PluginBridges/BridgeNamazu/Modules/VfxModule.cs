@@ -95,7 +95,7 @@ public class VfxModule : ModuleBase {
 		if (GetConfig<bool>("ActorVfx") == false) return; // ignored
 		var (srcAddress, tgtAddress, vfxName, duration) = cmd.ParseArgs<IntPtr, IntPtr, string, double>((3, 3.0)); // 默认持续时间 3 秒
 		CheckIfVfxNameTooShort(vfxName, "Channeling");
-		var vfx =ChannelingCreate(srcAddress, tgtAddress, vfxName);
+		var vfx = ChannelingCreate(srcAddress, tgtAddress, vfxName);
 		if (vfx == null) return;
 		var vfxPtr = vfx.Vfx;
 		ScheduleActorVfxRemove(vfxPtr, duration);
@@ -203,13 +203,12 @@ public class VfxModule : ModuleBase {
 		var scales = new Vector3(scaleX, rawScaleY ?? scaleX, rawScaleZ ?? scaleX);
 		var color = new Vector4(r, g, b, a);
 
-            var vfx = VfxManager.InitStatic(vfxPath, Vfx.Vfx.DefaultTag, v =>
-            {
-            v.Pos = pos;
-            v.Angle = h;
-            if (scales != Vector3.One) v.Scales = scales;
-            if (color != Vector4.One) v.Color = color;
-            });
+		var vfx = VfxManager.InitStatic(vfxPath, Vfx.VfxBase.DefaultTag, v => {
+			v.Pos = pos;
+			v.Angle = h;
+			if (scales != Vector3.One) v.Scales = scales;
+			if (color != Vector4.One) v.Color = color;
+		});
 		vfx.ScheduleRemove(t);
 	}
 
@@ -218,7 +217,7 @@ public class VfxModule : ModuleBase {
 		CheckIfAnyZeroPtr();
 		CheckIfVfxPathValid(fullPath);
 		const string pool = "Client.System.Scheduler.Instance.VfxObject";
-		var vfxPtr =StaticVfxCreateD(new Utf8String(fullPath).StringPtr, new Utf8String(pool).StringPtr);
+		var vfxPtr = StaticVfxCreateD(new Utf8String(fullPath).StringPtr, new Utf8String(pool).StringPtr);
 		Custom2Log($"[StaticVfxCreate] {fullPath} @ {(IntPtr)vfxPtr:X}");
 		return vfxPtr;
 	}

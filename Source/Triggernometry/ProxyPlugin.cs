@@ -108,7 +108,7 @@ public class ProxyPlugin : IActPluginV1 {
 		// ActGlobals.oFormActMain.OnCombatEnd += OFormActMain_OnCombatEnd;
 		PluginInterface.UiBuilder.Draw += DrawScriptBdl;
 		ClientState.Logout += OnLogout;
-		Framework.Update += VfxManager.RemoveWorkerLoop;
+		Framework.Update += VfxManager.WorkerLoop;
 		if (dalamudPlugin.ConfigurationInstance.Version != latestVer) {
 			try {
 				RealPlugin.Instance.cfg.CompileFailedScripts.Clear();
@@ -165,7 +165,7 @@ public class ProxyPlugin : IActPluginV1 {
 		ActGlobals.oFormActMain.OnLogLineRead -= OFormActMain_OnLogLineRead;
 		ActGlobals.oFormActMain.BeforeLogLineRead -= OFormActMain_BeforeLogLineRead;
 		PluginInterface.UiBuilder.Draw -= DrawScriptBdl;
-		Framework.Update -= VfxManager.RemoveWorkerLoop;
+		Framework.Update -= VfxManager.WorkerLoop;
 		ClientState.Logout -= OnLogout;
 		StaticVfxRemoveHook.Disable();
 		StaticVfxRemoveHook.Dispose();

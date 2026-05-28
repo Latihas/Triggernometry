@@ -13,6 +13,7 @@ using Triggernometry.Core.Variables;
 using Triggernometry.FFXIV;
 using Triggernometry.Localization;
 using Triggernometry.PluginBridges;
+using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 using Triggernometry.PluginBridges.ExternalTools;
 using Triggernometry.PScript;
 using Triggernometry.UI.CustomControls;
@@ -98,7 +99,7 @@ public partial class RealPlugin {
 	public VariableStore sessionvars = new();
 	internal ObsController _obs;
 	internal LiveSplitController _livesplit;
-	internal CancellationTokenSource cts;
+	internal CancellationTokenSource? cts;
 	internal object ctslock = new();
 	// public Form mainform { get; set; }
 	internal int MinX = int.MaxValue, MinY = int.MaxValue, MaxX = int.MinValue, MaxY = int.MinValue;
@@ -241,10 +242,10 @@ public partial class RealPlugin {
 			*/
 			ChangeLanguage("简体中文 (zh-CN)");
 			// end
-                HandleVersionUpdate();
-                FixDuplicateFolderReferences(null, cfg, null);
-                PluginBridges.BridgeFFXIV.cfg = cfg;
-                
+			HandleVersionUpdate();
+			FixDuplicateFolderReferences(null, cfg, null);
+			PluginBridges.BridgeFFXIV.cfg = cfg;
+
 			exwhere = I18n.Translate("internal/Plugin/iniactui", "setting up ACT ui");
 			// mytp = pluginScreenSpace;
 			// pluginScreenSpace.Text = "Triggernometry";
@@ -397,7 +398,7 @@ public partial class RealPlugin {
 			cts = null;
 		}
 		DeInitAudio();
-            VfxManager.Shutdown();
+		VfxManager.Shutdown();
 		_instance = null;
 	}
 
