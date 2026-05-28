@@ -232,9 +232,6 @@ public partial class RealPlugin {
 			SetupDefaultSecurity();
 			AutofixConfiguration();
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-			HandleVersionUpdate();
-			FixDuplicateFolderReferences(null, cfg, null);
-			BridgeFFXIV.cfg = cfg;
 			// start
 			/*
 			if (cfg.Language != null)
@@ -244,6 +241,10 @@ public partial class RealPlugin {
 			*/
 			ChangeLanguage("简体中文 (zh-CN)");
 			// end
+                HandleVersionUpdate();
+                FixDuplicateFolderReferences(null, cfg, null);
+                PluginBridges.BridgeFFXIV.cfg = cfg;
+                
 			exwhere = I18n.Translate("internal/Plugin/iniactui", "setting up ACT ui");
 			// mytp = pluginScreenSpace;
 			// pluginScreenSpace.Text = "Triggernometry";
@@ -396,11 +397,7 @@ public partial class RealPlugin {
 			cts = null;
 		}
 		DeInitAudio();
-		// if (ui != null)
-		// {
-		//     ui.Dispose();
-		//     ui = null;
-		// }
+            VfxManager.Shutdown();
 		_instance = null;
 	}
 

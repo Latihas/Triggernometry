@@ -203,12 +203,13 @@ public class VfxModule : ModuleBase {
 		var scales = new Vector3(scaleX, rawScaleY ?? scaleX, rawScaleZ ?? scaleX);
 		var color = new Vector4(r, g, b, a);
 
-		var vfx = VfxManager.InitStatic(vfxPath, VfxBase.DefaultTag);
-		vfx.Pos = pos;
-		vfx.Angle = h;
-		if (scales != Vector3.One) vfx.Scales = scales;
-		if (color != Vector4.One) vfx.Color = color;
-		vfx.Update();
+            var vfx = VfxManager.InitStatic(vfxPath, Vfx.Vfx.DefaultTag, v =>
+            {
+            v.Pos = pos;
+            v.Angle = h;
+            if (scales != Vector3.One) v.Scales = scales;
+            if (color != Vector4.One) v.Color = color;
+            });
 		vfx.ScheduleRemove(t);
 	}
 
