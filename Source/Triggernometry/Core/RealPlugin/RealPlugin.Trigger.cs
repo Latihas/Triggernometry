@@ -138,7 +138,7 @@ public partial class RealPlugin {
 			if ((forceType & ActionOld.TriggerForceTypeEnum.SkipParent) == 0) {
 				var reason = trigger.Parent.PassesFilter(logEvent);
 				if (reason != Folder.FilterFailReason.Passed) {
-					if (reason != Folder.FilterFailReason.NotEnabled) 
+					if (reason != Folder.FilterFailReason.NotEnabled)
 						trigger.AddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trigparentfail", "Trigger '{0}' doesn't pass parent folder '{1}' filter(s): {2}", trigger.LogName, trigger.Parent.Name, reason.ToString()));
 					return;
 				}

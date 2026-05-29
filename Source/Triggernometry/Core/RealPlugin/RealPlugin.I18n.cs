@@ -19,7 +19,7 @@ public partial class RealPlugin {
 	internal void ChangeLanguage(string langname) {
 		FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchange", "Changing language from '{0}' to '{1}'",
 			I18n.CurrentLanguage != null ? I18n.CurrentLanguage.LanguageName : "(not set)",
-                langname ?? "(default)"
+			langname ?? "(default)"
 		));
 		if (I18n.ChangeLanguage(langname)) {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchangeok", "Language is now '{0}'",
@@ -35,7 +35,7 @@ public partial class RealPlugin {
 		} else {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchangefail", "Couldn't change language from '{0}' to '{1}'",
 				I18n.CurrentLanguage != null ? I18n.CurrentLanguage.LanguageName : "(not set)",
-                    langname ?? "(default)"
+				langname ?? "(default)"
 			));
 		}
 	}

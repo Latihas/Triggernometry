@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
-using Triggernometry.FFXIV;
 using Dalamud.Plugin.Services;
+using Triggernometry.FFXIV;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using Triggernometry.Utilities.Maths;
 using static Triggernometry.PluginBridges.BridgeNamazu.Modules.ModuleBase;
@@ -40,18 +39,16 @@ internal static class VfxManager {
 		public Action Action;
 	}
 
-	private static readonly object DelayedActionLock = new object();
-	private static readonly List<DelayedAction> DelayedActions = new List<DelayedAction>();
+	private static readonly object DelayedActionLock = new();
+	private static readonly List<DelayedAction> DelayedActions = new();
 
-	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null) {
-		return Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
-	}
+	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null) => Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
 
 	public static unsafe StaticVfx InitStatic(string fullPath, string tag = null, Action<StaticVfx> modifier = null) {
 		return RunOnFrameworkThread(() => {
 			var vfxPtr = Module.StaticVfxCreate(fullPath);
 
-			var vfx = new StaticVfx() {
+			var vfx = new StaticVfx {
 				Vfx = vfxPtr,
 				Path = fullPath,
 				Tag = tag ?? VfxBase.DefaultTag
@@ -168,7 +165,7 @@ internal static class VfxManager {
 	}
 
 	/// <summary>
-	/// 每轮先检查并移除过期 VFX，再刷新仍然存活且依赖实体动态参数的 StaticVfx。
+	///     每轮先检查并移除过期 VFX，再刷新仍然存活且依赖实体动态参数的 StaticVfx。
 	/// </summary>
 	private static void ProcessVfxs() {
 		var now = DateTime.UtcNow;
@@ -180,8 +177,7 @@ internal static class VfxManager {
 
 		lock (ActorVfxs) {
 			expired.AddRange(ActorVfxs.Values
-				.Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now)
-				.Cast<VfxBase>());
+				.Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now));
 		}
 
 		lock (StaticVfxs) {
@@ -267,23 +263,23 @@ internal static class VfxManager {
 	}
 
 	/// <summary>
-	/// 刷新 StaticVfx 的实际 Pos / Angles / Scales 等 VFX 属性。<br />
-	/// 可提供缓存的实体列表 entities，以供解析位姿和线性变换参数时查询实体坐标和朝向。<br />
-	/// 若未提供，则每次解析时直接查找实体。
+	///     刷新 StaticVfx 的实际 Pos / Angles / Scales 等 VFX 属性。<br />
+	///     可提供缓存的实体列表 entities，以供解析位姿和线性变换参数时查询实体坐标和朝向。<br />
+	///     若未提供，则每次解析时直接查找实体。
 	/// </summary>
 	public static unsafe bool ApplyResolvedStaticState(StaticVfx? vfx, IReadOnlyDictionary<uint, Entity> entities) {
 		if (vfx == null || vfx.Vfx == null || vfx.Removed)
 			return false;
 
 		var changed = false;
-		changed |= RefreshPoseAndTransform(vfx, entities, out double? distance);
+		changed |= RefreshPoseAndTransform(vfx, entities, out var distance);
 		changed |= RefreshScale(vfx, distance);
 
 		return changed;
 	}
 
 	/// <summary>
-	/// 自动解析位姿和线性变换参数，并写回 vfx.Pos / vfx.Angles。
+	///     自动解析位姿和线性变换参数，并写回 vfx.Pos / vfx.Angles。
 	/// </summary>
 	private static bool RefreshPoseAndTransform(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, out double? distance) {
 		distance = null;
@@ -315,7 +311,7 @@ internal static class VfxManager {
 	}
 
 	/// <summary>
-	/// 自动解析两点位姿模式（如果指定了 Target）或单点位姿模式（如果指定了 Angle3D），并返回最终朝向。若两者都未指定，则返回 null。
+	///     自动解析两点位姿模式（如果指定了 Target）或单点位姿模式（如果指定了 Angle3D），并返回最终朝向。若两者都未指定，则返回 null。
 	/// </summary>
 	private static Vector3? ResolveAngles(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, XIVCoord resolvedPos, out double? distance) {
 		distance = null;
@@ -340,10 +336,10 @@ internal static class VfxManager {
 	}
 
 	/// <summary>
-	/// 将线性变换相关参数中的实体动态参数中解析为坐标，并根据参数优先级解析为纯数学的线性变换参数。
+	///     将线性变换相关参数中的实体动态参数中解析为坐标，并根据参数优先级解析为纯数学的线性变换参数。
 	/// </summary>
 	private static LinearTransformArgs ResolveLinearTransformArgs(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities) {
-		var transform = new LinearTransformArgs(false);
+		var transform = new LinearTransformArgs();
 
 		// 解析坐标系中心 O
 		if (vfx.TransformCenterArg != null) {
@@ -431,8 +427,8 @@ internal static class VfxManager {
 	}
 
 	/// <summary>
-	/// 扫描当前实体列表，并建立 EntityId 到完整 Entity 对象的映射。
-	/// 后续每个 VFX 刷新时直接从这个字典取实体，再按需读取 Pos / Heading / TargetID 等字段。
+	///     扫描当前实体列表，并建立 EntityId 到完整 Entity 对象的映射。
+	///     后续每个 VFX 刷新时直接从这个字典取实体，再按需读取 Pos / Heading / TargetID 等字段。
 	/// </summary>
 	private static Dictionary<uint, Entity> BuildEntityMap() {
 		var result = new Dictionary<uint, Entity>();
@@ -480,7 +476,7 @@ internal static class VfxManager {
 		var item = new DelayedAction {
 			Tag = tag ?? VfxBase.DefaultTag,
 			ExecuteAtUtc = DateTime.UtcNow.AddSeconds(delaySeconds),
-			Action = action,
+			Action = action
 		};
 
 		lock (DelayedActionLock) {

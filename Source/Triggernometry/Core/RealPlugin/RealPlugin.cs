@@ -244,7 +244,7 @@ public partial class RealPlugin {
 			// end
 			HandleVersionUpdate();
 			FixDuplicateFolderReferences(null, cfg, null);
-			PluginBridges.BridgeFFXIV.cfg = cfg;
+			BridgeFFXIV.cfg = cfg;
 
 			exwhere = I18n.Translate("internal/Plugin/iniactui", "setting up ACT ui");
 			// mytp = pluginScreenSpace;

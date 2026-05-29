@@ -203,7 +203,7 @@ public class VfxModule : ModuleBase {
 		var scales = new Vector3(scaleX, rawScaleY ?? scaleX, rawScaleZ ?? scaleX);
 		var color = new Vector4(r, g, b, a);
 
-		var vfx = VfxManager.InitStatic(vfxPath, Vfx.VfxBase.DefaultTag, v => {
+		var vfx = VfxManager.InitStatic(vfxPath, VfxBase.DefaultTag, v => {
 			v.Pos = pos;
 			v.Angle = h;
 			if (scales != Vector3.One) v.Scales = scales;

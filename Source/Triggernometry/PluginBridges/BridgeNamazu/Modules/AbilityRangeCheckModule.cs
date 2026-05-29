@@ -20,7 +20,7 @@ public class AbilityRangeCheckModule : ModuleBase {
 	internal void CbDisableAbilityRangeCheck(string cmd) {
 		CheckBeforeExecution(cmd);
 		var shouldDisable = cmd.ParseDataOrDefault(true);
-		 DisableAbilityRangeCheck(shouldDisable);
+		DisableAbilityRangeCheck(shouldDisable);
 	}
 
 	public void DisableAbilityRangeCheck(bool shouldDisable) {

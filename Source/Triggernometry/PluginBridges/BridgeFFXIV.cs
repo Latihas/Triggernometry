@@ -61,7 +61,7 @@ public static class BridgeFFXIV {
 		try {
 			var plug = GetInstance();
 			var dataRepositoryInstance = GetDataRepositoryInstance(plug);
-			return dataRepositoryInstance?.GetType().GetMethod("GetCurrentFFXIVProcess")?.Invoke(dataRepositoryInstance, null) as  Process;
+			return dataRepositoryInstance?.GetType().GetMethod("GetCurrentFFXIVProcess")?.Invoke(dataRepositoryInstance, null) as Process;
 		} catch (Exception ex) {
 			LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/procexception", "Exception in FFXIV process retrieve: {0}", ex.Message));
 		}

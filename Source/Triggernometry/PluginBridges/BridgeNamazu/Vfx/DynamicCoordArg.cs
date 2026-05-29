@@ -2,89 +2,76 @@
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Utilities.Maths;
 
-namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx
-{
-    internal enum CoordArgKind
-    {
-        Fixed,
-        EntityId,
-    }
+namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
-    internal sealed class DynamicCoordArg
-    {
-        public CoordArgKind Kind { get; private set; }
+internal enum CoordArgKind {
+	Fixed,
+	EntityId
+}
 
-        public XIVCoord FixedCoord { get; private set; }
+internal sealed class DynamicCoordArg {
+	public CoordArgKind Kind { get; private set; }
 
-        public uint EntityId { get; private set; }
+	public XIVCoord FixedCoord { get; private set; }
 
-        public bool IsFixed => Kind == CoordArgKind.Fixed;
-        public bool IsDynamic => Kind == CoordArgKind.EntityId;
+	public uint EntityId { get; private set; }
 
-        private DynamicCoordArg()
-        {
-        }
+	public bool IsFixed => Kind == CoordArgKind.Fixed;
+	public bool IsDynamic => Kind == CoordArgKind.EntityId;
 
-        public static DynamicCoordArg FromCoord(XIVCoord coord)
-        {
-            if (coord == null)
-                throw new ArgumentNullException(nameof(coord));
+	private DynamicCoordArg() {
+	}
 
-            return new DynamicCoordArg
-            {
-                Kind = CoordArgKind.Fixed,
-                FixedCoord = coord,
-            };
-        }
+	public static DynamicCoordArg FromCoord(XIVCoord coord) {
+		if (coord == null)
+			throw new ArgumentNullException(nameof(coord));
 
-        public static DynamicCoordArg FromEntityId(uint entityId)
-        {
-            return new DynamicCoordArg
-            {
-                Kind = CoordArgKind.EntityId,
-                EntityId = entityId,
-            };
-        }
+		return new DynamicCoordArg {
+			Kind = CoordArgKind.Fixed,
+			FixedCoord = coord
+		};
+	}
 
-        public static DynamicCoordArg Parse(string raw)
-        {
-            if (string.IsNullOrWhiteSpace(raw))
-                return null;
+	public static DynamicCoordArg FromEntityId(uint entityId) => new() {
+		Kind = CoordArgKind.EntityId,
+		EntityId = entityId
+	};
 
-            raw = raw.Trim();
+	public static DynamicCoordArg Parse(string raw) {
+		if (string.IsNullOrWhiteSpace(raw))
+			return null;
 
-            if (TryParseEntityId(raw, out var entityId))
-                return FromEntityId(entityId);
+		raw = raw.Trim();
 
-            return FromCoord(XIVCoord.ParseRawData(raw));
-        }
+		if (TryParseEntityId(raw, out var entityId))
+			return FromEntityId(entityId);
 
-        public DynamicCoordArg Duplicate()
-        {
-            if (Kind == CoordArgKind.Fixed)
-                return FromCoord(FixedCoord.Duplicate());
+		return FromCoord(XIVCoord.ParseRawData(raw));
+	}
 
-            return FromEntityId(EntityId);
-        }
+	public DynamicCoordArg Duplicate() {
+		if (Kind == CoordArgKind.Fixed)
+			return FromCoord(FixedCoord.Duplicate());
 
-        internal static bool TryParseEntityId(string raw, out uint entityId)
-        {
-            entityId = 0;
+		return FromEntityId(EntityId);
+	}
 
-            if (string.IsNullOrWhiteSpace(raw))
-                return false;
+	internal static bool TryParseEntityId(string raw, out uint entityId) {
+		entityId = 0;
 
-            raw = raw.Trim();
+		if (string.IsNullOrWhiteSpace(raw))
+			return false;
 
-            if (raw.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-                raw = raw.Substring(2);
+		raw = raw.Trim();
 
-            if (!raw.TryParseHexUInt(out entityId))
-                return false;
+		if (raw.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+			raw = raw.Substring(2);
 
-            return
-                (entityId >= 0x10000000 && entityId <= 0x10FFFFFF) ||
-                (entityId >= 0x40000000 && entityId <= 0x40FFFFFF);
-        }
-    }
+		if (!raw.TryParseHexUInt(out entityId))
+			return false;
+
+		return
+			entityId >= 0x10000000 && entityId <= 0x10FFFFFF ||
+			entityId >= 0x40000000 && entityId <= 0x40FFFFFF;
+	}
 }

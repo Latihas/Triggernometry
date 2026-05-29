@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Triggernometry.Expressions.String.Models;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
@@ -16,7 +13,7 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using static DataStringHelper;
 
 /// <summary>
-/// 基于 VfxModule，仅用作参数解析和指令分发
+///     基于 VfxModule，仅用作参数解析和指令分发
 /// </summary>
 public class PictoACTModule : ModuleBase {
 	public PictoACTModule() {
@@ -28,11 +25,11 @@ public class PictoACTModule : ModuleBase {
 	private enum RemoveVfxType {
 		Static,
 		Actor,
-		All,
+		All
 	}
 
 	private RemoveVfxType ParseRemoveType(StaticVfxArgs args) {
-		var raw = args.Raw != null && args.Raw.TryGet("Type", out string type)
+		var raw = args.Raw != null && args.Raw.TryGet("Type", out var type)
 			? type
 			: null;
 
@@ -96,7 +93,7 @@ public class PictoACTModule : ModuleBase {
 
 			// todo 应该放进 staticvfxargs
 			// 尚未实现 shouldLog
-			bool shouldLog = args.Raw?.TryGet("Log", out string rawLog) == true && rawLog.ParseData<bool>(); // default false
+			var shouldLog = args.Raw?.TryGet("Log", out var rawLog) == true && rawLog.ParseData<bool>(); // default false
 
 			switch (args.Action) {
 				case StaticVfxAction.Create:
@@ -136,7 +133,7 @@ public class PictoACTModule : ModuleBase {
 
 		var vfx = VfxManager.InitStatic(args.VfxPath, args.CreateTag, _vfx => {
 			// 设置 vfx 参数并更新
-			ApplyStaticVfxArgs(_vfx, args, isCreate: true);
+			ApplyStaticVfxArgs(_vfx, args, true);
 		});
 
 		// 如果提供了时间参数，则写入移除时间
@@ -158,7 +155,7 @@ public class PictoACTModule : ModuleBase {
 			.ToList();
 
 		foreach (var vfx in vfxs) {
-			ApplyStaticVfxArgs(vfx, args, isCreate: false);
+			ApplyStaticVfxArgs(vfx, args, false);
 		}
 	}
 
@@ -215,7 +212,7 @@ public class PictoACTModule : ModuleBase {
 		var raw = args.Raw ?? throw new ArgumentException("[PictoACT] Triangulate 缺少原始参数。");
 
 		var t = args.Time ?? 0.0;
-		string tag = args.CreateTag;
+		var tag = args.CreateTag;
 
 		// 等腰直角三角形 Omen，顶点位于直角，朝向直角开口方向，斜边长 1
 		var vfxPath = "vfx/omen/eff/x6d3_b2_triangle90_p1.avfx";
@@ -243,7 +240,7 @@ public class PictoACTModule : ModuleBase {
 					Color = args.Color
 				};
 
-				v.ApplyArgs(triArgs, isCreate: true);
+				v.ApplyArgs(triArgs, true);
 				VfxManager.ApplyResolvedStaticState(v, null);
 
 				v.Scales = new Vector3(tri.ScaleX, tri.ScaleY, 1f) * 1.414f;
@@ -270,10 +267,10 @@ public class PictoACTModule : ModuleBase {
 		var dPos = data.TryGet("dpos", out var dPosRaw) ? XIVCoord.ParseRawData(dPosRaw) : null;
 		var dθ = data.TryGet(out var dθRaw, "dθ", "dTheta") ? dθRaw.ParseData<double>() : (double?)null;
 		var dt = data.Get("dt").ParseData<float>();
-		var n0 = data.TryGet("n0", out string rawN0) ? rawN0.ParseData<float>() : 0; // 初始地火在给定位置 = 0，在给定位置的下一个 = 1，...
+		var n0 = data.TryGet("n0", out var rawN0) ? rawN0.ParseData<float>() : 0; // 初始地火在给定位置 = 0，在给定位置的下一个 = 1，...
 
 		// 地火需要修改、检查的参数
-		var delay0 = data.TryGet("Delay0", out string rawDelay) ? rawDelay.ParseData<float>() : 0f;
+		var delay0 = data.TryGet("Delay0", out var rawDelay) ? rawDelay.ParseData<float>() : 0f;
 		var t = args.Time.HasValue ? (float)args.Time.Value : data.Get("Time", "t").ParseData<float>();
 
 		// 这里只处理固定 Pos；如果 Pos 是实体 id，后续应交给 StaticVfx.Refresh 的动态解析逻辑处理

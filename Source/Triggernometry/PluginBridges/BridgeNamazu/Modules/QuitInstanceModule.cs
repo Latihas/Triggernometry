@@ -18,11 +18,11 @@ public class QuitInstanceModule : ModuleBase {
 	internal void CbQuitInstance(string cmd) {
 		CheckBeforeExecution(cmd);
 		var shouldForceQuit = cmd.ParseDataOrDefault(false);
-	QuitInstance(shouldForceQuit);
+		QuitInstance(shouldForceQuit);
 	}
 
 	public void QuitInstance(bool shouldForceQuit) {
 		CheckIfAnyZeroPtr();
-		RunOnFrameworkThreadV(() =>	QuitInstanceD((byte)(shouldForceQuit ? 1 : 0)));
+		RunOnFrameworkThreadV(() => QuitInstanceD((byte)(shouldForceQuit ? 1 : 0)));
 	}
 }

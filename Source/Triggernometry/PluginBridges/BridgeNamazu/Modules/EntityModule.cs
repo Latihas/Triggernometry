@@ -183,7 +183,7 @@ public class EntityModule : ModuleBase {
 	internal void CbPlayActionTimeline(string cmd) {
 		CheckBeforeExecution(cmd);
 		var (objectPtr, timelineId, a3, a4) = cmd.ParseArgs<IntPtr, ushort, ushort, bool>((2, 0L), (3, false));
-		 PlayActionTimeline(objectPtr, timelineId, a3, a4);
+		PlayActionTimeline(objectPtr, timelineId, a3, a4);
 	}
 
 	public unsafe void SetPos(IntPtr objectAddress, float x, float y, float z) {
