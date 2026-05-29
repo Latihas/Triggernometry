@@ -26,13 +26,11 @@ public static class HttpHelper {
 	public static async Task<string> GetStringAsync(string url, CancellationToken? ct = null) {
 		var token = ct ?? CancellationToken.None;
 		try {
-			using (var req = new HttpRequestMessage(HttpMethod.Get, url)) {
-				req.Headers.UserAgent.ParseAdd(USER_AGENT);
-				using (var resp = await client.SendAsync(req, token)) {
-					resp.EnsureSuccessStatusCode();
-					return await resp.Content.ReadAsStringAsync();
-				}
-			}
+			using var req = new HttpRequestMessage(HttpMethod.Get, url);
+			req.Headers.UserAgent.ParseAdd(USER_AGENT);
+			using var resp = await client.SendAsync(req, token);
+			resp.EnsureSuccessStatusCode();
+			return await resp.Content.ReadAsStringAsync(token);
 		} catch (TaskCanceledException ex) {
 			if (token.IsCancellationRequested)
 				throw new OperationCanceledException(ex.Message, token); // cancelled by caller
@@ -53,13 +51,11 @@ public static class HttpHelper {
 	public static async Task<byte[]> GetBytesAsync(string url, CancellationToken? ct = null) {
 		var token = ct ?? CancellationToken.None;
 		try {
-			using (var req = new HttpRequestMessage(HttpMethod.Get, url)) {
-				req.Headers.UserAgent.ParseAdd(USER_AGENT);
-				using (var resp = await client.SendAsync(req, token)) {
-					resp.EnsureSuccessStatusCode();
-					return await resp.Content.ReadAsByteArrayAsync();
-				}
-			}
+			using var req = new HttpRequestMessage(HttpMethod.Get, url);
+			req.Headers.UserAgent.ParseAdd(USER_AGENT);
+			using var resp = await client.SendAsync(req, token);
+			resp.EnsureSuccessStatusCode();
+			return await resp.Content.ReadAsByteArrayAsync(token);
 		} catch (TaskCanceledException ex) {
 			if (token.IsCancellationRequested)
 				throw new OperationCanceledException(ex.Message, token); // cancelled by caller
