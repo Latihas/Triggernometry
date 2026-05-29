@@ -14,10 +14,7 @@ namespace Triggernometry.PluginBridges.BridgeNamazu;
 public class GreyMagicMemoryBase {
 	// private static readonly Lock ExecLock = new();
 
-	public static void ExecuteWithLock(Action a) => ProxyPlugin.Framework.RunOnTick(() => {
-		// lock (ExecLock)
-		a();
-	});
+	public static void ExecuteWithLock(Action a) => ProxyPlugin.Framework.RunOnTick(a);
 
 	// public static T ExecuteWithLock<T>(Func<T> a) => ProxyPlugin.Framework.RunOnTick(() => {
 	// 	lock (ExecLock) return a();
