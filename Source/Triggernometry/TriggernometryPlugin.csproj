@@ -4,13 +4,8 @@
     <RootNamespace>Triggernometry</RootNamespace>
     <AssemblyName>Triggernometry</AssemblyName>
     <UseWindowsForms>true</UseWindowsForms>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>2.99.99.99</Version>
-    <AssemblyVersion>2.99.99.99</AssemblyVersion>
-    <FileVersion>2.99.99.99</FileVersion>
-    <Nullable>enable</Nullable>
     <Use_DalamudPackager>false</Use_DalamudPackager>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../../NotACT/NotACT.csproj"/>
