@@ -5,7 +5,7 @@ using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
-internal sealed class ScaleArg {
+internal sealed partial class ScaleArg {
 	private readonly ScaleTerm X;
 	private readonly ScaleTerm Y;
 	private readonly ScaleTerm Z;
@@ -52,8 +52,8 @@ internal sealed class ScaleArg {
 		(float)Z.Resolve(distance));
 
 
-	private sealed class ScaleTerm {
-		private static readonly Regex DistanceTokenRegex = new(@"\b_d\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+	private sealed partial class ScaleTerm {
+		private static readonly Regex DistanceTokenRegex = MyDistanceTokenRegex();
 
 		private readonly bool _hasDistanceToken;
 		private readonly double _value;
@@ -91,5 +91,8 @@ internal sealed class ScaleArg {
 		public double Resolve(double distance) => _hasDistanceToken
 			? _replaceDistance(distance).ParseData<double>()
 			: _value;
+
+		[GeneratedRegex(@"\b_d\b", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+		private static partial Regex MyDistanceTokenRegex();
 	}
 }

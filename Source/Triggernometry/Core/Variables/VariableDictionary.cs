@@ -249,8 +249,8 @@ public sealed class VariableDictionary : Variable {
 		foreach (var pair in pairs) {
 			var sepIndex = pair.IndexOf(kvSeparator);
 			var sep = sepIndex >= 0;
-			var k = sep ? pair.Substring(0, sepIndex) : pair;
-			var v = sep ? pair.Substring(sepIndex + 1) : "";
+			var k = sep ? pair[..sepIndex] : pair;
+			var v = sep ? pair[(sepIndex + 1)..] : "";
 			vd.SetValue(k, v, changer);
 		}
 		return vd;

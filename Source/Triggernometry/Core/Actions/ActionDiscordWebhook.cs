@@ -70,7 +70,7 @@ internal class ActionDiscordWebhook : ActionBase {
 		var url = ctx.EvaluateStringExpression(ActionContextLogger, ctx, WebhookURL);
 		if (UseTTS) {
 			if (msg.Length > 1970) {
-				msg = msg.Substring(0, 1970);
+				msg = msg[..1970];
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/warndiscordtrunc", "Discord message too long, capping to {0}", msg.Length));
 			}
 			var wh = JsonSerializer.Serialize(new {
@@ -80,7 +80,7 @@ internal class ActionDiscordWebhook : ActionBase {
 			SendJson(ctx, ActionOld.HTTPMethodEnum.POST, url, wh, null, true);
 		} else {
 			if (msg.Length > 1980) {
-				msg = msg.Substring(0, 1980);
+				msg = msg[..1980];
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/Action/warndiscordtrunc", "Discord message too long, capping to {0}", msg.Length));
 			}
 			var wh = JsonSerializer.Serialize(new {

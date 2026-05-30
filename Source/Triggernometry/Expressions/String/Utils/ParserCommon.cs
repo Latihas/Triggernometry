@@ -5,8 +5,8 @@ using System.Text.RegularExpressions;
 
 namespace Triggernometry.Expressions.String.Utils;
 
-public static class ParserCommon {
-	internal static Regex reHex8 = new("^[0-9A-Fa-f]{1,8}$", RegexOptions.Compiled);
+public static partial class ParserCommon {
+	internal static Regex reHex8 = Hex8Regex();
 	public const char LINEBREAK = '⏎';
 	public const string LINEBREAK_STR = "⏎";
 	public const int MAX_DEPTH = 10000;
@@ -61,4 +61,7 @@ public static class ParserCommon {
 			.Replace("__FLP__", "（").Replace("__FRP__", "）");
 		return sb.ToString();
 	}
+
+	[GeneratedRegex("^[0-9A-Fa-f]{1,8}$", RegexOptions.Compiled)]
+	private static partial Regex Hex8Regex();
 }

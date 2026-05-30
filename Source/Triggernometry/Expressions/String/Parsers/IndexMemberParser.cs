@@ -67,14 +67,14 @@ internal static class IndexMemberParser {
 			case "_row": return $"${{{ctx.varName}[{expr.Index}][{ctx.tableRowIndex}]}}";
 			case "_colrl": {
 				var colonIndex = ctx.varName.IndexOf(":");
-				var prefix = ctx.varName.Substring(0, colonIndex) + "dl" + ctx.varName.Substring(colonIndex);
+				var prefix = ctx.varName[..colonIndex] + "dl" + ctx.varName[colonIndex..];
 				var colHeader = $"${{{ctx.varName}[{ctx.tableColIndex}][1]}}";
 				var rowHeader = expr.Index;
 				return $"${{{prefix}[{colHeader}][{rowHeader}]}}";
 			}
 			case "_rowcl": {
 				var colonIndex = ctx.varName.IndexOf(":");
-				var prefix = ctx.varName.Substring(0, colonIndex) + "dl" + ctx.varName.Substring(colonIndex);
+				var prefix = ctx.varName[..colonIndex] + "dl" + ctx.varName[colonIndex..];
 				var colHeader = expr.Index;
 				var rowHeader = $"${{{ctx.varName}[1][{ctx.tableRowIndex}]}}";
 				return $"${{{prefix}[{colHeader}][{rowHeader}]}}";

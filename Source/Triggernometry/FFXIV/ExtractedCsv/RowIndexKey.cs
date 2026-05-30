@@ -25,8 +25,8 @@ public readonly struct RowIndexKey : IEquatable<RowIndexKey> {
 		}
 
 		return new RowIndexKey(
-			int.Parse(s.Substring(0, dot)),
-			int.Parse(s.Substring(dot + 1))
+			int.Parse(s[..dot]),
+			int.Parse(s[(dot + 1)..])
 		);
 	}
 

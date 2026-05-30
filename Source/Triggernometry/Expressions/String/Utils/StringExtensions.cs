@@ -46,7 +46,7 @@ public static class StringExtensions {
 		while (start < s.Length && s[start].IsWhiteSpaceEx())
 			start++;
 
-		return start == 0 ? s : s.Substring(start);
+		return start == 0 ? s : s[start..];
 	}
 
 	/// <summary>
@@ -61,7 +61,7 @@ public static class StringExtensions {
 		while (end >= 0 && s[end].IsWhiteSpaceEx())
 			end--;
 
-		return end == s.Length - 1 ? s : s.Substring(0, end + 1);
+		return end == s.Length - 1 ? s : s[..(end + 1)];
 	}
 
 	/// <summary>

@@ -168,7 +168,7 @@ public readonly struct IndexMemberExpression {
 			// '[' is straightforward: take the substring before it
 			if (c == '[' && lBracketPos == -1) {
 				lBracketPos = i;
-				return expr.Substring(0, i);
+				return expr[..i];
 			}
 
 			// '.' may appear inside expressions and must be validated
@@ -192,7 +192,7 @@ public readonly struct IndexMemberExpression {
 
 				if (isValidDot) {
 					validDotPos = i;
-					return expr.Substring(0, i);
+					return expr[..i];
 				}
 			}
 		}

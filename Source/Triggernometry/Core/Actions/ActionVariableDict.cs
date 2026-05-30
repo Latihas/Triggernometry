@@ -190,8 +190,8 @@ public class ActionVariableDict : ActionBase {
 						"internal/Action/descdictbuild",
 						"build {1}dict variable ({0}) from string ({2}) separated by ({3}) ({4})",
 						TargetVariable, tPersistD,
-						Value.Length < 2 ? "" : Value.Substring(2),
-						Value.Length < 1 ? "" : Value.Substring(0, 1),
+						Value.Length < 2 ? "" : Value[2..],
+						Value.Length < 1 ? "" : Value[..1],
 						Value.Length < 2 ? "" : Value.Substring(1, 1)
 					);
 				}
@@ -387,11 +387,11 @@ public class ActionVariableDict : ActionBase {
 				var vt = new VariableDictionary();
 				var expr = ParseValue();
 				if (expr.Length > 1) {
-					if (expr[1] == '\n' || expr.Substring(1).StartsWith("\r\n"))
+					if (expr[1] == '\n' || expr[1..].StartsWith("\r\n"))
 						expr = ParserCommon.ReplaceLineBreak(expr);
 					var kvSeparator = expr[0];
 					var pairSeparator = expr[1];
-					var splitval = expr.Substring(2);
+					var splitval = expr[2..];
 					vt = VariableDictionary.Build(splitval, kvSeparator, pairSeparator, changer);
 					AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/dictbuild",
 						"{1}Dictionary ({0}) built from expression ({2}) splitted by ({3}) ({4})",

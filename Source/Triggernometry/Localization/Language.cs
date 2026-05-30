@@ -60,17 +60,13 @@ public sealed class Language {
 	private Dictionary<string, string> _missingTranslations = new();
 
 	public string Translate(string key, string text, params object[] args) {
-		if (IsDefault) {
-			if (!TranslationsLookup.ContainsKey(key)) {
-				TranslationsLookup[key] = text;
-			}
-		}
+		if (IsDefault) { TranslationsLookup.TryAdd(key, text); }
 		if (TranslationsLookup.TryGetValue(key, out var data)) {
 			return string.Format(data, args);
 		}
 		//start
-		if (!string.IsNullOrEmpty(text) && !_missingTranslations.ContainsKey(key)) {
-			_missingTranslations[key] = text;
+		if (!string.IsNullOrEmpty(text)) {
+			_missingTranslations.TryAdd(key, text);
 			//RealPlugin.plug.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Missing translation recorded: \"{key}\" => \"{text}\"");
 		}
 		//end

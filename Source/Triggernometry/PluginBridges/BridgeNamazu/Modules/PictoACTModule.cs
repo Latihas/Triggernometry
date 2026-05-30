@@ -15,12 +15,12 @@ using static DataStringHelper;
 /// <summary>
 ///     基于 VfxModule，仅用作参数解析和指令分发
 /// </summary>
-public class PictoACTModule : ModuleBase {
+public partial class PictoACTModule : ModuleBase {
 	public PictoACTModule() {
 		ScanMethod = () => { };
 	}
 
-	private static readonly Regex SplitMultiLineCmds = new(@"(\r\n|\n|\r)\s*---\s*(?:\r\n|\n|\r)", RegexOptions.Compiled);
+	private static readonly Regex SplitMultiLineCmds = SplitMultiLineCmdsRegex();
 
 	private enum RemoveVfxType {
 		Static,
@@ -316,4 +316,7 @@ public class PictoACTModule : ModuleBase {
 			ExecuteWithDelayControl(newData);
 		}
 	}
+
+	[GeneratedRegex(@"(\r\n|\n|\r)\s*---\s*(?:\r\n|\n|\r)", RegexOptions.Compiled)]
+	private static partial Regex SplitMultiLineCmdsRegex();
 }

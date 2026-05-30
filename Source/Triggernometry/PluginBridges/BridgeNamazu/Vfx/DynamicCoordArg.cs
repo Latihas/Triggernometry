@@ -65,7 +65,7 @@ internal sealed class DynamicCoordArg {
 		raw = raw.Trim();
 
 		if (raw.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-			raw = raw.Substring(2);
+			raw = raw[2..];
 
 		if (!raw.TryParseHexUInt(out entityId))
 			return false;

@@ -775,13 +775,13 @@ public partial class ExpressionTextBox : UserControl {
 		// when the autofilled string contains '(' or '[', e.g. method(arg1, arg2)
 		// remove the parameters, and trigger the TextChanged event with the correct cursor position
 		var pIndex = ac.IndexOf('(');
-		var bIndex = ac.IndexOf("[");
+		var bIndex = ac.IndexOf('[');
 		if (pIndex >= 0) {
-			textBox1.Paste(ac.Substring(0, pIndex) + ")");
+			textBox1.Paste(ac[..pIndex] + ")");
 			textBox1.SelectionStart--;
 			textBox1.Paste("(");
 		} else if (bIndex >= 0) {
-			textBox1.Paste(ac.Substring(0, bIndex) + "]");
+			textBox1.Paste(ac[..bIndex] + "]");
 			textBox1.SelectionStart--;
 			textBox1.Paste("[");
 		} else
@@ -885,7 +885,7 @@ public partial class ExpressionTextBox : UserControl {
 
 		if (!textBox1.Focused) return;
 
-		var temp = textBox1.Text.Substring(0, textBox1.SelectionStart);
+		var temp = textBox1.Text[..textBox1.SelectionStart];
 		IEnumerable<string> matchedStrings = null;
 		suffix = "";
 
@@ -1107,7 +1107,7 @@ public partial class ExpressionTextBox : UserControl {
 			}
 			if (leftBracketCount == 1) {
 				// get the string after the unclosed '{'
-				currentExpr = temp.Substring(index + 1);
+				currentExpr = temp[(index + 1)..];
 				break;
 			}
 		}
@@ -1118,8 +1118,8 @@ public partial class ExpressionTextBox : UserControl {
 		} else {
 			if (currentExpr.Contains('}')) {
 				// aaa{bbb{ccc}ddd{eee}fff}ggg.hhh => aaaggg.hhh
-				currentExpr = currentExpr.Substring(0, currentExpr.IndexOf('{'))
-				              + currentExpr.Substring(currentExpr.LastIndexOf('}') + 1);
+				currentExpr = currentExpr[..currentExpr.IndexOf('{')]
+				              + currentExpr[(currentExpr.LastIndexOf('}') + 1)..];
 			}
 			// match numeric:
 			if (currentExpr.StartsWith("n:") || currentExpr.StartsWith("numeric:") || currentExpr.StartsWith("if:")) {
@@ -1325,7 +1325,7 @@ public partial class ExpressionTextBox : UserControl {
 				rgb = string.Concat(rgb[0], rgb[0], rgb[1], rgb[1], rgb[2], rgb[2]);
 			}
 			// "#aaccff" or "aaccff"
-			r = Convert.ToInt32(rgb.Substring(0, 2), 16);
+			r = Convert.ToInt32(rgb[..2], 16);
 			g = Convert.ToInt32(rgb.Substring(2, 2), 16);
 			b = Convert.ToInt32(rgb.Substring(4, 2), 16);
 		} else {
@@ -1539,9 +1539,9 @@ public partial class ExpressionTextBox : UserControl {
 			}
 			if (m.Msg == WM_PASTE) {
 				var clipboardText = Clipboard.GetText();
-				if (!Multiline && clipboardText.Contains("\n")) {
+				if (!Multiline && clipboardText.Contains('\n')) {
 					ExpTextBox?.ToggleExpand();
-					BeginInvoke(() => Paste());
+					BeginInvoke(Paste);
 					return;
 				}
 			}
@@ -1642,7 +1642,7 @@ public partial class ExpressionTextBox : UserControl {
 			if (position > Text.Length)
 				return SupportedExpressionTypeEnum.String;
 
-			var prevText = Text.Substring(0, position);
+			var prevText = Text[..position];
 			var lBracketCount = 0;
 			var afterLBracket = "";
 			for (var i = prevText.Length - 1; i >= 0; i--) {
@@ -1652,7 +1652,7 @@ public partial class ExpressionTextBox : UserControl {
 					lBracketCount++;
 
 				if (lBracketCount == 1) {
-					afterLBracket = prevText.Substring(i + 1);
+					afterLBracket = prevText[(i + 1)..];
 					break;
 				}
 			}

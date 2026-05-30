@@ -14,7 +14,7 @@ internal enum VfxType {
 	StaticVfx
 }
 
-internal static class StaticVfxArgsParser {
+internal static partial class StaticVfxArgsParser {
 	public static StaticVfxArgs Parse(MultiLineRawArgs data) {
 		if (data == null)
 			throw new ArgumentNullException(nameof(data));
@@ -129,7 +129,7 @@ internal static class StaticVfxArgsParser {
 			args.TransformKeepY = rawKeepY.ParseData<bool>();
 	}
 
-	private static readonly Regex _dirRegex = new(@"^dir(?<isNegative>N)?(?<segments>\d+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+	private static readonly Regex _dirRegex = DirRegex();
 
 	private static void ParseTransformNorth(MultiLineRawArgs data, StaticVfxArgs args) {
 		// 指定了 θ 参数
@@ -281,4 +281,7 @@ internal static class StaticVfxArgsParser {
 		["Fan240"] = "x6d3_b1_fan240_p1",
 		["Fan270"] = "gl_fan270_0100af"
 	};
+
+	[GeneratedRegex(@"^dir(?<isNegative>N)?(?<segments>\d+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "zh-CN")]
+	private static partial Regex DirRegex();
 }

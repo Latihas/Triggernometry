@@ -10,7 +10,7 @@ using Triggernometry.Core;
 
 namespace Triggernometry.PluginBridges.BridgeMachina;
 
-public static class OpcodeSideloader {
+public static partial class OpcodeSideloader {
 	public static void Callback(object _, string rawOpcodes) {
 		try {
 			SideloadOpcodes(rawOpcodes);
@@ -58,7 +58,7 @@ public static class OpcodeSideloader {
 		if (updated.Count > 0) {
 			sb.AppendLine($"Updated opcodes × {updated.Count}:");
 			foreach (var kv in updated
-				         .Select(kv => new { kv, match = Regex.Match(kv.Key, @"^(.+?)(\d*)$") })
+				         .Select(kv => new { kv, match = myRegex.Match(kv.Key) })
 				         .OrderBy(x => x.match.Groups[1].Value, StringComparer.OrdinalIgnoreCase)
 				         .ThenBy(x => int.Parse("0" + x.match.Groups[2].Value)) // 这样可以让 XXX4 XXX8 排在 XXX16 前面
 				         .Select(x => x.kv)) {
@@ -72,7 +72,7 @@ public static class OpcodeSideloader {
 		if (untouched.Count > 0) {
 			sb.AppendLine($"Untouched opcodes × {untouched.Count}:");
 			foreach (var kv in untouched
-				         .Select(kv => new { kv, match = Regex.Match(kv.Key, @"^(.+?)(\d*)$") })
+				         .Select(kv => new { kv, match = myRegex.Match(kv.Key) })
 				         .OrderBy(x => x.match.Groups[1].Value, StringComparer.OrdinalIgnoreCase)
 				         .ThenBy(x => int.Parse("0" + x.match.Groups[2].Value))
 				         .Select(x => x.kv))
@@ -83,7 +83,7 @@ public static class OpcodeSideloader {
 		if (extra.Count > 0) {
 			sb.AppendLine($"Extra opcodes × {extra.Count}:");
 			foreach (var kv in extra
-				         .Select(kv => new { kv, match = Regex.Match(kv.Key, @"^(.+?)(\d*)$") })
+				         .Select(kv => new { kv, match = myRegex.Match(kv.Key) })
 				         .OrderBy(x => x.match.Groups[1].Value, StringComparer.OrdinalIgnoreCase)
 				         .ThenBy(x => int.Parse("0" + x.match.Groups[2].Value))
 				         .Select(x => x.kv))
@@ -300,6 +300,11 @@ public static class OpcodeSideloader {
 		return iocGetService.Invoke(iocContainer, [PacketHandlerMediatorType])
 		       ?? throw ReflectFail("PacketHandlerMediator Instance");
 	}
+
+	[GeneratedRegex(@"^(.+?)(\d*)$")]
+	private static partial Regex MyRegex();
+
+	private static readonly Regex myRegex = MyRegex();
 
 	#endregion Machina
 }

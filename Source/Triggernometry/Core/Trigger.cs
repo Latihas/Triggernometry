@@ -50,29 +50,27 @@ public class Trigger {
 	/// </summary>
 	internal Regex? regexCache;
 
-	private string _regularExpression = "";
-
 	/// <summary>
 	///     The regular expression pattern used by this trigger to match log lines.
 	/// </summary>
 	[XmlIgnore] public string RegularExpression {
-		get => _regularExpression;
+		get;
 		set {
 			var newExpr = RealPlugin.UnserializeInvalidXmlCharacters(value);
-			if (_regularExpression == newExpr) return;
+			if (field == newExpr) return;
 
-			_regularExpression = newExpr;
+			field = newExpr;
 			if (string.IsNullOrWhiteSpace(newExpr)) {
 				regexCache = null;
 				return;
 			}
 			try {
-				regexCache = new Regex(_regularExpression);
+				regexCache = new Regex(field);
 			} catch {
 				regexCache = null;
 			}
 		}
-	}
+	} = "";
 
 	[XmlAttribute("RegularExpression")] public string Xml_RegularExpression {
 		get => XmlAttr.String(RegularExpression);

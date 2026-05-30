@@ -66,7 +66,7 @@ public readonly struct MemberExpression {
 		if (startIndex < 0 || startIndex >= expr.Length)
 			throw new ArgumentOutOfRangeException(nameof(startIndex));
 
-		_rawExpression = startIndex == 0 ? expr : expr.Substring(startIndex);
+		_rawExpression = startIndex == 0 ? expr : expr[startIndex..];
 		Name = _rawExpression;
 		_args = null;
 
@@ -74,7 +74,7 @@ public readonly struct MemberExpression {
 
 		// No parentheses → property access
 		if (lParenPos == -1) {
-			Name = expr.Substring(startIndex).TrimEx();
+			Name = expr[startIndex..].TrimEx();
 			return;
 		}
 

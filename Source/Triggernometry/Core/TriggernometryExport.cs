@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace Triggernometry.Core;
 
-public class TriggernometryExport {
+public partial class TriggernometryExport {
 	private Version _pluginVersion;
 	[XmlAttribute] public string PluginVersion {
 		get => _pluginVersion?.ToString();
@@ -44,19 +44,22 @@ public class TriggernometryExport {
 	public static TriggernometryExport Unserialize(string src) {
 		try {
 			var xs = new XmlSerializer(typeof(TriggernometryExport));
-			using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(src))) {
-				var result = (TriggernometryExport)xs.Deserialize(ms);
-				result.ExportedFolder?.RecursiveGetTriggers()?.ToList().ForEach(t => t.SetActionsParent());
-				result.ExportedTrigger?.SetActionsParent();
-				return result;
-			}
+			using var ms = new MemoryStream(Encoding.UTF8.GetBytes(src));
+			var result = (TriggernometryExport)xs.Deserialize(ms);
+			result.ExportedFolder?.RecursiveGetTriggers()?.ToList().ForEach(t => t.SetActionsParent());
+			result.ExportedTrigger?.SetActionsParent();
+			return result;
 		} catch (Exception) {
-			var rexVersion = new Regex(@"TriggernometryExport[^>]+PluginVersion *= *(?<version>\d+\.\d+\.\d+\.\d+)");
-			var version = rexVersion.Match(src.Length > 100 ? src.Substring(0, 100) : src).Groups["version"].Value;
+			var version = rexVersion.Match(src.Length > 100 ? src[..100] : src).Groups["version"].Value;
 			return new TriggernometryExport {
 				PluginVersion = version,
 				Corrupted = true
 			};
 		}
 	}
+
+	[GeneratedRegex(@"TriggernometryExport[^>]+PluginVersion *= *(?<version>\d+\.\d+\.\d+\.\d+)")]
+	private static partial Regex VersionRegex();
+
+	private static readonly Regex rexVersion = VersionRegex();
 }

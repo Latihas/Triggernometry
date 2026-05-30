@@ -223,8 +223,7 @@ public class Configuration {
 				var et = e.Trim();
 				var valn = 0;
 				if (int.TryParse(et, out valn)) {
-					if (!_FfxivCustomPartyOrderLookup.ContainsKey(valn)) {
-						_FfxivCustomPartyOrderLookup[valn] = subn;
+					if (_FfxivCustomPartyOrderLookup.TryAdd(valn, subn)) {
 						subn++;
 					}
 				}

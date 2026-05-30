@@ -25,7 +25,7 @@ namespace Triggernometry.Expressions.Maths;
 ///     This is a mathematical expression parser that allows you to parser a string value,
 ///     perform the required calculations, and return a value in form of a double number.
 /// </summary>
-public class MathParser {
+public partial class MathParser {
 	private static Random rng = new();
 
 	static MathParser() {
@@ -545,12 +545,12 @@ public class MathParser {
 
 	public static double ParseDamage(string x) {
 		var hexStr = x.PadLeft(8, '0');
-		var hexDmg = hexStr.Substring(6, 2) + hexStr.Substring(0, 4);
+		var hexDmg = hexStr.Substring(6, 2) + hexStr[..4];
 		var decDmg = int.Parse(hexDmg, NumberStyles.HexNumber, CultureInfo);
 		return decDmg;
 	}
 
-	private static readonly Regex rexFreq = new(@"(?<note>[A-G])(?<signs>[#bx]*)(?<octaves>\d+)");
+	private static readonly Regex rexFreq = FreqRegex();
 
 	public static double Frequency(string[] x) {
 		var mx = rexFreq.Match(x[0]);
@@ -591,8 +591,8 @@ public class MathParser {
 		double totalMin;
 		try {
 			if (etString.Contains(':')) {
-				double etHour = int.Parse(etString.Substring(0, etString.IndexOf(':')), CultureInfo);
-				var etMin = double.Parse(etString.Substring(etString.IndexOf(':') + 1), CultureInfo);
+				double etHour = int.Parse(etString[..etString.IndexOf(':')], CultureInfo);
+				var etMin = double.Parse(etString[(etString.IndexOf(':') + 1)..], CultureInfo);
 				totalMin = etHour * 60.0 + etMin;
 				if (etHour < 0 || etMin < 0 || etMin > 60) {
 					throw new Exception();
@@ -694,7 +694,7 @@ public class MathParser {
 	/// <returns>A ReadOnlyCollection</returns>
 	public ReadOnlyCollection<string> GetTokens(string mathExpression) => Lexer(mathExpression).AsReadOnly();
 
-	private static Regex MultiplePlusMinus = new(@"[-+][-+ ]*[-+]");
+	private static readonly Regex MultiplePlusMinus = MultiplePlusMinusRegex();
 
 	/// <summary> Tokenizes <paramref name="expr" />. </summary>
 	/// <param name="expr">The expression.</param>
@@ -761,9 +761,9 @@ public class MathParser {
 		return tokens;
 	}
 
-	private static readonly Regex regexHexNumber = new(@"^0x[0-9A-Fa-f]+$", RegexOptions.Compiled);
-	private static readonly Regex regexBinNumber = new(@"^0b[01]+$", RegexOptions.Compiled);
-	private static readonly Regex regexOctNumber = new(@"^0o[0-7]+$", RegexOptions.Compiled);
+	private static readonly Regex regexHexNumber = HexNumberRegex();
+	private static readonly Regex regexBinNumber = BinNumberRegex();
+	private static readonly Regex regexOctNumber = OctNumberRegex();
 
 	public static double MathParserLogic(List<string> tokens) {
 		// for error information
@@ -778,18 +778,18 @@ public class MathParser {
 			}
 
 			if (tokens[i].Length <= 2) continue;
-			switch (tokens[i].Substring(0, 2)) {
+			switch (tokens[i][..2]) {
 				case "0x":
 					if (regexHexNumber.Match(tokens[i]).Success)
-						tokens[i] = Convert.ToInt64(tokens[i].Substring(2), 16).ToString(CultureInfo);
+						tokens[i] = Convert.ToInt64(tokens[i][2..], 16).ToString(CultureInfo);
 					break;
 				case "0b":
 					if (regexBinNumber.Match(tokens[i]).Success)
-						tokens[i] = Convert.ToInt64(tokens[i].Substring(2), 2).ToString(CultureInfo);
+						tokens[i] = Convert.ToInt64(tokens[i][2..], 2).ToString(CultureInfo);
 					break;
 				case "0o":
 					if (regexOctNumber.Match(tokens[i]).Success)
-						tokens[i] = Convert.ToInt64(tokens[i].Substring(2), 8).ToString(CultureInfo);
+						tokens[i] = Convert.ToInt64(tokens[i][2..], 8).ToString(CultureInfo);
 					break;
 			}
 		}
@@ -1023,7 +1023,7 @@ public class MathParser {
 		if (pm == "-") {
 			// [opIndex] is now the next number to be applied +/- on.
 			tokens[opIndex] = tokens[opIndex].StartsWith("-") // It is impossible to have a token starting with "+" now.
-				? tokens[opIndex].Substring(1) // "-11" => "11"
+				? tokens[opIndex][1..] // "-11" => "11"
 				: "-" + tokens[opIndex]; // "11" => "-11"
 		} // pm == "+" is ignored
 	}
@@ -1069,6 +1069,21 @@ public class MathParser {
 			}
 		}
 	}
+
+	[GeneratedRegex(@"(?<note>[A-G])(?<signs>[#bx]*)(?<octaves>\d+)")]
+	private static partial Regex FreqRegex();
+
+	[GeneratedRegex(@"[-+][-+ ]*[-+]")]
+	private static partial Regex MultiplePlusMinusRegex();
+
+	[GeneratedRegex(@"^0x[0-9A-Fa-f]+$", RegexOptions.Compiled)]
+	private static partial Regex HexNumberRegex();
+
+	[GeneratedRegex(@"^0b[01]+$", RegexOptions.Compiled)]
+	private static partial Regex BinNumberRegex();
+
+	[GeneratedRegex(@"^0o[0-7]+$", RegexOptions.Compiled)]
+	private static partial Regex OctNumberRegex();
 
 	#endregion
 }

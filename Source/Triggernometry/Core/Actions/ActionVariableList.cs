@@ -292,8 +292,8 @@ public class ActionVariableList : ActionBase {
 						"internal/Action/desclistbuild",
 						"build {1}list variable ({0}) from string ({2}) separated by ({3})",
 						Target, tPersistL,
-						ValueExpression.Length == 0 ? "" : ValueExpression.Substring(1),
-						ValueExpression.Length == 0 ? "" : ValueExpression.Substring(0, 1)
+						ValueExpression.Length == 0 ? "" : ValueExpression[1..],
+						ValueExpression.Length == 0 ? "" : ValueExpression[..1]
 					);
 				}
 				return I18n.Translate(
@@ -730,7 +730,7 @@ public class ActionVariableList : ActionBase {
 					if (expr[0] == '\n' || expr.StartsWith("\r\n"))
 						expr = ParserCommon.ReplaceLineBreak(expr);
 					var separator = expr[0];
-					var splitval = expr.Substring(1);
+					var splitval = expr[1..];
 					vl = VariableList.Build(splitval, separator, changer);
 					AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/listbuild",
 						"{1}List variable ({0}) built from expression ({2}) splitted by ({3})",

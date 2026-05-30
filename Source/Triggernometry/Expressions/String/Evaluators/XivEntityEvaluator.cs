@@ -70,7 +70,7 @@ internal static class XivEntityEvaluator {
 		}
 
 		// Append the trailing member after the last comma
-		var tail = raw.Substring(prevEnd).Trim();
+		var tail = raw[prevEnd..].Trim();
 		if (tail.Length > 0)
 			memberExpressions.Add(tail);
 

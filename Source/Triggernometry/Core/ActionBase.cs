@@ -431,7 +431,7 @@ public abstract class ActionBase {
 				temp += I18n.Translate("internal/Action/descassumingcondition", "assuming condition is met, ");
 			}
 			temp += DescribeImplementation();
-			return !string.IsNullOrWhiteSpace(temp) ? char.ToUpperInvariant(temp[0]) + temp.Substring(1) : string.Empty;
+			return !string.IsNullOrWhiteSpace(temp) ? char.ToUpperInvariant(temp[0]) + temp[1..] : string.Empty;
 		} catch (Exception ex) {
 			return "Failed to describe action: " + ex.Message;
 		}
@@ -601,8 +601,8 @@ public abstract class ActionBase {
 				foreach (var hdr in headers) {
 					var sepIndex = hdr.IndexOf(':');
 					if (sepIndex > 0) {
-						var key = hdr.Substring(0, sepIndex).Trim();
-						var value = hdr.Substring(sepIndex + 1).Trim();
+						var key = hdr[..sepIndex].Trim();
+						var value = hdr[(sepIndex + 1)..].Trim();
 						switch (key.ToLower()) {
 							case "content-type":
 								httpWebRequest.ContentType = value;

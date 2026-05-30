@@ -180,7 +180,7 @@ public class RichTextBoxHelper : ReadonlyRichTextBox // to do: change to CustomC
 				if (closeIndex == -1) break;
 
 				Select(openIndex, closeIndex - openIndex + 1);
-				if (!SelectedText.Contains("$")) {
+				if (!SelectedText.Contains('$')) {
 					SelectionColor = stringColor;
 				}
 				Select(openIndex, 1);
@@ -200,7 +200,7 @@ public class RichTextBoxHelper : ReadonlyRichTextBox // to do: change to CustomC
 				if (closeIndex == -1) break;
 
 				Select(openIndex, closeIndex - openIndex + 1);
-				if (!SelectedText.Contains("$")) {
+				if (!SelectedText.Contains('$')) {
 					SelectionColor = stringColor;
 				}
 				Select(openIndex, 1);

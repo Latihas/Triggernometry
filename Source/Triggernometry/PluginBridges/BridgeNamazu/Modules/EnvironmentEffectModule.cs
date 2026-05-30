@@ -11,7 +11,7 @@ using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
-public class EnvironmentEffectModule : ModuleBase {
+public partial class EnvironmentEffectModule : ModuleBase {
 	public unsafe delegate void MapEffectOldFunction(ContentDirector* p1, uint p2, ushort p3, ushort p4);
 
 	public MapEffectOldFunction MapEffectOldD;
@@ -34,9 +34,7 @@ public class EnvironmentEffectModule : ModuleBase {
 		};
 	}
 
-	private static readonly Regex _mapEffectRegex = new(
-		@"^(?<flag>[0-9A-Fa-f]{4})(?<unknownFlag>[0-9A-Fa-f]{4})?[:|](?<index>[0-9A-Fa-f]{1,8})$",
-		RegexOptions.Compiled);
+	private static readonly Regex _mapEffectRegex = MapEffectRegex();
 
 	[CallbackMethod("MapEffect")]
 	internal void CbMapEffect(string multiLineCmd) {
@@ -49,7 +47,7 @@ public class EnvironmentEffectModule : ModuleBase {
 		var args = new List<(uint, ushort?, ushort)>();
 		foreach (var command in cmds) {
 			try {
-				if (command.Contains(",")) {
+				if (command.Contains(',')) {
 					var (index, unknownFlag, flag) = command.ParseArgs<uint, ushort?, ushort?>((2, null));
 					// 支持的参数格式如 (index, unknownFlag, flag)，或 (index, flag)，因为游戏中实际并未使用 unknownFlag
 					if (flag == null)
@@ -132,4 +130,7 @@ public class EnvironmentEffectModule : ModuleBase {
 			envManagerPtr->TransitionTime = 1; // TransitionTime
 		});
 	}
+
+	[GeneratedRegex(@"^(?<flag>[0-9A-Fa-f]{4})(?<unknownFlag>[0-9A-Fa-f]{4})?[:|](?<index>[0-9A-Fa-f]{1,8})$", RegexOptions.Compiled)]
+	private static partial Regex MapEffectRegex();
 }

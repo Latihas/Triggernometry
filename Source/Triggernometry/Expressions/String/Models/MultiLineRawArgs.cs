@@ -17,15 +17,12 @@ public class MultiLineRawArgs {
 		var lines = rawLines
 			.Split(["\r\n", "\n"], StringSplitOptions.None)
 			.Select(line => line.Trim())
-			.Where(line => line.Contains(":") && !line.StartsWith("//"));
+			.Where(line => line.Contains(':') && !line.StartsWith("//"));
 		foreach (var line in lines) {
 			var parts = line.Split([':'], 2);
 			var k = parts[0].Trim();
 			var v = parts[1].Trim();
-			if (!_data.ContainsKey(k))
-				_data[k] = v;
-			else
-				throw new ArgumentException($"Duplicate key '{k}' found in the rawLines input.");
+			if (!_data.TryAdd(k, v)) throw new ArgumentException($"Duplicate key '{k}' found in the rawLines input.");
 		}
 	}
 

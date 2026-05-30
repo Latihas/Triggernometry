@@ -9,7 +9,7 @@ using Triggernometry.Expressions.Maths;
 
 namespace Triggernometry.Expressions.String.Utils;
 
-public static class DataStringHelper {
+public static partial class DataStringHelper {
 	public static string ToDataString(this object prop) {
 		if (prop == null) return "";
 		switch (prop) {
@@ -194,11 +194,11 @@ public static class DataStringHelper {
 	/// <summary>
 	///     作为 uint 的形式上的 “子类”，用于配合 ToDataString、ParseArgs 自动解析用户输入的多种格式的 id。
 	/// </summary>
-	public struct HexOrDecId {
+	public partial struct HexOrDecId {
 		public uint Value;
 		public const uint Default = 0xE0000000;
 
-		private static readonly Regex HexRegex = new(@"^[0-9A-Fa-f]+$", RegexOptions.Compiled);
+		private static readonly Regex HexRegex = MyHexRegex();
 
 		public HexOrDecId(uint value) {
 			Value = value;
@@ -218,5 +218,8 @@ public static class DataStringHelper {
 
 		public static implicit operator uint(HexOrDecId id) => id.Value;
 		public static implicit operator HexOrDecId(uint v) => new(v);
+
+		[GeneratedRegex(@"^[0-9A-Fa-f]+$", RegexOptions.Compiled)]
+		private static partial Regex MyHexRegex();
 	}
 }

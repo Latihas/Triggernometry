@@ -266,8 +266,8 @@ public class ActionVariableTable : ActionBase {
 						"internal/Action/desctablebuild",
 						"build {1}table variable ({0}) from string ({2}) separated by ({3}) ({4})",
 						TargetName, tPersistT,
-						Value.Length < 2 ? "" : Value.Substring(2),
-						Value.Length < 1 ? "" : Value.Substring(0, 1),
+						Value.Length < 2 ? "" : Value[2..],
+						Value.Length < 1 ? "" : Value[..1],
 						Value.Length < 2 ? "" : Value.Substring(1, 1)
 					);
 				}
@@ -302,8 +302,8 @@ public class ActionVariableTable : ActionBase {
 						"internal/Action/desctablesetline",
 						"set {1}table ({0}) {2} #({3}) values from string ({4}) separated by ({5})",
 						Name, sPersistT, lineType, index,
-						Value.Length < 1 ? "" : Value.Substring(1),
-						Value.Length < 1 ? "" : Value.Substring(0, 1)
+						Value.Length < 1 ? "" : Value[1..],
+						Value.Length < 1 ? "" : Value[..1]
 					);
 				}
 				return I18n.Translate(
@@ -323,8 +323,8 @@ public class ActionVariableTable : ActionBase {
 						"internal/Action/desctableinsertline",
 						"at {1}table ({0}) {3} #({2}), insert values from string ({4}) separated by ({5})",
 						Name, sPersistT, lineType, index,
-						Value.Length < 1 ? "" : Value.Substring(1),
-						Value.Length < 1 ? "" : Value.Substring(0, 1)
+						Value.Length < 1 ? "" : Value[1..],
+						Value.Length < 1 ? "" : Value[..1]
 					);
 				}
 				return I18n.Translate(
@@ -582,11 +582,11 @@ public class ActionVariableTable : ActionBase {
 				var vt = new VariableTable();
 				expr = ParseExpr();
 				if (expr.Length > 1) {
-					if (expr[1] == '\n' || expr.Substring(1).StartsWith("\r\n"))
+					if (expr[1] == '\n' || expr[1..].StartsWith("\r\n"))
 						expr = ParserCommon.ReplaceLineBreak(expr);
 					var colSeparator = expr[0];
 					var rowSeparator = expr[1];
-					var splitval = expr.Substring(2);
+					var splitval = expr[2..];
 					vt = VariableTable.Build(splitval, colSeparator, rowSeparator, vtchanger);
 					AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/tablebuild",
 						"{1}Table variable ({0}) built from expression ({2}) splitted by ({3}) ({4})",
@@ -693,8 +693,8 @@ public class ActionVariableTable : ActionBase {
 			case OperationEnum.SetLine:
 			case OperationEnum.InsertLine: {
 				expr = ParseExpr();
-				var separator = expr.Length > 0 ? expr.Substring(0, 1) : "";
-				var splitval = expr.Length > 0 ? expr.Substring(1) : "";
+				var separator = expr.Length > 0 ? expr[..1] : "";
+				var splitval = expr.Length > 0 ? expr[1..] : "";
 				var newValues = separator.Length > 0 ? splitval.Split(separator[0]) : [];
 				var isRow = string.IsNullOrWhiteSpace(X);
 				var lineType = I18n.TrlTableColOrRow(!isRow);

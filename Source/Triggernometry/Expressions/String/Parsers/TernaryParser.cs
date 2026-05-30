@@ -38,13 +38,13 @@ internal static class TernaryParser {
 		sepIndex = sepIndex ?? input.LastIndexOf(sep);
 		if (sepIndex == -1) return null;
 
-		var afterSep = input.Substring(sepIndex.Value + 1).TrimLeftEx();
+		var afterSep = input[(sepIndex.Value + 1)..].TrimLeftEx();
 		var length = afterSep.Length;
 		if (length >= 2 && afterSep[0] == afterSep[length - 1] && (afterSep[0] == '\"' || afterSep[0] == '\'')) {
 			afterSep = afterSep.Substring(1, length - 2); // "..." / '...' => ...
 		}
 
-		input = input.Substring(0, sepIndex.Value);
+		input = input[..sepIndex.Value];
 		return afterSep;
 	}
 }

@@ -13,7 +13,7 @@ using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
-public class VfxModule : ModuleBase {
+public partial class VfxModule : ModuleBase {
 	public unsafe VfxModule() {
 		ScanMethod = () => {
 			VfxManager.Clear();
@@ -249,15 +249,20 @@ public class VfxModule : ModuleBase {
 		return true;
 	}
 
-	private void CheckIfVfxNameTooShort(string vfxName, string methodName) {
+	private static void CheckIfVfxNameTooShort(string vfxName, string methodName) {
 		if (vfxName.Length <= 8)
 			throw new Exception($"[鲶鱼精邮差扩展] {methodName} vfxName 参数过短：{vfxName}");
 	}
 
-	private void CheckIfVfxPathValid(string vfxPath) {
+	private static void CheckIfVfxPathValid(string vfxPath) {
 		if (!vfxPath.EndsWith(".avfx", StringComparison.OrdinalIgnoreCase))
 			throw new Exception($"[鲶鱼精邮差扩展] vfxName 不以 \".avfx\" 结尾：{vfxPath}");
-		if (Regex.IsMatch(vfxPath, @"\.(?!avfx)", RegexOptions.IgnoreCase))
+		if (avfx.IsMatch(vfxPath))
 			throw new Exception($"[鲶鱼精邮差扩展] vfxName 包含错误的扩展名：{vfxPath}");
 	}
+
+	[GeneratedRegex(@"\.(?!avfx)", RegexOptions.IgnoreCase, "zh-CN")]
+	private static partial Regex AvfxRegex();
+
+	private static readonly Regex avfx = AvfxRegex();
 }

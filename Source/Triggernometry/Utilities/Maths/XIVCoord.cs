@@ -7,7 +7,7 @@ using static System.Math;
 
 namespace Triggernometry.Utilities.Maths;
 
-public abstract class XIVCoord {
+public abstract partial class XIVCoord {
 	public abstract XIVCoord Duplicate();
 
 	/// <summary>
@@ -75,7 +75,7 @@ public abstract class XIVCoord {
 		return new Vector3((float)cart.X, (float)cart.Y, (float)cart.Z);
 	}
 
-	private static Regex rexOpKeywords = new(@"\b(plus|minus|polar|minuspolar)\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+	private static Regex rexOpKeywords = OpKeywordsRegex();
 
 	/// <summary>
 	///     将一串直角坐标、极坐标、或混合方式指定的坐标解析并叠加，如：<br /><br />
@@ -168,4 +168,7 @@ public abstract class XIVCoord {
 		// 此时：[Cartesian1] [Cartesian2] [Cartesian3] [Polar1]
 		return coords.Aggregate((c1, c2) => c1 + c2);
 	}
+
+	[GeneratedRegex(@"\b(plus|minus|polar|minuspolar)\b", RegexOptions.IgnoreCase | RegexOptions.Compiled, "zh-CN")]
+	private static partial Regex OpKeywordsRegex();
 }

@@ -27,7 +27,7 @@ public static class I18n {
 		if (ld.IsDefault) {
 			DefaultLanguage = ld;
 		}
-		if (RegisteredLanguages.ContainsKey(ld.LanguageName)) {
+		if (!RegisteredLanguages.TryAdd(ld.LanguageName, ld)) {
 			var basename = ld.LanguageName;
 			for (var i = 2;; i++) {
 				var curname = basename + " #" + i;
@@ -38,8 +38,6 @@ public static class I18n {
 				RegisteredLanguages[curname] = ld;
 				break;
 			}
-		} else {
-			RegisteredLanguages[ld.LanguageName] = ld;
 		}
 		if (CurrentLanguage == null) {
 			CurrentLanguage = ld;
@@ -57,11 +55,7 @@ public static class I18n {
 	}
 
 	public static string Translate(string key, string text, params object[] args) {
-		if (BuiltInLanguage != null) {
-			if (!BuiltInLanguage.TranslationsLookup.ContainsKey(key)) {
-				BuiltInLanguage.TranslationsLookup[key] = text;
-			}
-		}
+		if (BuiltInLanguage != null) { BuiltInLanguage.TranslationsLookup.TryAdd(key, text); }
 		if (CurrentLanguage != null) {
 			try {
 				return CurrentLanguage.Translate(key, text, args);

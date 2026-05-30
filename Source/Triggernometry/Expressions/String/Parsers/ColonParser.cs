@@ -18,10 +18,10 @@ internal static class ColonParser {
 		var colonPos = template.IndexOf(':');
 		if (colonPos == -1) return null;
 
-		var rawPrefix = template.Substring(0, colonPos);
+		var rawPrefix = template[..colonPos];
 		var prefixLower = rawPrefix.TrimEx().ToLowerInvariant();
 
-		var rawBody = template.Substring(colonPos + 1);
+		var rawBody = template[(colonPos + 1)..];
 		var body = rawBody.TrimEx();
 
 		// First handle the cases that could not tolerate the general IndexMemberExpression format:

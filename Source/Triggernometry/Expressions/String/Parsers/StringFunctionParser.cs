@@ -13,9 +13,9 @@ using static Triggernometry.Expressions.String.Utils.ParserCommon;
 
 namespace Triggernometry.Expressions.String.Parsers;
 
-internal static class StringFunctionParser {
+internal static partial class StringFunctionParser {
 	/// <summary> Regex matching: name(arg)?:val </summary>
-	internal static Regex rexFunc = new(@"^(?<name>[^(:]+)(?:\((?<arg>[^)]*)\))? *:(?<val>.*)$", RegexOptions.Compiled);
+	internal static readonly Regex rexFunc = FuncRegex();
 
 	internal static string TryParse(string operand) {
 		var funcMatch = rexFunc.Match(operand);
@@ -130,7 +130,7 @@ internal static class StringFunctionParser {
 				if (!long.TryParse(sourceString, NSFloat, InvClt, out var result)) {
 					throw ParseTypeError(I18n.TranslateWord("string"), sourceString, I18n.TranslateWord("int"));
 				}
-				var format = funcNameLower.Substring(6).ToUpper(); // "X" "X2" "X4" "X8"
+				var format = funcNameLower[6..].ToUpper(); // "X" "X2" "X4" "X8"
 				return result.ToString(format);
 			}
 
@@ -246,7 +246,7 @@ internal static class StringFunctionParser {
 				}
 				switch (args.Length) {
 					case 1:
-						return sourceString.Substring(startIndex);
+						return sourceString[startIndex..];
 
 					case 2:
 						if (!int.TryParse(args[1], NSFloat, InvClt, out var length)) {
@@ -444,4 +444,7 @@ internal static class StringFunctionParser {
 				throw new Exception($"Unknown string function '{funcNameLower}'.");
 		}
 	}
+
+	[GeneratedRegex(@"^(?<name>[^(:]+)(?:\((?<arg>[^)]*)\))? *:(?<val>.*)$", RegexOptions.Compiled)]
+	private static partial Regex FuncRegex();
 }

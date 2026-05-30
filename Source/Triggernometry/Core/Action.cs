@@ -302,7 +302,7 @@ public partial class ActionOld {
 				actionDesc = GetDescription(ctx);
 			} catch {
 			}
-			actionDesc = actionDesc.Length > 300 ? actionDesc.Substring(0, 297) + "..." : actionDesc;
+			actionDesc = actionDesc.Length > 300 ? actionDesc[..297] + "..." : actionDesc;
 			var showDetail = true; // _ActionType == ActionTypeEnum.ExecuteScript || _ActionType == ActionTypeEnum.NamedCallback || plug.cfg.DeveloperMode;
 			var detail = showDetail ? ex.FullMessage() : ""; // inner and stack
 

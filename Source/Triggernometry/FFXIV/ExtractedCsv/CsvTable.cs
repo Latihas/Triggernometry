@@ -72,10 +72,8 @@ public class CsvTable {
 			if (string.IsNullOrEmpty(name))
 				continue;
 
-			if (HeaderIndex.ContainsKey(name))
+			if (!HeaderIndex.TryAdd(name, i))
 				throw new InvalidDataException($"CSV 文件 {filePath} 存在重复列名: {name}");
-
-			HeaderIndex.Add(name, i);
 		}
 
 		// 第四行起为数据行

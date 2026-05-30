@@ -72,7 +72,7 @@ sealed partial class JsonPathContext {
 		expr = Normalize(expr);
 
 		if (expr.Length >= 1 && expr[0] == '$') // ^\$:?
-			expr = expr.Substring(expr.Length >= 2 && expr[1] == ';' ? 2 : 1);
+			expr = expr[(expr.Length >= 2 && expr[1] == ';' ? 2 : 1)..];
 
 		return i.Trace(expr, obj, "$", (value, path) => resultor(value, AsBracketNotation(path)));
 	}
@@ -178,8 +178,8 @@ sealed partial class JsonPathContext {
 				}
 
 				var i = expr.IndexOf(';');
-				var atom = i >= 0 ? expr.Substring(0, i) : expr;
-				var tail = i >= 0 ? expr.Substring(i + 1) : string.Empty;
+				var atom = i >= 0 ? expr[..i] : expr;
+				var tail = i >= 0 ? expr[(i + 1)..] : string.Empty;
 
 				if (value != null && _system.HasMember(value, atom)) {
 					stack.Push(Args(tail, Index(value, atom), path + ";" + atom));
@@ -194,7 +194,7 @@ sealed partial class JsonPathContext {
 					stack.Push(Args(tail, value, path));
 				} else if (atom.Length > 2 && atom[0] == '(' && atom[^1] == ')') // [(exp)]
 				{
-					stack.Push(Args(_eval(atom, value, path.Substring(path.LastIndexOf(';') + 1)) + ";" + tail, value, path));
+					stack.Push(Args(_eval(atom, value, path[(path.LastIndexOf(';') + 1)..]) + ";" + tail, value, path));
 				} else if (atom.Length > 3 && atom[0] == '?' && atom[1] == '(' && atom[^1] == ')') // [?(exp)]
 				{
 					Walk(atom, tail, value, path, (m, l, x, v, p) => {

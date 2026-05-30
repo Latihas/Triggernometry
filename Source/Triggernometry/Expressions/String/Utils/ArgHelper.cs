@@ -63,7 +63,7 @@ public static class ArgHelper {
 			}
 			// ">=7"
 			else if (part.StartsWith(">=")) {
-				var min = int.Parse(part.Substring(2));
+				var min = int.Parse(part[2..]);
 				checks.Add(i => i >= min);
 				last1 = null;
 			}

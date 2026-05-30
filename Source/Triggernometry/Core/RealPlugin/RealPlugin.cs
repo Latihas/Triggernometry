@@ -609,7 +609,7 @@ public partial class RealPlugin {
 			ZoneChanged(currentZone);
 		}
 		try {
-			if (logLine != "" && (logLine.Length < 5 || logLine.Substring(logLine.Length - 5) != "] FB:")) {
+			if (logLine != "" && (logLine.Length < 5 || logLine[^5..] != "] FB:")) {
 				if (cfg.LogNormalEvents) {
 					logFlattenACT.Enqueue(logLine);
 					if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.Dequeue();
