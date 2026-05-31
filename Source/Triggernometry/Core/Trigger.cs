@@ -480,7 +480,7 @@ public class Trigger {
 		if (Condition.CheckCondition(ctx, TriggerContextLogger, ctx.Plugin))
 			return false;
 
-		AddToLog(RealPlugin.DebugLevelEnum.Info, I18n.Translate("internal/Trigger/trignotfired", "Trigger '{0}' not fired, condition not met", LogName));
+		AddToLog(RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Trigger/trignotfired", "Trigger '{0}' not fired, condition not met", LogName));
 		return true;
 	}
 

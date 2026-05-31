@@ -49,10 +49,10 @@ public partial class RealPlugin {
 		switch (level) {
 			case DebugLevelEnum.Error: Log.Error(dl); break;
 			case DebugLevelEnum.Warning: Log.Warning(dl); break;
-			case DebugLevelEnum.Verbose: Log.Verbose(dl); break;
 			case DebugLevelEnum.None:
 			case DebugLevelEnum.Custom:
 			case DebugLevelEnum.Custom2:
+			case DebugLevelEnum.Verbose: Log.Verbose(dl); break;
 			case DebugLevelEnum.Info:
 			case DebugLevelEnum.Inherit:
 			default: Log.Info(dl); break;

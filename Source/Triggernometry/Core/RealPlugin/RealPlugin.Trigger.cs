@@ -149,7 +149,7 @@ public partial class RealPlugin {
 					return;
 				}
 			}
-			trigger.AddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/trigfiring", "Firing trigger '{0}'", trigger.LogName));
+			trigger.AddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/trigfiring", "Firing trigger '{0}'", trigger.LogName));
 			var ctx = new Context(trigger) {
 				soundhook = SoundPlaybackSmart,
 				ttshook = TtsPlaybackSmart
