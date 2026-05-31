@@ -116,10 +116,6 @@ public class ProxyPlugin : IActPluginV1 {
 			} catch (Exception ex) {
 				log.Warning($"Error Updating Configuration: {ex}");
 			}
-			framework.RunOnFrameworkThread(() => {
-				dalamudPlugin.ConfigurationInstance.Version = latestVer;
-				dalamudPlugin.ConfigurationInstance.Save();
-			}).Wait();
 		}
 		Instance.InitPlugin();
 		RealPlugin.Instance.InitAura();
