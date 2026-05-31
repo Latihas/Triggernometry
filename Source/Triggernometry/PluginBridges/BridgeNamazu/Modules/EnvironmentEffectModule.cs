@@ -91,7 +91,7 @@ public partial class EnvironmentEffectModule : ModuleBase {
 		CheckIfAnyZeroPtr();
 		var contentDirectorPtr = ContentDirector;
 		if (contentDirectorPtr != null) {
-			var success = RunOnFrameworkThread(() => MapEffectD(contentDirectorPtr, index, flag));
+			var success = RunOnTick(() => MapEffectD(contentDirectorPtr, index, flag));
 			if (!success) {
 				WarningLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 中 MapEffect ({index}, {flag}) 调用失败。");
 			}
@@ -107,7 +107,7 @@ public partial class EnvironmentEffectModule : ModuleBase {
 		CheckIfAnyZeroPtr();
 		var contentDirectorPtr = ContentDirector;
 		if (contentDirectorPtr != null) {
-			RunOnFrameworkThreadV(() => MapEffectOldD(contentDirectorPtr, index, unknownFlag, flag));
+			RunOnTickV(() => MapEffectOldD(contentDirectorPtr, index, unknownFlag, flag));
 		} else {
 			ErrorLog($"[鲶鱼精邮差扩展] 当前地图 {BridgeFFXIV.ZoneID} 不存在 Director，无法调用 MapEffect (Old) ({index}, {unknownFlag}, {flag})。");
 		}
@@ -125,10 +125,8 @@ public partial class EnvironmentEffectModule : ModuleBase {
 	public unsafe void ChangeWeather(byte weatherId) {
 		CheckIfAnyZeroPtr();
 		var envManagerPtr = EnvManager.Instance();
-		RunOnFrameworkThreadV(() => {
-			envManagerPtr->ActiveWeather = weatherId; // ActiveWeather
-			envManagerPtr->TransitionTime = 1; // TransitionTime
-		});
+		envManagerPtr->ActiveWeather = weatherId; // ActiveWeather
+		envManagerPtr->TransitionTime = 1; // TransitionTime
 	}
 
 	[GeneratedRegex(@"^(?<flag>[0-9A-Fa-f]{4})(?<unknownFlag>[0-9A-Fa-f]{4})?[:|](?<index>[0-9A-Fa-f]{1,8})$", RegexOptions.Compiled)]

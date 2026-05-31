@@ -45,7 +45,7 @@ internal static class VfxManager {
 	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null) => Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
 
 	public static unsafe StaticVfx InitStatic(string fullPath, string tag = null, Action<StaticVfx> modifier = null) {
-		return RunOnFrameworkThread(() => {
+		return RunOnTick(() => {
 			var vfxPtr = Module.StaticVfxCreate(fullPath);
 
 			var vfx = new StaticVfx {
@@ -63,13 +63,11 @@ internal static class VfxManager {
 
 				if (!vfx.Removed)
 					Module.StaticVfxRun(vfx.Vfx);
-
 				return vfx;
 			} catch {
 				try {
 					vfx.TryRemove();
 				} catch { }
-
 				throw;
 			}
 		});

@@ -190,39 +190,34 @@ public class EntityModule : ModuleBase {
 		var pos = new Vector3(x, z, y); // 注意 Y Z 轴交换
 		var gameObject = (GameObject*)objectAddress;
 		var modelAddress = gameObject->DrawObject;
-		RunOnFrameworkThreadV(() => {
-			gameObject->Position = pos;
-			if (modelAddress != null)
-				modelAddress->Position = pos;
-		});
+		gameObject->Position = pos;
+		if (modelAddress != null) modelAddress->Position = pos;
 	}
 
 	public unsafe void SetDefaultPos(IntPtr objectAddress, float x, float y, float z) =>
-		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->DefaultPosition = new Vector3(x, z, y)); // 注意 Y Z 轴交换
+		((GameObject*)objectAddress)->DefaultPosition = new Vector3(x, z, y); // 注意 Y Z 轴交换
 
 	public unsafe void SetModelRelPos(IntPtr objectAddress, float dx, float dy, float dz) =>
-		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->DrawOffset = new Vector3(dx, dz, dy)); // 注意 Y Z 轴交换
+		((GameObject*)objectAddress)->DrawOffset = new Vector3(dx, dz, dy); // 注意 Y Z 轴交换
 
 	public unsafe void SetHeading(IntPtr objectAddress, float h) {
 		var gameObject = (GameObject*)objectAddress;
 		var modelAddress = gameObject->DrawObject;
-		RunOnFrameworkThreadV(() => {
-			gameObject->Rotation = h;
-			// 四元数
-			modelAddress->Rotation.Y = (float)Math.Sin(h / 2);
-			modelAddress->Rotation.W = (float)Math.Cos(h / 2);
-		});
+
+		gameObject->Rotation = h;
+		// 四元数
+		modelAddress->Rotation.Y = (float)Math.Sin(h / 2);
+		modelAddress->Rotation.W = (float)Math.Cos(h / 2);
 	}
 
 	public unsafe void SetDefaultHeading(IntPtr objectAddress, float h) =>
-		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->DefaultRotation = h);
+		((GameObject*)objectAddress)->DefaultRotation = h;
 
 	public unsafe void Target(IntPtr address, bool hard = true, bool soft = true) {
 		CheckIfAnyZeroPtr();
-		RunOnFrameworkThreadV(() => {
-			if (hard) TargetSystem.Instance()->Target = (GameObject*)address;
-			if (soft) TargetSystem.Instance()->SoftTarget = (GameObject*)address;
-		});
+
+		if (hard) TargetSystem.Instance()->Target = (GameObject*)address;
+		if (soft) TargetSystem.Instance()->SoftTarget = (GameObject*)address;
 	}
 
 	/// <summary> 见 status 参数描述 </summary>
@@ -235,34 +230,34 @@ public class EntityModule : ModuleBase {
 	///     16384: 不重绘：有模型无名牌、不可选；重绘：不变，刷新模型 <br />
 	/// </param>
 	public unsafe void SetModelStatus(IntPtr objectAddress, int status) =>
-		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->RenderFlags = (VisibilityFlags)status);
+		((GameObject*)objectAddress)->RenderFlags = (VisibilityFlags)status;
 
 	public unsafe void SetObjectScaleTemp(IntPtr objectAddress, float scaleX, float scaleY, float scaleZ) =>
-		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->DrawObject->Scale = new Vector3(scaleX, scaleZ, scaleY));
+		((GameObject*)objectAddress)->DrawObject->Scale = new Vector3(scaleX, scaleZ, scaleY);
 
 	public unsafe void SetObjectScale(IntPtr objectAddress, float scale) {
-		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->Scale = scale);
+		((GameObject*)objectAddress)->Scale = scale;
 		ReDraw(objectAddress);
 	}
 
 	// FFXIVClientStructs/FFXIV/Client/Game/Character/Character.cs    public float Alpha;
 	public unsafe void SetOpacity(IntPtr objectAddress, float opacity) =>
-		RunOnFrameworkThreadV(() => ((Character*)objectAddress)->Alpha = opacity);
+		((Character*)objectAddress)->Alpha = opacity;
 
 	public unsafe void SetStatusLoopVfx(IntPtr objectAddress, ushort id) {
-		RunOnFrameworkThreadV(() => ((GameObject*)objectAddress)->GimmickId = id);
+		((GameObject*)objectAddress)->GimmickId = id;
 		ReDraw(objectAddress);
 	}
 
 	public unsafe void EnableDraw(IntPtr objectAddress) {
-		RunOnFrameworkThreadV(() => {
+		RunOnTickV(() => {
 			var character = (GameObject*)objectAddress;
 			character->VirtualTable->EnableDraw(character);
 		});
 	}
 
 	public unsafe void DisableDraw(IntPtr objectAddress) {
-		RunOnFrameworkThreadV(() => {
+		RunOnTickV(() => {
 			var character = (GameObject*)objectAddress;
 			character->VirtualTable->DisableDraw(character);
 		});
@@ -274,12 +269,12 @@ public class EntityModule : ModuleBase {
 	}
 
 	public unsafe void SetHighlightColor(IntPtr character, byte color) =>
-		RunOnFrameworkThreadV(() => ((GameObject*)character)->Highlight((ObjectHighlightColor)color));
+		RunOnTickV(() => ((GameObject*)character)->Highlight((ObjectHighlightColor)color));
 
 	public unsafe void RemoveStatus(IntPtr address, ushort statusId) {
 		CheckIfAnyZeroPtr();
 		var sm = ((Character*)address)->GetStatusManager();
-		RunOnFrameworkThreadV(() => sm->RemoveStatus((int)sm->GetStatusId(statusId)));
+		RunOnTickV(() => sm->RemoveStatus((int)sm->GetStatusId(statusId)));
 	}
 
 	public void EObjAnimation(IntPtr objectPtr, ushort animationId, ushort slotMask, long context = 0) {
@@ -292,7 +287,7 @@ public class EntityModule : ModuleBase {
 		if (obj.Type != EntityType.EventObj) {
 			throw new Exception($"[EObjAnimation] 指定实体 \"{obj.Name}\" ({obj.ID:X8}) @ {(long)objectPtr:X} 类型 {obj.Type} 不是 EventObject");
 		}
-		RunOnFrameworkThreadV(() => EObjAnimationD(objectPtr, animationId, slotMask, context));
+		RunOnTickV(() => EObjAnimationD(objectPtr, animationId, slotMask, context));
 	}
 
 	//TODO Verify
@@ -301,7 +296,7 @@ public class EntityModule : ModuleBase {
 		// 原函数是 实体->TimelineContainer 的方法，这里封装改用了实体本身的地址
 		CheckIfAnyZeroPtr();
 		var chara = (Character*)objectPtr;
-		RunOnFrameworkThreadV(() => {
+		RunOnTickV(() => {
 			chara->Timeline.BaseOverride = (ushort)(a4 ? 1 : 0);
 			chara->Timeline.PlayActionTimeline(introId, loopId);
 		});

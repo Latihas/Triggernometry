@@ -16,8 +16,8 @@ public abstract class ModuleBase {
 	public static NamazuScanner Scanner => Plugin?.SigScanner;
 	public static GreyMagicExternalProcessMemory Memory => Plugin.Memory;
 	public Action ScanMethod;
-	public static void RunOnFrameworkThreadV(Action a) => ProxyPlugin.Framework.RunOnFrameworkThread(a).Wait();
-	public static T RunOnFrameworkThread<T>(Func<T> a) => ProxyPlugin.Framework.RunOnFrameworkThread(a).Result;
+	public static void RunOnTickV(Action a) => ProxyPlugin.Framework.RunOnTick(a).Wait();
+	public static T RunOnTick<T>(Func<T> a) => ProxyPlugin.Framework.RunOnTick(a).Result;
 
 	public void Scan() {
 		if (ScanMethod == null) throw new Exception($"[鲶鱼精邮差扩展] {GetType().Name} 扫描方法 ScanMethod 未设置。");

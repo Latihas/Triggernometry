@@ -143,7 +143,7 @@ public partial class VfxModule : ModuleBase {
 		if (srcAddress <= 0xFFFF || tgtAddress <= 0xFFFF)
 			throw new Exception($"[鲶鱼精邮差扩展] ActorVfxCreate ({fullPath}) 实体地址无效：src = {srcAddress:X}, tgt = {tgtAddress:X}");
 
-		var vfxPtr = RunOnFrameworkThread<Pointer<VfxObject>>(() => ActorVfxCreateD(fullPath, srcAddress, tgtAddress, unknownParamTest, (char)0, 0, (char)0));
+		var vfxPtr = RunOnTick<Pointer<VfxObject>>(() => ActorVfxCreateD(fullPath, srcAddress, tgtAddress, unknownParamTest, (char)0, 0, (char)0));
 		var vfx = new ActorVfx {
 			Vfx = vfxPtr,
 			Path = fullPath,
@@ -170,7 +170,7 @@ public partial class VfxModule : ModuleBase {
 			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"ActorVfxRemoveHook未就绪，不移除特效 {(IntPtr)vfxPtr:X}");
 			return false;
 		}
-		if (!isDetour) RunOnFrameworkThread(() => ActorVfxRemoveD(vfx.Vfx, (char)1)); // a2: bool freeMemory
+		if (!isDetour) RunOnTick(() => ActorVfxRemoveD(vfx.Vfx, (char)1)); // a2: bool freeMemory
 		return true;
 	}
 
@@ -224,7 +224,7 @@ public partial class VfxModule : ModuleBase {
 
 	public unsafe void StaticVfxRun(VfxObject* vfxPtr) {
 		CheckIfAnyZeroPtr();
-		RunOnFrameworkThreadV(() => StaticVfxRunD(vfxPtr, 0.0f, -1));
+		RunOnTickV(() => StaticVfxRunD(vfxPtr, 0.0f, -1));
 	}
 
 	// private void StaticVfxFadeout(IntPtr vfxPtr, float fadeFrames60)
@@ -245,7 +245,7 @@ public partial class VfxModule : ModuleBase {
 			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"StaticVfxRemoveHook未就绪，不移除特效 {(IntPtr)vfxPtr:X}");
 			return false;
 		}
-		if (!isDetour) RunOnFrameworkThread(() => StaticVfxRemoveD(vfxPtr));
+		if (!isDetour) RunOnTick(() => StaticVfxRemoveD(vfxPtr));
 		return true;
 	}
 

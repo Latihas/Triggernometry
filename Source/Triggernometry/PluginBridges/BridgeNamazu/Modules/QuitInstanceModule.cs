@@ -23,6 +23,6 @@ public class QuitInstanceModule : ModuleBase {
 
 	public void QuitInstance(bool shouldForceQuit) {
 		CheckIfAnyZeroPtr();
-		RunOnFrameworkThreadV(() => QuitInstanceD((byte)(shouldForceQuit ? 1 : 0)));
+		RunOnTickV(() => QuitInstanceD((byte)(shouldForceQuit ? 1 : 0)));
 	}
 }

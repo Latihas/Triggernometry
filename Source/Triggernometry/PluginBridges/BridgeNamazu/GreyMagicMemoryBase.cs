@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using Dalamud;
-using Triggernometry.Core;
 using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu;
@@ -31,19 +26,19 @@ public class GreyMagicMemoryBase {
 	//     => _memory.ReadBytes<T>(addr);
 	// public byte[] ReadBytes(IntPtr addr, int count, bool isRelative)
 	//     => _memory.ReadBytes(addr, count, isRelative);
-	public byte[] ReadBytes(IntPtr addr, int count) {
-		SafeMemory.ReadBytes(addr, count, out var buffer);
-		return buffer;
-	}
+	// public byte[] ReadBytes(IntPtr addr, int count) {
+	// 	SafeMemory.ReadBytes(addr, count, out var buffer);
+	// 	return buffer;
+	// }
 
 	// public T Read<T>(bool isRelative, params IntPtr[] addrs) where T : struct
 	//     => _memory.Read<T>(isRelative, addrs);
 	// public T Read<T>(IntPtr addr, bool isRelative) where T : struct
 	//     => _memory.Read<T>(addr, isRelative);
-	public T Read<T>(IntPtr addr) where T : struct {
-		SafeMemory.Read<T>(addr, out var res);
-		return res;
-	}
+	// public T Read<T>(IntPtr addr) where T : struct {
+	// 	SafeMemory.Read<T>(addr, out var res);
+	// 	return res;
+	// }
 
 	// public T[] ReadArray<T>(IntPtr addr, int count, bool isRelative) where T : struct
 	//     => _memory.ReadArray<T>(addr, count, isRelative);
@@ -62,58 +57,58 @@ public class GreyMagicMemoryBase {
 	// // Write
 	// public int WriteBytes<T>(IntPtr addr, byte[] bytes, bool isRelative)
 	//     => _memory.WriteBytes<T>(addr, bytes, isRelative);
-	private static Lock WriteLock = new();
+	// private static Lock WriteLock = new();
+	//
+	// public void WriteBytes(IntPtr addr, byte[] bytes) {
+	// 	ExecuteWithLock(() => {
+	// 		lock (WriteLock) {
+	// 			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing MemoryBytes {addr} {ToMemoryView(bytes)}");
+	// 			SafeMemory.WriteBytes(addr, bytes);
+	// 		}
+	// 	});
+	// }
 
-	public void WriteBytes(IntPtr addr, byte[] bytes) {
-		ExecuteWithLock(() => {
-			lock (WriteLock) {
-				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing MemoryBytes {addr} {ToMemoryView(bytes)}");
-				SafeMemory.WriteBytes(addr, bytes);
-			}
-		});
-	}
+	// [DllImport("kernel32.dll")]
+	// public static extern bool IsBadWritePtr(IntPtr lp, uint ucb);
+	//
+	// public void Write<T>(IntPtr addr, T value) where T : struct {
+	// 	ExecuteWithLock(() => {
+	// 		lock (WriteLock) {
+	// 			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing Memory {addr} {value}");
+	// 			if (addr == IntPtr.Zero || IsBadWritePtr(addr, (uint)Marshal.SizeOf<T>()))
+	// 				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Bad Memory {addr} {value}");
+	// 			else SafeMemory.Write(addr, value);
+	// 		}
+	// 	});
+	// }
 
-	[DllImport("kernel32.dll")]
-	public static extern bool IsBadWritePtr(IntPtr lp, uint ucb);
-
-	public void Write<T>(IntPtr addr, T value) where T : struct {
-		ExecuteWithLock(() => {
-			lock (WriteLock) {
-				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Writing Memory {addr} {value}");
-				if (addr == IntPtr.Zero || IsBadWritePtr(addr, (uint)Marshal.SizeOf<T>()))
-					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Bad Memory {addr} {value}");
-				else SafeMemory.Write(addr, value);
-			}
-		});
-	}
-
-	public static string ToMemoryView(byte[] bytes, int bytesPerLine = 16) {
-		if (bytes == null)
-			return "byte[] is null";
-		if (bytes.Length == 0)
-			return "byte[] is empty";
-		var result = new StringBuilder();
-		var totalLines = (bytes.Length + bytesPerLine - 1) / bytesPerLine;
-
-		for (var line = 0; line < totalLines; line++) {
-			var startIndex = line * bytesPerLine;
-			var endIndex = Math.Min(startIndex + bytesPerLine, bytes.Length);
-			var currentLineByteCount = endIndex - startIndex;
-			result.AppendFormat("{0:X8}  ", startIndex);
-			for (var i = 0; i < bytesPerLine; i++) {
-				if (i < currentLineByteCount) result.AppendFormat("{0:X2} ", bytes[startIndex + i]);
-				else result.Append("   ");
-			}
-			result.Append(" ");
-			for (var i = 0; i < currentLineByteCount; i++) {
-				var b = bytes[startIndex + i];
-				var asciiChar = b >= 32 && b <= 126 ? (char)b : '.';
-				result.Append(asciiChar);
-			}
-			result.AppendLine();
-		}
-		return result.ToString();
-	}
+	// public static string ToMemoryView(byte[] bytes, int bytesPerLine = 16) {
+	// 	if (bytes == null)
+	// 		return "byte[] is null";
+	// 	if (bytes.Length == 0)
+	// 		return "byte[] is empty";
+	// 	var result = new StringBuilder();
+	// 	var totalLines = (bytes.Length + bytesPerLine - 1) / bytesPerLine;
+	//
+	// 	for (var line = 0; line < totalLines; line++) {
+	// 		var startIndex = line * bytesPerLine;
+	// 		var endIndex = Math.Min(startIndex + bytesPerLine, bytes.Length);
+	// 		var currentLineByteCount = endIndex - startIndex;
+	// 		result.AppendFormat("{0:X8}  ", startIndex);
+	// 		for (var i = 0; i < bytesPerLine; i++) {
+	// 			if (i < currentLineByteCount) result.AppendFormat("{0:X2} ", bytes[startIndex + i]);
+	// 			else result.Append("   ");
+	// 		}
+	// 		result.Append(" ");
+	// 		for (var i = 0; i < currentLineByteCount; i++) {
+	// 			var b = bytes[startIndex + i];
+	// 			var asciiChar = b >= 32 && b <= 126 ? (char)b : '.';
+	// 			result.Append(asciiChar);
+	// 		}
+	// 		result.AppendLine();
+	// 	}
+	// 	return result.ToString();
+	// }
 	// public void Write<T>(IntPtr addr, T value, bool isRelative) where T : struct
 	//     => _memory.Write<T>(addr, value, isRelative);
 

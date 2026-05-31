@@ -21,14 +21,14 @@ public abstract class VfxBase {
 
 	public unsafe void Update() {
 		if (Removed) return;
-		RunOnFrameworkThreadV(() => Vfx->UpdateTransforms(true));
+		RunOnTickV(() => Vfx->UpdateTransforms(true));
 	}
 
 	public unsafe byte Flag {
 		get => (byte)Vfx->ObjectFlags;
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => Vfx->ObjectFlags = value);
+			Vfx->ObjectFlags = value;
 		}
 	}
 
@@ -39,7 +39,7 @@ public abstract class VfxBase {
 		}
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => Vfx->Position = new Vector3(value.X, value.Z, value.Y));
+			Vfx->Position = new Vector3(value.X, value.Z, value.Y);
 		}
 	}
 
@@ -77,7 +77,7 @@ public abstract class VfxBase {
 		set {
 			if (Removed) return;
 			var q = Quaternion.CreateFromYawPitchRoll(value.Z, value.Y, value.X); // θy, θx, θ
-			RunOnFrameworkThreadV(() => Vfx->Rotation = new Quaternion(q.X, q.Z, q.Y, q.W));
+			Vfx->Rotation = new Quaternion(q.X, q.Z, q.Y, q.W);
 		}
 	}
 
@@ -88,7 +88,7 @@ public abstract class VfxBase {
 		}
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => Vfx->Scale = new Vector3(value.X, value.Z, value.Y));
+			Vfx->Scale = new Vector3(value.X, value.Z, value.Y);
 		}
 	}
 
@@ -96,7 +96,7 @@ public abstract class VfxBase {
 		get => Vfx->ActorCaster;
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => Vfx->ActorCaster = value);
+			Vfx->ActorCaster = value;
 		}
 	}
 
@@ -104,7 +104,7 @@ public abstract class VfxBase {
 		get => Vfx->ActorTarget;
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => Vfx->ActorTarget = value);
+			Vfx->ActorTarget = value;
 		}
 	}
 
@@ -112,7 +112,7 @@ public abstract class VfxBase {
 		get => Vfx->StaticCaster;
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => Vfx->StaticCaster = value);
+			Vfx->StaticCaster = value;
 		}
 	}
 
@@ -120,7 +120,7 @@ public abstract class VfxBase {
 		get => Vfx->StaticTarget;
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => Vfx->StaticTarget = value);
+			Vfx->StaticTarget = value;
 		}
 	}
 
@@ -131,7 +131,7 @@ public abstract class VfxBase {
 		}
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => SafeMemory.Write((IntPtr)(Vfx + 0x250), value));
+			SafeMemory.Write((IntPtr)(Vfx + 0x250), value);
 		}
 	}
 
@@ -139,7 +139,7 @@ public abstract class VfxBase {
 		get => Vfx->Color;
 		set {
 			if (Removed) return;
-			RunOnFrameworkThreadV(() => Vfx->Color = value);
+			Vfx->Color = value;
 		}
 	}
 }

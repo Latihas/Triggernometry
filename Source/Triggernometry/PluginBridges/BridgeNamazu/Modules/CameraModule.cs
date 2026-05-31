@@ -83,7 +83,7 @@ public class CameraModule : ModuleBase {
 			default:
 				if (Offsets.TryGetValue(param, out var offset)) {
 					var address = (IntPtr)Camera + offset;
-					RunOnFrameworkThreadV(() => SafeMemory.Write(address, newValue));
+					SafeMemory.Write(address, newValue);
 					Custom2Log($"[鲶鱼精邮差扩展] 成功设置相机参数 {param} = {newValue}");
 				} else {
 					ErrorLog($"[鲶鱼精邮差扩展] 错误的相机参数 ({param})。");
