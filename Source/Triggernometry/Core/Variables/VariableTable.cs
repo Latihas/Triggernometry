@@ -366,8 +366,9 @@ public class VariableTable : Variable {
 					: new VariableScalar();
 			}
 
-			Rows[index] = new VariableTableRow();
-			Rows[index].Values = [];
+			Rows[index] = new VariableTableRow {
+				Values = []
+			};
 			Rows[index].Values.AddRange(vs);
 		}
 		if (changer != "") {

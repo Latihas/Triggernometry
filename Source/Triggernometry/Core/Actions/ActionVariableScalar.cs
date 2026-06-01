@@ -257,10 +257,11 @@ public class ActionVariableScalar : ActionBase {
 					newval = I18n.ThingToString(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, Value));
 				}
 
-				var x = new VariableScalar();
-				x.Value = newval;
-				x.LastChanger = changer;
-				x.LastChanged = DateTime.Now;
+				var x = new VariableScalar {
+					Value = newval,
+					LastChanger = changer,
+					LastChanged = DateTime.Now
+				};
 				lock (vs.Scalar) // verified
 				{
 					vs.Scalar[varname] = x;
@@ -341,9 +342,10 @@ public class ActionVariableScalar : ActionBase {
 				var p = new JsonParser().Parse(newval);
 				var result = pc.Select(p, query).ToArray();
 
-				var x = new VariableList();
-				x.LastChanger = changer;
-				x.LastChanged = DateTime.Now;
+				var x = new VariableList {
+					LastChanger = changer,
+					LastChanged = DateTime.Now
+				};
 				switch (result.Length) {
 					case 0: break;
 					case 1:

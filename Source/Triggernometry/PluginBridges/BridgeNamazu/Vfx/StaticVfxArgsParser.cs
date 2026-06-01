@@ -19,9 +19,10 @@ internal static partial class StaticVfxArgsParser {
 		if (data == null)
 			throw new ArgumentNullException(nameof(data));
 
-		var args = new StaticVfxArgs();
+		var args = new StaticVfxArgs {
+			Action = ParseAction(data)
+		};
 
-		args.Action = ParseAction(data);
 		ParseTypeAndPath(data, args);
 		ParseControl(data, args);
 		ParseColor(data, args);

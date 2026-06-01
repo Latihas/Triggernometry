@@ -127,8 +127,9 @@ internal class ObsController : IDisposable {
 	}
 
 	private void HandleHelloOp(HelloOp helloData, string password) {
-		var identify = new IdentifyOp();
-		identify.rpcVersion = maxRpcVersion;
+		var identify = new IdentifyOp {
+			rpcVersion = maxRpcVersion
+		};
 		if (helloData?.authentication?.challenge != null) {
 			if (password != null && password.Length > 0) {
 				helloData.authentication.password = password;

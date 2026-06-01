@@ -199,8 +199,9 @@ public class WindowsUtils {
 
 	public static bool IsInFocus(string windowtitle) {
 		var hwnd = FindWindow(null, windowtitle);
-		var wp = new WINDOWPLACEMENT();
-		wp.showCmd = SW_UNKNOWN;
+		var wp = new WINDOWPLACEMENT {
+			showCmd = SW_UNKNOWN
+		};
 		if (hwnd != IntPtr.Zero) {
 			wp.length = Marshal.SizeOf(typeof(WINDOWPLACEMENT));
 			if (GetWindowPlacement(hwnd, ref wp)) {

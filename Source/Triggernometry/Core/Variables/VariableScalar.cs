@@ -32,10 +32,11 @@ public class VariableScalar : Variable {
 	}
 
 	public override Variable Duplicate() {
-		var v = new VariableScalar();
-		v.Value = Value;
-		v.LastChanger = LastChanger;
-		v.LastChanged = LastChanged;
+		var v = new VariableScalar {
+			Value = Value,
+			LastChanger = LastChanger,
+			LastChanged = LastChanged
+		};
 		return v;
 	}
 }

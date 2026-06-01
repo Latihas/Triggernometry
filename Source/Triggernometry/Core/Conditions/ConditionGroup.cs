@@ -52,9 +52,10 @@ public sealed class ConditionGroup : ConditionComponent {
 	}
 
 	internal override ConditionComponent Duplicate() {
-		var cg = new ConditionGroup();
-		cg.Enabled = Enabled;
-		cg.Grouping = Grouping;
+		var cg = new ConditionGroup {
+			Enabled = Enabled,
+			Grouping = Grouping
+		};
 		foreach (var cc in Children) {
 			cg.AddChild(cc.Duplicate());
 		}

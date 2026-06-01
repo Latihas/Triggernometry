@@ -443,10 +443,11 @@ public class ActionVariableList : ActionBase {
 					var vl = svs.GetListVariable(sourcename, false);
 					newval = vl.Pop(rawIndex, changer).ToString();
 				}
-				var x = new VariableScalar();
-				x.Value = newval;
-				x.LastChanger = changer;
-				x.LastChanged = DateTime.Now;
+				var x = new VariableScalar {
+					Value = newval,
+					LastChanger = changer,
+					LastChanged = DateTime.Now
+				};
 				lock (tvs.Scalar) // verified
 				{
 					tvs.Scalar[targetname] = x;

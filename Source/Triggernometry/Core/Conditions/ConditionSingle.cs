@@ -182,13 +182,14 @@ public sealed class ConditionSingle : ConditionComponent {
 	}
 
 	internal override ConditionComponent Duplicate() {
-		var cs = new ConditionSingle();
-		cs.ConditionType = ConditionType;
-		cs.Enabled = Enabled;
-		cs.ExpressionL = ExpressionL;
-		cs.ExpressionR = ExpressionR;
-		cs.ExpressionTypeL = ExpressionTypeL;
-		cs.ExpressionTypeR = ExpressionTypeR;
+		var cs = new ConditionSingle {
+			ConditionType = ConditionType,
+			Enabled = Enabled,
+			ExpressionL = ExpressionL,
+			ExpressionR = ExpressionR,
+			ExpressionTypeL = ExpressionTypeL,
+			ExpressionTypeR = ExpressionTypeR
+		};
 		return cs;
 	}
 

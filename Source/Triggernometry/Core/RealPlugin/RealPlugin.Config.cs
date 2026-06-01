@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Variables;
@@ -26,21 +27,20 @@ public partial class RealPlugin {
 		if (!cfg._ShowWelcomeHasBeenSet && (cfg.Root.Folders.Count > 0 || cfg.Root.Triggers.Count > 0)) {
 			cfg.ShowWelcome = false;
 		}
-		var v = Assembly.GetExecutingAssembly().GetName().Version;
+		var v = Assembly.GetExecutingAssembly().GetName().Version!;
 		if (v < new Version("1.1.6.0")) {
 			if (cfg.FfxivPartyOrdering == Configuration.FfxivPartyOrderingEnum.Legacy) {
 				cfg.FfxivPartyOrdering = Configuration.FfxivPartyOrderingEnum.CustomSelfFirst;
 			}
 		}
 		var dummy = new Configuration();
-		foreach (var kp in dummy.Constants) {
-			if (!cfg.Constants.ContainsKey(kp.Key)) {
-				cfg.Constants[kp.Key] = new VariableScalar {
-					Value = kp.Value.Value,
-					LastChanged = kp.Value.LastChanged,
-					LastChanger = kp.Value.LastChanger
-				};
-			}
+		foreach (var kp in dummy.Constants
+			         .Where(kp => !cfg.Constants.ContainsKey(kp.Key))) {
+			cfg.Constants[kp.Key] = new VariableScalar {
+				Value = kp.Value.Value,
+				LastChanged = kp.Value.LastChanged,
+				LastChanger = kp.Value.LastChanger
+			};
 		}
 		cfg.Constants["TriggernometryVersionMajor"] = new VariableScalar {
 			Value = v.Major.ToString()
@@ -57,7 +57,7 @@ public partial class RealPlugin {
 	}
 
 	public void HandleVersionUpdate() {
-		var currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+		var currentVersion = Assembly.GetExecutingAssembly().GetName().Version!.ToString();
 		var prevVersion = cfg.PluginVersion ?? "pre1.0.4.4";
 		if (prevVersion != currentVersion) {
 			// Inform the user to view the changelog after a version change.
@@ -77,7 +77,7 @@ public partial class RealPlugin {
 				"The plugin had been updated from {0} to {1}. \r\nWould you like to view the changelog?",
 				prevVersion, currentVersion);
 			var tray = TraySlider.Info(2, msg, title);
-			tray.OnClick1 = () => ShowChangeLog();
+			tray.OnClick1 = ShowChangeLog;
 			tray.Show();
 		}
 	}
@@ -117,20 +117,20 @@ public partial class RealPlugin {
 			var corruptFallback = false;
 			string? lastLine = null;
 
-			// try {
-			ProxyPlugin.Framework.RunOnFrameworkThread(() => {
-				lastLine = File.ReadAllLines(origfilename).LastOrDefault();
-			}).Wait();
-			// } catch {
-			// 	Thread.Sleep(100);
-			// 	try {
-			// 		ProxyPlugin.Framework.RunOnTick(() => {
-			// 			lastLine = File.ReadAllLines(origfilename).LastOrDefault();
-			// 		}).Wait();
-			// 	} catch {
-			// 		//
-			// 	}
-			// }
+			try {
+				ProxyPlugin.Framework.RunOnFrameworkThread(() => {
+					lastLine = File.ReadAllLines(origfilename).LastOrDefault();
+				}).Wait();
+			} catch {
+				Thread.Sleep(100);
+				try {
+					ProxyPlugin.Framework.RunOnFrameworkThread(() => {
+						lastLine = File.ReadAllLines(origfilename).LastOrDefault();
+					}).Wait();
+				} catch {
+					//
+				}
+			}
 			if (lastLine == null || lastLine.Trim() != "</Configuration>") {
 				// configuration has been corrupted, try loading previous config file instead
 				var newfilename = filename + ".previous";

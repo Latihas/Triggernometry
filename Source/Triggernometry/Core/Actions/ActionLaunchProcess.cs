@@ -89,11 +89,12 @@ internal class ActionLaunchProcess : ActionBase {
 		var plug = ctx.Plugin;
 
 		var p = new Process();
-		var psi = new ProcessStartInfo();
-		psi.Arguments = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Arguments);
-		psi.WindowStyle = WindowStyle;
-		psi.WorkingDirectory = ctx.EvaluateStringExpression(ActionContextLogger, ctx, WorkingDirectory);
-		psi.FileName = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Path);
+		var psi = new ProcessStartInfo {
+			Arguments = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Arguments),
+			WindowStyle = WindowStyle,
+			WorkingDirectory = ctx.EvaluateStringExpression(ActionContextLogger, ctx, WorkingDirectory),
+			FileName = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Path)
+		};
 		p.StartInfo = psi;
 		p.Start();
 		if (!Asynchronous) {

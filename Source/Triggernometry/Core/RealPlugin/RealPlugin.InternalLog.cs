@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,8 +14,8 @@ public partial class RealPlugin {
 	internal readonly Dictionary<DebugLevelEnum, Queue<InternalLog>> log = Enum.GetValues(typeof(DebugLevelEnum))
 		.Cast<DebugLevelEnum>()
 		.ToDictionary(level => level, _ => new Queue<InternalLog>());
-	public readonly Queue<InternalLog> logFlattenTrn = [];
-	public readonly Queue<string> logFlattenACT = [];
+	public readonly ConcurrentQueue<InternalLog> logFlattenTrn = [];
+	public readonly ConcurrentQueue<string> logFlattenACT = [];
 
 	public enum DebugLevelEnum {
 		None,
@@ -76,7 +77,7 @@ public partial class RealPlugin {
 			if (queue.Count > 30000) queue.Dequeue();
 			logFlattenTrn.Enqueue(il);
 			ActGlobals.oFormActMain.TrnLogQueue.Enqueue(il.ToString());
-			if (cfg != null && logFlattenTrn.Count > cfg.LogFlattenMaxCount) logFlattenTrn.Dequeue();
+			if (cfg != null && logFlattenTrn.Count > cfg.LogFlattenMaxCount) logFlattenTrn.TryDequeue(out _);
 		}
 	}
 

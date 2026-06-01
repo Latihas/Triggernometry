@@ -33,14 +33,16 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 		=> RealPlugin.Instance.TtsPlaybackHook?.Invoke(text);
 
 	public static void PlayTTS(string text, Context ctx) {
-		var a = new ActionOld();
-		a._UseTTSTextExpression = text;
+		var a = new ActionOld {
+			_UseTTSTextExpression = text
+		};
 		ctx.ttshook(ctx, a);
 	}
 
 	public static void PlaySound(string uri, Context ctx) {
-		var a = new ActionOld();
-		a._PlaySoundFileExpression = uri;
+		var a = new ActionOld {
+			_PlaySoundFileExpression = uri
+		};
 		ctx.soundhook(ctx, a);
 	}
 

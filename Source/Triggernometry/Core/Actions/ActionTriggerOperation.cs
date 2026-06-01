@@ -341,9 +341,10 @@ public class ActionTriggerOperation : ActionBase {
 			}
 				break;
 			case OperationEnum.FireTrigger: {
-				var le = new LogEvent();
-				le.Text = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Text);
-				le.ZoneName = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Zone);
+				var le = new LogEvent {
+					Text = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Text),
+					ZoneName = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Zone)
+				};
 				if (ZoneType == ZoneTypeEnum.ZoneIdFFXIV && le.ZoneName.Trim().Length > 0) {
 					le.ZoneId = le.ZoneName;
 				}

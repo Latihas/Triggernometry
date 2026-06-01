@@ -18,9 +18,10 @@ public class RepositoryFolder {
 	}
 
 	public Folder ConvertToFolder() {
-		var f = new Folder();
-		f.Enabled = Enabled;
-		f.Name = Name;
+		var f = new Folder {
+			Enabled = Enabled,
+			Name = Name
+		};
 		foreach (var r in Repositories) {
 			var fx = r.Root;
 			fx.Parent = f;

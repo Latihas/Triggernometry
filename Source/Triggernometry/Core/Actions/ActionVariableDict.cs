@@ -365,8 +365,9 @@ public class ActionVariableDict : ActionBase {
 				var vd = new VariableDictionary(memberExprs.ToDictionary(
 					member => member,
 					member => XivEntityParser.EvaluateEntityMember(entity, member)
-				));
-				vd.LastChanger = changer;
+				)) {
+					LastChanger = changer
+				};
 
 				lock (svs.Dict) {
 					svs.Dict[sourcename] = vd;

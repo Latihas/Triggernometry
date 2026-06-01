@@ -25,20 +25,22 @@ public partial class RealPlugin {
 			if (cfg.StartupTriggerType == Configuration.StartupTriggerTypeEnum.Trigger) {
 				var t = GetTriggerById(cfg.StartupTriggerId, null);
 				if (t != null) {
-					var le = new LogEvent();
-					le.Text = "";
-					le.ZoneName = "";
-					le.Timestamp = DateTime.Now;
+					var le = new LogEvent {
+						Text = "",
+						ZoneName = "",
+						Timestamp = DateTime.Now
+					};
 					TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.SkipAll);
 				}
 			}
 			if (cfg.StartupTriggerType == Configuration.StartupTriggerTypeEnum.Folder) {
 				var f = GetFolderById(cfg.StartupTriggerId, null);
 				if (f != null) {
-					var le = new LogEvent();
-					le.Text = "";
-					le.ZoneName = "";
-					le.Timestamp = DateTime.Now;
+					var le = new LogEvent {
+						Text = "",
+						ZoneName = "",
+						Timestamp = DateTime.Now
+					};
 					foreach (var tx in f.Triggers) {
 						TestTrigger(tx, le, ActionOld.TriggerForceTypeEnum.SkipAll);
 					}

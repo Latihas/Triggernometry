@@ -600,7 +600,7 @@ public class Trigger {
 
 	#region Utils
 
-	internal bool PassesZoneRestriction(string zone) => Parent.PassesZoneRestriction(zone);
+	internal bool PassesZoneRestriction(string? zone) => Parent.PassesZoneRestriction(zone);
 
 	public void CopySettingsTo(Trigger t) {
 		t.Enabled = Enabled;

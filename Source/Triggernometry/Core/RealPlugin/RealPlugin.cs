@@ -288,8 +288,8 @@ public partial class RealPlugin {
 			}
 			exwhere = I18n.Translate("internal/Plugin/initoasts", "setting up toasts");
 			// if (complainAboutReload) {
-				// ui.ComplainAboutReload();
-				// }
+			// ui.ComplainAboutReload();
+			// }
 			// ui.SetupToasts();
 			// ui.SetupLanguageMenu();
 			isRunningAsAdmin = CheckIfAdministrator(cfg.WarnAdmin);
@@ -416,47 +416,49 @@ public partial class RealPlugin {
 	}
 
 	public void LogLineQueuer(string text, string zone, LogEvent.SourceEnum src) {
-		var le = new LogEvent();
-		le.Text = text;
-		le.ZoneName = zone;
-		le.Source = src;
-		le.Timestamp = DateTime.Now;
+		var le = new LogEvent {
+			Text = text,
+			ZoneName = zone,
+			Source = src,
+			Timestamp = DateTime.Now
+		};
 		lock (EventQueue) {
 			EventQueue.Enqueue(le);
 			QueueWakeupEvent.Set();
 		}
 	}
 
-	internal void LogLineQueuerMass(IEnumerable<string> text, string zone, LogEvent.SourceEnum src, bool testMode, bool testModeZoneId) {
-		var max = text.Count();
-		var i = 0;
-		var lex = new LogEvent[text.Count()];
-		foreach (var x in text) {
-			lex[i] = new LogEvent();
-			lex[i].Text = x;
-			lex[i].ZoneName = zone;
-			lex[i].Source = src;
-			lex[i].Timestamp = DateTime.Now;
-			lex[i].TestMode = testMode;
-			lex[i].ZoneId = testModeZoneId ? zone : null;
-			i++;
-		}
-		if (lex.Count() > 0) {
-			lock (EventQueue) {
-				foreach (var le in lex) {
-					EventQueue.Enqueue(le);
-				}
-				QueueWakeupEvent.Set();
-			}
-		}
-	}
+	// internal void LogLineQueuerMass(IEnumerable<string> text, string zone, LogEvent.SourceEnum src, bool testMode, bool testModeZoneId) {
+	// 	var max = text.Count();
+	// 	var i = 0;
+	// 	var lex = new LogEvent[text.Count()];
+	// 	foreach (var x in text) {
+	// 		lex[i] = new LogEvent {
+	// 			Text = x,
+	// 			ZoneName = zone,
+	// 			Source = src,
+	// 			Timestamp = DateTime.Now,
+	// 			TestMode = testMode,
+	// 			ZoneId = testModeZoneId ? zone : null
+	// 		};
+	// 		i++;
+	// 	}
+	// 	if (lex.Length == 0) return;
+	// 	lock (EventQueue) {
+	// 		foreach (var le in lex) {
+	// 			EventQueue.Enqueue(le);
+	// 		}
+	// 		QueueWakeupEvent.Set();
+	// 	}
+	// }
 
 	private async Task LogLineProcessorAsync(CancellationToken cancellationToken) {
 		var lxx = new List<LogEvent>();
 		var wh = new WaitHandle[2] {
 			cancellationToken.WaitHandle, QueueWakeupEvent
 		};
-		EventQueue.Clear();
+		lock (EventQueue)
+			EventQueue.Clear();
 		while (!cancellationToken.IsCancellationRequested) {
 			try {
 				var waitResult = WaitHandle.WaitAny(wh, Timeout.Infinite);
@@ -490,45 +492,29 @@ public partial class RealPlugin {
 			case LogEvent.SourceEnum.Log:
 				lock (ActiveTextTriggers) // verified
 				{
-					foreach (var t in ActiveTextTriggers) {
-						if (t.ZoneBlocked && !le.TestMode) {
-							continue;
-						}
+					foreach (var t in ActiveTextTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-					}
 				}
 				break;
 			case LogEvent.SourceEnum.NetworkFFXIV:
 				lock (ActiveFFXIVNetworkTriggers) // verified
 				{
-					foreach (var t in ActiveFFXIVNetworkTriggers) {
-						if (t.ZoneBlocked && !le.TestMode) {
-							continue;
-						}
+					foreach (var t in ActiveFFXIVNetworkTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-					}
 				}
 				break;
 			case LogEvent.SourceEnum.ACT:
 				lock (ActiveACTTriggers) // verified
 				{
-					foreach (var t in ActiveACTTriggers) {
-						if (t.ZoneBlocked && !le.TestMode) {
-							continue;
-						}
+					foreach (var t in ActiveACTTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-					}
 				}
 				break;
 			case LogEvent.SourceEnum.Endpoint:
 				lock (ActiveEndpointTriggers) // verified
 				{
-					foreach (var t in ActiveEndpointTriggers) {
-						if (t.ZoneBlocked && !le.TestMode) {
-							continue;
-						}
+					foreach (var t in ActiveEndpointTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-					}
 				}
 				break;
 		}
@@ -541,17 +527,14 @@ public partial class RealPlugin {
 		}
 	}
 
-	internal void ZoneChanged(string zone) {
+	internal void ZoneChanged(string? zone) {
 		int allowed = 0, restricted = 0;
 		lock (Triggers) {
 			foreach (var t in Triggers) {
 				var block = !t.PassesZoneRestriction(zone);
 				t.ZoneBlocked = block;
-				if (block) {
-					restricted++;
-				} else {
-					allowed++;
-				}
+				if (block) restricted++;
+				else allowed++;
 			}
 		}
 		FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/zoneupdate", "Zone update to '{0}' - allowed triggers: {1}, restricted triggers: {2}", zone, allowed, restricted));
@@ -561,13 +544,13 @@ public partial class RealPlugin {
 		switch (data[0]) {
 			case "OnCombatStart":
 			case "OnCombatEnd":
-				LogLineQueuer(data[0], currentZone != null ? currentZone : "", LogEvent.SourceEnum.ACT);
+				LogLineQueuer(data[0], currentZone ?? "", LogEvent.SourceEnum.ACT);
 				break;
 		}
 	}
 
 	public void EndpointReceive(string data) {
-		var detectedZone = currentZone != null ? currentZone : "";
+		var detectedZone = currentZone ?? "";
 		try {
 			if (cfg.LogEndpoint) {
 				FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/endpointline", "Endpoint data: ({0})", data));
@@ -605,19 +588,18 @@ public partial class RealPlugin {
 			ZoneChanged(currentZone);
 		}
 		try {
-			if (logLine != "" && (logLine.Length < 5 || logLine[^5..] != "] FB:")) {
-				if (cfg.LogNormalEvents) {
-					logFlattenACT.Enqueue(logLine);
-					if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.Dequeue();
-				}
-				var szone = BridgeFFXIV.ZoneID;
-				foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
-					if (script!.TerritoryIds() == null || script.TerritoryIds().Contains(szone))
-						script.MatchAll(logLine);
-				LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
+			if (logLine == "" || logLine.Length >= 5 && logLine[^5..] == "] FB:") return;
+			if (cfg.LogNormalEvents) {
+				logFlattenACT.Enqueue(logLine);
+				if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.TryDequeue(out _);
 			}
+			var szone = BridgeFFXIV.ZoneID;
+			foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
+				if (script!.TerritoryIds() == null || script.TerritoryIds().Contains(szone))
+					script.MatchAll(logLine);
+			LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
 		} catch (Exception ex) {
-			FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/procex", "Exception ({0}) when processing log line ({1}) in zone ({2})", ex.Message, logLine, detectedZone));
+			FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/procex", "Exception ({0}) when processing log line ({1}) in zone ({2})", ex, logLine, detectedZone));
 		}
 	}
 
@@ -665,18 +647,15 @@ public partial class RealPlugin {
 		var cachepath = Path.Combine(ConfigPath, cachedir);
 		var dt = DateTime.Now.AddMinutes(0 - expiry);
 		var di = new DirectoryInfo(cachepath);
-		if (di.Exists) {
-			var i = 0;
-			var fis = di.GetFiles();
-			foreach (var fi in fis) {
-				if (fi.LastWriteTime < dt) {
-					fi.Delete();
-					i++;
-				}
-			}
-			return i;
+		if (!di.Exists) return 0;
+		var i = 0;
+		var fis = di.GetFiles();
+		foreach (var fi in fis) {
+			if (fi.LastWriteTime >= dt) continue;
+			fi.Delete();
+			i++;
 		}
-		return 0;
+		return i;
 	}
 
 	public VariableStore GetVariableStore(bool isPersistent)

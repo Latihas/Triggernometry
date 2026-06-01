@@ -10,7 +10,7 @@ using Triggernometry.PluginBridges;
 namespace Triggernometry.Core;
 
 public class Folder {
-	internal Folder Parent { get; set; }
+	internal Folder? Parent { get; set; }
 
 	internal Repository Repo { get; set; } = null;
 
@@ -44,7 +44,7 @@ public class Folder {
 
 	[XmlIgnore] private string _zoneRegex = "";
 
-	[XmlIgnore] private Regex _regexCacheZone;
+	[XmlIgnore] private Regex? _regexCacheZone;
 
 	[XmlIgnore] public string ZoneRegex {
 		get => _zoneRegex;
@@ -242,10 +242,8 @@ public class Folder {
 
 	public bool IsLimited() => ZoneFilterEnabled || EventFilterEnabled || FFXIVJobFilterEnabled || FFXIVZoneFilterEnabled;
 
-	public bool PassesZoneRestriction(string zone) {
-		if (zone == null) {
-			return false;
-		}
+	public bool PassesZoneRestriction(string? zone) {
+		if (zone == null) return false;
 		var ret = true;
 		var f = this;
 		while (f != null && ret) {

@@ -8,9 +8,10 @@ namespace Triggernometry.Core;
 
 public partial class RealPlugin {
 	private void InitLanguage() {
-		var ld = new Language();
-		ld.LanguageName = "English (default)";
-		ld.MissingKeyHandling = Language.MissingHandlingEnum.OutputKey;
+		var ld = new Language {
+			LanguageName = "English (default)",
+			MissingKeyHandling = Language.MissingHandlingEnum.OutputKey
+		};
 		I18n.DefaultLanguage = ld;
 		I18n.AddLanguage(ld);
 		ChangeLanguage(null);

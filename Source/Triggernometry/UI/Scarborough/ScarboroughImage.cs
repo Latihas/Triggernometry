@@ -54,8 +54,9 @@ internal class ScarboroughImage : ScarboroughItem {
 
 	internal GifData GetGifData(byte[] data) {
 		if (data[0] == 71 || data[1] == 73 || data[2] == 70) {
-			var g = new GifData();
-			g.BackgroundColor = data[11];
+			var g = new GifData {
+				BackgroundColor = data[11]
+			};
 			var ii = 10;
 			g.HasGCTF = (data[ii] & 0x80) > 0;
 			if (g.HasGCTF) {
