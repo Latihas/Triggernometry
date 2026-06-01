@@ -464,7 +464,7 @@ public abstract class ActionBase {
 		}
 		var ctx = ai.ctx;
 		if ((ctx.forceType & TriggerForceTypeEnum.SkipConditions) == 0 && !ctx.testByPlaceholder) {
-			if (Condition != null && Condition.Enabled) {
+			if (Condition is { Enabled: true }) {
 				if (!Condition.CheckCondition(ctx, ActionContextLogger, ctx)) {
 					AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/actionnotfired", "Action #{0} on trigger '{1}' not fired, condition not met", OrderNumber, ctx.Trigger?.LogName ?? "(null)"));
 					LastExecutionResult = false;

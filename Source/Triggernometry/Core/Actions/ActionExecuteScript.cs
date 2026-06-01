@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;
@@ -43,11 +43,10 @@ internal class ActionExecuteScript : ActionBase {
 	internal override void ExecuteImplementation(ActionInstance ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
-
 		var scp = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Script);
 		var assy = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Assemblies);
 		while (!plug.scriptingInited) {
-			Thread.Sleep(10);
+			Task.Delay(10);
 		}
 		if (plug?.scripting.Ready == true) {
 			plug.scripting.Evaluate(scp, assy, ctx);

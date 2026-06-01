@@ -38,7 +38,6 @@ internal class Manager : IDisposable {
 
 	public RendererEnum Renderer { get; set; }
 	private long CurOrdinal = 1;
-	private Thread drawThread;
 	internal bool RenderingActive { get; set; }
 	internal RealPlugin plug { get; set; }
 	private Queue<ItemAction> ItemActions { get; set; } = new();

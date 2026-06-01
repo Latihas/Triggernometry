@@ -363,33 +363,24 @@ public class TraySlider {
 			return;
 		}
 
-		var show = () => {
+		void Action() {
 			try {
-				var form = new TraySliderForm(ButtonCount, DurationMs, ForceShow) {
-					OnClick1 = OnClick1,
-					OnClick2 = OnClick2,
-					OnClick3 = OnClick3
-				};
+				var form = new TraySliderForm(ButtonCount, DurationMs, ForceShow) { OnClick1 = OnClick1, OnClick2 = OnClick2, OnClick3 = OnClick3 };
 
 				form.SetLevel(Level);
 
-				if (Button1Text != null)
-					form.Button1.Text = Button1Text;
-				if (Button2Text != null)
-					form.Button2.Text = Button2Text;
-				if (Button3Text != null)
-					form.Button3.Text = Button3Text;
+				if (Button1Text != null) form.Button1.Text = Button1Text;
+				if (Button2Text != null) form.Button2.Text = Button2Text;
+				if (Button3Text != null) form.Button3.Text = Button3Text;
 
 				form.ShowTraySlider(Message, Title);
-			} catch (Exception ex) {
-				RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, ex.ToString());
-			}
-		};
+			} catch (Exception ex) { RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, ex.ToString()); }
+		}
 
 		if (mainForm.InvokeRequired)
-			mainForm.BeginInvoke(show);
+			mainForm.BeginInvoke((Action?)Action);
 		else
-			show();
+			Action();
 	}
 
 	internal static void CallbackInfo(object _, string s) {

@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
 using Triggernometry.Localization;
@@ -132,29 +131,29 @@ internal class ActionMouse : ActionBase {
 				WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
 				break;
 			case OperationEnum.LeftClick:
-				Task.Run(() => {
+				Task.Run(async () => {
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-					Thread.Sleep(10);
+					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.LEFTDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-					Thread.Sleep(10);
+					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.LEFTUP, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
 				});
 				break;
 			case OperationEnum.MiddleClick:
-				Task.Run(() => {
+				Task.Run(async () => {
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-					Thread.Sleep(10);
+					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MIDDLEDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-					Thread.Sleep(10);
+					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MIDDLEUP, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
 				});
 				break;
 			case OperationEnum.RightClick:
-				Task.Run(() => {
+				Task.Run(async () => {
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-					Thread.Sleep(10);
+					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.RIGHTDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
-					Thread.Sleep(10);
+					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.RIGHTUP, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
 				});
 				break;

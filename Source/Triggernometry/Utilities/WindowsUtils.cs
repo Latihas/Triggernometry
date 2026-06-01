@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Triggernometry.Utilities;
@@ -174,18 +174,20 @@ public class WindowsUtils {
 	}
 
 	public static void SendKeycodes(int procid, string titleRegex, params int[] keycodes) {
-		var wins = FindWindows(procid, titleRegex);
-		foreach (var keycode in keycodes) {
-			foreach (var win in wins) {
-				SendMessage(win, WM_KEYDOWN, keycode, IntPtr.Zero);
+		Task.Run(async () => {
+			var wins = FindWindows(procid, titleRegex);
+			foreach (var keycode in keycodes) {
+				foreach (var win in wins) {
+					SendMessage(win, WM_KEYDOWN, keycode, IntPtr.Zero);
+				}
 			}
-		}
-		Thread.Sleep(10);
-		foreach (var keycode in keycodes.Reverse()) {
-			foreach (var win in wins) {
-				SendMessage(win, WM_KEYUP, keycode, IntPtr.Zero);
+			await Task.Delay(10);
+			foreach (var keycode in keycodes.Reverse()) {
+				foreach (var win in wins) {
+					SendMessage(win, WM_KEYUP, keycode, IntPtr.Zero);
+				}
 			}
-		}
+		});
 	}
 
 	public static void SendMessageToWindow(int procid, string windowtitle, uint code, IntPtr wparam, IntPtr lparam) {

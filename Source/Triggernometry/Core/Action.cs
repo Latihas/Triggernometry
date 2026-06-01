@@ -342,11 +342,11 @@ public partial class ActionOld {
 	private void ExecutionCore(QueuedAction qa, Context ctx) {
 		var ai = new ActionBase.ActionInstance(
 			qa?.when ?? default,
-			qa?.ordinal ?? default,
+			qa?.ordinal ?? 0,
 			qa?.mutex,
 			this,
 			ctx,
-			qa?.releaseMutex ?? default);
+			qa?.releaseMutex ?? false);
 		var newAction = ConvertToNewAction();
 		newAction.ExecuteImplementation(ai);
 	}

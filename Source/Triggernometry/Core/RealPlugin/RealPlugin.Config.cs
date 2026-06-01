@@ -118,7 +118,7 @@ public partial class RealPlugin {
 			string? lastLine = null;
 
 			// try {
-			ProxyPlugin.Framework.RunOnTick(() => {
+			ProxyPlugin.Framework.RunOnFrameworkThread(() => {
 				lastLine = File.ReadAllLines(origfilename).LastOrDefault();
 			}).Wait();
 			// } catch {

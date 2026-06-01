@@ -50,7 +50,7 @@ public partial class RealPlugin {
 				return null;
 			}
 			var xs = new XmlSerializer(typeof(Language));
-			var l = ProxyPlugin.Framework.RunOnTick(() => {
+			var l = ProxyPlugin.Framework.RunOnFrameworkThread(() => {
 				using var fs = File.Open(filename, FileMode.Open, FileAccess.Read);
 				return (Language)xs.Deserialize(fs)!;
 			}).Result;
