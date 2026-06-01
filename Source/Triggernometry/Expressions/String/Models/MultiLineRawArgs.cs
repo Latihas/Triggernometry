@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.Expressions.String.Models;
 
 public class MultiLineRawArgs {
 	private readonly string _originalData;
-	private readonly Dictionary<string, string> _data = new(StringComparer.OrdinalIgnoreCase);
+	private Dictionary<string, string> _data = new(StringComparer.OrdinalIgnoreCase);
 	public IReadOnlyDictionary<string, string> Data => _data;
 
 	public MultiLineRawArgs(string rawLines) {
@@ -77,9 +76,7 @@ public class MultiLineRawArgs {
 	public MultiLineRawArgs Duplicate() {
 		var newData = new Dictionary<string, string>(_data, StringComparer.OrdinalIgnoreCase);
 		var copy = (MultiLineRawArgs)MemberwiseClone();
-		typeof(MultiLineRawArgs)
-			.GetField("_data", BindingFlags.NonPublic | BindingFlags.Instance)
-			.SetValue(copy, newData);
+		copy._data = newData;
 		return copy;
 	}
 }

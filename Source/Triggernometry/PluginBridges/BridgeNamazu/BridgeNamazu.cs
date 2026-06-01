@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,10 +22,10 @@ public static class BridgeNamazu {
 	private static NamazuPlugin? _namazuPlugin;
 
 	public static IReadOnlyDictionary<Type, ModuleBase> Modules => _modules;
-	private static readonly Dictionary<Type, ModuleBase> _modules = new();
+	private static readonly ConcurrentDictionary<Type, ModuleBase> _modules = new();
 
 	public static IReadOnlyDictionary<Type, ModuleBase> SideloadModules => _sideloadModules;
-	private static readonly Dictionary<Type, ModuleBase> _sideloadModules = new();
+	private static readonly ConcurrentDictionary<Type, ModuleBase> _sideloadModules = new();
 
 	static BridgeNamazu() {
 		if (!RealPlugin.IsAdmin())
@@ -33,7 +34,7 @@ public static class BridgeNamazu {
 	}
 
 	internal static void AddSideloadModule(ModuleBase module) {
-		lock (_sideloadModules) _sideloadModules[module.GetType()] = module;
+		_sideloadModules[module.GetType()] = module;
 	}
 
 	private static IEnumerable<Type> GetAllModuleTypes() {
@@ -47,27 +48,27 @@ public static class BridgeNamazu {
 	/// </summary>
 	public static void InitializeModules(Action? sideload = null) {
 		// 重新生成所有模块实例
-		lock (_modules) {
-			foreach (var type in GetAllModuleTypes()) {
-				try {
-					_modules[type] = (ModuleBase)Activator.CreateInstance(type)!;
-				} catch (Exception ex) {
-					RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
-						$"[鲶鱼精邮差扩展] 模块 {type.Name} 创建失败：{ex.Message}");
-				}
+
+		foreach (var type in GetAllModuleTypes()) {
+			try {
+				_modules[type] = (ModuleBase)Activator.CreateInstance(type)!;
+			} catch (Exception ex) {
+				RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
+					$"[鲶鱼精邮差扩展] 模块 {type.Name} 创建失败：{ex.Message}");
 			}
 		}
+
 		// 执行 sideload 方法
 		sideload?.Invoke();
 		// 扫描所有模块
-		Task.WhenAll(GetAllModuleTypes()
+		Task.WaitAll(GetAllModuleTypes()
 			.Select(type => Task.Run(() => {
 				try {
 					var module = GetModule(type);
 					module.Scan();
 					RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Custom, $"[鲶鱼精邮差扩展] 已初始化模块 {module.GetType().Name}。");
 				} catch (Exception ex) { RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"[鲶鱼精邮差扩展] 模块 {type.Name} 初始化失败：{ex.Message}{ex}"); }
-			}))).Wait();
+			})));
 		// 生成日志 以供后续脚本添加回调
 		RealPlugin.Instance.LogLineQueuer("PNE_ModulesInited", "", LogEvent.SourceEnum.Log);
 	}
@@ -89,5 +90,5 @@ public static class BridgeNamazu {
 	public static T GetModule<T>() where T : ModuleBase
 		=> (T)GetModule(typeof(T));
 
-	public static void Log(string msg) => ((dynamic)NamazuPlugin.PluginUI).Log(msg);
+	public static void Log(string msg) => NamazuPlugin.PluginUI.Log(msg);
 }

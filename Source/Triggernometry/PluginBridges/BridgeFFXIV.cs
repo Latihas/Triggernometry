@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using FFXIV_ACT_Plugin.Common.Models;
 using Triggernometry.Core;
 using Triggernometry.Core.Variables;
 using Triggernometry.FFXIV;
@@ -34,113 +35,42 @@ public static class BridgeFFXIV {
 
 	public static RealPlugin.PluginWrapper? GetWrappedPlugin() {
 		var wrap = RealPlugin.InstanceHook(ActPluginName, ActPluginType);
-		if (wrap.pluginObj == null) {
-			if (!_missingPluginWarned) {
-				LogMessage(RealPlugin.DebugLevelEnum.Warning,
-					I18n.Translate("internal/ffxiv/missingactplugin", "FFXIV ACT plugin with filename ({0}) or type ({1}) could not be located, some functions may not work as expected", ActPluginName, ActPluginType));
-				_missingPluginWarned = true;
-			}
-			return null;
-		}
-		// var expectedVersion = "2.7.0.5"; // added deucalion
-		// if (new Version(wrap.FileVersion) < new Version(expectedVersion))
-		// {
-		//     LogMessage(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/ffxiv/oldactplugin", "FFXIV ACT plugin version is lower ({0}) than expected ({1}), some functions may not work as expected", wrap.FileVersion, expectedVersion));
-		// }
-		// _missingPluginWarned = false;
-		return wrap;
-	}
-
-	public static object? GetInstance() => GetWrappedPlugin()?.pluginObj;
-
-	public static PropertyInfo? GetDataRepository(object? plug) => plug?.GetType()?.GetProperty("DataRepository", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-	public static object? GetDataRepositoryInstance(object? plug) => GetDataRepository(plug)?.GetValue(plug);
-
-	public static Process? GetProcess() {
-		try {
-			var plug = GetInstance();
-			var dataRepositoryInstance = GetDataRepositoryInstance(plug);
-			return dataRepositoryInstance?.GetType().GetMethod("GetCurrentFFXIVProcess")?.Invoke(dataRepositoryInstance, null) as Process;
-		} catch (Exception ex) {
-			LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/procexception", "Exception in FFXIV process retrieve: {0}", ex.Message));
+		if (wrap.pluginObj != null) return wrap;
+		if (!_missingPluginWarned) {
+			LogMessage(RealPlugin.DebugLevelEnum.Warning,
+				I18n.Translate("internal/ffxiv/missingactplugin", "FFXIV ACT plugin with filename ({0}) or type ({1}) could not be located, some functions may not work as expected", ActPluginName, ActPluginType));
+			_missingPluginWarned = true;
 		}
 		return null;
 	}
 
-	public static int GetProcessId() => GetProcess()?.Id ?? 0;
+	private static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin? _FFXIV_ACT_Plugin_Instance;
 
-	public static string GetProcessName() => GetProcess()?.ProcessName ?? "";
-
-	public static string GetGameVersion() {
-		try {
-			var plug = GetInstance();
-			var dataRepositoryInstance = GetDataRepositoryInstance(plug);
-			if (dataRepositoryInstance == null) return "";
-			var result = dataRepositoryInstance.GetType().GetMethod("GetGameVersion")?.Invoke(dataRepositoryInstance, null);
-			return result?.ToString() ?? "";
-		} catch (Exception ex) {
-			LogMessage(RealPlugin.DebugLevelEnum.Error, ex.ToString());
-			return "";
-		}
+	public static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetInstance() {
+		_FFXIV_ACT_Plugin_Instance ??= (GetWrappedPlugin()?.pluginObj as FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)!;
+		return _FFXIV_ACT_Plugin_Instance;
 	}
 
-	public static void SubscribeToZoneChanged(RealPlugin p) {
-		try {
-			var plug = GetInstance()
-			           ?? throw new ArgumentException("No plugin instance available");
-			var pi = plug.GetType().GetProperty("DataSubscription", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-			         ?? throw new ArgumentException("No DataSubscription found");
-			var subs = pi.GetValue(plug)
-			           ?? throw new ArgumentException("DataSubscription not initialized");
-			var ei = subs.GetType().GetEvent("ZoneChanged", BindingFlags.GetField | BindingFlags.Public | BindingFlags.Instance);
-			if (ei != null) {
-				var mix = p.GetType().GetMethod("ZoneChangeDelegate");
-				var deltype = ei.EventHandlerType;
-				var handler = Delegate.CreateDelegate(deltype, p, mix);
-				ei.AddEventHandler(subs, handler);
-			} else {
-				LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/ffxivnozonechanged", "No ZoneChanged found"));
-			}
-		} catch (Exception ex) {
-			LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/ffxivzonechangedexception", "Could not subscribe to FFXIV zone change due to an exception: {0}", ex.Message));
-		}
-	}
+	// public static PropertyInfo? GetDataRepository(object? plug) => plug?.GetType()?.GetProperty("DataRepository", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+	// public static object? GetDataRepositoryInstance(object? plug) => GetDataRepository(plug)?.GetValue(plug);
+
+	public static Process GetProcess() => GetInstance().DataRepository.GetCurrentFFXIVProcess();
+
+	public static int GetProcessId() => GetProcess().Id;
+
+	public static string GetProcessName() => GetProcess().ProcessName;
+
+	public static string GetGameVersion() => GetInstance().DataRepository.GetGameVersion();
+
+	public static void SubscribeToZoneChanged(RealPlugin p) =>
+		GetInstance().DataSubscription.ZoneChanged += p.ZoneChangeDelegate;
 
 	public static void UnsubscribeFromNetworkEvents(RealPlugin p) {
-		try {
-			var plug = GetInstance();
-			if (plug == null) {
-				throw new ArgumentException("No plugin instance available");
-			}
-			var pi = plug.GetType().GetProperty("DataSubscription", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-			if (pi == null) {
-				throw new ArgumentException("No DataSubscription found");
-			}
-			dynamic subs = pi.GetValue(plug);
-			if (subs == null) {
-				throw new ArgumentException("DataSubscription not initialized");
-			}
-			EventInfo ei = subs.GetType().GetEvent("ParsedLogLine", BindingFlags.GetField | BindingFlags.Public | BindingFlags.Instance);
-			if (subs == null) {
-				throw new ArgumentException("No ParsedLogLine found");
-			}
-			// MethodInfo mix = p.GetType().GetMethod("NetworkLogLineReceiver");
-			// Type deltype = ei.EventHandlerType;
-			// Delegate handler = Delegate.CreateDelegate(deltype, p, mix);
-			// ei.RemoveEventHandler(subs, handler);
-			// LogMessage(RealPlugin.DebugLevelEnum.Info, I18n.Translate("internal/ffxiv/networkunsubok", "Unsubscribed from FFXIV network events"));
-		} catch (Exception ex) {
-			// RealPlugin.plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,"无法停止监听 FFXIV 网络事件(可能本就不存在，忽略)" + ex);
-			// LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/networkunsubexception", "Could not unsubscribe from FFXIV network events due to an exception: {0}", ex.Message));
-		}
+		// GetInstance().DataSubscription.ParsedLogLine -= p.NetworkLogLineReceiver;
 	}
 
-	private static void LogMessage(RealPlugin.DebugLevelEnum level, string message) {
-		if (OnLogEvent != null) {
-			OnLogEvent(level, message);
-		}
-	}
+	private static void LogMessage(RealPlugin.DebugLevelEnum level, string message) => OnLogEvent?.Invoke(level, message);
 
 	#region Actions
 
@@ -256,8 +186,8 @@ public static class BridgeFFXIV {
 
 	internal static string ConvertToHex(long x) => x.ToString("X8");
 
-	public static void PopulateClumpFromCombatant(VariableDictionary vc, dynamic cmx, int inParty, int inAlliance, int orderNum) {
-		if (cmx == null || cmx.Name == null) {
+	public static void PopulateClumpFromCombatant(VariableDictionary vc, Combatant? cmx, int inParty, int inAlliance, int orderNum) {
+		if (cmx?.Name == null) {
 			ClearCombatant(vc);
 			return;
 		}
@@ -278,12 +208,15 @@ public static class BridgeFFXIV {
 		vc.SetValue("inparty", inParty);
 		vc.SetValue("inalliance", inAlliance);
 		vc.SetValue("order", orderNum);
-		vc.SetValue("casttargetid", cmx.IsCasting ? ConvertToHex(cmx.CastTargetID) : 0);
-		vc.SetValue("targetid", cmx.TargetID > 0 ? ConvertToHex(cmx.TargetID) : 0);
+		if (cmx.IsCasting) vc.SetValue("casttargetid", ConvertToHex(cmx.CastTargetID));
+		else vc.SetValue("casttargetid", 0);
+		if (cmx.TargetID > 0) vc.SetValue("targetid", ConvertToHex(cmx.TargetID));
+		else vc.SetValue("targetid", 0);
 		vc.SetValue("iscasting", Convert.ToInt32(cmx.IsCasting));
 		vc.SetValue("casttime", cmx.CastDurationCurrent);
 		vc.SetValue("maxcasttime", cmx.CastDurationMax);
-		vc.SetValue("castid", cmx.CastBuffID > 0 ? cmx.CastBuffID.ToString("X") : 0);
+		if (cmx.CastBuffID > 0) vc.SetValue("castid", cmx.CastBuffID.ToString("X"));
+		else vc.SetValue("castid", 0);
 		vc.SetValue("heading", cmx.Heading);
 		vc.SetValue("h", cmx.Heading);
 		vc.SetValue("distance", cmx.EffectiveDistance);
@@ -292,62 +225,30 @@ public static class BridgeFFXIV {
 		vc.SetValue("currentworldid", cmx.CurrentWorldID);
 		vc.SetValue("homeworldid", cmx.WorldID);
 		vc.SetValue("homeworldname", cmx.WorldName);
-		vc.SetValue("ownerid", cmx.OwnerID > 0 ? ConvertToHex(cmx.OwnerID) : 0);
+		if (cmx.OwnerID > 0) vc.SetValue("ownerid", ConvertToHex(cmx.OwnerID));
+		else vc.SetValue("ownerid", 0);
 		vc.SetValue("bnpcnameid", cmx.BNpcNameID);
 		vc.SetValue("bnpcid", cmx.BNpcID);
 		vc.SetValue("partytype", cmx.PartyType.ToString());
 		vc.SetValue("address", $"{cmx.Address}"); // IntPtr
-		Job job = Job.GetJob(cmx.Job);
-		foreach (var propName in Job.LegalJobPropNames) {
+		var job = Job.GetJob(cmx.Job);
+		foreach (var propName in Job.LegalJobPropNames)
 			vc.SetValue(propName.ToLower(), job.QueryProperty(propName)); // role, job, jobid, etc.
-		}
 	}
 
 	private class CombatantData {
 		public object Lock { get; set; }
-		public dynamic Combatants { get; set; }
+		public ReadOnlyCollection<Combatant> Combatants { get; set; }
 	}
 
-	private static CombatantData GetCombatants(object plug, PropertyInfo reprop) {
-		if (reprop == null) {
-			// use _Memory
-			var fi = plug.GetType().GetField("_Memory", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
-			dynamic mmry = fi.GetValue(plug);
-			if (mmry == null) {
-				return null;
-			}
-			fi = mmry.GetType().GetField("_config", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
-			var cnfg = fi.GetValue(mmry);
-			if (cnfg == null) {
-				return null;
-			}
-			fi = cnfg.GetType().GetField("ScanCombatants", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
-			var cmbt = fi.GetValue(cnfg);
-			if (cmbt == null) {
-				return null;
-			}
-			fi = cmbt.GetType().GetField("_CurrentPlayerID", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
-			PlayerId = fi.GetValue(cmbt);
-			PlayerHexId = ConvertToHex(PlayerId);
-			var cd = new CombatantData();
-			fi = cmbt.GetType().GetField("_Combatants", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
-			cd.Combatants = fi.GetValue(cmbt);
-			fi = cmbt.GetType().GetField("_CombatantsLock", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
-			cd.Lock = fi.GetValue(cmbt);
-			return cd;
-		} else {
-			// use DataRepository
-			var mi = reprop.GetGetMethod();
-			var o = mi.Invoke(plug, null);
-			mi = o.GetType().GetMethod("GetCurrentPlayerID", BindingFlags.Instance | BindingFlags.Public);
-			PlayerId = (uint)mi.Invoke(o, null);
-			PlayerHexId = ConvertToHex(PlayerId);
-			mi = o.GetType().GetMethod("GetCombatantList", BindingFlags.Instance | BindingFlags.Public);
-			var cd = new CombatantData();
-			cd.Combatants = mi.Invoke(o, null);
-			cd.Lock = cd;
-			return cd;
-		}
+	private static CombatantData GetCombatants() {
+		// use DataRepository
+		var o = GetInstance().DataRepository;
+		PlayerId = o.GetCurrentPlayerID();
+		PlayerHexId = ConvertToHex(PlayerId);
+		var cd = new CombatantData { Combatants = o.GetCombatantList() };
+		cd.Lock = cd;
+		return cd;
 	}
 
 	public static void UpdateState() {
@@ -355,24 +256,14 @@ public static class BridgeFFXIV {
 		try {
 			var old = Interlocked.Read(ref LastCheck);
 			var now = DateTime.Now.Ticks;
-			if ((now - old) / TimeSpan.TicksPerMillisecond < 500) {
-				return;
-			}
+			if ((now - old) / TimeSpan.TicksPerMillisecond < 500) return;
 			Interlocked.Exchange(ref LastCheck, now);
-			object plug = null;
 			phase = 99;
-			plug = GetInstance();
-			if (plug == null) {
-				return;
-			}
-			phase = 1;
-			var pi = GetDataRepository(plug);
-			phase = 2;
-			var cd = GetCombatants(plug, pi);
+			var cd = GetCombatants();
 			phase = 3;
 			lock (cd.Lock) {
 				var ex = 0;
-				foreach (dynamic cmx in cd.Combatants) {
+				foreach (var cmx in cd.Combatants) {
 					int nump;
 					try {
 						nump = (int)cmx.PartyType;
@@ -477,15 +368,9 @@ public static class BridgeFFXIV {
 
 	public static VariableDictionary GetNamedEntity(string name) {
 		try {
-			object plug = null;
-			plug = GetInstance();
-			if (plug == null) {
-				return _nullCombatant;
-			}
-			var pi = GetDataRepository(plug);
-			var cd = GetCombatants(plug, pi);
+			var cd = GetCombatants();
 			lock (cd.Lock) {
-				foreach (dynamic cmx in cd.Combatants) {
+				foreach (var cmx in cd.Combatants) {
 					if (cmx.Name == name) {
 						var nump = 0;
 						try {
@@ -506,15 +391,9 @@ public static class BridgeFFXIV {
 
 	public static VariableDictionary GetIdEntity(string id) {
 		try {
-			object plug = null;
-			plug = GetInstance();
-			if (plug == null) {
-				return _nullCombatant;
-			}
-			var pi = GetDataRepository(plug);
-			var cd = GetCombatants(plug, pi);
+			var cd = GetCombatants();
 			lock (cd.Lock) {
-				foreach (dynamic cmx in cd.Combatants) {
+				foreach (var cmx in cd.Combatants) {
 					if (string.Compare(ConvertToHex(cmx.ID), id, true) == 0) {
 						var nump = 0;
 						try {
@@ -536,15 +415,9 @@ public static class BridgeFFXIV {
 	public static List<VariableDictionary> GetAllEntities() {
 		var allEntities = new List<VariableDictionary>();
 		try {
-			object plug = null;
-			plug = GetInstance();
-			if (plug == null) {
-				return allEntities;
-			}
-			var pi = GetDataRepository(plug);
-			var cd = GetCombatants(plug, pi);
+			var cd = GetCombatants();
 			lock (cd.Lock) {
-				foreach (dynamic cmx in cd.Combatants) {
+				foreach (var cmx in cd.Combatants) {
 					var nump = 0;
 					try {
 						nump = (int)cmx.PartyType;
@@ -571,7 +444,7 @@ public static class BridgeFFXIV {
 	}
 
 	public class XivEntity : Entity {
-		private readonly dynamic _entity; // the original combatant object from FFXIV_ACT_Plugin, properties change over time
+		private readonly Combatant _entity; // the original combatant object from FFXIV_ACT_Plugin, properties change over time
 		public override PluginSource PluginSource { get; set; } = PluginSource.XivPlugin;
 		public override IntPtr Address => _entity.Address;
 		public override string Name => _entity.Name;
@@ -603,14 +476,10 @@ public static class BridgeFFXIV {
 		public override ushort WorldID => (ushort)_entity.WorldID; // uint
 		public override List<Status> Statuses {
 			get {
-				if (_entity.NetworkBuffs is Array networkBuffs) {
-					return networkBuffs
-						.Cast<dynamic>()
-						.Where(rawBuff => (rawBuff?.BuffID ?? 0) != 0)
-						.Select(rawBuff => (Status)new XivStatus(rawBuff, this))
-						.ToList();
-				}
-				return [];
+				return _entity.NetworkBuffs
+					.Where(rawBuff => (rawBuff?.BuffID ?? 0) != 0)
+					.Select(Status (rawBuff) => new XivStatus(rawBuff, this))
+					.ToList();
 			}
 		}
 		public override bool IsCasting => _entity.IsCasting;
@@ -622,7 +491,7 @@ public static class BridgeFFXIV {
 		internal XivEntity() {
 		}
 
-		internal XivEntity(object xivEntity) {
+		internal XivEntity(Combatant xivEntity) {
 			_entity = xivEntity;
 		}
 
@@ -675,7 +544,7 @@ public static class BridgeFFXIV {
 	public class XivStatus : Status {
 		public override PluginSource PluginSource { get; set; } = PluginSource.XivPlugin;
 
-		private readonly dynamic _networkBuff;
+		private readonly NetworkBuff _networkBuff;
 		public override ushort StatusID => _networkBuff.BuffID;
 		public override ushort Stack => _networkBuff.BuffExtra;
 		private DateTime Timestamp => _networkBuff.Timestamp;
@@ -686,7 +555,7 @@ public static class BridgeFFXIV {
 		private readonly Entity _target;
 		public override Entity Target => _target;
 
-		public XivStatus(dynamic networkBuff, Entity target) {
+		public XivStatus(NetworkBuff networkBuff, Entity target) {
 			_networkBuff = networkBuff;
 			_target = target;
 		}
@@ -708,13 +577,9 @@ public static class BridgeFFXIV {
 
 	internal static IEnumerable<Entity> InternalGetEntities() {
 		try {
-			var plug = GetInstance();
-			if (plug != null) {
-				var pi = GetDataRepository(plug);
-				var cd = GetCombatants(plug, pi);
-				var combatants = cd.Combatants as IEnumerable<dynamic>;
-				return combatants.Select(Entity (c) => new XivEntity(c));
-			}
+			var cd = GetCombatants();
+			var combatants = cd.Combatants;
+			return combatants.Select(Entity (c) => new XivEntity(c));
 		} catch (Exception ex) {
 			LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/allentitiesexception",
 				"Exception in FFXIV all entities retrieve: {0}", ex.Message));

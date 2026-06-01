@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using Dalamud.Plugin.Services;
 using Triggernometry.FFXIV;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
@@ -11,25 +13,9 @@ using static Triggernometry.PluginBridges.BridgeNamazu.Modules.ModuleBase;
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
 internal static class VfxManager {
-	public static readonly Dictionary<IntPtr, ActorVfx> ActorVfxs = [];
+	public static readonly ConcurrentDictionary<IntPtr, ActorVfx> ActorVfxs = [];
 
-	public static readonly Dictionary<IntPtr, StaticVfx> StaticVfxs = [];
-
-	// public static IReadOnlyDictionary<IntPtr, ActorVfx> ActorVfxs {
-	// 	get {
-	// 		lock (_actorVfxs) {
-	// 			return new Dictionary<IntPtr, ActorVfx>(_actorVfxs);
-	// 		}
-	// 	}
-	// }
-	//
-	// public static IReadOnlyDictionary<IntPtr, StaticVfx> StaticVfxs {
-	// 	get {
-	// 		lock (_staticVfxs) {
-	// 			return new Dictionary<IntPtr, StaticVfx>(_staticVfxs);
-	// 		}
-	// 	}
-	// }
+	public static readonly ConcurrentDictionary<IntPtr, StaticVfx> StaticVfxs = [];
 
 	internal static VfxModule Module => BridgeNamazu.GetModule<VfxModule>();
 
@@ -39,8 +25,8 @@ internal static class VfxManager {
 		public Action Action;
 	}
 
-	private static readonly object DelayedActionLock = new();
-	private static readonly List<DelayedAction> DelayedActions = new();
+	private static readonly Lock DelayedActionLock = new();
+	private static readonly List<DelayedAction> DelayedActions = [];
 
 	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null) => Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
 
@@ -53,9 +39,7 @@ internal static class VfxManager {
 				Path = fullPath,
 				Tag = tag ?? VfxBase.DefaultTag
 			};
-			lock (StaticVfxs) {
-				StaticVfxs[(IntPtr)vfx.Vfx] = vfx;
-			}
+			StaticVfxs[(IntPtr)vfx.Vfx] = vfx;
 			EnsureWorkerStarted();
 
 			try {
@@ -84,46 +68,31 @@ internal static class VfxManager {
 	}
 
 	public static void Clear() {
-		lock (ActorVfxs) {
-			ActorVfxs.Clear();
-		}
-
-		lock (StaticVfxs) {
-			StaticVfxs.Clear();
-		}
+		ActorVfxs.Clear();
+		StaticVfxs.Clear();
 	}
 
 	public static unsafe void Register(ActorVfx? vfx) {
 		if (vfx == null || vfx.Vfx == null || (IntPtr)vfx.Vfx == IntPtr.Zero)
 			return;
-
-		lock (ActorVfxs) {
-			ActorVfxs[(IntPtr)vfx.Vfx] = vfx;
-		}
-
+		ActorVfxs[(IntPtr)vfx.Vfx] = vfx;
 		EnsureWorkerStarted();
 	}
 
 	public static bool TryUnregisterActor(IntPtr ptr, out ActorVfx vfx) {
-		lock (ActorVfxs) {
-			if (!ActorVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
-				return false;
-
-			vfx.Removed = true;
-			ActorVfxs.Remove(ptr);
-			return true;
-		}
+		if (!ActorVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
+			return false;
+		vfx.Removed = true;
+		ActorVfxs.Remove(ptr, out _);
+		return true;
 	}
 
 	public static bool TryUnregisterStatic(IntPtr ptr, out StaticVfx vfx) {
-		lock (StaticVfxs) {
-			if (!StaticVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
-				return false;
-
-			vfx.Removed = true;
-			StaticVfxs.Remove(ptr);
-			return true;
-		}
+		if (!StaticVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
+			return false;
+		vfx.Removed = true;
+		StaticVfxs.Remove(ptr, out _);
+		return true;
 	}
 
 	#region VFX 循环
@@ -148,18 +117,10 @@ internal static class VfxManager {
 
 	public static void Shutdown() {
 		// WorkerStopping = true;
-
-		lock (DelayedActionLock) {
+		lock (DelayedActionLock)
 			DelayedActions.Clear();
-		}
-
-		lock (ActorVfxs) {
-			ActorVfxs.Clear();
-		}
-
-		lock (StaticVfxs) {
-			StaticVfxs.Clear();
-		}
+		ActorVfxs.Clear();
+		StaticVfxs.Clear();
 	}
 
 	/// <summary>
@@ -173,45 +134,30 @@ internal static class VfxManager {
 		var expired = new List<VfxBase>();
 		var refreshList = new List<StaticVfx>();
 
-		lock (ActorVfxs) {
-			expired.AddRange(ActorVfxs.Values
-				.Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now));
-		}
-
-		lock (StaticVfxs) {
-			foreach (var vfx in StaticVfxs.Values) {
-				if (vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now) {
-					expired.Add(vfx);
-					continue;
-				}
-
-				if (vfx.PendingUpdate || vfx.RequiresRefresh) {
-					refreshList.Add(vfx);
-				}
+		expired.AddRange(ActorVfxs.Values
+			.Where(vfx => vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now));
+		foreach (var vfx in StaticVfxs.Values) {
+			if (vfx.ExpireAtUtc.HasValue && vfx.ExpireAtUtc.Value <= now) {
+				expired.Add(vfx);
+				continue;
 			}
+			if (vfx.PendingUpdate || vfx.RequiresRefresh) refreshList.Add(vfx);
 		}
-
 		RemoveExpiredVfxs(expired);
-
-		if (refreshList.Count == 0)
-			return;
-
+		if (refreshList.Count == 0) return;
 		RefreshStaticVfxs(refreshList);
 	}
 
 	private static void ExecuteDueDelayedActions(DateTime now) {
-		List<DelayedAction> dueActions = null;
+		List<DelayedAction>? dueActions = null;
 
 		lock (DelayedActionLock) {
 			for (var i = DelayedActions.Count - 1; i >= 0; i--) {
 				var item = DelayedActions[i];
-				if (item.ExecuteAtUtc <= now) {
-					if (dueActions == null)
-						dueActions = new List<DelayedAction>();
-
-					dueActions.Add(item);
-					DelayedActions.RemoveAt(i);
-				}
+				if (item.ExecuteAtUtc > now) continue;
+				dueActions ??= [];
+				dueActions.Add(item);
+				DelayedActions.RemoveAt(i);
 			}
 		}
 
@@ -477,9 +423,8 @@ internal static class VfxManager {
 			Action = action
 		};
 
-		lock (DelayedActionLock) {
-			DelayedActions.Add(item);
-		}
+		lock (DelayedActionLock) DelayedActions.Add(item);
+		
 
 		EnsureWorkerStarted();
 	}

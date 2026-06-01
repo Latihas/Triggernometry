@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using PostNamazu.Common;
 using Triggernometry.Core;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu;
@@ -7,8 +8,8 @@ namespace Triggernometry.PluginBridges.BridgeNamazu;
 /// <summary>
 ///     Wrapper for PostNamazu.Common.SigScanner
 /// </summary>
-public class NamazuScanner(object scanner) {
-	private readonly dynamic _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
+public class NamazuScanner(SigScanner scanner) {
+	private readonly SigScanner _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
 	public object RawScanner => _scanner;
 
 	// Underlying fields

@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Triggernometry.Expressions.String.Utils;
@@ -244,10 +243,7 @@ public class ReadonlyRichTextBox : RichTextBox {
 				Font = new Font("Microsoft YaHei", Font.Size);
 			}
 		}
-
-		GetType()
-			.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
-			.SetValue(this, true, null);
+		DoubleBuffered = true;
 	}
 
 	private const int WM_SETFOCUS = 0x7;

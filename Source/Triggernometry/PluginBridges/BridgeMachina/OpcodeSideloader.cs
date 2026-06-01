@@ -1,11 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using FFXIV_ACT_Plugin.Network;
+using Machina.FFXIV;
+using Machina.FFXIV.Headers;
+using Machina.FFXIV.Headers.Opcodes;
 using Triggernometry.Core;
 
 namespace Triggernometry.PluginBridges.BridgeMachina;
@@ -137,169 +140,61 @@ public static partial class OpcodeSideloader {
 
 	#region Machina
 
-	private static Assembly MachinaAssembly =>
-		AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "Machina.FFXIV")
-		?? throw ReflectFail("Machina.FFXIV Assembly");
-
-	private static Assembly NetworkAssembly =>
-		AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "FFXIV_ACT_Plugin.Network")
-		?? throw ReflectFail("FFXIV_ACT_Plugin.Network Assembly");
-
-	private static Type OpcodeManagerType =>
-		MachinaAssembly.GetType("Machina.FFXIV.Headers.Opcodes.OpcodeManager")
-		?? throw ReflectFail("OpcodeManager");
-
-	private static Type ServerMessageType =>
-		MachinaAssembly.GetType("Machina.FFXIV.Headers.Server_MessageType")
-		?? throw ReflectFail("Server_MessageType");
-
-	private static Type GameRegionType =>
-		MachinaAssembly.GetType("Machina.FFXIV.GameRegion")
-		?? throw ReflectFail("GameRegion");
-
-	private static Type PacketHandlerMediatorType =>
-		NetworkAssembly.GetType("FFXIV_ACT_Plugin.Network.PacketHandlerMediator")
-		?? throw ReflectFail("PacketHandlerMediator");
-
 	public static Dictionary<string, ushort> GetCurrentOpcodes() {
-		var instanceProp = OpcodeManagerType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static)
-		                   ?? throw ReflectFail("OpcodeManager.Instance Property");
-
-		var instance = instanceProp.GetValue(null)
-		               ?? throw ReflectFail("OpcodeManager.Instance Value");
-
-		var currentProp = OpcodeManagerType.GetProperty("CurrentOpcodes", BindingFlags.Public | BindingFlags.Instance)
-		                  ?? throw ReflectFail("OpcodeManager.CurrentOpcodes Property");
-
-		var rawOpcodes = currentProp.GetValue(instance) as IDictionary
-		                 ?? throw ReflectFail("OpcodeManager.CurrentOpcodes Value");
-
+		var rawOpcodes = OpcodeManager.Instance.CurrentOpcodes;
 		var result = new Dictionary<string, ushort>(StringComparer.OrdinalIgnoreCase);
-		foreach (DictionaryEntry entry in rawOpcodes) {
-			if (entry.Key == null || entry.Value == null)
-				continue;
-
-			result[entry.Key.ToString()] = Convert.ToUInt16(entry.Value, CultureInfo.InvariantCulture);
+		foreach (var entry in rawOpcodes) {
+			if (entry.Key == null || entry.Value == null) continue;
+			result[entry.Key] = Convert.ToUInt16(entry.Value, CultureInfo.InvariantCulture);
 		}
-
 		return result;
 	}
 
 	public static void ApplyOpcodes(Dictionary<string, ushort> replaceDict) {
-		var instanceProp = OpcodeManagerType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static)
-		                   ?? throw ReflectFail("OpcodeManager.Instance Property");
-
-		var opcodeManagerInstance = instanceProp.GetValue(null)
-		                            ?? throw ReflectFail("OpcodeManager.Instance Value");
-
-		var regionName = GetCurrentMachinaRegionName(opcodeManagerInstance);
-
+		var opcodeManagerInstance = OpcodeManager.Instance;
+		var regionName = GetCurrentMachinaRegionName();
 		// 更新 OpcodeManager._opcodes[当前区域]
 		UpdateOpcodeManagerBackingStore(opcodeManagerInstance, regionName, replaceDict);
-
 		// 让 OpcodeManager.CurrentOpcodes 切回当前区域，并读到刚写入的值
-		SetOpcodeManagerRegion(opcodeManagerInstance, regionName);
-
+		SetOpcodeManagerRegion(regionName);
 		// 更新 Server_MessageType 静态字段
+		var ServerMessageType = typeof(Server_MessageType);
 		var internalValueProp = ServerMessageType.GetProperty("InternalValue", BindingFlags.Public | BindingFlags.Instance)
 		                        ?? throw ReflectFail("Server_MessageType.InternalValue Property");
-
 		foreach (var field in ServerMessageType.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)) {
 			var isInitOnly = typeof(FieldInfo).GetField("m_isInitOnly", BindingFlags.NonPublic | BindingFlags.Instance);
 			isInitOnly?.SetValue(field, false);
-
 			var instance = Activator.CreateInstance(ServerMessageType);
 			if (replaceDict.TryGetValue(field.Name, out var newVal))
 				internalValueProp.SetValue(instance, newVal);
-
 			field.SetValue(null, instance);
 		}
-
 		// 不要手动重建 _packetHandlers；让 FFXIV_ACT_Plugin 自己按当前版本结构重载
 		RefreshPacketHandlers();
 	}
 
-	private static string GetCurrentMachinaRegionName(object opcodeManagerInstance) {
-		var gameRegionProperty = OpcodeManagerType.GetProperty("GameRegion", BindingFlags.Public | BindingFlags.Instance)
-		                         ?? throw ReflectFail("OpcodeManager.GameRegion Property");
+	private static string GetCurrentMachinaRegionName() => OpcodeManager.Instance.GameRegion.ToString();
 
-		var gameRegion = gameRegionProperty.GetValue(opcodeManagerInstance)
-		                 ?? throw ReflectFail("OpcodeManager.GameRegion Value");
-
-		return gameRegion.ToString();
-	}
-
-	private static object GetMachinaRegion(string regionName) {
+	private static GameRegion GetMachinaRegion(string regionName) {
 		try {
-			return Enum.Parse(GameRegionType, regionName);
+			return Enum.Parse<GameRegion>(regionName);
 		} catch (Exception ex) {
 			throw new Exception($"[OpcodeSideloader] Unsupported Machina GameRegion: {regionName}", ex);
 		}
 	}
 
-	private static void SetOpcodeManagerRegion(object opcodeManagerInstance, string regionName) {
-		var setRegionMethod = OpcodeManagerType.GetMethod("SetRegion", [GameRegionType])
-		                      ?? throw ReflectFail("OpcodeManager.SetRegion Method");
-
-		setRegionMethod.Invoke(opcodeManagerInstance, [GetMachinaRegion(regionName)]);
+	private static void SetOpcodeManagerRegion(string regionName) {
+		OpcodeManager.Instance.SetRegion(GetMachinaRegion(regionName));
 	}
 
 	private static void UpdateOpcodeManagerBackingStore(object opcodeManagerInstance, string regionName, Dictionary<string, ushort> opcodes) {
-		var opcodesField = OpcodeManagerType.GetField("_opcodes", BindingFlags.NonPublic | BindingFlags.Instance)
-		                   ?? throw ReflectFail("OpcodeManager._opcodes Field");
-
-		var regionOpcodes = opcodesField.GetValue(opcodeManagerInstance) as IDictionary
-		                    ?? throw ReflectFail("OpcodeManager._opcodes Value");
-
-		regionOpcodes[GetMachinaRegion(regionName)] = new Dictionary<string, ushort>(opcodes);
+		OpcodeManager.Instance._opcodes[GetMachinaRegion(regionName)] = new Dictionary<string, ushort>(opcodes);
 	}
 
-	private static void RefreshPacketHandlers() {
-		var mediatorInstance = GetPacketHandlerMediator();
+	private static void RefreshPacketHandlers() => GetPacketHandlerMediator().LoadPacketHandlers();
 
-		var loadPacketHandlers = mediatorInstance.GetType()
-			                         .GetMethod("LoadPacketHandlers", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-		                         ?? throw ReflectFail("PacketHandlerMediator.LoadPacketHandlers Method");
-
-		loadPacketHandlers.Invoke(mediatorInstance, null);
-	}
-
-	private static object GetPacketHandlerMediator() {
-		var actPluginInstance = BridgeFFXIV.GetInstance()
-		                        ?? throw ReflectFail("BridgeFFXIV Instance");
-
-		// 新版 FFXIV_ACT_Plugin：_dataCollection -> _scanPackets -> _packetHandlerMediator
-		var dataCollection = actPluginInstance.GetType()
-			.GetField("_dataCollection", BindingFlags.NonPublic | BindingFlags.Instance)
-			?.GetValue(actPluginInstance);
-
-		if (dataCollection != null) {
-			var scanPackets = dataCollection.GetType()
-				.GetField("_scanPackets", BindingFlags.NonPublic | BindingFlags.Instance)
-				?.GetValue(dataCollection);
-
-			if (scanPackets != null) {
-				var mediator = scanPackets.GetType()
-					.GetField("_packetHandlerMediator", BindingFlags.NonPublic | BindingFlags.Instance)
-					?.GetValue(scanPackets);
-
-				if (mediator != null)
-					return mediator;
-			}
-		}
-
-		// 兼容旧逻辑：_iocContainer.GetService(PacketHandlerMediatorType)
-		var iocContainer = actPluginInstance.GetType()
-			                   .GetField("_iocContainer", BindingFlags.NonPublic | BindingFlags.Instance)
-			                   ?.GetValue(actPluginInstance)
-		                   ?? throw ReflectFail("iocContainer Field");
-
-		var iocGetService = iocContainer.GetType().GetMethod("GetService")
-		                    ?? throw ReflectFail("iocContainer.GetService Method");
-
-		return iocGetService.Invoke(iocContainer, [PacketHandlerMediatorType])
-		       ?? throw ReflectFail("PacketHandlerMediator Instance");
-	}
+	private static PacketHandlerMediator GetPacketHandlerMediator() =>
+		(PacketHandlerMediator)BridgeFFXIV.GetInstance()._iocContainer.GetService(typeof(PacketHandlerMediator))!;
 
 	[GeneratedRegex(@"^(.+?)(\d*)$")]
 	private static partial Regex MyRegex();
