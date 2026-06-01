@@ -87,7 +87,7 @@ public class ProxyPlugin : IActPluginV1 {
 		PluginInterface.UiBuilder.Draw += DrawScriptBdl;
 		ClientState.Logout += OnLogout;
 		Framework.Update += VfxManager.WorkerLoop;
-		if (dalamudPlugin.ConfigurationInstance.Version != latestVer) {
+		if (dalamudPlugin.Configuration.Version != latestVer) {
 			try {
 				RealPlugin.Instance.cfg.CompileFailedScripts.Clear();
 				Directory.Delete(Path.Combine(RealPlugin.Instance.ConfigPath, "Scripts"), true);
