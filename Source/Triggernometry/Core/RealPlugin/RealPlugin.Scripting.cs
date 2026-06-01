@@ -11,8 +11,8 @@ namespace Triggernometry.Core;
 public partial class RealPlugin {
 	public Interpreter scripting;
 	internal bool scriptingInited = true;
-	internal Dictionary<string, object> scriptingStorage = new(StringComparer.OrdinalIgnoreCase);
-	private List<Configuration.APIUsage> DefaultAPIUsages = ScriptSecurity.SecurityAPIs.Select(name => new Configuration.APIUsage {
+	internal readonly Dictionary<string, object> scriptingStorage = new(StringComparer.OrdinalIgnoreCase);
+	private readonly List<Configuration.APIUsage> DefaultAPIUsages = ScriptSecurity.SecurityAPIs.Select(name => new Configuration.APIUsage {
 		Name = name,
 		AllowLocal = false,
 		AllowRemote = false,

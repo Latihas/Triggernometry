@@ -34,10 +34,9 @@ internal class ObsController : IDisposable {
 		}
 
 		private string GenerateHash(string data) {
-			using (var h = SHA256.Create()) {
-				var b = Encoding.ASCII.GetBytes(data);
-				return Convert.ToBase64String(h.ComputeHash(b));
-			}
+			using var h = SHA256.Create();
+			var b = Encoding.ASCII.GetBytes(data);
+			return Convert.ToBase64String(h.ComputeHash(b));
 		}
 	}
 

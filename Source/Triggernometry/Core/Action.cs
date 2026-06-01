@@ -27,7 +27,7 @@ public partial class ActionOld {
 		///     A single <see cref="ActionOld" /> is serialized as a single <see cref="ActionOld" />. <br />
 		///     Returns an empty string for null or empty input.
 		/// </summary>
-		internal static string ActionsToXml(List<ActionOld> actions) {
+		internal static string ActionsToXml(List<ActionOld>? actions) {
 			if (actions == null || actions.Count == 0) return string.Empty;
 
 			object toSerialize;
@@ -47,10 +47,9 @@ public partial class ActionOld {
 
 			var ns = new XmlSerializerNamespaces();
 			ns.Add("", "");
-			using (var sw = new StringWriter()) {
-				xs.Serialize(sw, toSerialize, ns);
-				return sw.ToString();
-			}
+			using var sw = new StringWriter();
+			xs.Serialize(sw, toSerialize, ns);
+			return sw.ToString();
 		}
 
 		/// <summary>
@@ -61,19 +60,18 @@ public partial class ActionOld {
 			var result = new List<ActionOld>();
 			var xmlDoc = new XmlDocument();
 			xmlDoc.LoadXml(xmlData);
-			using (var sr = new StringReader(xmlData)) {
-				if (xmlDoc.DocumentElement.Name == "ActionBundle") {
-					var bundleSerializer = new XmlSerializer(typeof(ActionBundle));
-					var bundle = (ActionBundle)bundleSerializer.Deserialize(sr);
-					if (bundle?.Actions != null)
-						result.AddRange(bundle.Actions);
-				} else // single Action
-				{
-					var actionSerializer = new XmlSerializer(typeof(ActionOld));
-					var a = (ActionOld)actionSerializer.Deserialize(sr);
-					if (a != null)
-						result.Add(a);
-				}
+			using var sr = new StringReader(xmlData);
+			if (xmlDoc.DocumentElement.Name == "ActionBundle") {
+				var bundleSerializer = new XmlSerializer(typeof(ActionBundle));
+				var bundle = (ActionBundle)bundleSerializer.Deserialize(sr);
+				if (bundle?.Actions != null)
+					result.AddRange(bundle.Actions);
+			} else // single Action
+			{
+				var actionSerializer = new XmlSerializer(typeof(ActionOld));
+				var a = (ActionOld)actionSerializer.Deserialize(sr);
+				if (a != null)
+					result.Add(a);
 			}
 			return result;
 		}

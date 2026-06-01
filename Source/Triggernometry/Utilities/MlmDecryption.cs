@@ -17,25 +17,21 @@ public static class MlmDecryption {
 	}
 
 	private static byte[] ProcessDES(byte[] data, string key, bool isEncrypt) {
-		using (var cryptoServiceProvider = DES.Create()) {
-			var array1 = Md5(key);
-			var array2 = new ArraySegment<byte>(array1, 0, 8).ToArray();
-			var array3 = new ArraySegment<byte>(array1, 8, 8).ToArray();
-			var transform = isEncrypt ? cryptoServiceProvider.CreateEncryptor(array2, array3) : cryptoServiceProvider.CreateDecryptor(array2, array3);
-			using (var memoryStream = new MemoryStream()) {
-				using (var cryptoStream = new CryptoStream(memoryStream, transform, CryptoStreamMode.Write)) {
-					cryptoStream.Write(data, 0, data.Length);
-					cryptoStream.FlushFinalBlock();
-					return memoryStream.ToArray();
-				}
-			}
-		}
+		using var cryptoServiceProvider = DES.Create();
+		var array1 = Md5(key);
+		var array2 = new ArraySegment<byte>(array1, 0, 8).ToArray();
+		var array3 = new ArraySegment<byte>(array1, 8, 8).ToArray();
+		var transform = isEncrypt ? cryptoServiceProvider.CreateEncryptor(array2, array3) : cryptoServiceProvider.CreateDecryptor(array2, array3);
+		using var memoryStream = new MemoryStream();
+		using var cryptoStream = new CryptoStream(memoryStream, transform, CryptoStreamMode.Write);
+		cryptoStream.Write(data, 0, data.Length);
+		cryptoStream.FlushFinalBlock();
+		return memoryStream.ToArray();
 	}
 
 	public static byte[] Md5(string str) {
-		using (var md5 = MD5.Create()) {
-			return md5.ComputeHash(Encoding.UTF8.GetBytes(str));
-		}
+		using var md5 = MD5.Create();
+		return md5.ComputeHash(Encoding.UTF8.GetBytes(str));
 	}
 
 	public static string TryDecrypt(string data) {

@@ -33,31 +33,30 @@ public static class WaveGenerator {
 
 	private static byte[] GenerateWavBytes(Func<double, double> waveFunc, int frequency, int durationMs, int sampleRate = 44100, double volume = 1.0) {
 		var buffer = GenerateWave(waveFunc, frequency, durationMs, sampleRate, volume);
-		using (var memStream = new MemoryStream())
-		using (var binWriter = new BinaryWriter(memStream)) {
-			var dataLength = buffer.Length * sizeof(short);
-			var fileLength = 36 + dataLength;
+		using var memStream = new MemoryStream();
+		using var binWriter = new BinaryWriter(memStream);
+		var dataLength = buffer.Length * sizeof(short);
+		var fileLength = 36 + dataLength;
 
-			// === WAV Header ===
-			binWriter.Write("RIFF"u8.ToArray());
-			binWriter.Write(fileLength);
-			binWriter.Write("WAVEfmt "u8.ToArray());
-			binWriter.Write(16); // fmt chunk size
-			binWriter.Write((short)1); // PCM
-			binWriter.Write((short)1); // mono
-			binWriter.Write(sampleRate);
-			binWriter.Write(sampleRate * 2); // byte rate
-			binWriter.Write((short)2); // block align
-			binWriter.Write((short)16); // bits per sample
-			binWriter.Write("data"u8.ToArray());
-			binWriter.Write(dataLength);
+		// === WAV Header ===
+		binWriter.Write("RIFF"u8.ToArray());
+		binWriter.Write(fileLength);
+		binWriter.Write("WAVEfmt "u8.ToArray());
+		binWriter.Write(16); // fmt chunk size
+		binWriter.Write((short)1); // PCM
+		binWriter.Write((short)1); // mono
+		binWriter.Write(sampleRate);
+		binWriter.Write(sampleRate * 2); // byte rate
+		binWriter.Write((short)2); // block align
+		binWriter.Write((short)16); // bits per sample
+		binWriter.Write("data"u8.ToArray());
+		binWriter.Write(dataLength);
 
-			// === PCM Data ===
-			foreach (var s in buffer)
-				binWriter.Write(s);
+		// === PCM Data ===
+		foreach (var s in buffer)
+			binWriter.Write(s);
 
-			return memStream.ToArray();
-		}
+		return memStream.ToArray();
 	}
 
 	private static void PlaySyncWav(byte[] wavBytes) {

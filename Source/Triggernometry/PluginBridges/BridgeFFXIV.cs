@@ -32,7 +32,7 @@ public static class BridgeFFXIV {
 
 	private static bool _missingPluginWarned;
 
-	public static RealPlugin.PluginWrapper GetWrappedPlugin() {
+	public static RealPlugin.PluginWrapper? GetWrappedPlugin() {
 		var wrap = RealPlugin.InstanceHook(ActPluginName, ActPluginType);
 		if (wrap.pluginObj == null) {
 			if (!_missingPluginWarned) {
@@ -51,7 +51,7 @@ public static class BridgeFFXIV {
 		return wrap;
 	}
 
-	public static object? GetInstance() => GetWrappedPlugin().pluginObj;
+	public static object? GetInstance() => GetWrappedPlugin()?.pluginObj;
 
 	public static PropertyInfo? GetDataRepository(object? plug) => plug?.GetType()?.GetProperty("DataRepository", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 

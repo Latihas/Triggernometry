@@ -53,7 +53,7 @@ public enum JobEnum {
 
 public partial class Job {
 	//"19, 1, 21, 3, 32, 37, 24, 6, 28, 33, 40, 20, 2, 22, 4, 30, 29, 34, 39, 23, 5, 31, 38, 25, 7, 27, 26, 35, 36";
-	internal static List<Job> XivDefaultOrder;
+	internal static readonly List<Job> XivDefaultOrder;
 	public static Job None => GetJob(JobEnum.None);
 	public static Job ADV => GetJob(JobEnum.ADV);
 	public static Job GLA => GetJob(JobEnum.GLA);

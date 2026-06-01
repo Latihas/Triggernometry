@@ -50,12 +50,7 @@ public sealed class Language {
 		Translations.Sort((a, b) => { return a.Key.CompareTo(b.Key); });
 	}
 
-	public string Lookup(string key) {
-		if (TranslationsLookup.TryGetValue(key, out var lookup)) {
-			return lookup;
-		}
-		return null;
-	}
+	public string Lookup(string key) => TranslationsLookup.GetValueOrDefault(key);
 
 	private Dictionary<string, string> _missingTranslations = new();
 

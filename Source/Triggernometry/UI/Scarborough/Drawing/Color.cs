@@ -142,8 +142,7 @@ public struct Color {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Color) {
-			var clr = (Color)obj;
+		if (obj is Color clr) {
 			return clr.R == R
 			       && clr.G == G
 			       && clr.B == B

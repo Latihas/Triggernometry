@@ -2,12 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Triggernometry.Core.Variables;
 using Triggernometry.Localization;
 using Triggernometry.UI.Forms;
+using TriggernometryProxy;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
@@ -116,14 +116,21 @@ public partial class RealPlugin {
 			}
 			var corruptFallback = false;
 			string? lastLine = null;
-			try {
-				lastLine = File.ReadAllLines(filename).LastOrDefault();
-			} catch {
-				Thread.Sleep(100);
-				try {
-					lastLine = File.ReadAllLines(filename).LastOrDefault();
-				} catch { }
-			}
+
+			// try {
+			ProxyPlugin.Framework.RunOnTick(() => {
+				lastLine = File.ReadAllLines(origfilename).LastOrDefault();
+			}).Wait();
+			// } catch {
+			// 	Thread.Sleep(100);
+			// 	try {
+			// 		ProxyPlugin.Framework.RunOnTick(() => {
+			// 			lastLine = File.ReadAllLines(origfilename).LastOrDefault();
+			// 		}).Wait();
+			// 	} catch {
+			// 		//
+			// 	}
+			// }
 			if (lastLine == null || lastLine.Trim() != "</Configuration>") {
 				// configuration has been corrupted, try loading previous config file instead
 				var newfilename = filename + ".previous";

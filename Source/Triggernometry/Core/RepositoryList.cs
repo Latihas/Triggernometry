@@ -40,9 +40,8 @@ public class RepositoryList {
 	public static RepositoryList Unserialize(string src) {
 		try {
 			var xs = new XmlSerializer(typeof(RepositoryList));
-			using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(src))) {
-				return (RepositoryList)xs.Deserialize(ms);
-			}
+			using var ms = new MemoryStream(Encoding.UTF8.GetBytes(src));
+			return (RepositoryList)xs.Deserialize(ms);
 		} catch (Exception) {
 		}
 		return null;

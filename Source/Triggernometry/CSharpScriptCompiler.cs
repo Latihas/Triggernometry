@@ -53,7 +53,7 @@ public static class CSharpScriptCompiler {
 		"Newtonsoft.Json.dll"
 	];
 
-	public static string GenerateClassName(string script) {
+	private static string GenerateClassName(string script) {
 		var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(script));
 		var hashSb = new StringBuilder();
 		foreach (var b in hashBytes) hashSb.Append(b.ToString("X2"));

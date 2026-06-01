@@ -231,12 +231,7 @@ public class Configuration {
 		}
 	}
 
-	internal int GetPartyOrderValue(int job) {
-		if (_FfxivCustomPartyOrderLookup.TryGetValue(job, out var value)) {
-			return value;
-		}
-		return 9999;
-	}
+	internal int GetPartyOrderValue(int job) => _FfxivCustomPartyOrderLookup.GetValueOrDefault(job, 9999);
 
 	internal int GetPartyOrderValue(string job) {
 		var ex = 0;

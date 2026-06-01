@@ -8,13 +8,13 @@ using Advanced_Combat_Tracker;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	internal bool DisableLogging = false;
+	internal readonly bool DisableLogging = false;
 
-	internal Dictionary<DebugLevelEnum, Queue<InternalLog>> log = Enum.GetValues(typeof(DebugLevelEnum))
+	internal readonly Dictionary<DebugLevelEnum, Queue<InternalLog>> log = Enum.GetValues(typeof(DebugLevelEnum))
 		.Cast<DebugLevelEnum>()
 		.ToDictionary(level => level, _ => new Queue<InternalLog>());
-	public Queue<InternalLog> logFlattenTrn = [];
-	public Queue<string> logFlattenACT = [];
+	public readonly Queue<InternalLog> logFlattenTrn = [];
+	public readonly Queue<string> logFlattenACT = [];
 
 	public enum DebugLevelEnum {
 		None,

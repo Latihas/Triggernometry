@@ -16,7 +16,7 @@ public partial class RealPlugin {
 		ChangeLanguage(null);
 	}
 
-	internal void ChangeLanguage(string langname) {
+	internal void ChangeLanguage(string? langname) {
 		FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchange", "Changing language from '{0}' to '{1}'",
 			I18n.CurrentLanguage != null ? I18n.CurrentLanguage.LanguageName : "(not set)",
 			langname ?? "(default)"
@@ -40,7 +40,7 @@ public partial class RealPlugin {
 		}
 	}
 
-	private Language LoadLanguage(string filename) {
+	private Language? LoadLanguage(string filename) {
 		try {
 			var x = I18n.Translate("internal/Plugin/langload", "Loading language from '{0}'", filename);
 			FilteredAddToLog(DebugLevelEnum.Info, x);
@@ -50,12 +50,13 @@ public partial class RealPlugin {
 				return null;
 			}
 			var xs = new XmlSerializer(typeof(Language));
-			using (var fs = File.Open(filename, FileMode.Open, FileAccess.Read)) {
-				var l = (Language)xs.Deserialize(fs);
-				l.IsDefault = false;
-				l.BuildLookup();
-				return l;
-			}
+			var l = ProxyPlugin.Framework.RunOnTick(() => {
+				using var fs = File.Open(filename, FileMode.Open, FileAccess.Read);
+				return (Language)xs.Deserialize(fs)!;
+			}).Result;
+			l.IsDefault = false;
+			l.BuildLookup();
+			return l;
 		} catch (Exception ex) {
 			FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/langloadfail", "Loading language file failed, make sure you are running the latest version"));
 			GenericExceptionHandler(I18n.Translate("internal/Plugin/langloadex", "Loading the language file '{0}' failed due to an exception", filename), ex);

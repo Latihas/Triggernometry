@@ -37,7 +37,7 @@ internal sealed class DynamicCoordArg {
 		EntityId = entityId
 	};
 
-	public static DynamicCoordArg Parse(string raw) {
+	public static DynamicCoordArg? Parse(string raw) {
 		if (string.IsNullOrWhiteSpace(raw))
 			return null;
 

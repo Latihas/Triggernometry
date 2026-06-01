@@ -12,8 +12,8 @@ using Triggernometry.Localization;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	internal Dictionary<string, DateTime> TtsRepetitions = new();
-	internal Dictionary<string, DateTime> SoundRepetitions = new();
+	internal readonly Dictionary<string, DateTime> TtsRepetitions = new();
+	internal readonly Dictionary<string, DateTime> SoundRepetitions = new();
 	internal SpeechSynthesizer tts;
 	internal bool WMPUnavailable;
 
@@ -174,12 +174,11 @@ public partial class RealPlugin {
 				}
 			}
 			if (!fromcache) {
-				using (var wc = new WebClient()) {
-					wc.Headers["User-Agent"] = "Triggernometry Sound Retriever";
-					var data = wc.DownloadData(u.AbsoluteUri);
-					File.WriteAllBytes(fn, data);
-					filename = fn;
-				}
+				using var wc = new WebClient();
+				wc.Headers["User-Agent"] = "Triggernometry Sound Retriever";
+				var data = wc.DownloadData(u.AbsoluteUri);
+				File.WriteAllBytes(fn, data);
+				filename = fn;
 			}
 		}
 		switch (a._SoundRouting) {

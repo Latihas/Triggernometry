@@ -37,8 +37,7 @@ public struct WindowBounds {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is WindowBounds) {
-			var value = (WindowBounds)obj;
+		if (obj is WindowBounds value) {
 			return value.Left == Left
 			       && value.Right == Right
 			       && value.Top == Top

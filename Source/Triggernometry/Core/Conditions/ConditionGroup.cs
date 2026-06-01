@@ -64,8 +64,8 @@ public sealed class ConditionGroup : ConditionComponent {
 	internal static void RebuildParentage(ConditionGroup cg) {
 		foreach (var cc in cg.Children) {
 			cc.Parent = cg;
-			if (cc is ConditionGroup) {
-				RebuildParentage((ConditionGroup)cc);
+			if (cc is ConditionGroup group) {
+				RebuildParentage(group);
 			}
 		}
 	}

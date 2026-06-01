@@ -11,7 +11,7 @@ public class Font : IDisposable {
 	/// <summary>
 	///     A Direct2D TextFormat.
 	/// </summary>
-	public TextFormat TextFormat;
+	public readonly TextFormat TextFormat;
 
 	/// <summary>
 	///     Gets a value that indicates whether this Font is bold.
@@ -91,8 +91,7 @@ public class Font : IDisposable {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Font) {
-			var font = (Font)obj;
+		if (obj is Font font) {
 			return font.Bold == Bold
 			       && font.Italic == Italic
 			       && font.WordWeapping == WordWeapping

@@ -15,7 +15,7 @@ public abstract class ModuleBase {
 	public static NamazuPlugin Plugin => BridgeNamazu.NamazuPlugin;
 	public static NamazuScanner Scanner => Plugin?.SigScanner;
 	public static GreyMagicExternalProcessMemory Memory => Plugin.Memory;
-	public Action ScanMethod;
+	public Action? ScanMethod;
 	public static void RunOnTickV(Action a) => ProxyPlugin.Framework.RunOnTick(a).Wait();
 	public static T RunOnTick<T>(Func<T> a) => ProxyPlugin.Framework.RunOnTick(a).Result;
 

@@ -11,8 +11,8 @@ namespace Triggernometry.PluginBridges.BridgeNamazu;
 /// <summary>
 ///     Wrapper for PostNamazu.PostNamazu
 /// </summary>
-public class NamazuPlugin {
-	private readonly dynamic _plugin;
+public class NamazuPlugin(object plugin) {
+	private readonly dynamic _plugin = plugin ?? throw new ArgumentNullException(nameof(plugin));
 	public object CommandModule => GetOriginalModuleByName("Command");
 	public object MarkModule => GetOriginalModuleByName("Mark");
 	public object NormalCommandModule => GetOriginalModuleByName("NormalCommand");
@@ -37,13 +37,7 @@ public class NamazuPlugin {
 	public ISigScanner DalamudSigScanner => _plugin.DalamudSigScanner;
 	// public bool IsReady => Triggernometry.Utilities.Memory.XivProc != null && Memory != null;
 
-	private Func<object> _getNamazuUi;
-	public object PluginUI => _getNamazuUi();
-
-	public NamazuPlugin(object plugin) {
-		_plugin = plugin ?? throw new ArgumentNullException(nameof(plugin));
-		_getNamazuUi = () => _plugin.PluginUi;
-	}
+	public object PluginUI => () => _plugin.PluginUi;
 
 	public object GetOriginalModuleByName(string moduleName) {
 		var modulesField = _plugin.GetType().GetField("Modules", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -56,9 +50,7 @@ public class NamazuPlugin {
 	public Dictionary<string, bool> ActionEnabled => _plugin.ActionEnabled;
 
 	public bool IsActionEnabled(string cmdOrModuleName) {
-		if (!_commandToModuleNames.TryGetValue(cmdOrModuleName, out var moduleName)) {
-			moduleName = cmdOrModuleName;
-		}
+		var moduleName = _commandToModuleNames.GetValueOrDefault(cmdOrModuleName, cmdOrModuleName);
 		if (!ActionEnabled.TryGetValue(moduleName, out var enabled)) {
 			throw new KeyNotFoundException($"Module '{moduleName}' not found.");
 		}

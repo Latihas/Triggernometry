@@ -74,16 +74,15 @@ public sealed class VariableDictionary : Variable {
 		if (o is VariableList) {
 			return 1;
 		}
-		if (o is VariableDictionary) {
-			var v = (VariableDictionary)o;
-			if (v.Values.Keys.Count > Values.Keys.Count) {
+		if (o is VariableDictionary dictionary) {
+			if (dictionary.Values.Keys.Count > Values.Keys.Count) {
 				return -1;
 			}
-			if (v.Values.Keys.Count < Values.Keys.Count) {
+			if (dictionary.Values.Keys.Count < Values.Keys.Count) {
 				return 1;
 			}
 			var a = new List<string>(Values.Keys);
-			var b = new List<string>(v.Values.Keys);
+			var b = new List<string>(dictionary.Values.Keys);
 			a.Sort();
 			b.Sort();
 			for (var i = 0; i < a.Count; i++) {
@@ -91,7 +90,7 @@ public sealed class VariableDictionary : Variable {
 				if (res != 0) {
 					return res;
 				}
-				res = Values[a[i]].CompareTo(v.Values[a[i]]);
+				res = Values[a[i]].CompareTo(dictionary.Values[a[i]]);
 				if (res != 0) {
 					return res;
 				}

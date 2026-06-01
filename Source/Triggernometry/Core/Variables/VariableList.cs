@@ -45,16 +45,15 @@ public class VariableList : Variable {
 		if (o is VariableScalar) {
 			return 1;
 		}
-		if (o is VariableList) {
-			var v = (VariableList)o;
-			if (v.Values.Count > Values.Count) {
+		if (o is VariableList list) {
+			if (list.Values.Count > Values.Count) {
 				return -1;
 			}
-			if (v.Values.Count < Values.Count) {
+			if (list.Values.Count < Values.Count) {
 				return 1;
 			}
 			for (var i = 0; i < Values.Count; i++) {
-				var res = Values[i].CompareTo(v.Values[i]);
+				var res = Values[i].CompareTo(list.Values[i]);
 				if (res != 0) {
 					return res;
 				}

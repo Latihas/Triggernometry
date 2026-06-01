@@ -20,9 +20,8 @@ public partial class RealPlugin {
 		var xml = Encoding.UTF8.GetString(raw);
 
 		var serializer = new XmlSerializer(typeof(RepositoryManifest));
-		using (var reader = new StringReader(xml)) {
-			return (RepositoryManifest)serializer.Deserialize(reader);
-		}
+		using var reader = new StringReader(xml);
+		return (RepositoryManifest)serializer.Deserialize(reader);
 	}
 
 

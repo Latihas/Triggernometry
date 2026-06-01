@@ -152,12 +152,11 @@ internal class ActionDiskOperation : ActionBase {
 					}
 				}
 				if (!fromcache) {
-					using (var wc = new WebClient()) {
-						wc.Headers["User-Agent"] = "Triggernometry File Retriever";
-						var data = wc.DownloadData(u.AbsoluteUri);
-						File.WriteAllBytes(fn, data);
-						filename = fn;
-					}
+					using var wc = new WebClient();
+					wc.Headers["User-Agent"] = "Triggernometry File Retriever";
+					var data = wc.DownloadData(u.AbsoluteUri);
+					File.WriteAllBytes(fn, data);
+					filename = fn;
 				}
 			}
 		}

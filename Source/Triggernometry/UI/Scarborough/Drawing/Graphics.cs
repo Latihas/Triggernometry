@@ -1945,8 +1945,7 @@ public class Graphics : IDisposable {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Graphics) {
-			var gfx = (Graphics)obj;
+		if (obj is Graphics gfx) {
 			return gfx.WindowHandle == WindowHandle
 			       && gfx.IsInitialized == IsInitialized
 			       && gfx._device.NativePointer == _device.NativePointer;

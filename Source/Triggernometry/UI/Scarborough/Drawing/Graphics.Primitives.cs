@@ -70,8 +70,7 @@ public struct Circle {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Circle) {
-			var value = (Circle)obj;
+		if (obj is Circle value) {
 			return value.Location.Equals(Location)
 			       && value.Radius == Radius;
 		}
@@ -205,8 +204,7 @@ public struct Ellipse {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Ellipse) {
-			var value = (Ellipse)obj;
+		if (obj is Ellipse value) {
 			return value.Location.Equals(Location)
 			       && value.RadiusX == RadiusX
 			       && value.RadiusY == RadiusY;
@@ -322,8 +320,7 @@ public struct Line {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Line) {
-			var value = (Line)obj;
+		if (obj is Line value) {
 			return value.Start.Equals(Start)
 			       && value.End.Equals(End);
 		}
@@ -416,8 +413,7 @@ public struct Point {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Point) {
-			var value = (Point)obj;
+		if (obj is Point value) {
 			return value.X == X
 			       && value.Y == Y;
 		}
@@ -570,8 +566,7 @@ public struct Rectangle {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Rectangle) {
-			var value = (Rectangle)obj;
+		if (obj is Rectangle value) {
 			return value.Left == Left
 			       && value.Top == Top
 			       && value.Right == Right
@@ -713,8 +708,7 @@ public struct RoundedRectangle {
 	///     otherwise, <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is RoundedRectangle) {
-			var value = (RoundedRectangle)obj;
+		if (obj is RoundedRectangle value) {
 			return value.Rectangle.Equals(Rectangle)
 			       && value.RadiusX == RadiusX
 			       && value.RadiusY == RadiusY;
@@ -871,8 +865,7 @@ public struct Triangle {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Triangle) {
-			var value = (Triangle)obj;
+		if (obj is Triangle value) {
 			return value.A.Equals(A)
 			       && value.B.Equals(B)
 			       && value.C.Equals(C);

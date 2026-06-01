@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace Triggernometry.Expressions.String.Utils;
 
 public static partial class ParserCommon {
-	internal static Regex reHex8 = Hex8Regex();
+	internal static readonly Regex reHex8 = Hex8Regex();
 	public const char LINEBREAK = '⏎';
 	public const string LINEBREAK_STR = "⏎";
 	public const int MAX_DEPTH = 10000;

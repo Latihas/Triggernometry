@@ -18,7 +18,6 @@ using Triggernometry.PluginBridges.ExternalTools;
 using Triggernometry.PScript;
 using Triggernometry.UI.CustomControls;
 using Triggernometry.Utilities;
-using TriggernometryProxy;
 using Font = System.Drawing.Font;
 
 // ReSharper disable once CheckNamespace
@@ -80,7 +79,7 @@ public partial class RealPlugin {
 
 	public delegate void ACTEncounterLogDelegate(string message);
 
-	private Queue<LogEvent> EventQueue = new();
+	private readonly Queue<LogEvent> EventQueue = [];
 	private ManualResetEvent QueueWakeupEvent;
 	public UserInterface ui = UserInterface.Instance;
 	[Obsolete("Use ConfigPath")] public string path => ConfigPath;
@@ -88,7 +87,7 @@ public partial class RealPlugin {
 	private bool isInitialized { get; set; }
 	internal Task EventQueueTask;
 	// private TabPage mytp;
-	private bool complainAboutReload;
+	// private bool complainAboutReload;
 	public string pluginName { get; set; }
 	public string pluginPath { get; set; }
 	internal Endpoint _ep;
@@ -173,7 +172,7 @@ public partial class RealPlugin {
 	}
 
 	private void _ep_OnStatusChange(Endpoint.StatusEnum newStatus, string statusDesc) {
-		FilteredAddToLog(DebugLevelEnum.Verbose, string.Format("Endpoint ({0}) {1}", newStatus, statusDesc));
+		FilteredAddToLog(DebugLevelEnum.Verbose, $"Endpoint ({newStatus}) {statusDesc}");
 	}
 
 	private void BridgeFFXIV_OnLogEvent(DebugLevelEnum level, string text) {
@@ -227,9 +226,9 @@ public partial class RealPlugin {
 			FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/filenameis", "Plugin filename is '{0}' at '{1}'", pluginName, pluginPath));
 
 			exwhere = I18n.Translate("internal/Plugin/inilanguages", "loading languages");
-			ProxyPlugin.Framework.RunOnTick(LoadLanguages).Wait();
+			LoadLanguages();
 			exwhere = I18n.Translate("internal/Plugin/inicfg", "loading configuration");
-			ProxyPlugin.Framework.RunOnTick(() => _cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"))).Wait();
+			_cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"));
 			SetupDefaultSecurity();
 			AutofixConfiguration();
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
@@ -288,35 +287,35 @@ public partial class RealPlugin {
 				// CheckForUpdates();
 			}
 			exwhere = I18n.Translate("internal/Plugin/initoasts", "setting up toasts");
-			if (complainAboutReload) {
+			// if (complainAboutReload) {
 				// ui.ComplainAboutReload();
-			}
+				// }
 			// ui.SetupToasts();
 			// ui.SetupLanguageMenu();
 			isRunningAsAdmin = CheckIfAdministrator(cfg.WarnAdmin);
 			exwhere = I18n.Translate("internal/Plugin/initree", "building internal data");
 			// ui.BuildFullTreeFromConfiguration();
-			int PrimaryX = 0, PrimaryY = 0;
-			foreach (var s in Screen.AllScreens) {
-				FilteredAddToLog(DebugLevelEnum.Info, string.Format("{0}{1}: {2},{3} - {4},{5}", s.DeviceName, s.Primary ? " (*)" : "", s.Bounds.Left, s.Bounds.Top, s.Bounds.Left + s.Bounds.Width, s.Bounds.Top + s.Bounds.Height));
-				if (s.WorkingArea.Left < MinX) {
-					MinX = s.WorkingArea.Left;
-				}
-				if (s.WorkingArea.Top < MinY) {
-					MinY = s.WorkingArea.Top;
-				}
-				if (s.WorkingArea.Left + s.WorkingArea.Width > MaxX) {
-					MaxX = s.WorkingArea.Left + s.WorkingArea.Width;
-				}
-				if (s.WorkingArea.Top + s.WorkingArea.Height > MaxY) {
-					MaxY = s.WorkingArea.Top + s.WorkingArea.Height;
-				}
-				if (s.Primary) {
-					PrimaryX = s.WorkingArea.Left;
-					PrimaryY = s.WorkingArea.Top;
-				}
-			}
-			FilteredAddToLog(DebugLevelEnum.Info, string.Format("*: {0},{1} - {2},{3}", MinX, MinY, MaxX, MaxY));
+			// int PrimaryX = 0, PrimaryY = 0;
+			// foreach (var s in Screen.AllScreens) {
+			// 	FilteredAddToLog(DebugLevelEnum.Info, $"{s.DeviceName}{(s.Primary ? " (*)" : "")}: {s.Bounds.Left},{s.Bounds.Top} - {s.Bounds.Left + s.Bounds.Width},{s.Bounds.Top + s.Bounds.Height}");
+			// 	if (s.WorkingArea.Left < MinX) {
+			// 		MinX = s.WorkingArea.Left;
+			// 	}
+			// 	if (s.WorkingArea.Top < MinY) {
+			// 		MinY = s.WorkingArea.Top;
+			// 	}
+			// 	if (s.WorkingArea.Left + s.WorkingArea.Width > MaxX) {
+			// 		MaxX = s.WorkingArea.Left + s.WorkingArea.Width;
+			// 	}
+			// 	if (s.WorkingArea.Top + s.WorkingArea.Height > MaxY) {
+			// 		MaxY = s.WorkingArea.Top + s.WorkingArea.Height;
+			// 	}
+			// 	if (s.Primary) {
+			// 		PrimaryX = s.WorkingArea.Left;
+			// 		PrimaryY = s.WorkingArea.Top;
+			// 	}
+			// }
+			FilteredAddToLog(DebugLevelEnum.Info, $"*: {MinX},{MinY} - {MaxX},{MaxY}");
 			InitActionQueue();
 			var cancellationToken = GetCancellationToken();
 			EventQueueTask = Task.Run(() => LogLineProcessorAsync(cancellationToken), cancellationToken);
@@ -332,17 +331,14 @@ public partial class RealPlugin {
 			// pluginStatusText.Text = I18n.Translate("internal/Plugin/iniready", "Ready");
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/inited", "Initialized"));
 			_ = Task.Run(async () => {
-				if (I18n.IsChineseEnvironment) {
-					LoadDefaultRepoCN();
-				}
+				if (I18n.IsChineseEnvironment) LoadDefaultRepoCN();
 				await UpdateAllRepositoriesAsync(true);
-			});
+			}, cancellationToken);
 			isInitialized = true;
 		} catch (Exception ex) {
 			Log.Error(I18n.Translate("internal/Plugin/inierror", "Error while {0} ({1})", exwhere, ex.ToString()));
 		}
 		UserInterface.BuildTriggerTreeFromConfiguration(null, null);
-		// RefreshTriggers(null, null, false);
 	}
 
 	public static int UProgress = 100;

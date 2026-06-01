@@ -12,29 +12,26 @@ public partial class RealPlugin {
 	internal static string FormatDateTime(DateTime dt) => dt.ToString("MM-dd HH:mm:ss.fff");
 
 	internal static string GenerateHash(string addy) {
-		using (var md5 = MD5.Create()) {
-			var inputBytes = Encoding.UTF8.GetBytes(addy);
-			var hashBytes = md5.ComputeHash(inputBytes);
-			var sb = new StringBuilder();
-			for (var i = 0; i < hashBytes.Length; i++) {
-				sb.Append(hashBytes[i].ToString("X2"));
-			}
-			return sb.ToString().ToLower();
+		using var md5 = MD5.Create();
+		var inputBytes = Encoding.UTF8.GetBytes(addy);
+		var hashBytes = md5.ComputeHash(inputBytes);
+		var sb = new StringBuilder();
+		for (var i = 0; i < hashBytes.Length; i++) {
+			sb.Append(hashBytes[i].ToString("X2"));
 		}
+		return sb.ToString().ToLower();
 	}
 
 	public bool CheckIfAdministrator(bool warnIfNotAdmin) {
-		bool ret;
-		using (var identity = WindowsIdentity.GetCurrent()) {
-			var principal = new WindowsPrincipal(identity);
-			ret = principal.IsInRole(WindowsBuiltInRole.Administrator);
-			if (!ret && warnIfNotAdmin) {
-				// CustomControls.Toast t = new CustomControls.Toast();
-				// t.ToastText = I18n.Translate("internal/Plugin/notadministrator", "You are not running ACT as an administrator - this might prevent some triggers from working.");
-				// t.ToastType = CustomControls.Toast.ToastTypeEnum.OK;
-				// ui.QueueToast(t);
-			}
-		}
+		using var identity = WindowsIdentity.GetCurrent();
+		var principal = new WindowsPrincipal(identity);
+		var ret = principal.IsInRole(WindowsBuiltInRole.Administrator);
+		// if (!ret && warnIfNotAdmin) {
+		// CustomControls.Toast t = new CustomControls.Toast();
+		// t.ToastText = I18n.Translate("internal/Plugin/notadministrator", "You are not running ACT as an administrator - this might prevent some triggers from working.");
+		// t.ToastType = CustomControls.Toast.ToastTypeEnum.OK;
+		// ui.QueueToast(t);
+		// }
 		return ret;
 	}
 
@@ -209,10 +206,9 @@ public partial class RealPlugin {
 	}
 
 	public static bool IsAdmin() {
-		using (var identity = WindowsIdentity.GetCurrent()) {
-			var principal = new WindowsPrincipal(identity);
-			return principal.IsInRole(WindowsBuiltInRole.Administrator);
-		}
+		using var identity = WindowsIdentity.GetCurrent();
+		var principal = new WindowsPrincipal(identity);
+		return principal.IsInRole(WindowsBuiltInRole.Administrator);
 	}
 }
 

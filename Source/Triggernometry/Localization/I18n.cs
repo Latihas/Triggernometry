@@ -7,13 +7,13 @@ using Triggernometry.Core;
 namespace Triggernometry.Localization;
 
 public static class I18n {
-	internal static Dictionary<string, Language> RegisteredLanguages = new();
+	internal static readonly Dictionary<string, Language> RegisteredLanguages = new();
 
-	internal static Language BuiltInLanguage;
+	internal static Language? BuiltInLanguage;
 	internal static Language DefaultLanguage;
-	internal static Language CurrentLanguage;
+	internal static Language? CurrentLanguage;
 
-	internal static object DoNotTranslate = new();
+	internal static readonly object DoNotTranslate = new();
 
 	internal static string ThingToString(int d) =>
 		// minus signs could be different: "-" or "−"
@@ -39,64 +39,53 @@ public static class I18n {
 				break;
 			}
 		}
-		if (CurrentLanguage == null) {
-			CurrentLanguage = ld;
-		}
+		CurrentLanguage ??= ld;
 	}
 
-	internal static string Lookup(string key, string defValue) {
-		if (CurrentLanguage != null) {
-			var ex = CurrentLanguage.Lookup(key);
-			if (ex != null) {
-				return ex;
-			}
-		}
-		return defValue;
-	}
+	internal static string Lookup(string key, string defValue) => CurrentLanguage?.Lookup(key) ?? defValue;
 
 	public static string Translate(string key, string text, params object[] args) {
-		if (BuiltInLanguage != null) { BuiltInLanguage.TranslationsLookup.TryAdd(key, text); }
-		if (CurrentLanguage != null) {
-			try {
-				return CurrentLanguage.Translate(key, text, args);
-			} catch (FormatException) {
-				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, Translate("internal/I18n/formatex",
-					"You might need to update your translation file (your_language_name.triglations.xml). \nFormatException occured during translating \"{0}\".", key));
-				return string.Format(text, args);
-			}
+		BuiltInLanguage?.TranslationsLookup.TryAdd(key, text);
+		if (CurrentLanguage == null) return string.Format(text, args);
+		try {
+			return CurrentLanguage.Translate(key, text, args);
+		} catch (FormatException) {
+			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, Translate("internal/I18n/formatex",
+				"You might need to update your translation file (your_language_name.triglations.xml). \nFormatException occured during translating \"{0}\".", key));
+			return string.Format(text, args);
 		}
-		return string.Format(text, args);
 	}
 
 	internal static void TranslateSecondaryControl(string path, ToolStripItem tsi) {
-		if (tsi.Text != null && tsi.Text != "" && tsi.Tag != DoNotTranslate) {
+		if (!string.IsNullOrEmpty(tsi.Text) && tsi.Tag != DoNotTranslate) {
 			tsi.Text = GetLocalizationFor(path + "/" + tsi.Name, tsi.Text);
 		}
-		if (tsi is ToolStripMenuItem) {
-			var x = (ToolStripMenuItem)tsi;
-			foreach (ToolStripItem tsic in x.DropDownItems) {
-				TranslateSecondaryControl(path, tsic);
+		switch (tsi) {
+			case ToolStripMenuItem item: {
+				foreach (ToolStripItem tsic in item.DropDownItems)
+					TranslateSecondaryControl(path, tsic);
+				break;
 			}
-		} else if (tsi is ToolStripDropDownButton) {
-			var x = (ToolStripDropDownButton)tsi;
-			foreach (ToolStripItem tsic in x.DropDownItems) {
-				TranslateSecondaryControl(path, tsic);
+			case ToolStripDropDownButton button: {
+				foreach (ToolStripItem tsic in button.DropDownItems)
+					TranslateSecondaryControl(path, tsic);
+				break;
 			}
-		} else if (tsi is ToolStripComboBox cbx) {
-			for (var i = 0; i < cbx.Items.Count; i++) {
-				var o = cbx.Items[i].ToString();
-				cbx.Items[i] = GetLocalizationFor(path + "/" + cbx.Name + "[" + o + "]", o);
+			case ToolStripComboBox cbx: {
+				for (var i = 0; i < cbx.Items.Count; i++) {
+					var o = cbx.Items[i].ToString();
+					cbx.Items[i] = GetLocalizationFor(path + "/" + cbx.Name + "[" + o + "]", o);
+				}
+				break;
 			}
 		}
 	}
 
 	internal static string GetLocalizationFor(string path, string current) => Translate(path, current);
 
-	internal static bool ChangeLanguage(string langname) {
+	internal static bool ChangeLanguage(string? langname) {
 		if (langname == null) {
-			if (BuiltInLanguage == null) {
-				BuiltInLanguage = DefaultLanguage;
-			}
+			BuiltInLanguage ??= DefaultLanguage;
 			CurrentLanguage = DefaultLanguage;
 			return true;
 		}
@@ -130,9 +119,9 @@ public static class I18n {
 				}
 			}
 			if (c.Text != null && c.Text != "") {
-				if (c is TabPage) {
-					if (((TabControl)((TabPage)c).Parent).Appearance != TabAppearance.FlatButtons) {
-						c.Text = GetLocalizationFor(path + "/" + c.Name, c.Text);
+				if (c is TabPage page) {
+					if (((TabControl)page.Parent).Appearance != TabAppearance.FlatButtons) {
+						page.Text = GetLocalizationFor(path + "/" + page.Name, page.Text);
 					}
 				} else {
 					c.Text = GetLocalizationFor(path + "/" + c.Name, c.Text);
@@ -140,29 +129,25 @@ public static class I18n {
 			}
 			if (c is CheckedListBox) {
 				//D
-			} else if (c is ListBox) {
-				var x = (ListBox)c;
-				for (var i = 0; i < x.Items.Count; i++) {
-					var o = x.Items[i].ToString();
-					x.Items[i] = GetLocalizationFor(path + "/" + c.Name + "[" + o + "]", o);
+			} else if (c is ListBox box) {
+				for (var i = 0; i < box.Items.Count; i++) {
+					var o = box.Items[i].ToString();
+					box.Items[i] = GetLocalizationFor(path + "/" + box.Name + "[" + o + "]", o);
 				}
-			} else if (c is ComboBox) {
-				var x = (ComboBox)c;
-				for (var i = 0; i < x.Items.Count; i++) {
-					var o = x.Items[i].ToString();
-					x.Items[i] = GetLocalizationFor(path + "/" + c.Name + "[" + o + "]", o);
+			} else if (c is ComboBox control) {
+				for (var i = 0; i < control.Items.Count; i++) {
+					var o = control.Items[i].ToString();
+					control.Items[i] = GetLocalizationFor(path + "/" + control.Name + "[" + o + "]", o);
 				}
-			} else if (c is DataGridView) {
-				var x = (DataGridView)c;
-				for (var i = 0; i < x.Columns.Count; i++) {
-					var hd = x.Columns[i].HeaderText.Trim();
+			} else if (c is DataGridView view) {
+				for (var i = 0; i < view.Columns.Count; i++) {
+					var hd = view.Columns[i].HeaderText.Trim();
 					if (hd.Length > 0) {
-						x.Columns[i].HeaderText = GetLocalizationFor(path + "/" + x.Columns[i].Name, x.Columns[i].HeaderText);
+						view.Columns[i].HeaderText = GetLocalizationFor(path + "/" + view.Columns[i].Name, view.Columns[i].HeaderText);
 					}
 				}
 			}
-			if (c is ToolStrip) {
-				var ts = (ToolStrip)c;
+			if (c is ToolStrip ts) {
 				foreach (ToolStripItem tsi in ts.Items) {
 					TranslateSecondaryControl(path, tsi);
 				}

@@ -37,7 +37,7 @@ public class MultiLineRawArgs {
 	}
 
 	public string this[string key] {
-		get => _data.TryGetValue(key, out var value) ? value : null;
+		get => _data.GetValueOrDefault(key);
 		set => _data[key] = value;
 	}
 

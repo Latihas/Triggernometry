@@ -255,10 +255,9 @@ public abstract class ActionBase {
 
 			var ns = new XmlSerializerNamespaces();
 			ns.Add("", "");
-			using (var sw = new StringWriter()) {
-				xs.Serialize(sw, toSerialize, ns);
-				return sw.ToString();
-			}
+			using var sw = new StringWriter();
+			xs.Serialize(sw, toSerialize, ns);
+			return sw.ToString();
 		}
 
 		/// <summary>
@@ -269,19 +268,18 @@ public abstract class ActionBase {
 			var result = new List<ActionOld>();
 			var xmlDoc = new XmlDocument();
 			xmlDoc.LoadXml(xmlData);
-			using (var sr = new StringReader(xmlData)) {
-				if (xmlDoc.DocumentElement.Name == "ActionBundle") {
-					var bundleSerializer = new XmlSerializer(typeof(ActionBundle));
-					var bundle = (ActionBundle)bundleSerializer.Deserialize(sr);
-					if (bundle?.Actions != null)
-						result.AddRange(bundle.Actions);
-				} else // single Action
-				{
-					var actionSerializer = new XmlSerializer(typeof(ActionOld));
-					var a = (ActionOld)actionSerializer.Deserialize(sr);
-					if (a != null)
-						result.Add(a);
-				}
+			using var sr = new StringReader(xmlData);
+			if (xmlDoc.DocumentElement.Name == "ActionBundle") {
+				var bundleSerializer = new XmlSerializer(typeof(ActionBundle));
+				var bundle = (ActionBundle)bundleSerializer.Deserialize(sr);
+				if (bundle?.Actions != null)
+					result.AddRange(bundle.Actions);
+			} else // single Action
+			{
+				var actionSerializer = new XmlSerializer(typeof(ActionOld));
+				var a = (ActionOld)actionSerializer.Deserialize(sr);
+				if (a != null)
+					result.Add(a);
 			}
 			return result;
 		}
@@ -644,9 +642,8 @@ public abstract class ActionBase {
 			if (httpResponse.StatusCode != HttpStatusCode.NoContent && expectNoContent) {
 				AddToLog(ctx, DebugLevelEnum.Error, I18n.Translate("internal/Action/jsonpostunexpectedresponse", "Unexpected response code: {0}", httpResponse.StatusCode));
 			}
-			using (var streamReader = new StreamReader(httpResponse.GetResponseStream())) {
-				return new Tuple<int, string>((int)httpResponse.StatusCode, streamReader.ReadToEnd());
-			}
+			using var streamReader = new StreamReader(httpResponse.GetResponseStream());
+			return new Tuple<int, string>((int)httpResponse.StatusCode, streamReader.ReadToEnd());
 		} catch (Exception ex) {
 			AddToLog(ctx, DebugLevelEnum.Error, I18n.Translate("internal/Action/jsonpostexception", "Couldn't send message due to exception: {0}", ex.Message));
 			return new Tuple<int, string>(-1, "");
@@ -770,30 +767,29 @@ public abstract class ActionBase {
 	private void BrowseBtn_Click(object? sender, EventArgs e) {
 		var b = (Button)sender;
 		var prop = ((PropertyInfo prop, ActionAttribute attr, ExpressionTextBox target))b.Tag;
-		using (var ofd = new OpenFileDialog()) {
-			var curvalue = (string)prop.prop.GetValue(this);
-			ofd.FileName = curvalue;
-			switch (prop.attr._specialtype) {
-				case ActionAttribute.SpecialTypeEnum.FileSelector:
-					ofd.Title = "Select file"; // todo i18n
-					ofd.Filter = "All files (*.*)|*.*";
-					break;
-				case ActionAttribute.SpecialTypeEnum.ExecutableSelector:
-					ofd.Title = "Select executable"; // todo i18n
-					ofd.Filter = "Executables (*.exe)|*.exe|All files (*.*)|*.*";
-					break;
-				case ActionAttribute.SpecialTypeEnum.AudioSelector:
-					ofd.Title = "Select audio file"; // todo i18n
-					ofd.Filter = "Sound files (*.wav, *.mp3)|*.wav;*.mp3|All files (*.*)|*.*";
-					break;
-				case ActionAttribute.SpecialTypeEnum.ImageSelector:
-					ofd.Title = "Select image file"; // todo i18n
-					ofd.Filter = "Image files (*.gif, *.bmp, *.png, *.jpg, *.jpeg)|*.gif;*.bmp;*.png;*.jpg;*.jpeg|All files (*.*)|*.*";
-					break;
-			}
-			if (ofd.ShowDialog() == DialogResult.OK) {
-				prop.target.Text = ofd.FileName;
-			}
+		using var ofd = new OpenFileDialog();
+		var curvalue = (string)prop.prop.GetValue(this);
+		ofd.FileName = curvalue;
+		switch (prop.attr._specialtype) {
+			case ActionAttribute.SpecialTypeEnum.FileSelector:
+				ofd.Title = "Select file"; // todo i18n
+				ofd.Filter = "All files (*.*)|*.*";
+				break;
+			case ActionAttribute.SpecialTypeEnum.ExecutableSelector:
+				ofd.Title = "Select executable"; // todo i18n
+				ofd.Filter = "Executables (*.exe)|*.exe|All files (*.*)|*.*";
+				break;
+			case ActionAttribute.SpecialTypeEnum.AudioSelector:
+				ofd.Title = "Select audio file"; // todo i18n
+				ofd.Filter = "Sound files (*.wav, *.mp3)|*.wav;*.mp3|All files (*.*)|*.*";
+				break;
+			case ActionAttribute.SpecialTypeEnum.ImageSelector:
+				ofd.Title = "Select image file"; // todo i18n
+				ofd.Filter = "Image files (*.gif, *.bmp, *.png, *.jpg, *.jpeg)|*.gif;*.bmp;*.png;*.jpg;*.jpeg|All files (*.*)|*.*";
+				break;
+		}
+		if (ofd.ShowDialog() == DialogResult.OK) {
+			prop.target.Text = ofd.FileName;
 		}
 	}
 
@@ -961,9 +957,8 @@ public abstract class ActionBase {
 			l.MinimumSize = new Size(150, 0);
 			tlp.Controls.Add(l, 0, i);
 			var pe = propeditors[i];
-			if (pe.ctrl is object[]) {
+			if (pe.ctrl is object[] ctrls) {
 				var col = 1;
-				var ctrls = (object[])pe.ctrl;
 				foreach (var o in ctrls) {
 					var ctrl = (Control)o;
 					ctrl.Dock = DockStyle.Top;

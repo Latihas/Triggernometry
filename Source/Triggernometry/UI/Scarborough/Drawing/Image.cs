@@ -16,7 +16,7 @@ public class Image : IDisposable {
 	/// <summary>
 	///     The SharpDX Bitmap
 	/// </summary>
-	public Bitmap Bitmap;
+	public readonly Bitmap Bitmap;
 
 	/// <summary>
 	///     Gets the width of this Image
@@ -83,8 +83,7 @@ public class Image : IDisposable {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Image) {
-			var image = (Image)obj;
+		if (obj is Image image) {
 			return image.Bitmap.NativePointer == Bitmap.NativePointer;
 		}
 		return false;

@@ -151,8 +151,7 @@ public class Geometry : IDisposable {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Geometry) {
-			var geometry = (Geometry)obj;
+		if (obj is Geometry geometry) {
 			return geometry.IsOpen == IsOpen
 			       && geometry._geometry.NativePointer == _geometry.NativePointer;
 		}

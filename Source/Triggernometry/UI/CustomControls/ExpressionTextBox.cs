@@ -21,7 +21,7 @@ namespace Triggernometry.UI.CustomControls;
 public partial class ExpressionTextBox : UserControl {
 	#region Autofill Text
 
-	public static List<string> math = [
+	public static readonly List<string> math = [
 		"pi", "π", "pi2", "pi05", "pi025", "pi0125", "pitorad", "piofrad",
 		"phi", "major", "minor", "ETmin2sec", "semitone", "cent",
 
@@ -69,7 +69,7 @@ public partial class ExpressionTextBox : UserControl {
 		"Freq(note, semitones=0)", "NextETms(XX:XX)", "NextETms(ETmin)"
 	];
 
-	public static List<string> prefixes = new() // right after "${"
+	public static readonly List<string> prefixes = new() // right after "${"
 	{
 		"numeric:",
 		"n:",
@@ -238,7 +238,7 @@ public partial class ExpressionTextBox : UserControl {
 		"_i"
 	};
 
-	public static List<string> funcs = [
+	public static readonly List<string> funcs = [
 		"toupper", "tolower", "tofullwidth", "tohalfwidth", "toblackchar(combineDigits=false)", "towhitechar", "tosimpcn", "totradcn",
 		"length", "dec2hex", "dec2hex2", "dec2hex4", "dec2hex8", "float2hex", "double2hex",
 		"hex2dec", "hex2float", "hex2double", "parsedmg",
@@ -254,7 +254,7 @@ public partial class ExpressionTextBox : UserControl {
 		"utctime(format)", "localtime(format)"
 	];
 
-	public static List<string> lvarProps = [
+	public static readonly List<string> lvarProps = [
 		"size", "length", "indexof(str)", "i(str)", "lastindexof(str)",
 		"get(idx, default)",
 		"indicesof(str, joiner=',', slices='::')",
@@ -265,7 +265,7 @@ public partial class ExpressionTextBox : UserControl {
 		"max(type='n', slices='::')", "min(type='n', slices='::')"
 	];
 
-	public static List<string> tvarProps = [
+	public static readonly List<string> tvarProps = [
 		"w", "width", "h", "height",
 		"get(colIndex, rowIIndex, default)",
 		"hjoin()", "hjoin(joiner1=',', joiner2='⏎', colSlices='::', rowSlices='::')",
@@ -281,7 +281,7 @@ public partial class ExpressionTextBox : UserControl {
 		"contain(str, colSlices='::', rowSlices='::')", "ifcontain(str, t, f)"
 	];
 
-	public static List<string> dvarProps = [
+	public static readonly List<string> dvarProps = [
 		"size", "length", "ekey(key)", "evalue(value)", "ifekey(key, t, f)", "ifevalue(value, t, f)",
 		"get(key, default)",
 		"keyof(value)", "keyof(value, default)", "keysof(value, joiner=',')",
@@ -291,12 +291,12 @@ public partial class ExpressionTextBox : UserControl {
 		"max(type='n')", "min(type='n')", "maxkey(type='n')", "minkey(type='n')"
 	];
 
-	public static List<string> textAuraProps = ["x", "y", "w", "h", "opacity", "text"];
+	public static readonly List<string> textAuraProps = ["x", "y", "w", "h", "opacity", "text"];
 
-	public static List<string> imageAuraProps = ["x", "y", "w", "h", "opacity"];
+	public static readonly List<string> imageAuraProps = ["x", "y", "w", "h", "opacity"];
 
 	// Name, X, Job, Role, etc.
-	public static List<string> XivEntityProps = new List<string> {
+	public static readonly List<string> XivEntityProps = new List<string> {
 		"HasStatus(statusId)",
 		"HasAnyStatus(statusIds...)",
 		"HasAllStatus(statusIds...)",
@@ -315,9 +315,9 @@ public partial class ExpressionTextBox : UserControl {
 	}.Concat(Entity.ValidEntityPropNames).Concat(Job.LegalJobPropNames).ToList();
 
 	// Job, Role, etc.
-	public static List<string> XivJobProps = Job.LegalJobPropNames.ToList();
+	public static readonly List<string> XivJobProps = Job.LegalJobPropNames.ToList();
 
-	public static List<string> configurations = [
+	public static readonly List<string> configurations = [
 		"DebugLevel", "UseACTForSound", "UseACTForTTS", "FfxivLogNetwork", "UseOsClipboard", "DeveloperMode", "Autosave", "Language",
 		"UnsafeUsage", "DynamicUsage",
 		"Microsoft.CodeAnalysis", "Microsoft.Win32", "System.CodeDom.Compiler", "System.Diagnostics", "Triggernometry.Utilities",
@@ -934,9 +934,7 @@ public partial class ExpressionTextBox : UserControl {
 		if (m.Success) {
 			var isPersist = m.Groups["persist"].Value == "p";
 			var typeString = m.Groups["type"].Value;
-			if (!StringToAutofillEnum.TryGetValue(typeString, out var type)) {
-				type = AutofillTypeEnum.None;
-			}
+			var type = StringToAutofillEnum.GetValueOrDefault(typeString, AutofillTypeEnum.None);
 
 			// combine the existing and dynamic variable names
 			var varNames = new HashSet<string>(GetExistingAutofillNameList(type, isPersist));
@@ -1258,10 +1256,9 @@ public partial class ExpressionTextBox : UserControl {
 	}
 
 	private void MultiLineAdjustHeight() {
-		using (var g = textBox1.CreateGraphics()) {
-			var size = g.MeasureString(textBox1.Text + "\n\n1", textBox1.Font); // add 2 more lines
-			textBox1.Height = (int)size.Height;
-		}
+		using var g = textBox1.CreateGraphics();
+		var size = g.MeasureString(textBox1.Text + "\n\n1", textBox1.Font); // add 2 more lines
+		textBox1.Height = (int)size.Height;
 	}
 
 	// Prevent pasting a hidden \n (usually from ACT loglines) into the txtbox
@@ -1438,9 +1435,7 @@ public partial class ExpressionTextBox : UserControl {
 		foreach (Match match in rexDynamicNames.Matches(Text)) {
 			var isPersistent = match.Groups["persist"].ToString() == "p";
 			var typeString = match.Groups["type"].ToString();
-			if (!StringToAutofillEnum.TryGetValue(typeString, out var type)) {
-				type = AutofillTypeEnum.None;
-			}
+			var type = StringToAutofillEnum.GetValueOrDefault(typeString, AutofillTypeEnum.None);
 			var name = match.Groups["name"].ToString();
 			RegisterDynamicVarName(name, type, isPersistent);
 		}

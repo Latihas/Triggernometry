@@ -56,11 +56,11 @@ internal sealed class Scarborough : RendererBase {
 	}
 
 	internal override void Render(Aura a) {
-		if (a is AuraImage) {
-			RenderImage((AuraImage)a);
+		if (a is AuraImage image) {
+			RenderImage(image);
 		}
-		if (a is AuraText) {
-			RenderText((AuraText)a);
+		if (a is AuraText text) {
+			RenderText(text);
 		}
 	}
 
@@ -197,53 +197,51 @@ internal sealed class Scarborough : RendererBase {
 
 	internal void LoadImageDataFromByte(RealPlugin plug, Graphics g, byte[] data) {
 		var gif = GetGifData(data);
-		using (var ms = new MemoryStream(data)) {
-			using (var i = System.Drawing.Image.FromStream(ms)) {
-				var b = (Bitmap)i;
-				var CurrentFd = new FrameDimension(i.FrameDimensionsList[0]);
-				NumberOfFrames = i.GetFrameCount(CurrentFd);
-				IsAnimated = NumberOfFrames > 1;
-				if (IsAnimated) {
-					Frames = [];
-					FrameDelays = [];
-					var delay = i.GetPropertyItem(0x5100);
-					Color tc;
-					var hastc = false;
-					if (gif.TransparencyIndex >= 0) {
-						tc = gif.Palette[gif.TransparencyIndex];
-						hastc = true;
+		using var ms = new MemoryStream(data);
+		using var i = System.Drawing.Image.FromStream(ms);
+		var b = (Bitmap)i;
+		var CurrentFd = new FrameDimension(i.FrameDimensionsList[0]);
+		NumberOfFrames = i.GetFrameCount(CurrentFd);
+		IsAnimated = NumberOfFrames > 1;
+		if (IsAnimated) {
+			Frames = [];
+			FrameDelays = [];
+			var delay = i.GetPropertyItem(0x5100);
+			Color tc;
+			var hastc = false;
+			if (gif.TransparencyIndex >= 0) {
+				tc = gif.Palette[gif.TransparencyIndex];
+				hastc = true;
+			} else {
+				tc = gif.Palette[0];
+			}
+			for (var h = 0; h < NumberOfFrames; h++) {
+				var delayn = (delay.Value[h * 4] + delay.Value[h * 4 + 1] * 256) * 10;
+				FrameDelays.Add(delayn);
+				i.SelectActiveFrame(CurrentFd, h);
+				var ifa = (System.Drawing.Image)i.Clone();
+				var idata = ImageToByte(ifa);
+				if (hastc) {
+					if (gif.TransparencyIndex != gif.BackgroundColor) {
+						// hack in case transparency color is different from bgcolor (some gifs have this shit)
+						SetTransparencyIndex(idata, (byte)gif.BackgroundColor);
 					} else {
-						tc = gif.Palette[0];
-					}
-					for (var h = 0; h < NumberOfFrames; h++) {
-						var delayn = (delay.Value[h * 4] + delay.Value[h * 4 + 1] * 256) * 10;
-						FrameDelays.Add(delayn);
-						i.SelectActiveFrame(CurrentFd, h);
-						var ifa = (System.Drawing.Image)i.Clone();
-						var idata = ImageToByte(ifa);
-						if (hastc) {
-							if (gif.TransparencyIndex != gif.BackgroundColor) {
-								// hack in case transparency color is different from bgcolor (some gifs have this shit)
-								SetTransparencyIndex(idata, (byte)gif.BackgroundColor);
-							} else {
-								for (var j = 0; j < gif.TransparencyIndex; j++) {
-									if (gif.Palette[j].R == tc.R && gif.Palette[j].R == tc.G && gif.Palette[j].R == tc.B) {
-										// net itself might have selected an earlier color as new transparency color
-										// hack to reset transparency index to match if so
-										SetTransparencyIndex(idata, (byte)j);
-										break;
-									}
-								}
+						for (var j = 0; j < gif.TransparencyIndex; j++) {
+							if (gif.Palette[j].R == tc.R && gif.Palette[j].R == tc.G && gif.Palette[j].R == tc.B) {
+								// net itself might have selected an earlier color as new transparency color
+								// hack to reset transparency index to match if so
+								SetTransparencyIndex(idata, (byte)j);
+								break;
 							}
 						}
-						Frames.Add(g.CreateImage(idata));
 					}
-					CurrentFrame = -1;
-					AdvanceFrame();
-				} else {
-					OriginalImage = g.CreateImage(data);
 				}
+				Frames.Add(g.CreateImage(idata));
 			}
+			CurrentFrame = -1;
+			AdvanceFrame();
+		} else {
+			OriginalImage = g.CreateImage(data);
 		}
 	}
 

@@ -1975,8 +1975,7 @@ public class UserInterface {
 		if (tnupdate == null) {
 			return;
 		}
-		if (tnupdate is RepositoryFolder) {
-			var rfo = (RepositoryFolder)tnupdate;
+		if (tnupdate is RepositoryFolder folder) {
 			// foreach (TreeNode tn in tnupdate.Nodes)
 			// {
 			//     tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
@@ -1984,8 +1983,7 @@ public class UserInterface {
 			// }
 			_ = RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
 		}
-		if (tnupdate is Repository) {
-			var rfo = (Repository)tnupdate;
+		if (tnupdate is Repository rfo) {
 			// tnupdate.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
 			// tnupdate.SelectedImageIndex = tnupdate.ImageIndex;
 			_ = RealPlugin.Instance.UpdateRepositoriesAsync([rfo], false);

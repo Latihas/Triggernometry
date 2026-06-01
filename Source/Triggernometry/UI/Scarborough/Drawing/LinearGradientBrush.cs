@@ -114,8 +114,7 @@ public class LinearGradientBrush : IDisposable, IBrush {
 	///     otherwise, <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is LinearGradientBrush) {
-			var brush = (LinearGradientBrush)obj;
+		if (obj is LinearGradientBrush brush) {
 			return brush._brush.NativePointer == _brush.NativePointer;
 		}
 		return false;

@@ -228,13 +228,13 @@ public static class Memory {
 	#region Scanner
 
 	public class ScanPattern {
-		public string RawPattern;
-		public byte?[] Bytes;
+		public readonly string RawPattern;
+		public readonly byte?[] Bytes;
 		public int Length;
-		public Regex PatternRegex;
+		public readonly Regex PatternRegex;
 
-		public int Offset;
-		public bool Jump;
+		public readonly int Offset;
+		public readonly bool Jump;
 
 		public byte? this[int index] => Bytes[index];
 

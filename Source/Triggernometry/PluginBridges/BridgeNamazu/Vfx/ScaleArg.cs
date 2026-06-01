@@ -57,7 +57,6 @@ internal sealed partial class ScaleArg {
 
 		private readonly bool _hasDistanceToken;
 		private readonly double _value;
-		private readonly string _expression;
 		private readonly Func<double, string> _replaceDistance;
 
 		public bool HasDistanceToken => _hasDistanceToken;
@@ -72,8 +71,8 @@ internal sealed partial class ScaleArg {
 				throw new ArgumentException("Dynamic scale expression cannot be empty.", nameof(expression));
 
 			_hasDistanceToken = true;
-			_expression = expression.Trim();
-			_replaceDistance = distance => DistanceTokenRegex.Replace(_expression, distance.ToDataString());
+			var expression1 = expression.Trim();
+			_replaceDistance = distance => DistanceTokenRegex.Replace(expression1, distance.ToDataString());
 		}
 
 		public static ScaleTerm Parse(string raw) {

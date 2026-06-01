@@ -44,8 +44,7 @@ public class Scene : IDisposable {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is Scene) {
-			var scene = (Scene)obj;
+		if (obj is Scene scene) {
 			return scene.Device.Equals(Device);
 		}
 		return false;

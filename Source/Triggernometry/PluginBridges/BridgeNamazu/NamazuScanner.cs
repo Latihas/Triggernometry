@@ -7,13 +7,9 @@ namespace Triggernometry.PluginBridges.BridgeNamazu;
 /// <summary>
 ///     Wrapper for PostNamazu.Common.SigScanner
 /// </summary>
-public class NamazuScanner {
-	private readonly dynamic _scanner;
+public class NamazuScanner(object scanner) {
+	private readonly dynamic _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
 	public object RawScanner => _scanner;
-
-	public NamazuScanner(object scanner) {
-		_scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
-	}
 
 	// Underlying fields
 	// public MemHelper MemHelper => _scanner._memhelper;
@@ -62,7 +58,7 @@ public class NamazuScanner {
 	}
 
 	public IntPtr TryScanMultiple(IEnumerable<string> patterns, string name) {
-		Exception ex = null;
+		Exception? ex = null;
 		foreach (var pattern in patterns) {
 			try {
 				return ScanText(pattern, name);

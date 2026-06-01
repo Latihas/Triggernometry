@@ -34,8 +34,7 @@ public class VariableTable : Variable {
 		if (o is VariableDictionary) {
 			return 1;
 		}
-		if (o is VariableTable) {
-			var vt = (VariableTable)o;
+		if (o is VariableTable vt) {
 			if (Height < vt.Height) {
 				return -1;
 			}

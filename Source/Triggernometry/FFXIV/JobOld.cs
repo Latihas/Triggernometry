@@ -12,14 +12,14 @@ public static class EntityOld {
 	///     <i>e.g.</i> <br />
 	///     <c>jobs["1"]["role"]</c>, <c>jobs["33"]["isTM"]</c>
 	/// </summary>
-	public static Dictionary<string, Dictionary<string, string>> jobs = new();
+	public static readonly Dictionary<string, Dictionary<string, string>> jobs = new();
 
 	/// <summary>
 	///     Convert jobname in any language or abbrevations to jobid. <br /><br />
 	///     <i>e.g.</i> <br />
 	///     <c>jobNameToIdMap["PLD"]</c>
 	/// </summary>
-	public static Dictionary<string, string> jobNameToIdMap = new();
+	public static readonly Dictionary<string, string> jobNameToIdMap = new();
 
 	static EntityOld() {
 		InitializeJobs();

@@ -195,7 +195,7 @@ public static partial class DataStringHelper {
 	///     作为 uint 的形式上的 “子类”，用于配合 ToDataString、ParseArgs 自动解析用户输入的多种格式的 id。
 	/// </summary>
 	public partial struct HexOrDecId {
-		public uint Value;
+		public readonly uint Value;
 		public const uint Default = 0xE0000000;
 
 		private static readonly Regex HexRegex = MyHexRegex();

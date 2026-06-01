@@ -587,8 +587,7 @@ public class OverlayWindow : IDisposable {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is OverlayWindow) {
-			var value = (OverlayWindow)obj;
+		if (obj is OverlayWindow value) {
 			return value.IsInitialized == IsInitialized
 			       && value.Handle == Handle;
 		}

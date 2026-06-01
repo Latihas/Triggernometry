@@ -8,7 +8,7 @@ namespace Triggernometry.PluginBridges;
 [OverlayModule]
 internal static class ModuleAtkStageMemory {
 	public static bool Ready;
-	public static IAtkStageMemory AtkStageMemoryManager;
+	public static readonly IAtkStageMemory AtkStageMemoryManager;
 
 	static ModuleAtkStageMemory() {
 		try {

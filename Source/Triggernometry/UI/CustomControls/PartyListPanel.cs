@@ -14,12 +14,12 @@ namespace Triggernometry.UI.CustomControls;
 
 public class PartyListPanel : TableLayoutPanel {
 	private List<PlayerLabel> _players = [];
-	public int PlayerCount;
-	public string[] PlayerDescriptions;
+	public readonly int PlayerCount;
+	public readonly string[] PlayerDescriptions;
 
-	public string PlayerNamesLvarName;
-	public string PlayerIdsLvarName;
-	public string PlayerIdxVarName;
+	public readonly string PlayerNamesLvarName;
+	public readonly string PlayerIdsLvarName;
+	public readonly string PlayerIdxVarName;
 
 	public PartyListPanel(
 		string[] playerDescriptions,
@@ -198,11 +198,11 @@ public class PartyListPanel : TableLayoutPanel {
 	}
 
 	public class PlayerLabel : Label {
-		public PartyListPanel ParentTable;
-		public string? PlayerName;
+		public readonly PartyListPanel ParentTable;
+		public readonly string? PlayerName;
 		public Job.RoleType? SubRole;
-		public string? JobName;
-		public string? HexID;
+		public readonly string? JobName;
+		public readonly string? HexID;
 		private Label _draggingClone;
 
 		/// <summary> Start from 0. </summary>

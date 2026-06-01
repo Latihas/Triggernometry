@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using Dalamud.Plugin.Services;
 using Scarborough;
 using Triggernometry.Forms;
@@ -15,7 +16,7 @@ namespace Triggernometry.Core;
 
 public partial class RealPlugin {
 	internal UI.Scarborough sc;
-	public Dictionary<string, AuraContainerForm> textauras = new();
+	public readonly Dictionary<string, AuraContainerForm> textauras = new();
 
 	public void InitAura() {
 		ProxyPlugin.Framework.Update += AuraUpdateThreadProc;
@@ -47,10 +48,7 @@ public partial class RealPlugin {
 	}
 
 	internal void UpdateAuras(int numTicks) {
-		var toRem = new List<string>();
-		foreach (var kp in textauras)
-			if (!kp.Value.UpdateAura(numTicks))
-				toRem.Add(kp.Key);
+		var toRem = (from kp in textauras where !kp.Value.UpdateAura(numTicks) select kp.Key).ToList();
 		foreach (var rem in toRem) textauras.Remove(rem);
 	}
 

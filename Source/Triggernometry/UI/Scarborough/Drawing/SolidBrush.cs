@@ -70,8 +70,7 @@ public class SolidBrush : IDisposable, IBrush {
 	///     <see langword="false" />.
 	/// </returns>
 	public override bool Equals(object obj) {
-		if (obj is SolidBrush) {
-			var value = (SolidBrush)obj;
+		if (obj is SolidBrush value) {
 			return value._brush.NativePointer == _brush.NativePointer;
 		}
 		return false;

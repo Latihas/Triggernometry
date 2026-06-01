@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Triggernometry.Core;
 using Triggernometry.PluginBridges.BridgeNamazu.Modules;
 using TriggernometryProxy;
@@ -8,8 +9,8 @@ using TriggernometryProxy;
 namespace Triggernometry.PluginBridges.BridgeNamazu;
 
 public static class BridgeNamazu {
-	public const string PluginName = "PostNamzu.dll";
-	public const string PluginType = "PostNamazu.PostNamazu";
+	// public const string PluginName = "PostNamzu.dll";
+	// public const string PluginType = "PostNamazu.PostNamazu";
 
 	// public static RealPlugin.PluginWrapper WrappedPlugin
 	//     => _wrappedPlugin ?? (_wrappedPlugin = RealPlugin.InstanceHook(PluginName, PluginType));
@@ -26,16 +27,13 @@ public static class BridgeNamazu {
 	private static readonly Dictionary<Type, ModuleBase> _sideloadModules = new();
 
 	static BridgeNamazu() {
-		if (!RealPlugin.IsAdmin()) {
+		if (!RealPlugin.IsAdmin())
 			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
 				"[鲶鱼精邮差扩展] 警告：ACT 未以管理员权限运行。如果遇到游戏崩溃，请尝试右键 ACT 程序 - 属性 - 兼容性，开启管理员身份运行。");
-		}
 	}
 
 	internal static void AddSideloadModule(ModuleBase module) {
-		lock (_sideloadModules) {
-			_sideloadModules[module.GetType()] = module;
-		}
+		lock (_sideloadModules) _sideloadModules[module.GetType()] = module;
 	}
 
 	private static IEnumerable<Type> GetAllModuleTypes() {
@@ -47,13 +45,12 @@ public static class BridgeNamazu {
 	///     接收到鲶鱼精邮差注入游戏的日志后，需要从脚本调用此方法以便初始化所有模块。
 	///     可传入 sideload 方法，改写模块的 ScanMethod 或其他字段等。
 	/// </summary>
-	public static void InitializeModules(Action sideload = null) {
+	public static void InitializeModules(Action? sideload = null) {
 		// 重新生成所有模块实例
 		lock (_modules) {
 			foreach (var type in GetAllModuleTypes()) {
 				try {
-					var instance = (ModuleBase)Activator.CreateInstance(type);
-					_modules[type] = instance;
+					_modules[type] = (ModuleBase)Activator.CreateInstance(type)!;
 				} catch (Exception ex) {
 					RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
 						$"[鲶鱼精邮差扩展] 模块 {type.Name} 创建失败：{ex.Message}");
@@ -63,17 +60,14 @@ public static class BridgeNamazu {
 		// 执行 sideload 方法
 		sideload?.Invoke();
 		// 扫描所有模块
-		foreach (var type in GetAllModuleTypes()) {
-			try {
-				var module = GetModule(type);
-				module.Scan();
-				RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Custom,
-					$"[鲶鱼精邮差扩展] 已初始化模块 {module.GetType().Name}。");
-			} catch (Exception ex) {
-				RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
-					$"[鲶鱼精邮差扩展] 模块 {type.Name} 初始化失败：{ex.Message}{ex}");
-			}
-		}
+		Task.WhenAll(GetAllModuleTypes()
+			.Select(type => Task.Run(() => {
+				try {
+					var module = GetModule(type);
+					module.Scan();
+					RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Custom, $"[鲶鱼精邮差扩展] 已初始化模块 {module.GetType().Name}。");
+				} catch (Exception ex) { RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"[鲶鱼精邮差扩展] 模块 {type.Name} 初始化失败：{ex.Message}{ex}"); }
+			}))).Wait();
 		// 生成日志 以供后续脚本添加回调
 		RealPlugin.Instance.LogLineQueuer("PNE_ModulesInited", "", LogEvent.SourceEnum.Log);
 	}
@@ -83,24 +77,14 @@ public static class BridgeNamazu {
 	///     不传入参数时，注册所有模块中无 tag 的方法；否则注册指定 tag 的方法。
 	/// </summary>
 	public static void RegisterAnnotatedMethods(params string[] methodTags) {
-		foreach (var type in GetAllModuleTypes()) {
-			var module = GetModule(type);
-			module.RegisterAnnotatedMethods(methodTags);
-		}
-		if (methodTags.Length == 0)
-			methodTags = ["Basic"];
-		foreach (var tag in methodTags) {
-			// 生成日志
+		foreach (var type in GetAllModuleTypes())
+			GetModule(type).RegisterAnnotatedMethods(methodTags);
+		if (methodTags.Length == 0) methodTags = ["Basic"];
+		foreach (var tag in methodTags)
 			RealPlugin.Instance.LogLineQueuer($"PNE_ModulesRegistered:{tag}", RealPlugin.Instance.currentZone, LogEvent.SourceEnum.Log);
-		}
 	}
 
-	public static ModuleBase GetModule(Type type) {
-		if (!_modules.TryGetValue(type, out var module)) {
-			throw new Exception($"[鲶鱼精邮差扩展] 模块 {type.Name} 名称错误或未初始化。");
-		}
-		return module;
-	}
+	public static ModuleBase GetModule(Type type) => !_modules.TryGetValue(type, out var module) ? throw new Exception($"[鲶鱼精邮差扩展] 模块 {type.Name} 名称错误或未初始化。") : module;
 
 	public static T GetModule<T>() where T : ModuleBase
 		=> (T)GetModule(typeof(T));

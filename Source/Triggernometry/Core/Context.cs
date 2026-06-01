@@ -38,7 +38,7 @@ public class Context {
 	internal dynamic contextJsonResponse;
 	internal bool isContextJsonParsed = false;
 
-	internal List<int> ActionResults = [];
+	internal readonly List<int> ActionResults = [];
 	internal Dictionary<Mutex, int> heldmutices = new();
 
 	// to-do: refactor these dynamic expressions

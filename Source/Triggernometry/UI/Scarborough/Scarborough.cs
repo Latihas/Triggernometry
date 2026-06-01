@@ -84,12 +84,12 @@ internal class Scarborough : IDisposable {
 				RenderingActive = false;
 				break;
 			case ItemAction.ActionTypeEnum.Activate: {
-				if (ia.Item is ScarboroughImage) {
-					ia.Item.Name = ia.Id;
-					ActivateImage(ia.Id, (ScarboroughImage)ia.Item);
-				} else if (ia.Item is ScarboroughText) {
-					ia.Item.Name = ia.Id;
-					ActivateText(ia.Id, (ScarboroughText)ia.Item);
+				if (ia.Item is ScarboroughImage item) {
+					item.Name = ia.Id;
+					ActivateImage(ia.Id, item);
+				} else if (ia.Item is ScarboroughText text) {
+					text.Name = ia.Id;
+					ActivateText(ia.Id, text);
 				}
 			}
 				break;
@@ -330,19 +330,9 @@ internal class Scarborough : IDisposable {
 		}
 	}
 
-	public ScarboroughImage GetImage(string id) {
-		if (imageitems.TryGetValue(id, out var image)) {
-			return image;
-		}
-		return null;
-	}
+	public ScarboroughImage GetImage(string id) => imageitems.GetValueOrDefault(id);
 
-	public ScarboroughText GetText(string id) {
-		if (textitems.TryGetValue(id, out var text)) {
-			return text;
-		}
-		return null;
-	}
+	public ScarboroughText GetText(string id) => textitems.GetValueOrDefault(id);
 
 	public void DeactivateAllImages() {
 		lock (ItemActions) {
@@ -400,7 +390,7 @@ internal class Scarborough : IDisposable {
 							ctx = si.Value.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message))
+							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Key}' from trigger '{si.Value.ctx.Trigger.LogName}' due to update exception: {ex.Message}")
 						}
 					);
 				} else {
@@ -408,7 +398,7 @@ internal class Scarborough : IDisposable {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message))
+							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Key}' due to update exception: {ex.Message}")
 						}
 					);
 				}
@@ -463,7 +453,7 @@ internal class Scarborough : IDisposable {
 							ctx = si.Value.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message))
+							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Key}' from trigger '{si.Value.ctx.Trigger.LogName}' due to update exception: {ex.Message}")
 						}
 					);
 				} else {
@@ -471,7 +461,7 @@ internal class Scarborough : IDisposable {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message))
+							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Key}' due to update exception: {ex.Message}")
 						}
 					);
 				}
@@ -534,7 +524,7 @@ internal class Scarborough : IDisposable {
 							ctx = si.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Name, si.ctx.Trigger.LogName, ex.Message))
+							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Name}' from trigger '{si.ctx.Trigger.LogName}' due to update exception: {ex.Message}")
 						}
 					);
 				} else {
@@ -542,7 +532,7 @@ internal class Scarborough : IDisposable {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", string.Format("Deactivating aura '{0}' due to update exception: {1}", si.Name, ex.Message))
+							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Name}' due to update exception: {ex.Message}")
 						}
 					);
 				}

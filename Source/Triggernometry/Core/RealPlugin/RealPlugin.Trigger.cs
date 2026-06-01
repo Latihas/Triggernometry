@@ -6,33 +6,22 @@ using Triggernometry.Localization;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	public List<Trigger> Triggers = [];
+	public readonly List<Trigger> Triggers = [];
 
-	public List<Trigger> ActiveTextTriggers = [];
-	public List<Trigger> ActiveFFXIVNetworkTriggers = [];
-	public List<Trigger> ActiveACTTriggers = [];
-	public List<Trigger> ActiveEndpointTriggers = [];
+	public readonly List<Trigger> ActiveTextTriggers = [];
+	public readonly List<Trigger> ActiveFFXIVNetworkTriggers = [];
+	public readonly List<Trigger> ActiveACTTriggers = [];
+	public readonly List<Trigger> ActiveEndpointTriggers = [];
 
-	private List<Trigger> GetActiveTriggers(Trigger.TriggerSourceEnum src) {
-		switch (src) {
-			case Trigger.TriggerSourceEnum.Log:
-				return ActiveTextTriggers;
-
-			case Trigger.TriggerSourceEnum.FFXIVNetwork:
-				return ActiveFFXIVNetworkTriggers;
-
-			case Trigger.TriggerSourceEnum.ACT:
-				return ActiveACTTriggers;
-
-			case Trigger.TriggerSourceEnum.Endpoint:
-				return ActiveEndpointTriggers;
-
-			case Trigger.TriggerSourceEnum.None:
-				return null;
-
-			default:
-				throw new ArgumentOutOfRangeException(nameof(src), src, "Unknown trigger source");
-		}
+	private List<Trigger>? GetActiveTriggers(Trigger.TriggerSourceEnum src) {
+		return src switch {
+			Trigger.TriggerSourceEnum.Log => ActiveTextTriggers,
+			Trigger.TriggerSourceEnum.FFXIVNetwork => ActiveFFXIVNetworkTriggers,
+			Trigger.TriggerSourceEnum.ACT => ActiveACTTriggers,
+			Trigger.TriggerSourceEnum.Endpoint => ActiveEndpointTriggers,
+			Trigger.TriggerSourceEnum.None => null,
+			_ => throw new ArgumentOutOfRangeException(nameof(src), src, "Unknown trigger source")
+		};
 	}
 
 	internal void AddTrigger(Trigger t, bool parentEnabled) {
@@ -40,10 +29,10 @@ public partial class RealPlugin {
 
 		lock (Triggers) {
 			if (!Triggers.Contains(t)) Triggers.Add(t);
-			if (t.Enabled && parentEnabled && activeTriggers != null) {
-				lock (activeTriggers) {
-					if (!activeTriggers.Contains(t)) activeTriggers.Add(t);
-				}
+		}
+		if (t.Enabled && parentEnabled && activeTriggers != null) {
+			lock (activeTriggers) {
+				if (!activeTriggers.Contains(t)) activeTriggers.Add(t);
 			}
 		}
 	}

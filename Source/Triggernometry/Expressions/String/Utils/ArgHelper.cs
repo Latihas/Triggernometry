@@ -99,9 +99,9 @@ public static class ArgHelper {
 		);
 	}
 
-	internal static Regex reSplitArgComma = BuildSplitArgRegex(",", true);
-	internal static Regex reSplitArgEqual = BuildSplitArgRegex("=", true);
-	internal static Regex reSplitArgPipe = BuildSplitArgRegex("|", true);
+	internal static readonly Regex reSplitArgComma = BuildSplitArgRegex(",", true);
+	internal static readonly Regex reSplitArgEqual = BuildSplitArgRegex("=", true);
+	internal static readonly Regex reSplitArgPipe = BuildSplitArgRegex("|", true);
 
 	/// <summary>
 	///     Split an expression with commas or other specified separators to a list of arguments. <br />

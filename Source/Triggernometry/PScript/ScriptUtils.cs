@@ -242,7 +242,7 @@ public static partial class ScriptUtils {
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
 		public readonly Func<Vector3> Position = position;
-		public long EndTime = DateTime.Now.Ticks / 10000 + duration;
+		public readonly long EndTime = DateTime.Now.Ticks / 10000 + duration;
 		public readonly long Duration = duration;
 		public readonly ShapeType ShapeType = shapeType;
 		public readonly uint Color = color;

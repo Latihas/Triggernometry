@@ -25,9 +25,8 @@ public class VariableScalar : Variable {
 		if (!(o is Variable)) {
 			throw new InvalidOperationException();
 		}
-		if (o is VariableScalar) {
-			var v = (VariableScalar)o;
-			return Value.CompareTo(v.Value);
+		if (o is VariableScalar scalar) {
+			return Value.CompareTo(scalar.Value);
 		}
 		return -1;
 	}

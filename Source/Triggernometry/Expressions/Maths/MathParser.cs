@@ -645,9 +645,9 @@ public partial class MathParser {
 	/// <summary> The list contains all characters in the operators. For checking if a char is part of a op.</summary>
 	public static HashSet<char> OperatorChar { get; set; } = [];
 	/// <summary> The operators are right-associative or not. </summary>
-	public static Dictionary<string, bool> OperatorRightAssociative = new();
+	public static readonly Dictionary<string, bool> OperatorRightAssociative = new();
 	/// <summary> The operators are unary, binary or ternary. Also for checking if a string is a op.</summary>
-	public static Dictionary<string, int> OperatorArity = new();
+	public static readonly Dictionary<string, int> OperatorArity = new();
 	public static Dictionary<string, Func<double, double, double>> BinaryOperation { get; set; } = new();
 	public static Dictionary<string, Func<double, double>> UnaryOperation { get; set; } = new();
 

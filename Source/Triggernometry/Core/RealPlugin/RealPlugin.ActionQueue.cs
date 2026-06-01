@@ -12,7 +12,7 @@ namespace Triggernometry.Core;
 
 public partial class RealPlugin {
 	// internal Thread ActionQueueThread;
-	public List<QueuedAction> ActionQueue = [];
+	public readonly List<QueuedAction> ActionQueue = [];
 	// internal AutoResetEvent ActionUpdateEvent;
 	private long curOrdinal;
 	internal object QueueProcessingLock = new();
@@ -268,10 +268,9 @@ public partial class RealPlugin {
 
 		internal void Acquire(Context ctx) {
 			Debug.WriteLine("### {0} - Acquiring for context: {1}", name, ctx);
-			using (var m = QueueForAcquisition(ctx)) {
-				Acquire(ctx, m);
-				Debug.WriteLine("### {0} - Acquired {1} for context: {2}", name, m.GetHashCode(), ctx);
-			}
+			using var m = QueueForAcquisition(ctx);
+			Acquire(ctx, m);
+			Debug.WriteLine("### {0} - Acquired {1} for context: {2}", name, m.GetHashCode(), ctx);
 		}
 
 		internal void Acquire(Context ctx, MutexTicket m) {

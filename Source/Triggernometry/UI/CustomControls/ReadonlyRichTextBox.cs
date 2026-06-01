@@ -112,7 +112,7 @@ public class RichTextBoxHelper : ReadonlyRichTextBox // to do: change to CustomC
 		Height = Math.Min(residueHeight, textHeight);
 	}
 
-	internal static Color[] expressionColors = [
+	internal static readonly Color[] expressionColors = [
 		Color.FromArgb(0, 85, 221), Color.FromArgb(140, 0, 0)
 	];
 	internal static Color monospaceColor = Color.FromArgb(32, 64, 144);

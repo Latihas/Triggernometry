@@ -43,7 +43,7 @@ public class VariableStore {
 	/// <summary> Null if not exist. </summary>
 	public TValue GetVariable<TValue>(Dictionary<string, TValue> variables, string name) where TValue : class {
 		lock (variables) {
-			return variables.TryGetValue(name, out var existing) ? existing : null;
+			return variables.GetValueOrDefault(name);
 		}
 	}
 

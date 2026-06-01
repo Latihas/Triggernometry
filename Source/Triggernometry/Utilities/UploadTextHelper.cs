@@ -34,15 +34,14 @@ public class UploadTextHelper {
 		}
 
 		try {
-			using (var resp = (HttpWebResponse)req.GetResponse())
-			using (var reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8)) {
-				var result = reader.ReadToEnd();
+			using var resp = (HttpWebResponse)req.GetResponse();
+			using var reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8);
+			var result = reader.ReadToEnd();
 
-				// 如果服务器返回的内容本身是错误信息
-				if (resp.StatusCode != HttpStatusCode.OK)
-					throw new WebException($"服务器返回状态码 {(int)resp.StatusCode} ({resp.StatusDescription})");
-				return result;
-			}
+			// 如果服务器返回的内容本身是错误信息
+			if (resp.StatusCode != HttpStatusCode.OK)
+				throw new WebException($"服务器返回状态码 {(int)resp.StatusCode} ({resp.StatusDescription})");
+			return result;
 		} catch (WebException ex) {
 			// 如果服务器确实有响应，读取错误信息附加上去
 			var resp = ex.Response as HttpWebResponse

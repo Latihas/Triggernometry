@@ -53,11 +53,10 @@ internal sealed class AuraImage : Aura {
 				return fn;
 			}
 		}
-		using (var wc = new WebClient()) {
-			wc.Headers["User-Agent"] = "Triggernometry Image Retriever";
-			var data = wc.DownloadData(u.AbsoluteUri);
-			File.WriteAllBytes(fn, data);
-			return fn;
-		}
+		using var wc = new WebClient();
+		wc.Headers["User-Agent"] = "Triggernometry Image Retriever";
+		var data = wc.DownloadData(u.AbsoluteUri);
+		File.WriteAllBytes(fn, data);
+		return fn;
 	}
 }

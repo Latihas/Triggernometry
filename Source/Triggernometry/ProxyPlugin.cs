@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -19,18 +20,25 @@ using static Triggernometry.PScript.ScriptUtils;
 namespace TriggernometryProxy;
 
 public class ProxyPlugin : IActPluginV1 {
-	public RealPlugin Instance;
-	private int callbackIdCounter;
-
 	public delegate void CustomCallbackDelegate(object o, string param);
 
+	public RealPlugin Instance;
+	public static dynamic DalamudPlugin;
+	public static IDalamudPluginInterface PluginInterface;
+	public static IClientState ClientState;
+	public static IObjectTable ObjectTable;
+	public static IGameGui GameGui;
+	public static IFramework Framework;
+	public static IGameInteropProvider GameInteropProvider;
+	public static ISigScanner SigScanner;
+	public static Hook<StaticVfxRemoveDelegate>? StaticVfxRemoveHook;
+	public static Hook<ActorVfxRemoveDelegate>? ActorVfxRemoveHook;
+
 	public int RegisterNamedCallback(string name, CustomCallbackDelegate callback, object o, string registrant) {
-		lock (this) {
+		lock (this)
 			return Instance.RegisterNamedCallback(name, callback, o, true, registrant);
-		}
 	}
 
-	// for backward compatibility: auto-detect the registrant
 	public int RegisterNamedCallback(string name, CustomCallbackDelegate callback, object o) {
 		var registrant = "";
 		var callingFrame = new StackTrace().GetFrame(1);
@@ -42,34 +50,8 @@ public class ProxyPlugin : IActPluginV1 {
 	}
 
 	public void UnregisterNamedCallback(int id) {
-		lock (this) {
-			Instance.UnregisterNamedCallback(id);
-		}
+		lock (this) Instance.UnregisterNamedCallback(id);
 	}
-
-	public void FailsafeRegisterHook(string hookname, string methodname) {
-		// this is to prevent errors when users don't shut down ACT in between updates, and the old realplugin is still loaded in
-		// (and might not expose the hooks that are expected by a newer version of the proxy)
-		try {
-			var mi = GetType().GetMethod(methodname)!;
-			var pi = Instance.GetType().GetProperty(hookname)!;
-			var dob = Delegate.CreateDelegate(pi.PropertyType, this, mi);
-			pi.SetValue(Instance, dob);
-		} catch (Exception) {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"FailsafeRegisterHook Failed: {hookname} {methodname}");
-		}
-	}
-
-	public static dynamic DalamudPlugin;
-	public static IDalamudPluginInterface PluginInterface;
-	public static IClientState ClientState;
-	public static IObjectTable ObjectTable;
-	public static IGameGui GameGui;
-	public static IFramework Framework;
-	public static IGameInteropProvider GameInteropProvider;
-	public static ISigScanner SigScanner;
-	public static Hook<StaticVfxRemoveDelegate>? StaticVfxRemoveHook;
-	public static Hook<ActorVfxRemoveDelegate>? ActorVfxRemoveHook;
 
 	public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui,
 		ISigScanner sigScanner, int latestVer) {
@@ -83,24 +65,20 @@ public class ProxyPlugin : IActPluginV1 {
 		SigScanner = sigScanner;
 		RealPlugin.ResetPlugin(log);
 		Instance = RealPlugin.Instance;
-
-		FailsafeRegisterHook("InCombatHook", "InCombat");
-		FailsafeRegisterHook("SetCombatStateHook", "SetCombatState");
-		FailsafeRegisterHook("CurrentZoneHook", "GetCurrentZone");
-		FailsafeRegisterHook("ActiveEncounterHook", "ExportActiveEncounter");
-		FailsafeRegisterHook("LastEncounterHook", "ExportLastEncounter");
-		FailsafeRegisterHook("EncounterDurationHook", "GetEncounterDuration");
-		FailsafeRegisterHook("TtsPlaybackHook", "InvokeTtsMethod");
-		FailsafeRegisterHook("SoundPlaybackHook", "InvokeSoundMethod");
-		FailsafeRegisterHook("CustomTriggerCheckHook", "HasCustomTriggers");
-		FailsafeRegisterHook("CustomTriggerHook", "GetCustomTriggers");
-		// FailsafeRegisterHook("CornerShowHook", "ShowCornerNotification");
-		// FailsafeRegisterHook("CornerHideHook", "HideCornerNotification");
-		// FailsafeRegisterHook("TabLocateHook", "LocateTab");
-		FailsafeRegisterHook("InstanceHook", "GetInstance");
-		FailsafeRegisterHook("CheckUpdateHook", "CheckForUpdates");
-		FailsafeRegisterHook("ActInitedHook", "ActInited");
-		FailsafeRegisterHook("ACTEncounterLogHook", "ACTEncounterLog");
+		RealPlugin.Instance.InCombatHook = InCombat;
+		RealPlugin.Instance.SetCombatStateHook = SetCombatState;
+		RealPlugin.Instance.CurrentZoneHook = GetCurrentZone;
+		RealPlugin.Instance.ActiveEncounterHook = ExportActiveEncounter;
+		RealPlugin.Instance.LastEncounterHook = ExportLastEncounter;
+		RealPlugin.Instance.EncounterDurationHook = GetEncounterDuration;
+		RealPlugin.Instance.TtsPlaybackHook = InvokeTtsMethod;
+		RealPlugin.Instance.SoundPlaybackHook = InvokeSoundMethod;
+		RealPlugin.Instance.CustomTriggerCheckHook = HasCustomTriggers;
+		RealPlugin.Instance.CustomTriggerHook = GetCustomTriggers;
+		RealPlugin.InstanceHook = GetInstance;
+		RealPlugin.Instance.CheckUpdateHook = CheckForUpdates;
+		RealPlugin.Instance.ActInitedHook = ActInited;
+		RealPlugin.Instance.ACTEncounterLogHook = ACTEncounterLog;
 		GetPluginNameAndPath();
 		ActGlobals.oFormActMain.BeforeLogLineRead += OFormActMain_BeforeLogLineRead;
 		ActGlobals.oFormActMain.OnLogLineRead += OFormActMain_OnLogLineRead;
@@ -163,21 +141,19 @@ public class ProxyPlugin : IActPluginV1 {
 		PluginInterface.UiBuilder.Draw -= DrawScriptBdl;
 		Framework.Update -= VfxManager.WorkerLoop;
 		ClientState.Logout -= OnLogout;
-		StaticVfxRemoveHook.Disable();
-		StaticVfxRemoveHook.Dispose();
-		ActorVfxRemoveHook.Disable();
-		ActorVfxRemoveHook.Dispose();
+		StaticVfxRemoveHook?.Disable();
+		StaticVfxRemoveHook?.Dispose();
+		ActorVfxRemoveHook?.Disable();
+		ActorVfxRemoveHook?.Dispose();
 		RealPlugin.Instance.DeInitAura();
 		Instance.DeInitPlugin();
 	}
 
-	private void OFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo) {
+	private void OFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo) =>
 		Instance.BeforeLogLineRead(isImport, logInfo.originalLogLine, logInfo.detectedZone);
-	}
 
-	private void OFormActMain_OnLogLineRead(bool isImport, LogLineEventArgs logInfo) {
+	private void OFormActMain_OnLogLineRead(bool isImport, LogLineEventArgs logInfo) =>
 		Instance.OnLogLineRead(isImport, logInfo.logLine, logInfo.detectedZone);
-	}
 
 	public void GetPluginNameAndPath() {
 		Instance.ConfigPath = PluginInterface.ConfigDirectory.ToString();
@@ -185,10 +161,13 @@ public class ProxyPlugin : IActPluginV1 {
 		Instance.pluginName = "Triggernometry";
 	}
 
+	[SuppressMessage("Performance", "CA1822")]
 	public bool InCombat() => ActGlobals.oFormActMain.InCombat;
 
+	[SuppressMessage("Performance", "CA1822")]
 	public void EndCombat() => ActGlobals.oFormActMain.EndCombat(false);
 
+	[SuppressMessage("Performance", "CA1822")]
 	public void SetCombatState(bool inCombat) {
 		if (inCombat) {
 			var myName = BridgeFFXIV.GetMyself().GetValue("name").ToString() ?? "Player";
@@ -198,49 +177,31 @@ public class ProxyPlugin : IActPluginV1 {
 		}
 	}
 
+	[SuppressMessage("Performance", "CA1822")]
 	public string GetCurrentZone() => ActGlobals.oFormActMain.CurrentZone;
 
+	[SuppressMessage("Performance", "CA1822")]
 	public bool ActInited() =>
 		// return ActGlobals.oFormActMain.InitActDone;
 		true;
 
-	public string ExportLastEncounter() =>
-		// Advanced_Combat_Tracker.FormActMain act = Advanced_Combat_Tracker.ActGlobals.oFormActMain;
-		// FieldInfo fi = act.GetType().GetField("defaultTextFormat", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
-		// dynamic texf = fi.GetValue(act);
-		// if (texf != null)
-		// {
-		//     int zones = act.ZoneList.Count;
-		//     for (int ii = zones - 1; ii >= 0; ii--)
-		//     {
-		//         int encs = act.ZoneList[ii].Items.Count;
-		//         for (int jj = encs - 1; jj >= 1; jj--)
-		//         {
-		//             if (act.ZoneList[ii].Items[jj] != act.ActiveZone.ActiveEncounter)
-		//             {
-		//                 return act.GetTextExport(act.ZoneList[ii].Items[jj], texf);
-		//             }
-		//         }
-		//     }
-		// }
-		"";
+	[SuppressMessage("Performance", "CA1822")]
+	public string ExportLastEncounter() => "";
 
-	public string ExportActiveEncounter() =>
-		// Advanced_Combat_Tracker.FormActMain act = Advanced_Combat_Tracker.ActGlobals.oFormActMain;
-		// FieldInfo fi = act.GetType().GetField("defaultTextFormat", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance);
-		// dynamic texf = fi.GetValue(act);
-		// return act.GetTextExport(act.ActiveZone.ActiveEncounter, texf);
-		"";
+	[SuppressMessage("Performance", "CA1822")]
+	public string ExportActiveEncounter() => "";
 
-	public double GetEncounterDuration() => ActGlobals.oFormActMain.ActiveZone.ActiveEncounter.Duration.TotalSeconds;
+	[SuppressMessage("Performance", "CA1822")]
+	public double GetEncounterDuration() => ActGlobals.oFormActMain.ActiveZone == null
+		? 0
+		: ActGlobals.oFormActMain.ActiveZone.ActiveEncounter.Duration.TotalSeconds;
 
+	[SuppressMessage("Performance", "CA1822")]
 	public void InvokeTtsMethod(string tts) {
-		// if (ActGlobals.oFormActMain.PlayTtsMethod != null)
-		// {
 		ActGlobals.oFormActMain.TTS(tts);
-		// }
 	}
 
+	[SuppressMessage("Performance", "CA1822")]
 	public void InvokeSoundMethod(string filename, int volume) {
 		// if (ActGlobals.oFormActMain.PlaySoundMethod != null)
 		// {
@@ -248,11 +209,13 @@ public class ProxyPlugin : IActPluginV1 {
 		// }
 	}
 
+	[SuppressMessage("Performance", "CA1822")]
 	public bool HasCustomTriggers() => false;
 
+	[SuppressMessage("Performance", "CA1822")]
 	public List<RealPlugin.CustomTriggerCategoryProxy> GetCustomTriggers() => [];
 
-
+	[SuppressMessage("Performance", "CA1822")]
 	public RealPlugin.PluginWrapper GetInstance(string ActPluginName, string ActPluginType) {
 		if (!(ActPluginName == "FFXIV_ACT_Plugin.dll" && ActPluginType == "FFXIV_ACT_Plugin.FFXIV_ACT_Plugin")) {
 			// RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"PluginWrapper GetInstance Not Implemented: {ActPluginName}|{ActPluginType}");
@@ -272,40 +235,19 @@ public class ProxyPlugin : IActPluginV1 {
 			// FileVersion = pluginData.pluginObj.GetType().Assembly.GetName().Version.ToString(),
 			// PluginType = pluginData.pluginObj.GetType().ToString()
 		};
-		// ActPluginData pluginData = GetPluginDataByType(ActPluginType) ?? GetPluginDataByFileName(ActPluginName);
-		// if (pluginData == null)
-		// {
-		//     return new Triggernometry.RealPlugin.PluginWrapper() { pluginObj = null };
-		// }
-		// return new Triggernometry.RealPlugin.PluginWrapper() {
-		//     pluginObj = pluginData.pluginObj,
-		//     PnlInfo = pluginData.pPluginInfo,
-		//     TabPage = pluginData.tpPluginSpace,
-		//     PluginFile = pluginData.pluginFile,
-		//     LblTitle = pluginData.lblPluginTitle,
-		//     LblStatus = pluginData.lblPluginStatus,
-		//     BtnX = pluginData.btnXButton,
-		//     CbxEnabled = pluginData.cbEnabled,
-		//     FileVersion = pluginData.pluginObj.GetType().Assembly.GetName().Version.ToString(),
-		//     PluginType = pluginData.pluginObj.GetType().ToString()
-		// };
 	}
 
+	[SuppressMessage("Performance", "CA1822")]
 	public void CheckForUpdates() {
 	}
 
-	/// <summary>
-	///     If there is a current active ACT encounter, log the message into the encounter log. <br />
-	///     This would only generate a logline in the encounter and would not trigger anything.
-	/// </summary>
-	/// <param name="message">The message to be logged.</param>
+	[SuppressMessage("Performance", "CA1822")]
 	public void ACTEncounterLog(string message) {
 		var mainform = ActGlobals.oFormActMain;
 		// var text = $"00|{DateTime.Now:O}|0|{type}:{message}|";
 		// ActGlobals.oFormActMain.ParseRawLogLine(false, DateTime.Now, $"{text}");
-		if (mainform.InCombat) {
-			mainform.ActiveZone.ActiveEncounter.LogLines.Add(new LogLineEntry(DateTime.Now, message, 0xFFF, mainform.GlobalTimeSorter));
-		}
+		if (mainform.InCombat)
+			mainform.ActiveZone?.ActiveEncounter.LogLines.Add(new LogLineEntry(DateTime.Now, message, 0xFFF, mainform.GlobalTimeSorter));
 	}
 
 	// [Obsolete("Use GetPluginDataByType instead.")]

@@ -46,7 +46,7 @@ internal class Endpoint : IDisposable {
 			notify = true;
 		}
 		if (desc != null) {
-			StatusDescription = string.Format("[{0}] {1}", DateTime.Now, desc);
+			StatusDescription = $"[{DateTime.Now}] {desc}";
 			notify = true;
 		}
 		if (notify) {
@@ -87,7 +87,7 @@ internal class Endpoint : IDisposable {
 			th.Start(ctx);
 		} catch (Exception ex) {
 			Stop();
-			SetStatus(StatusEnum.Unchanged, string.Format("Exception on Start: {0} @ {1}", ex.Message, ex.StackTrace));
+			SetStatus(StatusEnum.Unchanged, $"Exception on Start: {ex.Message} @ {ex.StackTrace}");
 		}
 	}
 
@@ -110,7 +110,7 @@ internal class Endpoint : IDisposable {
 	public void ThreadProc(object o) {
 		var ctx = (Context)o;
 		var http = ctx.Listener;
-		SetStatus(StatusEnum.Started, string.Format("Waiting for connections on {0}", ctx.Endpoint));
+		SetStatus(StatusEnum.Started, $"Waiting for connections on {ctx.Endpoint}");
 		while (ctx.Running && http.IsListening) {
 			try {
 				HttpListenerContext hctx = null;
@@ -139,13 +139,13 @@ internal class Endpoint : IDisposable {
 						hctx.Response.StatusCode = 200;
 					} catch (Exception ex) {
 						hctx.Response.StatusCode = 500;
-						SetStatus(StatusEnum.Unchanged, string.Format("Exception in Task: {0} @ {1}", ex.Message, ex.StackTrace));
+						SetStatus(StatusEnum.Unchanged, $"Exception in Task: {ex.Message} @ {ex.StackTrace}");
 					}
 					hctx.Response.Close();
 				});
 				t.Start();
 			} catch (Exception ex) {
-				SetStatus(StatusEnum.Unchanged, string.Format("Exception in ThreadProc: {0} @ {1}", ex.Message, ex.StackTrace));
+				SetStatus(StatusEnum.Unchanged, $"Exception in ThreadProc: {ex.Message} @ {ex.StackTrace}");
 			}
 		}
 		SetStatus(StatusEnum.Unchanged, "Thread exited");

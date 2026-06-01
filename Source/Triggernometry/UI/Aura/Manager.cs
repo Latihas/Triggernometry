@@ -85,12 +85,12 @@ internal class Manager : IDisposable {
 				RenderingActive = false;
 				break;
 			case ItemAction.ActionTypeEnum.Activate: {
-				if (ia.Item is AuraImage) {
-					ia.Item.Name = ia.Id;
-					ActivateImage(ia.Id, (AuraImage)ia.Item);
-				} else if (ia.Item is AuraText) {
-					ia.Item.Name = ia.Id;
-					ActivateText(ia.Id, (AuraText)ia.Item);
+				if (ia.Item is AuraImage item) {
+					item.Name = ia.Id;
+					ActivateImage(ia.Id, item);
+				} else if (ia.Item is AuraText text) {
+					text.Name = ia.Id;
+					ActivateText(ia.Id, text);
 				}
 			}
 				break;
@@ -274,19 +274,9 @@ internal class Manager : IDisposable {
 		return a;
 	}
 
-	public AuraImage GetImage(string id) {
-		if (imageitems.TryGetValue(id, out var image)) {
-			return image;
-		}
-		return null;
-	}
+	public AuraImage GetImage(string id) => imageitems.GetValueOrDefault(id);
 
-	public AuraText GetText(string id) {
-		if (textitems.TryGetValue(id, out var text)) {
-			return text;
-		}
-		return null;
-	}
+	public AuraText GetText(string id) => textitems.GetValueOrDefault(id);
 
 	public void DeactivateAllImages() {
 		lock (ItemActions) {
