@@ -51,12 +51,14 @@ internal sealed partial class ScaleArg {
 		(float)Y.Resolve(distance),
 		(float)Z.Resolve(distance));
 
+        public ScaleArg Duplicate() => new ScaleArg(X.Duplicate(), Y.Duplicate(), Z.Duplicate());
 
 	private sealed partial class ScaleTerm {
 		private static readonly Regex DistanceTokenRegex = MyDistanceTokenRegex();
 
 		private readonly bool _hasDistanceToken;
 		private readonly double _value;
+		private readonly string _expression;
 		private readonly Func<double, string> _replaceDistance;
 
 		public bool HasDistanceToken => _hasDistanceToken;
@@ -71,8 +73,8 @@ internal sealed partial class ScaleArg {
 				throw new ArgumentException("Dynamic scale expression cannot be empty.", nameof(expression));
 
 			_hasDistanceToken = true;
-			var expression1 = expression.Trim();
-			_replaceDistance = distance => DistanceTokenRegex.Replace(expression1, distance.ToDataString());
+			_expression = expression.Trim();
+			_replaceDistance = distance => DistanceTokenRegex.Replace(_expression, distance.ToDataString());
 		}
 
 		public static ScaleTerm Parse(string raw) {
@@ -90,6 +92,12 @@ internal sealed partial class ScaleArg {
 		public double Resolve(double distance) => _hasDistanceToken
 			? _replaceDistance(distance).ParseData<double>()
 			: _value;
+
+            public ScaleTerm Duplicate() => _hasDistanceToken
+                ? new ScaleTerm(_expression)
+                : new ScaleTerm(_value);
+        }
+    }
 
 		[GeneratedRegex(@"\b_d\b", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
 		private static partial Regex MyDistanceTokenRegex();

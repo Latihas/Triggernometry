@@ -228,7 +228,8 @@ internal static class VfxManager {
 	private static bool RefreshPoseAndTransform(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, out double? distance) {
 		distance = null;
 
-		if (vfx.PosArg == null && vfx.TargetArg == null && !vfx.Angle3DArg.HasValue && !vfx.HasTransformArgs)
+            // 防御性检验，完整创建的实体不会没有 Pos
+            if (vfx.PosArg == null)
 			return false;
 
 		var pos = ResolveCoordArg(entities, vfx.PosArg);
@@ -330,8 +331,9 @@ internal static class VfxManager {
 		if (vfx.ScaleArg == null)
 			return false;
 
-		if (vfx.ScaleArg.HasDistanceToken) {
-			if (vfx.PosArg == null || vfx.TargetArg == null)
+            if (vfx.ScaleArg.HasDistanceToken)
+            {
+                if (vfx.TargetArg == null)
 				return false;
 
 			if (!distance.HasValue)
