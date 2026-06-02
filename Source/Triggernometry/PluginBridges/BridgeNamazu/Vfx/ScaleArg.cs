@@ -51,7 +51,7 @@ internal sealed partial class ScaleArg {
 		(float)Y.Resolve(distance),
 		(float)Z.Resolve(distance));
 
-        public ScaleArg Duplicate() => new ScaleArg(X.Duplicate(), Y.Duplicate(), Z.Duplicate());
+	public ScaleArg Duplicate() => new(X.Duplicate(), Y.Duplicate(), Z.Duplicate());
 
 	private sealed partial class ScaleTerm {
 		private static readonly Regex DistanceTokenRegex = MyDistanceTokenRegex();
@@ -93,11 +93,9 @@ internal sealed partial class ScaleArg {
 			? _replaceDistance(distance).ParseData<double>()
 			: _value;
 
-            public ScaleTerm Duplicate() => _hasDistanceToken
-                ? new ScaleTerm(_expression)
-                : new ScaleTerm(_value);
-        }
-    }
+		public ScaleTerm Duplicate() => _hasDistanceToken
+			? new ScaleTerm(_expression)
+			: new ScaleTerm(_value);
 
 		[GeneratedRegex(@"\b_d\b", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
 		private static partial Regex MyDistanceTokenRegex();
