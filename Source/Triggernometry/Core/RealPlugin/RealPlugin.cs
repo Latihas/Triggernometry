@@ -374,7 +374,7 @@ public partial class RealPlugin {
 		}
 		Memory.DisposeXivProcHandle();
 		RefreshCancellationToken();
-		if (EventQueueTask != null && !EventQueueTask.IsCompleted) {
+		if (EventQueueTask is { IsCompleted: false }) {
 			var waitTask = EventQueueTask.WaitAsync(TimeSpan.FromSeconds(5));
 			waitTask.GetAwaiter().GetResult();
 		}
