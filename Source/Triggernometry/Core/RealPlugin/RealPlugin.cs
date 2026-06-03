@@ -580,9 +580,7 @@ public partial class RealPlugin {
 	}
 
 	public void OnLogLineRead(bool isImport, string logLine, string detectedZone) {
-		if (isImport || !isInitialized) {
-			return;
-		}
+		if (isImport || !isInitialized) return;
 		if (currentZone == null || detectedZone != currentZone) {
 			currentZone = detectedZone;
 			ZoneChanged(currentZone);
@@ -594,9 +592,13 @@ public partial class RealPlugin {
 				if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.TryDequeue(out _);
 			}
 			var szone = BridgeFFXIV.ZoneID;
-			foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
-				if (script!.TerritoryIds() == null || script.TerritoryIds().Contains(szone))
-					script.MatchAll(logLine);
+			try {
+				foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
+					if (script!.TerritoryIds() == null || script.TerritoryIds().Contains(szone))
+						script.MatchAll(logLine);
+			} catch (Exception ex) {
+				FilteredAddToLog(DebugLevelEnum.Warning, ex.ToString());
+			}
 			LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
 		} catch (Exception ex) {
 			FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/procex", "Exception ({0}) when processing log line ({1}) in zone ({2})", ex, logLine, detectedZone));
