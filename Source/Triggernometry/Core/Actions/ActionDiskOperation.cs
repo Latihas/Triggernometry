@@ -177,11 +177,7 @@ internal class ActionDiskOperation : ActionBase {
 				var vt = vs.GetTableVariable(varname, true);
 				if (data.Count > 0 && datawidth > 0) {
 					string vtchanger;
-					if (ctx.Trigger != null) {
-						vtchanger = I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe());
-					} else {
-						vtchanger = I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
-					}
+					vtchanger = ctx.Trigger != null ? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe()) : I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
 					vt.Resize(datawidth, data.Count);
 					var y = 1;
 					foreach (var row in data) {
@@ -199,20 +195,17 @@ internal class ActionDiskOperation : ActionBase {
 				var data = File.ReadAllLines(filename);
 				lock (vs.List) // verified
 				{
-					if (!vs.List.ContainsKey(varname)) {
-						vs.List[varname] = new VariableList();
+					if (!vs.List.TryGetValue(varname, out var x)) {
+						x = new VariableList();
+						vs.List[varname] = x;
 					}
-					var x = vs.List[varname];
+
 					foreach (var dat in data) {
 						x.Push(new VariableScalar {
 							Value = dat
 						}, "");
 					}
-					if (ctx.Trigger != null) {
-						x.LastChanger = I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe());
-					} else {
-						x.LastChanger = I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
-					}
+					x.LastChanger = ctx.Trigger != null ? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe()) : I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
 					x.LastChanged = DateTime.Now;
 				}
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/filelistset",

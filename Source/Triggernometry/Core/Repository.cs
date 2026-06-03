@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -112,14 +113,9 @@ public class Repository {
 
 	internal Folder Root { get; set; } = new();
 
-	private readonly object _logLock = new();
-	private List<string> UpdateLog { get; set; } = [];
+	private ConcurrentQueue<string> UpdateLog { get; set; } = [];
 
-	public string[] UpdateLogSnapshot() {
-		lock (_logLock) {
-			return UpdateLog.ToArray();
-		}
-	}
+	public string[] UpdateLogSnapshot() => UpdateLog.ToArray();
 
 	/// <summary>
 	///     Add a message to the repository's log. <br />
@@ -127,20 +123,12 @@ public class Repository {
 	/// </summary>
 	public void AddToLog(DebugLevelEnum? level, string log) {
 		var line = $"[{FormatDateTime(DateTime.Now)}] {log}";
-		lock (_logLock) {
-			UpdateLog.Add(line);
-		}
-		if (level.HasValue) {
-			Instance.FilteredAddToLog(level.Value, log);
-		}
+		UpdateLog.Enqueue(line);
+		if (level.HasValue) Instance.FilteredAddToLog(level.Value, log);
 	}
 
 	/// <summary> Clear all log line of the repository. </summary>
-	public void ClearLog() {
-		lock (_logLock) {
-			UpdateLog.Clear();
-		}
-	}
+	public void ClearLog() => UpdateLog.Clear();
 
 	/// <summary>
 	///     Completely remove all existing repository content: <br />

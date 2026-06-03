@@ -56,15 +56,14 @@ internal sealed partial class ScaleArg {
 	private sealed partial class ScaleTerm {
 		private static readonly Regex DistanceTokenRegex = MyDistanceTokenRegex();
 
-		private readonly bool _hasDistanceToken;
 		private readonly double _value;
 		private readonly string _expression;
 		private readonly Func<double, string> _replaceDistance;
 
-		public bool HasDistanceToken => _hasDistanceToken;
+		public bool HasDistanceToken { get; }
 
 		internal ScaleTerm(double value) {
-			_hasDistanceToken = false;
+			HasDistanceToken = false;
 			_value = value;
 		}
 
@@ -72,7 +71,7 @@ internal sealed partial class ScaleArg {
 			if (string.IsNullOrWhiteSpace(expression))
 				throw new ArgumentException("Dynamic scale expression cannot be empty.", nameof(expression));
 
-			_hasDistanceToken = true;
+			HasDistanceToken = true;
 			_expression = expression.Trim();
 			_replaceDistance = distance => DistanceTokenRegex.Replace(_expression, distance.ToDataString());
 		}
@@ -80,20 +79,15 @@ internal sealed partial class ScaleArg {
 		public static ScaleTerm Parse(string raw) {
 			if (string.IsNullOrWhiteSpace(raw))
 				return new ScaleTerm(1.0);
-
 			raw = raw.Trim();
-
-			if (!DistanceTokenRegex.IsMatch(raw))
-				return new ScaleTerm(raw.ParseData<double>());
-
-			return new ScaleTerm(raw);
+			return !DistanceTokenRegex.IsMatch(raw) ? new ScaleTerm(raw.ParseData<double>()) : new ScaleTerm(raw);
 		}
 
-		public double Resolve(double distance) => _hasDistanceToken
+		public double Resolve(double distance) => HasDistanceToken
 			? _replaceDistance(distance).ParseData<double>()
 			: _value;
 
-		public ScaleTerm Duplicate() => _hasDistanceToken
+		public ScaleTerm Duplicate() => HasDistanceToken
 			? new ScaleTerm(_expression)
 			: new ScaleTerm(_value);
 
