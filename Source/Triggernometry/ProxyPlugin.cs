@@ -216,26 +216,9 @@ public class ProxyPlugin : IActPluginV1 {
 	public List<RealPlugin.CustomTriggerCategoryProxy> GetCustomTriggers() => [];
 
 	[SuppressMessage("Performance", "CA1822")]
-	public RealPlugin.PluginWrapper GetInstance(string ActPluginName, string ActPluginType) {
-		if (!(ActPluginName == "FFXIV_ACT_Plugin.dll" && ActPluginType == "FFXIV_ACT_Plugin.FFXIV_ACT_Plugin")) {
-			// RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"PluginWrapper GetInstance Not Implemented: {ActPluginName}|{ActPluginType}");
-			return new RealPlugin.PluginWrapper {
-				pluginObj = null
-			};
-		}
-		return new RealPlugin.PluginWrapper {
-			pluginObj = ActGlobals.oFormActMain.FfxivPlugin
-			// PnlInfo = pluginData.pPluginInfo,
-			// TabPage = pluginData.tpPluginSpace,
-			// PluginFile = pluginData.pluginFile,
-			// LblTitle = pluginData.lblPluginTitle,
-			// LblStatus = pluginData.lblPluginStatus,
-			// BtnX = pluginData.btnXButton,
-			// CbxEnabled = pluginData.cbEnabled,
-			// FileVersion = pluginData.pluginObj.GetType().Assembly.GetName().Version.ToString(),
-			// PluginType = pluginData.pluginObj.GetType().ToString()
-		};
-	}
+	public RealPlugin.PluginWrapper GetInstance(string ActPluginName, string ActPluginType) => new() {
+		pluginObj = ActGlobals.oFormActMain.FfxivPlugin
+	};
 
 	[SuppressMessage("Performance", "CA1822")]
 	public void CheckForUpdates() {

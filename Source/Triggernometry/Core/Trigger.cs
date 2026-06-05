@@ -416,8 +416,7 @@ public class Trigger {
 		if (Repo == null || RepoRestrictions == Repository.RestrictionEnum.None)
 			return false;
 
-		var restrictionNames = Enum.GetValues(typeof(Repository.RestrictionEnum))
-			.Cast<Repository.RestrictionEnum>()
+		var restrictionNames = Enum.GetValues<Repository.RestrictionEnum>()
 			.Where(flag => flag != Repository.RestrictionEnum.None && RepoRestrictions.HasFlag(flag))
 			.Select(flag => I18n.Translate($"internal/Repository/restriction/{flag}", flag.ToString()))
 			.ToArray();

@@ -33,8 +33,7 @@ internal static class ModuleAlliance {
 		return o;
 	}
 
-	public class PartyLists {
-	}
+	public class PartyLists;
 
 	#endregion PartyList
 }

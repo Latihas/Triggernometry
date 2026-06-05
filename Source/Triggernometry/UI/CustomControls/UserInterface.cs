@@ -2175,17 +2175,16 @@ public class UserInterface {
 			// .Select(repo => treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == repo))
 			.FirstOrDefault();
 		if (tn != null) {
-			var existingRepo = tn;
-			existingRepo.Name = r.Name;
+			tn.Name = r.Name;
 			// existingRepo.Enabled = r.Enabled;
-			existingRepo.AllowProcessLaunch = r.AllowProcessLaunch;
-			existingRepo.AllowScriptExecution = r.AllowScriptExecution;
-			existingRepo.AllowDiskOperations = r.AllowDiskOperations;
-			existingRepo.AllowWindowMessages = r.AllowWindowMessages;
-			existingRepo.AllowObsControl = r.AllowObsControl;
-			existingRepo.KeepLocalBackup = r.KeepLocalBackup;
-			existingRepo.UpdatePolicy = r.UpdatePolicy;
-			existingRepo.AudioOutput = r.AudioOutput;
+			tn.AllowProcessLaunch = r.AllowProcessLaunch;
+			tn.AllowScriptExecution = r.AllowScriptExecution;
+			tn.AllowDiskOperations = r.AllowDiskOperations;
+			tn.AllowWindowMessages = r.AllowWindowMessages;
+			tn.AllowObsControl = r.AllowObsControl;
+			tn.KeepLocalBackup = r.KeepLocalBackup;
+			tn.UpdatePolicy = r.UpdatePolicy;
+			tn.AudioOutput = r.AudioOutput;
 
 			// tn.Text = existingRepo.Name;
 			// tn.Checked = existingRepo.Enabled;
@@ -2233,9 +2232,8 @@ public class UserInterface {
 		for (var i = 0; i < nodes.Count; i++) {
 			var tn = nodes[i];
 			if (tn == null) continue;
-			var r = tn;
-			r.Enabled = false;
-			rfo.Repositories.Remove(r);
+			tn.Enabled = false;
+			rfo.Repositories.Remove(tn);
 			RealPlugin.Instance.cfg.RepositoryRoot.Repositories.Remove(tn);
 		}
 	}

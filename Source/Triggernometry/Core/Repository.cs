@@ -316,8 +316,7 @@ public class Repository {
 		}
 
 		if (restrictions != RestrictionEnum.None) {
-			var restrictionNames = Enum.GetValues(typeof(RestrictionEnum))
-				.Cast<RestrictionEnum>()
+			var restrictionNames = Enum.GetValues<RestrictionEnum>()
 				.Where(flag => flag != RestrictionEnum.None && restrictions.HasFlag(flag))
 				.Select(flag => I18n.Translate($"internal/Repository/restrictionenum/{flag}", flag.ToString()))
 				.ToList();

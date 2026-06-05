@@ -41,7 +41,7 @@ public partial class RealPlugin {
 	private void AuraUpdateThreadProc(IFramework framework) {
 		var tickTime = DateTime.Now;
 		var msSince = (tickTime - prevTick).TotalMilliseconds + lag;
-		var numTicks = (int)Math.Floor(msSince / 20.0);
+		var numTicks = (int)Math.Floor(msSince / 20f);
 		lag = msSince - numTicks * 20;
 		prevTick = tickTime;
 		UpdateAuras(numTicks);

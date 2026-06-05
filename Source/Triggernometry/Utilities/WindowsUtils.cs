@@ -203,7 +203,7 @@ public class WindowsUtils {
 			showCmd = SW_UNKNOWN
 		};
 		if (hwnd != IntPtr.Zero) {
-			wp.length = Marshal.SizeOf(typeof(WINDOWPLACEMENT));
+			wp.length = Marshal.SizeOf<WINDOWPLACEMENT>();
 			if (GetWindowPlacement(hwnd, ref wp)) {
 				if (wp.showCmd == SW_SHOWMINIMIZED) {
 					return false;

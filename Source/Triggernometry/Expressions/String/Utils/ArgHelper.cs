@@ -87,14 +87,13 @@ public static class ArgHelper {
 
 	internal static Regex BuildSplitArgRegex(string separator, bool isCompiled = false) {
 		var s = Regex.Escape(separator);
-		var lb = LINEBREAK;
 		return new Regex(
 			//   (?<=^|{s}): after a separator or start-of-line
 			//               (?:\\s|{lb})*\"[^\"]*\"(?:\\s|{lb})*: spaces? + " + text? + " + spaces?
 			//                                                    (?:\\s|{lb})*'[^']*'(?:\\s|{lb})*: spaces? + ' + text? + ' + spaces?
 			//                                                                                      [^{s}]*: any unquoted text
 			//                                                                                              (?=$|{s}): before a separator or end-of-line
-			$"(?<=^|{s})((?:\\s|{lb})*\"[^\"]*\"(?:\\s|{lb})*|(?:\\s|{lb})*'[^']*'(?:\\s|{lb})*|[^{s}]*)(?=$|{s})",
+			$"(?<=^|{s})((?:\\s|{LINEBREAK})*\"[^\"]*\"(?:\\s|{LINEBREAK})*|(?:\\s|{LINEBREAK})*'[^']*'(?:\\s|{LINEBREAK})*|[^{s}]*)(?=$|{s})",
 			isCompiled ? RegexOptions.Compiled : RegexOptions.None
 		);
 	}

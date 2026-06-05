@@ -11,8 +11,7 @@ namespace Triggernometry.Core;
 public partial class RealPlugin {
 	internal readonly bool DisableLogging = false;
 
-	internal readonly Dictionary<DebugLevelEnum, Queue<InternalLog>> log = Enum.GetValues(typeof(DebugLevelEnum))
-		.Cast<DebugLevelEnum>()
+	internal readonly Dictionary<DebugLevelEnum, Queue<InternalLog>> log = Enum.GetValues<DebugLevelEnum>()
 		.ToDictionary(level => level, _ => new Queue<InternalLog>());
 	public readonly ConcurrentQueue<InternalLog> logFlattenTrn = [];
 	public readonly ConcurrentQueue<string> logFlattenACT = [];

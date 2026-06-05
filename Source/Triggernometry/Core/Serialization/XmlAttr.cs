@@ -113,7 +113,7 @@ internal static class XmlAttr {
 	}
 
 	/// <summary>Parses an enum value from an XML attribute string, ignoring case. </summary>
-	public static T Enum<T>(string value) where T : struct, Enum => (T)System.Enum.Parse(typeof(T), value, true);
+	public static T Enum<T>(string value) where T : struct, Enum => System.Enum.Parse<T>(value, true);
 
 	/// <summary>
 	///     Tries to parse an enum value from an XML attribute string, ignoring case.

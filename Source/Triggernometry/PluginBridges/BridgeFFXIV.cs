@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Windows.Forms;
+using Advanced_Combat_Tracker;
 using FFXIV_ACT_Plugin.Common.Models;
 using Triggernometry.Core;
 using Triggernometry.Core.Variables;
@@ -15,8 +15,6 @@ using TriggernometryProxy;
 namespace Triggernometry.PluginBridges;
 
 public static class BridgeFFXIV {
-	private const string ActPluginName = "FFXIV_ACT_Plugin.dll";
-	private const string ActPluginType = "FFXIV_ACT_Plugin.FFXIV_ACT_Plugin";
 	public static Configuration cfg = RealPlugin.Instance.cfg;
 
 	internal delegate void LoggingDelegate(RealPlugin.DebugLevelEnum level, string text);
@@ -31,29 +29,17 @@ public static class BridgeFFXIV {
 		SetupNullCombatant();
 	}
 
-	private static bool _missingPluginWarned;
 
-	public static RealPlugin.PluginWrapper? GetWrappedPlugin() {
-		var wrap = RealPlugin.InstanceHook(ActPluginName, ActPluginType);
-		if (wrap.pluginObj != null) return wrap;
-		if (!_missingPluginWarned) {
-			LogMessage(RealPlugin.DebugLevelEnum.Warning,
-				I18n.Translate("internal/ffxiv/missingactplugin", "FFXIV ACT plugin with filename ({0}) or type ({1}) could not be located, some functions may not work as expected", ActPluginName, ActPluginType));
-			_missingPluginWarned = true;
-		}
-		return null;
-	}
+	public static RealPlugin.PluginWrapper GetWrappedPlugin() => new() {
+		pluginObj = ActGlobals.oFormActMain.FfxivPlugin
+	};
 
 	private static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin? _FFXIV_ACT_Plugin_Instance;
 
 	public static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetInstance() {
-		_FFXIV_ACT_Plugin_Instance ??= (GetWrappedPlugin()?.pluginObj as FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)!;
+		_FFXIV_ACT_Plugin_Instance ??= ActGlobals.oFormActMain.FfxivPlugin;
 		return _FFXIV_ACT_Plugin_Instance;
 	}
-
-	// public static PropertyInfo? GetDataRepository(object? plug) => plug?.GetType()?.GetProperty("DataRepository", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-	// public static object? GetDataRepositoryInstance(object? plug) => GetDataRepository(plug)?.GetValue(plug);
 
 	public static Process GetProcess() => GetInstance().DataRepository.GetCurrentFFXIVProcess();
 
@@ -76,22 +62,6 @@ public static class BridgeFFXIV {
 
 	// public static CheckBox chkLogAllNetwork => (CheckBox)ScanControl(GetWrappedPlugin()?.TabPage, "chkLogAllNetwork");
 	// public static CheckBox chkUseDeucalion => (CheckBox)ScanControl(GetWrappedPlugin()?.TabPage, "chkUseDeucalion");
-
-	private static Control ScanControl(Control parent, string name) {
-		if (parent == null) return null;
-		foreach (Control ctrl in parent.Controls) {
-			if (ctrl.Name == name) {
-				return ctrl;
-			}
-			if (ctrl.HasChildren) {
-				var foundControl = ScanControl(ctrl, name);
-				if (foundControl != null) {
-					return foundControl;
-				}
-			}
-		}
-		return null;
-	}
 
 	public static void UseDeucalion(bool enabled) {
 		// if (chkUseDeucalion.InvokeRequired)
@@ -610,21 +580,13 @@ public static class BridgeFFXIV {
 
 	public static VariableDictionary GetNamedPartyMember(string name) {
 		UpdateState();
-		foreach (var vc in PartyMembers) {
-			if (vc.GetValue("name").ToString() == name) {
-				return vc;
-			}
-		}
+		foreach (var vc in PartyMembers.Where(vc => vc.GetValue("name").ToString() == name)) return vc;
 		return _nullCombatant;
 	}
 
 	public static VariableDictionary GetIdPartyMember(string id) {
 		UpdateState();
-		foreach (var vc in PartyMembers) {
-			if (string.Compare(vc.GetValue("id").ToString(), id, true) == 0) {
-				return vc;
-			}
-		}
+		foreach (var vc in PartyMembers.Where(vc => string.Compare(vc.GetValue("id").ToString(), id, true) == 0)) return vc;
 		return _nullCombatant;
 	}
 

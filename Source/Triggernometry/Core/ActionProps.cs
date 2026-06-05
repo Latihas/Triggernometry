@@ -305,7 +305,7 @@ public partial class ActionOld {
 	internal ActInteractionTypeEnum _ActOpType { get; set; } = ActInteractionTypeEnum.SetCombatState;
 	[XmlAttribute] public string ActOpType {
 		get => _ActOpType != ActInteractionTypeEnum.SetCombatState ? _ActOpType.ToString() : null;
-		set => _ActOpType = (ActInteractionTypeEnum)Enum.Parse(typeof(ActInteractionTypeEnum), value);
+		set => _ActOpType = Enum.Parse<ActInteractionTypeEnum>(value);
 	}
 
 	internal bool _ActOpBoolParam { get; set; }
@@ -359,7 +359,7 @@ public partial class ActionOld {
 			return null;
 		}
 		set {
-			_DictVariableOp = (DictVariableOpEnum)Enum.Parse(typeof(DictVariableOpEnum), value);
+			_DictVariableOp = Enum.Parse<DictVariableOpEnum>(value);
 #pragma warning disable CS0612 // obsolete
 			if (_DictVariableOp == DictVariableOpEnum.GetEntityByName ||
 			    _DictVariableOp == DictVariableOpEnum.GetEntityById)
@@ -373,13 +373,13 @@ public partial class ActionOld {
 	internal DictVariableExpTypeEnum _DictVariableKeyType { get; set; } = DictVariableExpTypeEnum.String;
 	[XmlAttribute] public string DictVariableKeyType {
 		get => _DictVariableKeyType != DictVariableExpTypeEnum.String ? _DictVariableKeyType.ToString() : null;
-		set => _DictVariableKeyType = (DictVariableExpTypeEnum)Enum.Parse(typeof(DictVariableExpTypeEnum), value);
+		set => _DictVariableKeyType = Enum.Parse<DictVariableExpTypeEnum>(value);
 	}
 
 	internal DictVariableExpTypeEnum _DictVariableValueType { get; set; } = DictVariableExpTypeEnum.String;
 	[XmlAttribute] public string DictVariableValueType {
 		get => _DictVariableValueType != DictVariableExpTypeEnum.String ? _DictVariableValueType.ToString() : null;
-		set => _DictVariableValueType = (DictVariableExpTypeEnum)Enum.Parse(typeof(DictVariableExpTypeEnum), value);
+		set => _DictVariableValueType = Enum.Parse<DictVariableExpTypeEnum>(value);
 	}
 
 	internal string _DictVariableName = "";
@@ -473,7 +473,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _DiskFileOp = (DiskFileOpEnum)Enum.Parse(typeof(DiskFileOpEnum), value);
+		set => _DiskFileOp = Enum.Parse<DiskFileOpEnum>(value);
 	}
 
 	internal string _DiskFileOpName;
@@ -557,7 +557,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _FolderOp = (FolderOpEnum)Enum.Parse(typeof(FolderOpEnum), value);
+		set => _FolderOp = Enum.Parse<FolderOpEnum>(value);
 	}
 
 	internal Guid _FolderId { get; set; } = Guid.Empty;
@@ -583,7 +583,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _AuraOp = (AuraOpEnum)Enum.Parse(typeof(AuraOpEnum), value);
+		set => _AuraOp = Enum.Parse<AuraOpEnum>(value);
 	}
 
 	internal PictureBoxSizeMode _AuraImageMode { get; set; } = PictureBoxSizeMode.Normal;
@@ -594,7 +594,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _AuraImageMode = (PictureBoxSizeMode)Enum.Parse(typeof(PictureBoxSizeMode), value);
+		set => _AuraImageMode = Enum.Parse<PictureBoxSizeMode>(value);
 	}
 
 	internal string _AuraName = "";
@@ -752,7 +752,7 @@ public partial class ActionOld {
 			}
 			return _JsonOperationType.ToString();
 		}
-		set => _JsonOperationType = (HTTPMethodEnum)Enum.Parse(typeof(HTTPMethodEnum), value);
+		set => _JsonOperationType = Enum.Parse<HTTPMethodEnum>(value);
 	}
 
 	internal bool _JsonCacheRequest { get; set; }
@@ -844,7 +844,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _KeypressType = (KeypressTypeEnum)Enum.Parse(typeof(KeypressTypeEnum), value);
+		set => _KeypressType = Enum.Parse<KeypressTypeEnum>(value);
 	}
 
 	internal string _KeyPressExpression = "";
@@ -903,7 +903,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _LaunchProcessWindowStyle = (ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), value);
+		set => _LaunchProcessWindowStyle = Enum.Parse<ProcessWindowStyle>(value);
 	}
 
 	internal string _LaunchProcessPathExpression = "";
@@ -966,7 +966,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _ListVariableExpressionType = (ListVariableExpTypeEnum)Enum.Parse(typeof(ListVariableExpTypeEnum), value);
+		set => _ListVariableExpressionType = Enum.Parse<ListVariableExpTypeEnum>(value);
 	}
 
 	internal string _ListVariableName = "";
@@ -1047,7 +1047,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _LogMessageTarget = (LogEvent.SourceEnum)Enum.Parse(typeof(LogEvent.SourceEnum), value);
+		set => _LogMessageTarget = Enum.Parse<LogEvent.SourceEnum>(value);
 	}
 
 	internal string _LogMessageText = "";
@@ -1092,7 +1092,7 @@ public partial class ActionOld {
 			return null;
 		}
 		set {
-			_LogLevel = (LogMessageEnum)Enum.Parse(typeof(LogMessageEnum), value);
+			_LogLevel = Enum.Parse<LogMessageEnum>(value);
 			if ((int)_LogLevel == -1) {
 				_LogLevel = LogMessageEnum.Error;
 			}
@@ -1156,7 +1156,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _MessageBoxIconType = (MessageBoxIconTypeEnum)Enum.Parse(typeof(MessageBoxIconTypeEnum), value);
+		set => _MessageBoxIconType = Enum.Parse<MessageBoxIconTypeEnum>(value);
 	}
 
 	internal string _MessageBoxText = "";
@@ -1182,7 +1182,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _MouseOpType = (MouseOpEnum)Enum.Parse(typeof(MouseOpEnum), value);
+		set => _MouseOpType = Enum.Parse<MouseOpEnum>(value);
 	}
 
 	internal MouseCoordEnum _MouseCoordType { get; set; } = MouseCoordEnum.Absolute;
@@ -1193,7 +1193,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _MouseCoordType = (MouseCoordEnum)Enum.Parse(typeof(MouseCoordEnum), value);
+		set => _MouseCoordType = Enum.Parse<MouseCoordEnum>(value);
 	}
 
 	internal string _MouseX = "0";
@@ -1230,7 +1230,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _MutexOpType = (MutexOpEnum)Enum.Parse(typeof(MutexOpEnum), value);
+		set => _MutexOpType = Enum.Parse<MutexOpEnum>(value);
 	}
 
 	internal string _MutexName = "";
@@ -1282,7 +1282,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _OBSControlType = (ObsControlTypeEnum)Enum.Parse(typeof(ObsControlTypeEnum), value);
+		set => _OBSControlType = Enum.Parse<ObsControlTypeEnum>(value);
 	}
 
 	internal string _OBSEndPoint = "";
@@ -1352,7 +1352,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _LSControlType = (LiveSplitControlTypeEnum)Enum.Parse(typeof(LiveSplitControlTypeEnum), value);
+		set => _LSControlType = Enum.Parse<LiveSplitControlTypeEnum>(value);
 	}
 	internal string _LSCustomPayload = "";
 	[XmlAttribute] public string LiveSplitCustomPayload {
@@ -1405,7 +1405,7 @@ public partial class ActionOld {
 	internal Configuration.AudioRoutingMethodEnum _SoundRouting = Configuration.AudioRoutingMethodEnum.None;
 	[XmlAttribute] public string SoundRouting {
 		get => _SoundRouting != Configuration.AudioRoutingMethodEnum.None ? _SoundRouting.ToString() : null;
-		set => _SoundRouting = (Configuration.AudioRoutingMethodEnum)Enum.Parse(typeof(Configuration.AudioRoutingMethodEnum), value);
+		set => _SoundRouting = Enum.Parse<Configuration.AudioRoutingMethodEnum>(value);
 	}
 
 	[XmlAttribute] public string PlaySoundMyself // old version compatibility
@@ -1425,7 +1425,7 @@ public partial class ActionOld {
 	internal Configuration.AudioRoutingMethodEnum _TTSRouting = Configuration.AudioRoutingMethodEnum.None;
 	[XmlAttribute] public string TTSRouting {
 		get => _TTSRouting != Configuration.AudioRoutingMethodEnum.None ? _TTSRouting.ToString() : null;
-		set => _TTSRouting = (Configuration.AudioRoutingMethodEnum)Enum.Parse(typeof(Configuration.AudioRoutingMethodEnum), value);
+		set => _TTSRouting = Enum.Parse<Configuration.AudioRoutingMethodEnum>(value);
 	}
 
 	[XmlAttribute] public string PlaySpeechMyself // old version compatibility
@@ -1494,7 +1494,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _RepositoryOp = (RepositoryOpEnum)Enum.Parse(typeof(RepositoryOpEnum), value);
+		set => _RepositoryOp = Enum.Parse<RepositoryOpEnum>(value);
 	}
 
 	internal Guid _RepositoryId { get; set; } = Guid.Empty;
@@ -1520,7 +1520,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _VariableOp = (VariableOpEnum)Enum.Parse(typeof(VariableOpEnum), value);
+		set => _VariableOp = Enum.Parse<VariableOpEnum>(value);
 	}
 
 	internal string _VariableName = "";
@@ -1590,7 +1590,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _TableVariableOp = (TableVariableOpEnum)Enum.Parse(typeof(TableVariableOpEnum), value);
+		set => _TableVariableOp = Enum.Parse<TableVariableOpEnum>(value);
 	}
 
 	internal TableVariableExpTypeEnum _TableVariableExpressionType { get; set; } = TableVariableExpTypeEnum.String;
@@ -1601,7 +1601,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _TableVariableExpressionType = (TableVariableExpTypeEnum)Enum.Parse(typeof(TableVariableExpTypeEnum), value);
+		set => _TableVariableExpressionType = Enum.Parse<TableVariableExpTypeEnum>(value);
 	}
 
 	internal string _TableVariableName = "";
@@ -1693,7 +1693,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _TextAuraOp = (AuraOpEnum)Enum.Parse(typeof(AuraOpEnum), value);
+		set => _TextAuraOp = Enum.Parse<AuraOpEnum>(value);
 	}
 
 	internal TextAuraAlignmentEnum _TextAuraAlignment { get; set; } = TextAuraAlignmentEnum.MiddleCenter;
@@ -1704,7 +1704,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _TextAuraAlignment = (TextAuraAlignmentEnum)Enum.Parse(typeof(TextAuraAlignmentEnum), value);
+		set => _TextAuraAlignment = Enum.Parse<TextAuraAlignmentEnum>(value);
 	}
 
 	internal TextAuraEffectEnum _TextAuraEffect { get; set; } = TextAuraEffectEnum.None;
@@ -1719,7 +1719,7 @@ public partial class ActionOld {
 			TextAuraEffectEnum tea = 0;
 			var ex = value.Split(' ');
 			foreach (var exx in ex) {
-				tea |= (TextAuraEffectEnum)Enum.Parse(typeof(TextAuraEffectEnum), exx.Replace(",", ""));
+				tea |= Enum.Parse<TextAuraEffectEnum>(exx.Replace(",", ""));
 			}
 			_TextAuraEffect = tea;
 		}
@@ -1935,7 +1935,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _TriggerZoneType = (TriggerZoneTypeEnum)Enum.Parse(typeof(TriggerZoneTypeEnum), value);
+		set => _TriggerZoneType = Enum.Parse<TriggerZoneTypeEnum>(value);
 	}
 
 	internal TriggerOpEnum _TriggerOp { get; set; } = TriggerOpEnum.FireTrigger;
@@ -1946,7 +1946,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _TriggerOp = (TriggerOpEnum)Enum.Parse(typeof(TriggerOpEnum), value);
+		set => _TriggerOp = Enum.Parse<TriggerOpEnum>(value);
 	}
 
 	internal Guid _TriggerId { get; set; } = Guid.Empty;

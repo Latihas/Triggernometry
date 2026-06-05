@@ -150,7 +150,7 @@ public static class Memory {
 		var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
 		try {
 			var ptr = handle.AddrOfPinnedObject() + start;
-			return (T)Marshal.PtrToStructure(ptr, typeof(T));
+			return Marshal.PtrToStructure<T>(ptr);
 		} finally {
 			handle.Free();
 		}

@@ -108,10 +108,9 @@ internal static class ColonParser {
 			case "!v":
 			case "!pvar":
 			case "!pv": {
-				var varname = body;
 				ResolveVarAccess(prefixLower, ctx, out var store, out var mustExist, out _);
 				lock (store.Scalar) {
-					var result = GetVariableWithCondition(store, store.Scalar, varname, mustExist);
+					var result = GetVariableWithCondition(store, store.Scalar, body, mustExist);
 					return result.Value;
 				}
 			}

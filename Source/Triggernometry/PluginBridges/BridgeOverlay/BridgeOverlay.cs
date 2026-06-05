@@ -7,11 +7,7 @@ using TriggernometryProxy;
 namespace Triggernometry.PluginBridges;
 
 public static class BridgeOverlay {
-	public const string PluginName = "OverlayPlugin.dll";
-	public const string PluginType = "RainbowMage.OverlayPlugin.PluginLoader";
-
 	public static bool Ready;
-	public static PluginMain OverlayPlugin;
 	public static TinyIoCContainer Container;
 
 	static BridgeOverlay() {
@@ -19,7 +15,7 @@ public static class BridgeOverlay {
 	}
 
 	public static void Initialize() {
-		var op = OverlayPlugin = ProxyPlugin.DalamudPlugin.OverlayPlugin;
+		var op = ProxyPlugin.DalamudPlugin.OverlayPlugin;
 		if (op == null) {
 			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not found");
 			Ready = false;
@@ -50,14 +46,5 @@ public static class BridgeOverlay {
 	// }
 }
 
-public class ReflectionNotFoundException : Exception {
-	public ReflectionNotFoundException(string objectName) : base(I18n.Translate(
-		"internal/BridgeOverlay/reflectionNotFound",
-		"Failed to find reflection object ({0}) during initializing OverlayPlugin-related modules.",
-		objectName)) {
-	}
-}
-
 [AttributeUsage(AttributeTargets.Class)]
-public class OverlayModuleAttribute : Attribute {
-}
+public class OverlayModuleAttribute : Attribute;

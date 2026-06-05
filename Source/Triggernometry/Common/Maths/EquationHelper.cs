@@ -78,10 +78,9 @@ public static class EquationHelper {
 		// ax + by + c = 0
 		var dx = x2 - x1;
 		var dy = y2 - y1;
-		var a = dy;
 		var b = -dx;
-		var c = -(a * x1 + b * y1);
-		return CircleLineIntersections(x0, y0, r, a, b, c, sorter);
+		var c = -(dy * x1 + b * y1);
+		return CircleLineIntersections(x0, y0, r, dy, b, c, sorter);
 	}
 
 	/// <summary>

@@ -414,5 +414,5 @@ internal struct WindowClassEx {
 	public string ClassName;
 	public IntPtr IconSm;
 
-	public static uint NativeSize() => (uint)Marshal.SizeOf(typeof(WindowClassEx));
+	public static uint NativeSize() => (uint)Marshal.SizeOf<WindowClassEx>();
 }

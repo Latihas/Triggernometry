@@ -263,16 +263,15 @@ internal static class VfxManager {
 
 		// 给定了 Target，则为两点位姿模式，以 Pos - Target 方向作为朝向，同时输出距离供后续使用。
 		if (vfx.TargetArg != null) {
-			var pos = resolvedPos;
-			if (pos == null)
+			if (resolvedPos == null)
 				return null;
 
 			var target = ResolveCoordArg(entities, vfx.TargetArg);
 			if (target == null)
 				return null;
 
-			var theta = AngleFromTo(pos, target);
-			distance = Distance(pos, target);
+			var theta = AngleFromTo(resolvedPos, target);
+			distance = Distance(resolvedPos, target);
 			return new Vector3(theta, 0, 0);
 		}
 
