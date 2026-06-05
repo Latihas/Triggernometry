@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using RainbowMage.OverlayPlugin.MemoryProcessors;
 using RainbowMage.OverlayPlugin.MemoryProcessors.Combatant;
 using Triggernometry.Core;
@@ -98,18 +99,19 @@ internal static class ModuleCombatants {
 		if (source == null || source.Length == 0)
 			yield break;
 
-		for (var i = 0; i < numMemoryCombatants; i++) {
-			var p = GetPointerFromSource(source, i);
-			if (p == IntPtr.Zero) continue;
-
-			var c = memory.GetByteArray(p, combatantSize);
-			var combatant = GetMobFromByteArray(c, 0);
-			if (combatant == null || seen.Contains(combatant.ID))
-				continue;
-			Entity entity = new OpEntity(combatant, p);
-			seen.Add(entity.ID);
-			yield return entity;
+		Entity? entity = null;
+		unsafe {
+			foreach (var x in CharacterManager.Instance()->BattleCharas) {
+				var combatant = GetMobFromByteArray(x.Value, 0);
+				if (combatant == null || seen.Contains(combatant.ID))
+					continue;
+				entity = new OpEntity(combatant, (IntPtr)x.Value);
+				seen.Add(entity.ID);
+				break;
+			}
 		}
+		if (entity == null) yield break;
+		yield return entity;
 	}
 
 	private static unsafe IntPtr GetPointerFromSource(byte[] source, int index) {
@@ -119,7 +121,7 @@ internal static class ModuleCombatants {
 	}
 
 	/// <returns>Null if not found.</returns>
-	private static Combatant GetMobFromByteArray(byte[] source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
+	private static unsafe Combatant GetMobFromByteArray(BattleChara* source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
 
 	/// <returns>OpEntity.NullEntity() if not found.</returns>
 	internal static Entity InternalGetEntityByID(uint id) {

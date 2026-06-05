@@ -70,8 +70,7 @@ public class Entity {
 	public string OwnerHexID => OwnerID.ToString("X");
 	public string TargetHexID => TargetID.ToString("X");
 	public string CastHexID => CastID.ToString("X");
-	public bool IsCharacter => Type == EntityType.Pc || Type == EntityType.BattleNpc
-	                                                 || Type == EntityType.EventNpc || Type == EntityType.Retainer;
+	public bool IsCharacter => Type is EntityType.Pc or EntityType.BattleNpc or EntityType.EventNpc or EntityType.Retainer;
 
 	public Vector2 PosXY => new(PosX, PosY);
 	public Vector3 Pos => new(PosX, PosY, PosZ);
