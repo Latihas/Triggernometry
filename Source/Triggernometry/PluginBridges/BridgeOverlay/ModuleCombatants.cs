@@ -35,7 +35,7 @@ internal static class ModuleCombatants {
 
 	internal static void Initialize() {
 		try {
-			_combatantMemoryManager = BridgeOverlay.Container.Resolve<ICombatantMemory>() as CombatantMemoryManager;
+			_combatantMemoryManager = (CombatantMemoryManager)BridgeOverlay.Container.Resolve<ICombatantMemory>();
 			_currentCombatantMemory = _combatantMemoryManager.memory as CombatantMemory;
 			if (_currentCombatantMemory == null) // OverlayPlugin is still scanning memory
 			{

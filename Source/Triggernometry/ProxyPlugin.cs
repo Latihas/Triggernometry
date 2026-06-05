@@ -54,7 +54,7 @@ public class ProxyPlugin : IActPluginV1 {
 	}
 
 	public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui,
-		ISigScanner sigScanner, int latestVer) {
+		ISigScanner sigScanner, int latestVer, Action<string> logTick) {
 		DalamudPlugin = dalamudPlugin;
 		PluginInterface = dalamudPluginInterface;
 		ClientState = clientState;
@@ -95,7 +95,7 @@ public class ProxyPlugin : IActPluginV1 {
 				log.Warning($"Error Updating Configuration: {ex}");
 			}
 		}
-		Instance.InitPlugin();
+		Instance.InitPlugin(logTick);	
 		RealPlugin.Instance.InitAura();
 	}
 

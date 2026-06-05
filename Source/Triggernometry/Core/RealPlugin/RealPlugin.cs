@@ -215,10 +215,11 @@ public partial class RealPlugin {
 		}
 	}
 
-	public void InitPlugin() {
+	public void InitPlugin(Action<string> logTick) {
 		InitLanguage();
 		var exwhere = I18n.Translate("internal/Plugin/initseek", "seeking plugin instance");
 		try {
+			logTick("Start InitPlugin");
 			FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/initing", "Initializing"));
 			//CombobulateTranslations();
 			exwhere = I18n.Translate("internal/Plugin/inifilename", "determining filename");
@@ -228,7 +229,7 @@ public partial class RealPlugin {
 			exwhere = I18n.Translate("internal/Plugin/inilanguages", "loading languages");
 			LoadLanguages();
 			exwhere = I18n.Translate("internal/Plugin/inicfg", "loading configuration");
-			_cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"));
+			_cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"), logTick);
 			SetupDefaultSecurity();
 			AutofixConfiguration();
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;

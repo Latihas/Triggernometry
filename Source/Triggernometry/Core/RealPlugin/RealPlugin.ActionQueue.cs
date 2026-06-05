@@ -299,11 +299,9 @@ public partial class RealPlugin {
 				}
 			}
 			while (!m.ev.WaitOne(5000)) {
-				if (ctx.Plugin != null) {
-					ctx.Plugin.FilteredAddToLog(DebugLevelEnum.Warning,
-						I18n.Translate("internal/Plugin/mutexdelayed", "Context '{0}' has been waiting for mutex '{1}' on {2} for {3} ms, current owner is '{4}'", ctx.ToString(), name, m.GetHashCode(),
-							(DateTime.Now - start).TotalMilliseconds, ownername));
-				}
+				ctx.Plugin?.FilteredAddToLog(DebugLevelEnum.Warning,
+					I18n.Translate("internal/Plugin/mutexdelayed", "Context '{0}' has been waiting for mutex '{1}' on {2} for {3} ms, current owner is '{4}'", ctx.ToString(), name, m.GetHashCode(),
+						(DateTime.Now - start).TotalMilliseconds, ownername));
 			}
 			Debug.WriteLine("### {0} - Acquisition {1} pending stage 2 for context: {2}", name, m.GetHashCode(), ctx);
 			lock (this) {

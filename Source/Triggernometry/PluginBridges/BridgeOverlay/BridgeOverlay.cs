@@ -1,7 +1,6 @@
 ﻿using System;
 using RainbowMage.OverlayPlugin;
 using Triggernometry.Core;
-using Triggernometry.Localization;
 using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges;
@@ -15,24 +14,14 @@ public static class BridgeOverlay {
 	}
 
 	public static void Initialize() {
-		var op = ProxyPlugin.DalamudPlugin.OverlayPlugin;
+		PluginMain op = ProxyPlugin.DalamudPlugin.OverlayPlugin;
 		if (op == null) {
 			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not found");
 			Ready = false;
 			return;
 		}
-
-		// get the container and resolve method
-		try {
-			Container = op._container;
-			Ready = true;
-		} catch (Exception ex) {
-			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
-				I18n.Translate("internal/BridgeOverlay/failInit",
-					"OverlayPlugin-related initialization failed due to: {0}", ex.ToString())
-			);
-			Ready = false;
-		}
+		Container = op._container;
+		Ready = true;
 	}
 
 	// public static object Resolve(this TinyIoCContainer container, string typeName)

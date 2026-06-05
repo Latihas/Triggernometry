@@ -102,7 +102,7 @@ public partial class RealPlugin {
 		SaveConfigToFile(cfg, Path.Combine(ConfigPath, pluginName + ".config.xml"), true);
 	}
 
-	private Configuration LoadConfigFromFile(string filename) {
+	private Configuration LoadConfigFromFile(string filename, Action<string> logTick) {
 		try {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgload", "Loading configuration from '{0}'", filename));
 			var fi = new FileInfo(filename);
@@ -116,7 +116,6 @@ public partial class RealPlugin {
 			}
 			var corruptFallback = false;
 			string? lastLine = null;
-
 			try {
 				ProxyPlugin.Framework.RunOnFrameworkThread(() => {
 					lastLine = File.ReadAllLines(origfilename).LastOrDefault();
@@ -148,10 +147,12 @@ public partial class RealPlugin {
 					corruptFallback = true;
 				}
 			}
-			Configuration cx = null;
+			Configuration? cx;
 			var xs = new XmlSerializer(typeof(Configuration));
 			using (var fs = File.Open(filename, FileMode.Open, FileAccess.Read)) {
-				cx = (Configuration)xs.Deserialize(fs);
+				logTick("Deserialize Configuration Start");
+				cx = (Configuration)xs.Deserialize(fs)!;
+				logTick("Deserialize Configuration End");
 				cx.SecuritySettingsLocked = true;
 				cx.isnew = false;
 				cx.lastWrite = fi.LastWriteTimeUtc;
