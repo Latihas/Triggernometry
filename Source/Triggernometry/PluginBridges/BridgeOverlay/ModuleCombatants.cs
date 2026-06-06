@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using FFXIVClientStructs.Interop;
 using RainbowMage.OverlayPlugin.MemoryProcessors;
 using RainbowMage.OverlayPlugin.MemoryProcessors.Combatant;
 using Triggernometry.Core;
@@ -101,7 +103,9 @@ internal static class ModuleCombatants {
 
 		Entity? entity = null;
 		unsafe {
-			foreach (var x in CharacterManager.Instance()->BattleCharas) {
+			foreach (var x in CharacterManager.Instance()->BattleCharas.ToArray()
+				         .Select(entry => (Pointer<GameObject>)(GameObject*)entry.Value)
+				         .Where(entry => entry.Value != null)) {
 				var combatant = GetMobFromByteArray(x.Value, 0);
 				if (combatant == null || seen.Contains(combatant.ID))
 					continue;
@@ -121,7 +125,7 @@ internal static class ModuleCombatants {
 	}
 
 	/// <returns>Null if not found.</returns>
-	private static unsafe Combatant GetMobFromByteArray(BattleChara* source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
+	private static unsafe Combatant? GetMobFromByteArray(GameObject* source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
 
 	/// <returns>OpEntity.NullEntity() if not found.</returns>
 	internal static Entity InternalGetEntityByID(uint id) {
