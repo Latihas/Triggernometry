@@ -359,10 +359,11 @@ public partial class RealPlugin {
 	internal MutexInformation GetMutex(string name) {
 		MutexInformation mi = null;
 		lock (mutexes) {
-			if (!mutexes.ContainsKey(name)) {
-				mutexes[name] = new MutexInformation(name);
+			if (!mutexes.TryGetValue(name, out var value)) {
+				value = new MutexInformation(name);
+				mutexes[name] = value;
 			}
-			mi = mutexes[name];
+			mi = value;
 		}
 		return mi;
 	}

@@ -53,7 +53,7 @@ internal static class XivEntityParser {
 
 	internal static IEnumerable<Entity> GetEntitiesByCondition(string inputCondition, bool isParty = false) {
 		// 1. party index: ffxivparty[n]
-		if (isParty && int.TryParse(inputCondition, out var partyIdx) && partyIdx >= 1 && partyIdx <= 8) {
+		if (isParty && int.TryParse(inputCondition, out var partyIdx) && partyIdx is >= 1 and <= 8) {
 			var hexID = BridgeFFXIV.GetPartyMember(partyIdx).GetValue("id").ToString();
 			if (!string.IsNullOrEmpty(hexID)) {
 				var entity = Entity.GetEntityByID(hexID);

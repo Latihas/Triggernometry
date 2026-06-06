@@ -109,27 +109,27 @@ internal abstract class Aura : IDisposable {
 	}
 
 	public bool GenericLogic() {
-		if (UpdateXExpression != null && UpdateXExpression.Length > 0) {
+		if (UpdateXExpression is { Length: > 0 }) {
 			Left = EvaluateNumericExpression(ctx, UpdateXExpression);
 		}
-		if (UpdateYExpression != null && UpdateYExpression.Length > 0) {
+		if (UpdateYExpression is { Length: > 0 }) {
 			Top = EvaluateNumericExpression(ctx, UpdateYExpression);
 		}
-		if (UpdateWExpression != null && UpdateWExpression.Length > 0) {
+		if (UpdateWExpression is { Length: > 0 }) {
 			var newval = EvaluateNumericExpression(ctx, UpdateWExpression);
 			if (newval < 0) {
 				newval = 0;
 			}
 			Width = newval;
 		}
-		if (UpdateHExpression != null && UpdateHExpression.Length > 0) {
+		if (UpdateHExpression is { Length: > 0 }) {
 			var newval = EvaluateNumericExpression(ctx, UpdateHExpression);
 			if (newval < 0) {
 				newval = 0;
 			}
 			Height = newval;
 		}
-		if (UpdateOExpression != null && UpdateOExpression.Length > 0) {
+		if (UpdateOExpression is { Length: > 0 }) {
 			var newval = EvaluateNumericExpression(ctx, UpdateOExpression);
 			if (newval < 0) {
 				newval = 0;
@@ -139,7 +139,7 @@ internal abstract class Aura : IDisposable {
 			}
 			Opacity = newval;
 		}
-		if (TTLExpression != null && TTLExpression.Length > 0) {
+		if (TTLExpression is { Length: > 0 }) {
 			if (EvaluateNumericExpression(ctx, TTLExpression) < 0) {
 				if (ctx.Trigger != null) {
 					ctx.Trigger.AddToLog(RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/AuraContainer/deactaurattl", "Deactivating aura due to TTL expression"));

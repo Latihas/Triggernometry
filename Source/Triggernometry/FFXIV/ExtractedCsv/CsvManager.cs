@@ -42,8 +42,7 @@ public class CsvManager {
 		var asm = baseType.Assembly;
 
 		foreach (var t in asm.GetTypes()) {
-			if (t.Namespace == "Triggernometry.FFXIV.ExtractedCsv.Rows" &&
-			    !t.IsAbstract &&
+			if (t is { Namespace: "Triggernometry.FFXIV.ExtractedCsv.Rows", IsAbstract: false } &&
 			    baseType.IsAssignableFrom(t)) {
 				// e.g. "ActionRow" → typeof(ActionRow)
 				_rowTypeByName[t.Name] = t;

@@ -99,8 +99,8 @@ public sealed class ConditionSingle : ConditionComponent {
 
 	public override string ToString() {
 		var desc = "";
-		var descL = ExpressionL != null && ExpressionL.Length > 256 ? ExpressionL[..256] + "..." : ExpressionL;
-		var descR = ExpressionR != null && ExpressionR.Length > 256 ? ExpressionR[..256] + "..." : ExpressionR;
+		var descL = ExpressionL is { Length: > 256 } ? ExpressionL[..256] + "..." : ExpressionL;
+		var descR = ExpressionR is { Length: > 256 } ? ExpressionR[..256] + "..." : ExpressionR;
 		if (ConditionType == CndTypeEnum.ListContains || ConditionType == CndTypeEnum.ListDoesNotContain) {
 			desc = I18n.Translate("internal/ConditionSingle/listvar", "List variable specified by");
 			desc += " ";

@@ -131,7 +131,7 @@ internal class ObsController : IDisposable {
 			rpcVersion = maxRpcVersion
 		};
 		if (helloData?.authentication?.challenge != null) {
-			if (password != null && password.Length > 0) {
+			if (password is { Length: > 0 }) {
 				helloData.authentication.password = password;
 				identify.authentication = helloData.authentication.secret;
 			} else {

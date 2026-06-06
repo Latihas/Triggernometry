@@ -20,7 +20,7 @@ public class Interpreter {
 		foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {
 			_scriptOptions = _scriptOptions.AddMetadataReferenceFromAssembly(asm);
 		}
-		Task.Run(() => Initialize()); // takes ~3 s, do it async
+		Task.Run(Initialize); // takes ~3 s, do it async
 	}
 
 	private void Initialize() {
@@ -38,26 +38,29 @@ public class Interpreter {
 	}
 
 	public void Evaluate(string rawScript, string extraAssembliesInput, Context ctx) {
-		if (!CSharpScriptCompiler.CompileScript(rawScript, true))
-			return;
+		if (!CSharpScriptCompiler.CompileScript(rawScript, true)) return;
+		var fn = "";
 		try {
+			fn = CSharpScriptCompiler.GetScriptDllPath(rawScript);
 			Assembly asm;
-			using (var memoryStream = new MemoryStream(File.ReadAllBytes(CSharpScriptCompiler.GetScriptDllPath(rawScript)))) {
+			using (var memoryStream = new MemoryStream(File.ReadAllBytes(fn))) {
 				asm = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly())!.LoadFromStream(memoryStream);
 			}
-			var targetType = typeof(ITrnNamedCallback);
 			var implementingTypes = asm.GetTypes().Where(t =>
 				t is { IsClass: true, IsAbstract: false } &&
-				targetType.IsAssignableFrom(t)).ToList();
+				typeof(ITrnNamedCallback).IsAssignableFrom(t)).ToList();
 			foreach (var type in implementingTypes) {
-				var instance = (ITrnNamedCallback)Activator.CreateInstance(type)!;
-				instance.Load();
-				var name = type.Name;
-				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Info, $"Loaded Dll {name}");
+				((ITrnNamedCallback)Activator.CreateInstance(type)!).Load();
+				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Info, $"Loaded Dll {type.Name}");
 			}
 		} catch (Exception e) {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Load Dll Failed:{e.Message}{e}");
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Load Dll Failed:{rawScript}");
+			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Load Dll Failed: {e}");
+			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"Load Dll Failed: {rawScript}");
+			try {
+				if (!string.IsNullOrEmpty(fn)) File.Delete(fn);
+			} catch {
+				//
+			}
 		}
 	}
 
@@ -156,11 +159,12 @@ public static class ScriptOptionsExtensions {
 		try {
 			var getRawBytesMethod = asm.GetType().GetMethod("GetRawBytes", BindingFlags.Instance | BindingFlags.NonPublic);
 			var assemblyBytes = (byte[])getRawBytesMethod.Invoke(asm, null);
-			if (assemblyBytes != null && assemblyBytes.Length > 0) {
+			if (assemblyBytes is { Length: > 0 }) {
 				reference = MetadataReference.CreateFromImage(assemblyBytes);
 				return true;
 			}
 		} catch {
+			//
 		}
 		reference = null;
 		return false;

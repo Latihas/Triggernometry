@@ -144,7 +144,7 @@ public static class StringExtensions {
 				// Convert digits to special XIV capital characters 10-31
 				if (combineDigits && i + 1 < array.Length && array[i + 1] >= '0' && array[i + 1] <= '9') {
 					var num = 10 * (array[i] - '0') + (array[i + 1] - '0');
-					if (num >= 10 && num <= 31) {
+					if (num is >= 10 and <= 31) {
 						result.Append((char)(num + 57487));
 						i++;
 						continue;

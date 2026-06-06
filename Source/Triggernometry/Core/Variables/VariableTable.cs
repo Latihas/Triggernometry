@@ -17,7 +17,7 @@ public class VariableTable : Variable {
 
 	public List<VariableTableRow> Rows { get; set; } = [];
 
-	public int Width => Rows != null && Rows.Count > 0 ? Rows[0].Values.Count : 0;
+	public int Width => Rows is { Count: > 0 } ? Rows[0].Values.Count : 0;
 
 	public int Height => Rows != null ? Rows.Count : 0;
 

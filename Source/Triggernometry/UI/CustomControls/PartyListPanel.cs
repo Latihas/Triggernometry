@@ -134,7 +134,7 @@ public class PartyListPanel : TableLayoutPanel {
 		var draggedLabel = (PlayerLabel)e.Data.GetData(typeof(PlayerLabel));
 		var clientPoint = PointToClient(new Point(e.X, e.Y));
 		var control = GetChildAtPoint(clientPoint);
-		if (control != null && control is PlayerLabel targetLabel && draggedLabel != targetLabel) {
+		if (control is PlayerLabel targetLabel && draggedLabel != targetLabel) {
 			Parent?.SuspendLayout();
 			SwapLabels(draggedLabel, targetLabel);
 			Parent?.ResumeLayout(false);

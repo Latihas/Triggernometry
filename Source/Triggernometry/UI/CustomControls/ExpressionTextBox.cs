@@ -959,8 +959,8 @@ public partial class ExpressionTextBox : UserControl {
 			var vs = RealPlugin.Instance.GetVariableStore(m.Groups["persist"].Value == "p");
 			VariableTable vt;
 			var varName = m.Groups["name1"].Value + m.Groups["name2"].Value;
-			if (vs.Table.ContainsKey(varName) && vs.Table[varName].Height > 0) {
-				vt = vs.Table[varName];
+			if (vs.Table.TryGetValue(varName, out var value) && value.Height > 0) {
+				vt = value;
 			} else {
 				HideAutocomplete();
 				return;
@@ -988,8 +988,8 @@ public partial class ExpressionTextBox : UserControl {
 			var vs = RealPlugin.Instance.GetVariableStore(m.Groups["persist"].Value == "p");
 			VariableTable vt;
 			var varName = m.Groups["name"].Value;
-			if (vs.Table.ContainsKey(varName) && vs.Table[varName].Width > 0) {
-				vt = vs.Table[varName];
+			if (vs.Table.TryGetValue(varName, out var value) && value.Width > 0) {
+				vt = value;
 			} else {
 				HideAutocomplete();
 				return;
@@ -1016,8 +1016,8 @@ public partial class ExpressionTextBox : UserControl {
 			var vs = RealPlugin.Instance.GetVariableStore(m.Groups["persist"].Value == "p");
 			VariableDictionary vd;
 			var varName = m.Groups["name"].Value;
-			if (vs.Dict.ContainsKey(varName) && vs.Dict[varName].Size > 0) {
-				vd = vs.Dict[varName];
+			if (vs.Dict.TryGetValue(varName, out var value) && value.Size > 0) {
+				vd = value;
 			} else {
 				HideAutocomplete();
 				return;
@@ -1735,7 +1735,7 @@ public partial class ExpressionTextBox : UserControl {
 		}
 
 		protected override void OnKeyDown(KeyEventArgs e) {
-			if (e.Control && e.Shift && !e.Alt && RealPlugin.Instance.cfg.EnableShortcutTemplates) {
+			if (e is { Control: true, Shift: true, Alt: false } && RealPlugin.Instance.cfg.EnableShortcutTemplates) {
 				var handled = true;
 				var shouldWrap = SelectionLength != 0 && RealPlugin.Instance.cfg.WrapTextWhenSelected;
 				var useAbbrev = RealPlugin.Instance.cfg.UseAbbrevInTemplates;

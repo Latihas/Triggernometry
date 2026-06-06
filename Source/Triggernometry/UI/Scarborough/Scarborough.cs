@@ -158,8 +158,8 @@ internal class Scarborough : IDisposable {
 				switch (ia.ItemType) {
 					case ItemAction.ItemTypeEnum.Image: {
 						ScarboroughImage si = null;
-						if (imageitems.ContainsKey(ia.Id)) {
-							si = imageitems[ia.Id];
+						if (imageitems.TryGetValue(ia.Id, out var value)) {
+							si = value;
 							imageitems.Remove(ia.Id);
 						}
 						if (si != null) {
@@ -169,8 +169,8 @@ internal class Scarborough : IDisposable {
 						break;
 					case ItemAction.ItemTypeEnum.Text: {
 						ScarboroughText si = null;
-						if (textitems.ContainsKey(ia.Id)) {
-							si = textitems[ia.Id];
+						if (textitems.TryGetValue(ia.Id, out var value)) {
+							si = value;
 							textitems.Remove(ia.Id);
 						}
 						if (si != null) {
@@ -385,7 +385,7 @@ internal class Scarborough : IDisposable {
 					rc.Add(si.Value);
 				}
 			} catch (Exception ex) {
-				if (si.Value.ctx != null && si.Value.ctx.Trigger != null) {
+				if (si.Value.ctx is { Trigger: not null }) {
 					messages.Add(new DeferredMessage {
 							ctx = si.Value.ctx,
 							plug = plug,
@@ -408,7 +408,7 @@ internal class Scarborough : IDisposable {
 		if (toRem.Count > 0) {
 			foreach (var si in toRem) {
 				var sit = imageitems[si];
-				if (sit.ctx != null && sit.ctx.Trigger != null) {
+				if (sit.ctx is { Trigger: not null }) {
 					messages.Add(new DeferredMessage {
 							ctx = sit.ctx,
 							plug = plug,
@@ -448,7 +448,7 @@ internal class Scarborough : IDisposable {
 					rc.Add(si.Value);
 				}
 			} catch (Exception ex) {
-				if (si.Value.ctx != null && si.Value.ctx.Trigger != null) {
+				if (si.Value.ctx is { Trigger: not null }) {
 					messages.Add(new DeferredMessage {
 							ctx = si.Value.ctx,
 							plug = plug,
@@ -471,7 +471,7 @@ internal class Scarborough : IDisposable {
 		if (toRem.Count > 0) {
 			foreach (var si in toRem) {
 				var sit = textitems[si];
-				if (sit.ctx != null && sit.ctx.Trigger != null) {
+				if (sit.ctx is { Trigger: not null }) {
 					messages.Add(new DeferredMessage {
 							ctx = sit.ctx,
 							plug = plug,
@@ -519,7 +519,7 @@ internal class Scarborough : IDisposable {
 			try {
 				si.Render();
 			} catch (Exception ex) {
-				if (si.ctx != null && si.ctx.Trigger != null) {
+				if (si.ctx is { Trigger: not null }) {
 					messages.Add(new DeferredMessage {
 							ctx = si.ctx,
 							plug = plug,
@@ -541,7 +541,7 @@ internal class Scarborough : IDisposable {
 		}
 		if (toRem.Count > 0) {
 			foreach (var si in toRem) {
-				if (si.ctx != null && si.ctx.Trigger != null) {
+				if (si.ctx is { Trigger: not null }) {
 					messages.Add(new DeferredMessage {
 							ctx = si.ctx,
 							plug = plug,

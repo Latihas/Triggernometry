@@ -104,7 +104,7 @@ public class Trigger {
 	[XmlArray("Actions")] [XmlArrayItem("Action")]
 	public List<ActionOld> Actions { get; set; } = [];
 
-	public bool ShouldSerializeActions() => Actions != null && Actions.Count > 0;
+	public bool ShouldSerializeActions() => Actions is { Count: > 0 };
 
 	/// <summary>
 	///     The condition group that determines whether this trigger should execute.

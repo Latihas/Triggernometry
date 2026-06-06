@@ -209,11 +209,11 @@ internal static partial class StaticVfxArgsParser {
 			if (args.Scale?.HasDistanceToken == true && args.Target == null)
 				throw new ArgumentException("[PictoACT] 创建 VFX 时若在 Scale 中使用 _d，必须指定 Target。");
 
-			if (args.TransformNorthTarget != null && args.TransformCenter == null)
+			if (args is { TransformNorthTarget: not null, TransformCenter: null })
 				throw new ArgumentException("[PictoACT] θ 指定为坐标或实体 id 时，必须同时指定 O/Center。");
 		}
 
-		if (args.Target != null && args.Angle3D.HasValue)
+		if (args is { Target: not null, Angle3D: not null })
 			throw new ArgumentException("[PictoACT] Target 和 Angle/Angle3D 不能同时指定。");
 	}
 

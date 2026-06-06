@@ -128,8 +128,8 @@ internal class Manager : IDisposable {
 				switch (ia.ItemType) {
 					case ItemAction.ItemTypeEnum.Image: {
 						AuraImage a = null;
-						if (imageitems.ContainsKey(ia.Id)) {
-							a = imageitems[ia.Id];
+						if (imageitems.TryGetValue(ia.Id, out var value)) {
+							a = value;
 							imageitems.Remove(ia.Id);
 						}
 						if (a != null) {
@@ -139,8 +139,8 @@ internal class Manager : IDisposable {
 						break;
 					case ItemAction.ItemTypeEnum.Text: {
 						AuraText a = null;
-						if (textitems.ContainsKey(ia.Id)) {
-							a = textitems[ia.Id];
+						if (textitems.TryGetValue(ia.Id, out var value)) {
+							a = value;
 							textitems.Remove(ia.Id);
 						}
 						if (a != null) {

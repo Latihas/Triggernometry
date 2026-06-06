@@ -216,10 +216,11 @@ internal class ActionDiskOperation : ActionBase {
 				var data = File.ReadAllText(filename);
 				lock (vs.Scalar) // verified
 				{
-					if (!vs.Scalar.ContainsKey(varname)) {
-						vs.Scalar[varname] = new VariableScalar();
+					if (!vs.Scalar.TryGetValue(varname, out var x)) {
+						x = new VariableScalar();
+						vs.Scalar[varname] = x;
 					}
-					var x = vs.Scalar[varname];
+
 					x.Value = data;
 					if (ctx.Trigger != null) {
 						x.LastChanger = I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe());

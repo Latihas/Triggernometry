@@ -40,14 +40,14 @@ public partial class TreeViewEx : TreeView {
 	}
 
 	private void TreeViewEx_BeforeExpand(object sender, TreeViewCancelEventArgs e) {
-		if (e.Node.Tag is Folder folder && folder.Repo != null && folder.DisableRemoteExpand) {
+		if (e.Node.Tag is Folder { Repo: not null, DisableRemoteExpand: true }) {
 			MessageBox.Show("你无需浏览此分组。", "远程触发器", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			e.Cancel = true;
 		}
 	}
 
 	private void TreeViewEx_BeforeCheck(object sender, TreeViewCancelEventArgs e) {
-		if (e.Node.Tag is Folder folder && folder.Repo != null && folder.DisableRemoteToggle) {
+		if (e.Node.Tag is Folder { Repo: not null, DisableRemoteToggle: true }) {
 			MessageBox.Show("你无需修改此分组。", "远程触发器", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			e.Cancel = true;
 		}

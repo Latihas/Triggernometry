@@ -67,10 +67,12 @@ public partial class RealPlugin {
 		};
 		lock (callbacksById) {
 			callbacksById[id] = nc;
-			if (!callbacksByName.ContainsKey(name)) {
-				callbacksByName[name] = [];
+			if (!callbacksByName.TryGetValue(name, out var value)) {
+				value = [];
+				callbacksByName[name] = value;
 			}
-			callbacksByName[name].Add(nc);
+
+			value.Add(nc);
 		}
 	}
 

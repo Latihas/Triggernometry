@@ -23,12 +23,12 @@ public class Folder {
 
 	[XmlArray("Folders")] [XmlArrayItem("Folder")]
 	public List<Folder> Folders { get; set; } = [];
-	public bool ShouldSerializeFolders() => Folders != null && Folders.Count > 0;
+	public bool ShouldSerializeFolders() => Folders is { Count: > 0 };
 
 
 	[XmlArray("Triggers")] [XmlArrayItem("Trigger")]
 	public List<Trigger> Triggers { get; set; } = [];
-	public bool ShouldSerializeTriggers() => Triggers != null && Triggers.Count > 0;
+	public bool ShouldSerializeTriggers() => Triggers is { Count: > 0 };
 
 
 	[XmlAttribute("Name")] public string Name { get; set; }

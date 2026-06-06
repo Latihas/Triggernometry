@@ -348,7 +348,7 @@ public class Repository {
 		// Always register the trigger, but enable/disable depends on parentEnabled
 		Instance.AddTrigger(t, parentEnabled);
 
-		if (t.IsReadme && t.Enabled) {
+		if (t is { IsReadme: true, Enabled: true }) {
 			ReadmeTriggers.Add(t);
 		}
 	}

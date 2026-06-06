@@ -291,7 +291,7 @@ public partial class ActionOld {
 			}
 		} catch (Exception ex) {
 			if (ActionType == ActionTypeEnum.NamedCallback) {
-				if (ex is TargetInvocationException tiex && tiex.InnerException != null)
+				if (ex is TargetInvocationException { InnerException: not null } tiex)
 					ex = tiex.InnerException;
 			}
 			var triggerPath = qa?.ctx?.Trigger?.FullPath ?? "(null)";

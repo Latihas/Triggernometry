@@ -432,8 +432,8 @@ public class ActionVariableTable : ActionBase {
 				VariableTable vt = null;
 				lock (svs.Table) // verified
 				{
-					if (svs.Table.ContainsKey(sourcename)) {
-						vt = (VariableTable)svs.Table[sourcename].Duplicate();
+					if (svs.Table.TryGetValue(sourcename, out var value)) {
+						vt = (VariableTable)value.Duplicate();
 						vt.LastChanged = DateTime.Now;
 						vt.LastChanger = vtchanger;
 					}
@@ -462,10 +462,11 @@ public class ActionVariableTable : ActionBase {
 						: new VariableTable();
 				}
 				lock (tvs.Table) {
-					if (!tvs.Table.ContainsKey(targetname)) {
-						tvs.Table.Add(targetname, new VariableTable());
+					if (!tvs.Table.TryGetValue(targetname, out var tvt)) {
+						tvt = new VariableTable();
+						tvs.Table.Add(targetname, tvt);
 					}
-					var tvt = tvs.Table[targetname];
+
 					if (Operation == OperationEnum.Append) {
 						tvt.AppendVertical(tableToAppend, vtchanger);
 					} else {

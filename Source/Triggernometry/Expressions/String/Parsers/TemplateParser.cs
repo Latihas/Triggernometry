@@ -63,7 +63,7 @@ internal static class TemplateParser {
 			var next = expr[i + 1];
 
 			// "$n"
-			if (next >= '0' && next <= '9') {
+			if (next is >= '0' and <= '9') {
 				AddNumGroupTemplate(results, next, i, out i);
 				continue;
 			}
@@ -91,7 +91,7 @@ internal static class TemplateParser {
 					i = j - 1; // skip scanned part
 					break;
 				}
-				if (charAfterDollar >= '0' && charAfterDollar <= '9') // inner $n
+				if (charAfterDollar is >= '0' and <= '9') // inner $n
 				{
 					AddNumGroupTemplate(results, charAfterDollar, j, out i);
 					break;

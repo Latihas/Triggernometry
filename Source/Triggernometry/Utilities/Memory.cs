@@ -483,7 +483,7 @@ public static class Memory {
 		public static string QueryWaymark(string rawType, string rawProp) {
 			if (!Enum.TryParse(rawType.Trim(), true, out WaymarkEnum type)) {
 				if (int.TryParse(rawType, out var typeIdx)) {
-					if (typeIdx >= 0 && typeIdx < 8) {
+					if (typeIdx is >= 0 and < 8) {
 						type = (WaymarkEnum)typeIdx;
 					} else throw ErrorHelper.InvalidValueError("waymark", I18n.TranslateWord("index"), rawType, $"${{_waymark[{rawType}].{rawProp}}}");
 				} else throw ErrorHelper.InvalidValueError("waymark", I18n.TranslateWord("type"), rawType, $"${{_waymark[{rawType}].{rawProp}}}");

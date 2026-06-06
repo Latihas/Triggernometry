@@ -205,10 +205,12 @@ public partial class RealPlugin {
 				}
 			}
 		} else {
-			if (!references.ContainsKey(f.Id)) {
-				references[f.Id] = [];
+			if (!references.TryGetValue(f.Id, out var value)) {
+				value = [];
+				references[f.Id] = value;
 			}
-			references[f.Id].Add(f);
+
+			value.Add(f);
 			foreach (var sf in f.Folders) {
 				FixDuplicateFolderReferences(references, null, sf);
 			}

@@ -71,8 +71,8 @@ sealed partial class JsonPathContext {
 
 		expr = Normalize(expr);
 
-		if (expr.Length >= 1 && expr[0] == '$') // ^\$:?
-			expr = expr[(expr.Length >= 2 && expr[1] == ';' ? 2 : 1)..];
+		if (expr is ['$', ..]) // ^\$:?
+			expr = expr[(expr is [_, ';', ..] ? 2 : 1)..];
 
 		return i.Trace(expr, obj, "$", (value, path) => resultor(value, AsBracketNotation(path)));
 	}
@@ -271,13 +271,13 @@ sealed partial class JsonPathContext {
 			&& (value is IDictionary dict
 				? dict.Contains(member)
 				: value is IList list
-				  && TryParseInt(member) is int i && i >= 0 && i < list.Count);
+				  && TryParseInt(member) is int i and >= 0 && i < list.Count);
 
 		public object GetMemberValue(object value, string member)
 			=> IsPrimitive(value) ? throw new ArgumentException(null, nameof(value))
 				: value is IDictionary dict ? dict[member]
 				: !(value is IList list) ? throw new ArgumentException(nameof(value))
-				: TryParseInt(member) is int i && i >= 0 && i < list.Count ? list[i]
+				: TryParseInt(member) is int i and >= 0 && i < list.Count ? list[i]
 				: null;
 
 		public IEnumerable<string> GetMembers(object value) =>
