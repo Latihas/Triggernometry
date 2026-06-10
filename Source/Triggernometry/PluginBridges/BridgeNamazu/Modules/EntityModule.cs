@@ -235,9 +235,16 @@ public class EntityModule : ModuleBase {
 	public unsafe void SetObjectScaleTemp(IntPtr objectAddress, float scaleX, float scaleY, float scaleZ) =>
 		((GameObject*)objectAddress)->DrawObject->Scale = new Vector3(scaleX, scaleZ, scaleY);
 
-	public unsafe void SetObjectScale(IntPtr objectAddress, float scale) {
-		((GameObject*)objectAddress)->Scale = scale;
-		ReDraw(objectAddress);
+	public void SetObjectScale(IntPtr objectAddress, float scale) {
+		Task.Run(async () => {
+			await Task.Delay(200); //strange...
+			unsafe {
+				var go = (GameObject*)objectAddress;
+				go->Scale *= scale;
+				var oris = go->DrawObject->Scale;
+				SetObjectScaleTemp(objectAddress, oris.X * scale, oris.Y * scale, oris.Z * scale);
+			}
+		});
 	}
 
 	// FFXIVClientStructs/FFXIV/Client/Game/Character/Character.cs    public float Alpha;
@@ -252,20 +259,22 @@ public class EntityModule : ModuleBase {
 	public unsafe void EnableDraw(IntPtr objectAddress) {
 		RunOnTickV(() => {
 			var character = (GameObject*)objectAddress;
-			character->VirtualTable->EnableDraw(character);
+			// if(character!=null&&character->DrawObject!=null&&character->IsReadyToDraw())
+			character->EnableDraw();
 		});
 	}
 
 	public unsafe void DisableDraw(IntPtr objectAddress) {
 		RunOnTickV(() => {
 			var character = (GameObject*)objectAddress;
-			character->VirtualTable->DisableDraw(character);
+			// if(character!=null&&character->DrawObject!=null&&character->IsReadyToDraw())
+			character->DisableDraw();
 		});
 	}
 
-	public void ReDraw(IntPtr address) {
-		DisableDraw(address);
-		EnableDraw(address);
+	public void ReDraw(IntPtr objectAddress) {
+		DisableDraw(objectAddress);
+		EnableDraw(objectAddress);
 	}
 
 	public unsafe void SetHighlightColor(IntPtr character, byte color) =>

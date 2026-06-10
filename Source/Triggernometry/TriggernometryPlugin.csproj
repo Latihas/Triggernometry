@@ -17,8 +17,8 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="5.3.0"/>
 		<PackageReference Include="SharpDX.Direct2D1" Version="4.2.0"/>
 		<PackageReference Include="SharpDX.Direct3D11" Version="4.2.0"/>
-		<PackageReference Include="System.Management" Version="10.0.8"/>
-		<PackageReference Include="System.Speech" Version="10.0.8"/>
+		<PackageReference Include="System.Management" Version="10.0.9"/>
+		<PackageReference Include="System.Speech" Version="10.0.9"/>
 		<PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1"/>
 		<Reference Include="Dalamud.Common">
 			<HintPath>$(DalamudLibPath)/Dalamud.Common.dll</HintPath>
