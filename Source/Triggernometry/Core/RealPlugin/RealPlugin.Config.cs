@@ -170,55 +170,58 @@ public partial class RealPlugin {
 		return null;
 	}
 
+	private readonly Lock SaveConfigFileLock = new();
 	private void SaveConfigToFile(Configuration cfg, string filename, bool switchprevious) {
-		try {
-			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgsave", "Saving configuration to '{0}'", filename));
-			var ns = new XmlSerializerNamespaces();
-			var test = "";
-			ns.Add("", "");
-			var xs = new XmlSerializer(typeof(Configuration));
-			using (var ms = new MemoryStream()) {
-				cfg.SecuritySettingsLocked = false;
-				xs.Serialize(ms, cfg, ns);
-				cfg.SecuritySettingsLocked = true;
-				ms.Position = 0;
-				using (var sr = new StreamReader(ms)) {
-					test = sr.ReadToEnd();
-					test = SerializeInvalidXmlCharacters(test);
-				}
-			}
-			using (var ms = new MemoryStream()) {
-				using (var sw = new StreamWriter(ms)) {
-					sw.Write(test);
-					sw.Flush();
+		lock (SaveConfigFileLock) {
+			try {
+				FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgsave", "Saving configuration to '{0}'", filename));
+				var ns = new XmlSerializerNamespaces();
+				var test = "";
+				ns.Add("", "");
+				var xs = new XmlSerializer(typeof(Configuration));
+				using (var ms = new MemoryStream()) {
+					cfg.SecuritySettingsLocked = false;
+					xs.Serialize(ms, cfg, ns);
+					cfg.SecuritySettingsLocked = true;
 					ms.Position = 0;
-					var cx = (Configuration)xs.Deserialize(ms);
+					using (var sr = new StreamReader(ms)) {
+						test = sr.ReadToEnd();
+						test = SerializeInvalidXmlCharacters(test);
+					}
 				}
-			}
-			using (var fs = File.Open(filename + ".temp", FileMode.Create, FileAccess.Write)) {
-				using (var sw = new StreamWriter(fs)) {
-					sw.Write(test);
-					sw.Flush();
+				using (var ms = new MemoryStream()) {
+					using (var sw = new StreamWriter(ms)) {
+						sw.Write(test);
+						sw.Flush();
+						ms.Position = 0;
+						var cx = (Configuration)xs.Deserialize(ms);
+					}
 				}
-			}
-			var lastLine = File.ReadLines(filename + ".temp").LastOrDefault();
-			if (lastLine == null || lastLine.Trim() != "</Configuration>") {
-				throw new Exception(I18n.Translate("internal/Plugin/cfgsaveincomplete", "The saving process was interrupted.") + "\n");
-			}
-			if (switchprevious) {
-				if (File.Exists(filename + ".previous")) {
-					File.Delete(filename + ".previous");
+				using (var fs = File.Open(filename + ".temp", FileMode.Create, FileAccess.Write)) {
+					using (var sw = new StreamWriter(fs)) {
+						sw.Write(test);
+						sw.Flush();
+					}
 				}
-				if (File.Exists(filename)) {
-					File.Move(filename, filename + ".previous");
+				var lastLine = File.ReadLines(filename + ".temp").LastOrDefault();
+				if (lastLine == null || lastLine.Trim() != "</Configuration>") {
+					throw new Exception(I18n.Translate("internal/Plugin/cfgsaveincomplete", "The saving process was interrupted.") + "\n");
 				}
-				File.Move(filename + ".temp", filename);
-			} else {
-				File.Copy(filename + ".temp", filename, true);
-				File.Delete(filename + ".temp");
+				if (switchprevious) {
+					if (File.Exists(filename + ".previous")) {
+						File.Delete(filename + ".previous");
+					}
+					if (File.Exists(filename)) {
+						File.Move(filename, filename + ".previous");
+					}
+					File.Move(filename + ".temp", filename);
+				} else {
+					File.Copy(filename + ".temp", filename, true);
+					File.Delete(filename + ".temp");
+				}
+			} catch (Exception ex) {
+				GenericExceptionHandler(I18n.Translate("internal/Plugin/cfgsaveex", "Saving the configuration file '{0}' failed due to an exception", filename), ex);
 			}
-		} catch (Exception ex) {
-			GenericExceptionHandler(I18n.Translate("internal/Plugin/cfgsaveex", "Saving the configuration file '{0}' failed due to an exception", filename), ex);
 		}
 	}
 }

@@ -2342,91 +2342,95 @@ public class UserInterface {
 	private static readonly Vector4 ColorGrey = new(0.5f, 0.5f, 0.5f, 1.0f);
 
 	public static void ImportResultsFromForm(object tag, string content) {
-		var ser = TriggernometryExport.Unserialize(content);
-		if (ser == null || ser.ExportedFolder == null && ser.ExportedTrigger == null)
-			return;
-		Folder df;
-		switch (tag) {
-			case Folder tagFolder:
-				df = tagFolder;
-				break;
-			case Trigger tagTrigger:
-				df = tagTrigger.Parent;
-				break;
-			default:
+		try {
+			var ser = TriggernometryExport.Unserialize(content);
+			if (ser == null || ser.ExportedFolder == null && ser.ExportedTrigger == null)
 				return;
-		}
-		Dictionary<Guid, Guid> renamedFolders = new();
-		if (ser.ExportedFolder != null) {
-			var importedFolders = ConstructFolderList(null, ser.ExportedFolder);
-			var existingFolders = ConstructFolderList(null, RealPlugin.Instance.cfg.Root);
-			foreach (var importedFolder in importedFolders)
-				if (existingFolders.Any(existing => existing.Id == importedFolder.Id)) {
-					var oldId = importedFolder.Id;
-					importedFolder.Id = Guid.NewGuid();
-					renamedFolders[oldId] = importedFolder.Id;
-					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
-						I18n.Translate("internal/UserInterface/folderidreassign",
-							"Reassigning new id ({0}) for folder ({1}) due to already assigned id ({2})",
-							importedFolder.Id, importedFolder.Name, oldId));
-				}
-		}
-		List<Trigger> importedTriggers = [];
-		if (ser.ExportedFolder != null)
-			AddAllTriggersFromFolder(ser.ExportedFolder, ref importedTriggers);
-		else if (ser.ExportedTrigger != null)
-			importedTriggers.Add(ser.ExportedTrigger);
-		Dictionary<Guid, Guid> renamedTriggers = new();
-		lock (RealPlugin.Instance.Triggers) {
-			foreach (var importedTrigger in importedTriggers) {
-				if (RealPlugin.Instance.Triggers.Any(existing => existing.Id == importedTrigger.Id && existing.Repo == null)) {
-					var oldId = importedTrigger.Id;
-					importedTrigger.Id = Guid.NewGuid();
-					renamedTriggers[oldId] = importedTrigger.Id;
-					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
-						I18n.Translate("internal/UserInterface/idreassign",
-							"Reassigning new id ({0}) for trigger ({1}) due to already assigned id ({2})",
-							importedTrigger.Id, importedTrigger.Name, oldId));
+			Folder df;
+			switch (tag) {
+				case Folder tagFolder:
+					df = tagFolder;
+					break;
+				case Trigger tagTrigger:
+					df = tagTrigger.Parent;
+					break;
+				default:
+					return;
+			}
+			Dictionary<Guid, Guid> renamedFolders = new();
+			if (ser.ExportedFolder != null) {
+				var importedFolders = ConstructFolderList(null, ser.ExportedFolder);
+				var existingFolders = ConstructFolderList(null, RealPlugin.Instance.cfg.Root);
+				foreach (var importedFolder in importedFolders)
+					if (existingFolders.Any(existing => existing.Id == importedFolder.Id)) {
+						var oldId = importedFolder.Id;
+						importedFolder.Id = Guid.NewGuid();
+						renamedFolders[oldId] = importedFolder.Id;
+						RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
+							I18n.Translate("internal/UserInterface/folderidreassign",
+								"Reassigning new id ({0}) for folder ({1}) due to already assigned id ({2})",
+								importedFolder.Id, importedFolder.Name, oldId));
+					}
+			}
+			List<Trigger> importedTriggers = [];
+			if (ser.ExportedFolder != null)
+				AddAllTriggersFromFolder(ser.ExportedFolder, ref importedTriggers);
+			else if (ser.ExportedTrigger != null)
+				importedTriggers.Add(ser.ExportedTrigger);
+			Dictionary<Guid, Guid> renamedTriggers = new();
+			lock (RealPlugin.Instance.Triggers) {
+				foreach (var importedTrigger in importedTriggers) {
+					if (RealPlugin.Instance.Triggers.Any(existing => existing.Id == importedTrigger.Id && existing.Repo == null)) {
+						var oldId = importedTrigger.Id;
+						importedTrigger.Id = Guid.NewGuid();
+						renamedTriggers[oldId] = importedTrigger.Id;
+						RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
+							I18n.Translate("internal/UserInterface/idreassign",
+								"Reassigning new id ({0}) for trigger ({1}) due to already assigned id ({2})",
+								importedTrigger.Id, importedTrigger.Name, oldId));
+					}
 				}
 			}
-		}
-		var updatedActionTriggerRefs = 0;
-		var updatedActionFolderRefs = 0;
-		foreach (var trigger in importedTriggers) {
-			foreach (var action in trigger.Actions) {
-				if (renamedTriggers.TryGetValue(action._TriggerId, out var value)) {
-					action._TriggerId = value;
-					updatedActionTriggerRefs++;
-				}
-				if (renamedFolders.TryGetValue(action._FolderId, out var folder)) {
-					action._FolderId = folder;
-					updatedActionFolderRefs++;
+			var updatedActionTriggerRefs = 0;
+			var updatedActionFolderRefs = 0;
+			foreach (var trigger in importedTriggers) {
+				foreach (var action in trigger.Actions) {
+					if (renamedTriggers.TryGetValue(action._TriggerId, out var value)) {
+						action._TriggerId = value;
+						updatedActionTriggerRefs++;
+					}
+					if (renamedFolders.TryGetValue(action._FolderId, out var folder)) {
+						action._FolderId = folder;
+						updatedActionFolderRefs++;
+					}
 				}
 			}
-		}
-		if (updatedActionTriggerRefs > 0 || updatedActionFolderRefs > 0) {
-			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
-				I18n.Translate("internal/UserInterface/idreassigncount",
-					"Adjusted {0} trigger and {1} folder references on actions due to collisions",
-					updatedActionTriggerRefs, updatedActionFolderRefs));
-		}
-		if (ser.ExportedFolder != null) {
-			ser.ExportedFolder.Parent = df;
-			df.Folders.Add(ser.ExportedFolder);
-			_nodeExpandedStates[ser.ExportedFolder] = true;
-		}
-		if (ser.ExportedTrigger != null) {
-			ser.ExportedTrigger.Parent = df;
-			df.Triggers.Add(ser.ExportedTrigger);
-			_nodeExpandedStates[ser.ExportedTrigger] = true;
-		}
-		foreach (var trigger in importedTriggers) {
-			RealPlugin.Instance.AddTrigger(trigger, trigger.Parent.ParentsEnabled());
-			if (trigger.Condition != null)
-				ConditionGroup.RebuildParentage(trigger.Condition);
-			foreach (var action in trigger.Actions)
-				if (action.Condition != null)
-					ConditionGroup.RebuildParentage(action.Condition);
+			if (updatedActionTriggerRefs > 0 || updatedActionFolderRefs > 0) {
+				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
+					I18n.Translate("internal/UserInterface/idreassigncount",
+						"Adjusted {0} trigger and {1} folder references on actions due to collisions",
+						updatedActionTriggerRefs, updatedActionFolderRefs));
+			}
+			if (ser.ExportedFolder != null) {
+				ser.ExportedFolder.Parent = df;
+				df.Folders.Add(ser.ExportedFolder);
+				_nodeExpandedStates[ser.ExportedFolder] = true;
+			}
+			if (ser.ExportedTrigger != null) {
+				ser.ExportedTrigger.Parent = df;
+				df.Triggers.Add(ser.ExportedTrigger);
+				_nodeExpandedStates[ser.ExportedTrigger] = true;
+			}
+			foreach (var trigger in importedTriggers) {
+				RealPlugin.Instance.AddTrigger(trigger, trigger.Parent == null ? true : trigger.Parent.ParentsEnabled());
+				if (trigger.Condition != null)
+					ConditionGroup.RebuildParentage(trigger.Condition);
+				foreach (var action in trigger.Actions)
+					if (action.Condition != null)
+						ConditionGroup.RebuildParentage(action.Condition);
+			}
+		} catch (Exception ex) {
+			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, ex.ToString());
 		}
 	}
 
@@ -2443,7 +2447,7 @@ public class UserInterface {
 
 	private static void AddAllTriggersFromFolder(Folder f, ref List<Trigger> trigs) {
 		foreach (var subFolder in f.Folders) AddAllTriggersFromFolder(subFolder, ref trigs);
-		foreach (var trigger in f.Triggers) trigs.Add(trigger);
+		trigs.AddRange(f.Triggers);
 	}
 
 	private static void RenderTreeNode(string text, object tag, bool isDisabled, Action? renderChildren) {

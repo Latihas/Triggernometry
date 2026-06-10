@@ -49,7 +49,8 @@ public partial class TriggernometryExport {
 			result.ExportedFolder?.RecursiveGetTriggers()?.ToList().ForEach(t => t.SetActionsParent());
 			result.ExportedTrigger?.SetActionsParent();
 			return result;
-		} catch (Exception) {
+		} catch (Exception ex) {
+			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, ex.ToString());
 			var version = rexVersion.Match(src.Length > 100 ? src[..100] : src).Groups["version"].Value;
 			return new TriggernometryExport {
 				PluginVersion = version,
