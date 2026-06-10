@@ -7,8 +7,8 @@ using System.Text.RegularExpressions;
 namespace Triggernometry.Utilities;
 
 /// <summary> https://github.com/Magic-Xin/DecryptionMLM </summary>
-public static class MlmDecryption {
-	private static Encoding encoding = Encoding.UTF8;
+public static partial class MlmDecryption {
+	private static readonly Encoding encoding = Encoding.UTF8;
 
 	public static string DecryptDES(string decryptString, string key) {
 		decryptString = decryptString.Replace('@', '/');
@@ -29,10 +29,7 @@ public static class MlmDecryption {
 		return memoryStream.ToArray();
 	}
 
-	public static byte[] Md5(string str) {
-		using var md5 = MD5.Create();
-		return md5.ComputeHash(Encoding.UTF8.GetBytes(str));
-	}
+	public static byte[] Md5(string str) => MD5.HashData(Encoding.UTF8.GetBytes(str));
 
 	public static string TryDecrypt(string data) {
 		if (data.StartsWith("mlm-")) // 加密：解密后进入下个 if
@@ -42,9 +39,12 @@ public static class MlmDecryption {
 		}
 		if (data.Contains("</MlmAction>")) // 只替换了 Action，没加密
 		{
-			data = Regex.Replace(data, @"\bMlmAction\b", "Action");
+			data = MyRegex().Replace(data, "Action");
 			data = data.Replace("<TriggernometryExport", "<TriggernometryExport PluginVersion=\"1.1.7.1\"");
 		}
 		return data;
 	}
+
+	[GeneratedRegex(@"\bMlmAction\b")]
+	private static partial Regex MyRegex();
 }
