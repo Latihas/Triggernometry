@@ -239,10 +239,8 @@ public class EntityModule : ModuleBase {
 		Task.Run(async () => {
 			await Task.Delay(200); //strange...
 			unsafe {
-				var go = (GameObject*)objectAddress;
-				go->Scale *= scale;
-				var oris = go->DrawObject->Scale;
-				SetObjectScaleTemp(objectAddress, oris.X * scale, oris.Y * scale, oris.Z * scale);
+				((GameObject*)objectAddress)->Scale = scale;
+				SetObjectScaleTemp(objectAddress, scale, scale, scale);
 			}
 		});
 	}
