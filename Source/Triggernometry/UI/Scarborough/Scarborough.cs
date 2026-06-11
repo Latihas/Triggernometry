@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -33,14 +34,14 @@ internal class Scarborough : IDisposable {
 		public ActionTypeEnum Action { get; set; }
 		public ScarboroughItem Item { get; set; }
 		public ItemTypeEnum ItemType { get; set; }
-		public ManualResetEvent Completed { get; set; } = null;
+		public ManualResetEvent? Completed { get; set; } = null;
 		public string Id { get; set; }
 	}
 
 	private long CurOrdinal = 1;
 	internal bool RenderingActive { get; set; }
 	internal RealPlugin plug { get; set; }
-	private Queue<ItemAction> ItemActions { get; set; } = new();
+	private ConcurrentQueue<ItemAction> ItemActions { get; set; } = new();
 
 	public Dictionary<string, ScarboroughImage> imageitems = new();
 	public Dictionary<string, ScarboroughText> textitems = new();
@@ -63,14 +64,12 @@ internal class Scarborough : IDisposable {
 	}
 
 	private void ExecuteActions() {
-		lock (ItemActions) {
-			while (ItemActions.Count > 0) {
-				try {
-					var ia = ItemActions.Dequeue();
-					ExecuteAction(ia);
-					ia.Completed?.Set();
-				} catch (Exception) {
-				}
+		while (!ItemActions.IsEmpty) {
+			try {
+				if (!ItemActions.TryDequeue(out var ia)) continue;
+				ExecuteAction(ia);
+				ia.Completed?.Set();
+			} catch (Exception) {
 			}
 		}
 	}
@@ -84,12 +83,15 @@ internal class Scarborough : IDisposable {
 				RenderingActive = false;
 				break;
 			case ItemAction.ActionTypeEnum.Activate: {
-				if (ia.Item is ScarboroughImage item) {
-					item.Name = ia.Id;
-					ActivateImage(ia.Id, item);
-				} else if (ia.Item is ScarboroughText text) {
-					text.Name = ia.Id;
-					ActivateText(ia.Id, text);
+				switch (ia.Item) {
+					case ScarboroughImage item:
+						item.Name = ia.Id;
+						ActivateImage(ia.Id, item);
+						break;
+					case ScarboroughText text:
+						text.Name = ia.Id;
+						ActivateText(ia.Id, text);
+						break;
 				}
 			}
 				break;
@@ -100,8 +102,7 @@ internal class Scarborough : IDisposable {
 					case ItemAction.ItemTypeEnum.Image: {
 						toRem.AddRange(from sx in imageitems where rex.IsMatch(sx.Key) select sx.Key);
 						foreach (var rem in toRem) {
-							ScarboroughImage si = null;
-							si = imageitems[rem];
+							var si = imageitems[rem];
 							imageitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
@@ -112,8 +113,7 @@ internal class Scarborough : IDisposable {
 					case ItemAction.ItemTypeEnum.Text: {
 						toRem.AddRange(from sx in textitems where rex.IsMatch(sx.Key) select sx.Key);
 						foreach (var rem in toRem) {
-							ScarboroughText si = null;
-							si = textitems[rem];
+							var si = textitems[rem];
 							textitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
@@ -212,43 +212,35 @@ internal class Scarborough : IDisposable {
 	}
 
 	public void Activate(string id, ScarboroughItem si) {
-		lock (ItemActions) {
-			ItemActions.Enqueue(new ItemAction {
-				Action = ItemAction.ActionTypeEnum.Activate,
-				Id = id,
-				Item = si
-			});
-		}
+		ItemActions.Enqueue(new ItemAction {
+			Action = ItemAction.ActionTypeEnum.Activate,
+			Id = id,
+			Item = si
+		});
 	}
 
 	public void Deactivate(string id, ItemAction.ItemTypeEnum it) {
-		lock (ItemActions) {
-			ItemActions.Enqueue(new ItemAction {
-				Action = ItemAction.ActionTypeEnum.Deactivate,
-				Id = id,
-				ItemType = it
-			});
-		}
+		ItemActions.Enqueue(new ItemAction {
+			Action = ItemAction.ActionTypeEnum.Deactivate,
+			Id = id,
+			ItemType = it
+		});
 	}
 
 	public void DeactivateRegex(string rex, ItemAction.ItemTypeEnum it) {
-		lock (ItemActions) {
-			ItemActions.Enqueue(new ItemAction {
-				Action = ItemAction.ActionTypeEnum.DeactivateRegex,
-				Id = rex,
-				ItemType = it
-			});
-		}
+		ItemActions.Enqueue(new ItemAction {
+			Action = ItemAction.ActionTypeEnum.DeactivateRegex,
+			Id = rex,
+			ItemType = it
+		});
 	}
 
 	public void DeactivateTrigger(Trigger t, ItemAction.ItemTypeEnum it) {
-		lock (ItemActions) {
-			ItemActions.Enqueue(new ItemAction {
-				Action = ItemAction.ActionTypeEnum.DeactivateTrigger,
-				Id = t.Id.ToString(),
-				ItemType = it
-			});
-		}
+		ItemActions.Enqueue(new ItemAction {
+			Action = ItemAction.ActionTypeEnum.DeactivateTrigger,
+			Id = t.Id.ToString(),
+			ItemType = it
+		});
 	}
 
 	private long GetNextOrdinal() => Interlocked.Increment(ref CurOrdinal);
@@ -330,26 +322,22 @@ internal class Scarborough : IDisposable {
 		}
 	}
 
-	public ScarboroughImage GetImage(string id) => imageitems.GetValueOrDefault(id);
+	public ScarboroughImage? GetImage(string id) => imageitems.GetValueOrDefault(id);
 
-	public ScarboroughText GetText(string id) => textitems.GetValueOrDefault(id);
+	public ScarboroughText? GetText(string id) => textitems.GetValueOrDefault(id);
 
 	public void DeactivateAllImages() {
-		lock (ItemActions) {
-			ItemActions.Enqueue(new ItemAction {
-				Action = ItemAction.ActionTypeEnum.DeactivateAll,
-				ItemType = ItemAction.ItemTypeEnum.Image
-			});
-		}
+		ItemActions.Enqueue(new ItemAction {
+			Action = ItemAction.ActionTypeEnum.DeactivateAll,
+			ItemType = ItemAction.ItemTypeEnum.Image
+		});
 	}
 
 	public void DeactivateAllText() {
-		lock (ItemActions) {
-			ItemActions.Enqueue(new ItemAction {
-				Action = ItemAction.ActionTypeEnum.DeactivateAll,
-				ItemType = ItemAction.ItemTypeEnum.Text
-			});
-		}
+		ItemActions.Enqueue(new ItemAction {
+			Action = ItemAction.ActionTypeEnum.DeactivateAll,
+			ItemType = ItemAction.ItemTypeEnum.Text
+		});
 	}
 
 	public class DeferredMessage {
@@ -496,19 +484,15 @@ internal class Scarborough : IDisposable {
 	}
 
 	internal void HideAllItems() {
-		lock (ItemActions) {
-			ItemActions.Enqueue(new ItemAction {
-				Action = ItemAction.ActionTypeEnum.RenderingOff
-			});
-		}
+		ItemActions.Enqueue(new ItemAction {
+			Action = ItemAction.ActionTypeEnum.RenderingOff
+		});
 	}
 
 	internal void ShowAllItems() {
-		lock (ItemActions) {
-			ItemActions.Enqueue(new ItemAction {
-				Action = ItemAction.ActionTypeEnum.RenderingOn
-			});
-		}
+		ItemActions.Enqueue(new ItemAction {
+			Action = ItemAction.ActionTypeEnum.RenderingOn
+		});
 	}
 
 	private void Render(RenderCollection rc) {

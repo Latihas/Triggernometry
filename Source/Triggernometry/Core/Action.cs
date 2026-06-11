@@ -261,7 +261,7 @@ public partial class ActionOld {
 		Instance.UnfilteredAddToLog(level, message, this);
 	}
 
-	private void ExecutionImplementation(QueuedAction qa, Context ctx) {
+	private void ExecutionImplementation(QueuedAction? qa, Context ctx) {
 		try {
 			if ((ctx.forceType & TriggerForceTypeEnum.SkipConditions) == 0 && !ctx.testByPlaceholder &&
 			    Condition?.Enabled == true && !Condition.CheckCondition(ctx, ActionContextLogger, ctx)) {
@@ -301,7 +301,7 @@ public partial class ActionOld {
 			} catch {
 			}
 			actionDesc = actionDesc.Length > 300 ? actionDesc[..297] + "..." : actionDesc;
-			var showDetail = true; // _ActionType == ActionTypeEnum.ExecuteScript || _ActionType == ActionTypeEnum.NamedCallback || plug.cfg.DeveloperMode;
+			const bool showDetail = true; // _ActionType == ActionTypeEnum.ExecuteScript || _ActionType == ActionTypeEnum.NamedCallback || plug.cfg.DeveloperMode;
 			var detail = showDetail ? ex.FullMessage() : ""; // inner and stack
 
 			AddToLog(ctx, DebugLevelEnum.Error, I18n.Translate("internal/Action/exception",
@@ -359,7 +359,7 @@ public partial class ActionOld {
 		// D
 	}
 
-	internal void Execute(QueuedAction qa, Context ctx) {
+	internal void Execute(QueuedAction? qa, Context ctx) {
 		if (Asynchronous) {
 			var ct = ctx.Plugin?.GetCancellationToken();
 			Task.Run(() => {

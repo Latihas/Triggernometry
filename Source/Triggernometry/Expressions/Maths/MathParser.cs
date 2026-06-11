@@ -26,7 +26,7 @@ namespace Triggernometry.Expressions.Maths;
 ///     perform the required calculations, and return a value in form of a double number.
 /// </summary>
 public partial class MathParser {
-	private static Random rng = new();
+	private static readonly Random rng = new();
 
 	static MathParser() {
 		// Numeric Operators:
@@ -406,27 +406,17 @@ public partial class MathParser {
 		}
 	}
 
-	public static double LogFunction(double[] input) {
-		switch (input.Length) {
-			case 1:
-				return Math.Log(input[0]);
-			case 2:
-				return Math.Log(input[0], input[1]);
-			default:
-				return 0;
-		}
-	}
+	public static double LogFunction(double[] input) => input.Length switch {
+		1 => Math.Log(input[0]),
+		2 => Math.Log(input[0], input[1]),
+		_ => 0
+	};
 
-	public static double RoundFunction(double[] input) {
-		switch (input.Length) {
-			case 1:
-				return Math.Round(input[0]);
-			case 2:
-				return Math.Round(input[0], (int)input[1]);
-			default:
-				return 0;
-		}
-	}
+	public static double RoundFunction(double[] input) => input.Length switch {
+		1 => Math.Round(input[0]),
+		2 => Math.Round(input[0], (int)input[1]),
+		_ => 0
+	};
 
 	public static double MaxFunction(double[] input) {
 		var max = input[0];
@@ -448,7 +438,6 @@ public partial class MathParser {
 		var a = input[0];
 		var b = input[1];
 		var t = input[2];
-
 		return a + (b - a) * t;
 	}
 

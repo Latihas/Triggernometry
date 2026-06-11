@@ -231,7 +231,7 @@ public partial class RealPlugin {
 			exwhere = I18n.Translate("internal/Plugin/inilanguages", "loading languages");
 			LoadLanguages();
 			exwhere = I18n.Translate("internal/Plugin/inicfg", "loading configuration");
-			_cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"), logTick);
+			cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"), logTick);
 			SetupDefaultSecurity();
 			AutofixConfiguration();
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
@@ -457,7 +457,7 @@ public partial class RealPlugin {
 
 	private async Task LogLineProcessorAsync(CancellationToken cancellationToken) {
 		var lxx = new List<LogEvent>();
-		var wh = new WaitHandle[2] {
+		var wh = new[] {
 			cancellationToken.WaitHandle, QueueWakeupEvent
 		};
 		lock (EventQueue)

@@ -2553,8 +2553,8 @@ public class UserInterface {
 				}
 			}
 			ImGui.Separator();
-			if (ImGui.MenuItem("导入"))
-				ProxyPlugin.DalamudPlugin.ImportWindow.Open(tag);
+			// if (ImGui.MenuItem("导入"))
+			// 	ProxyPlugin.DalamudPlugin.ImportWindow.Open(tag);
 			if (ImGui.MenuItem("从剪切板导入(粘贴)"))
 				ProxyPlugin.DalamudPlugin.ImportWindow.Import(tag, ImGui.GetClipboardText());
 			if (ImGui.MenuItem("导出(复制到剪切板)"))

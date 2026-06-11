@@ -231,16 +231,12 @@ public class OverlayWindow : IDisposable {
 	public void CreateWindow() {
 		lock (_lock) {
 			if (_isInitialized) throw new InvalidOperationException("OverlayWindow is already initialized");
-
 			_windowThread = new Thread(WindowThread) {
 				IsBackground = true
 			};
-
 			_windowThread.SetApartmentState(ApartmentState.STA);
-
 			_windowThread.Start();
-
-			while (!_isInitialized) Thread.Sleep(10);
+			while (!_isInitialized) Thread.Sleep(2);
 		}
 	}
 
@@ -348,21 +344,19 @@ public class OverlayWindow : IDisposable {
 	/// <param name="windowHandle">The target window handle.</param>
 	/// <param name="attachToClientArea">A Boolean determining whether to fit to the client area of the target window.</param>
 	public void FitToWindow(IntPtr windowHandle, bool attachToClientArea = false) {
-		WindowBounds rect;
-		var result = attachToClientArea ? WindowHelper.GetWindowClientBounds(windowHandle, out rect) : WindowHelper.GetWindowBounds(windowHandle, out rect);
+		var result = attachToClientArea ? WindowHelper.GetWindowClientBounds(windowHandle, out var rect) : WindowHelper.GetWindowBounds(windowHandle, out rect);
 
-		if (result) {
-			var x = rect.Left;
-			var y = rect.Top;
-			var width = rect.Right - rect.Left;
-			var height = rect.Bottom - rect.Top;
+		if (!result) return;
+		var x = rect.Left;
+		var y = rect.Top;
+		var width = rect.Right - rect.Left;
+		var height = rect.Bottom - rect.Top;
 
-			if (X != x
-			    || Y != y
-			    || Width != width
-			    || Height != height) {
-				Resize(x, y, width, height);
-			}
+		if (X != x
+		    || Y != y
+		    || Width != width
+		    || Height != height) {
+			Resize(x, y, width, height);
 		}
 	}
 
@@ -554,22 +548,17 @@ public class OverlayWindow : IDisposable {
 			case WindowMessage.EraseBackground:
 				User32.SendMessage(hwnd, WindowMessage.Paint, 0, 0);
 				break;
-
+			case WindowMessage.DwmCompositionChanged:
+				WindowHelper.ExtendFrameIntoClientArea(hwnd);
+				return 0;
 			case WindowMessage.Keyup:
 			case WindowMessage.Keydown:
 			case WindowMessage.Syscommand:
 			case WindowMessage.Syskeydown:
 			case WindowMessage.Syskeyup:
-				return 0;
-
 			case WindowMessage.NcPaint:
 			case WindowMessage.Paint:
 				return 0;
-
-			case WindowMessage.DwmCompositionChanged:
-				WindowHelper.ExtendFrameIntoClientArea(hwnd);
-				return 0;
-
 			case WindowMessage.DpiChanged:
 				return 0; // block DPI changed message
 		}

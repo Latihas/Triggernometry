@@ -14,8 +14,7 @@ using TriggernometryProxy;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	private Configuration _cfg;
-	public Configuration cfg => _cfg;
+	public Configuration cfg { get; private set; }
 
 	public bool configBroken;
 	internal DateTime lastConfigSave = DateTime.Now;
@@ -70,30 +69,28 @@ public partial class RealPlugin {
 	}
 
 	private void AskChangeLogOnStart(string prevVersion, string currentVersion) {
-		if (cfg.PreviousNotifiedPluginVersion != currentVersion) {
-			cfg.PreviousNotifiedPluginVersion = currentVersion;
-			var title = I18n.Translate("internal/Plugin/triggernometryupdate", "Triggernometry Update");
-			var msg = I18n.Translate("internal/Plugin/triggernometryupdated",
-				"The plugin had been updated from {0} to {1}. \r\nWould you like to view the changelog?",
-				prevVersion, currentVersion);
-			var tray = TraySlider.Info(2, msg, title);
-			tray.OnClick1 = ShowChangeLog;
-			tray.Show();
-		}
+		if (cfg.PreviousNotifiedPluginVersion == currentVersion) return;
+		cfg.PreviousNotifiedPluginVersion = currentVersion;
+		var title = I18n.Translate("internal/Plugin/triggernometryupdate", "Triggernometry Update");
+		var msg = I18n.Translate("internal/Plugin/triggernometryupdated",
+			"The plugin had been updated from {0} to {1}. \r\nWould you like to view the changelog?",
+			prevVersion, currentVersion);
+		var tray = TraySlider.Info(2, msg, title);
+		tray.OnClick1 = ShowChangeLog;
+		tray.Show();
 	}
 
 	private void BackupConfiguration(string prevVersion, string currentVersion) {
 		var oldfn = Path.Combine(ConfigPath, pluginName + ".config.xml");
 		var bacfn = Path.Combine(ConfigPath, pluginName + "." + prevVersion + ".config.xml");
-		if (File.Exists(oldfn)) {
-			if (!File.Exists(bacfn)) {
-				FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgbackupupdate", "Plugin updated from {0} to {1}, backing up configuration as {2}",
-					prevVersion, currentVersion, bacfn));
-				File.Copy(oldfn, bacfn, false);
-			} else {
-				FilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Plugin/cfgbackupdatewarn", "Plugin updated from {0} to {1}, but a backup configuration file already exists, not overwriting",
-					prevVersion, currentVersion));
-			}
+		if (!File.Exists(oldfn)) return;
+		if (!File.Exists(bacfn)) {
+			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgbackupupdate", "Plugin updated from {0} to {1}, backing up configuration as {2}",
+				prevVersion, currentVersion, bacfn));
+			File.Copy(oldfn, bacfn, false);
+		} else {
+			FilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Plugin/cfgbackupdatewarn", "Plugin updated from {0} to {1}, but a backup configuration file already exists, not overwriting",
+				prevVersion, currentVersion));
 		}
 	}
 

@@ -12,13 +12,10 @@ public partial class RealPlugin {
 	internal static string FormatDateTime(DateTime dt) => dt.ToString("MM-dd HH:mm:ss.fff");
 
 	internal static string GenerateHash(string addy) {
-		using var md5 = MD5.Create();
 		var inputBytes = Encoding.UTF8.GetBytes(addy);
-		var hashBytes = md5.ComputeHash(inputBytes);
+		var hashBytes = MD5.HashData(inputBytes);
 		var sb = new StringBuilder();
-		for (var i = 0; i < hashBytes.Length; i++) {
-			sb.Append(hashBytes[i].ToString("X2"));
-		}
+		foreach (var t in hashBytes) sb.Append(t.ToString("X2"));
 		return sb.ToString().ToLower();
 	}
 
@@ -75,10 +72,8 @@ public partial class RealPlugin {
 	}
 
 	internal static string UnserializeInvalidXmlCharacters(string ex) {
-		var exx = '\x01';
-		var hex = ex;
 		ex = ex.Replace("␀", "\x00");
-		ex = ex.Replace("␁", "" + exx);
+		ex = ex.Replace("␁", "\x01");
 		ex = ex.Replace("␂", "\x02");
 		ex = ex.Replace("␃", "\x03");
 		ex = ex.Replace("␄", "\x04");
@@ -113,9 +108,9 @@ public partial class RealPlugin {
 		return ex;
 	}
 
-	internal Repository GetRepositoryById(Guid id) => (from ix in cfg.RepositoryRoot.Repositories where ix.Id == id select ix).FirstOrDefault();
+	internal Repository? GetRepositoryById(Guid id) => cfg.RepositoryRoot.Repositories.FirstOrDefault(ix => ix.Id == id);
 
-	internal Trigger GetTriggerById(Guid id, Repository repo) {
+	internal Trigger? GetTriggerById(Guid id, Repository repo) {
 		if (id == Guid.Empty) return null;
 		lock (Triggers) {
 			var ix = from ax in Triggers
@@ -125,84 +120,41 @@ public partial class RealPlugin {
 		}
 	}
 
-	internal Folder GetFolderById(Guid id, Repository repo) {
-		if (id == Guid.Empty) return null;
-		if (repo != null) {
-			return RecursiveFolderSearch(repo.Root, id, repo);
-		}
-		return RecursiveFolderSearch(cfg.Root, id, repo);
+	internal Folder? GetFolderById(Guid id, Repository? repo) => id == Guid.Empty
+		? null
+		: RecursiveFolderSearch(repo != null
+			? repo.Root
+			: cfg.Root, id, repo);
+
+	internal Folder? RecursiveFolderSearch(Folder f, Guid id, Repository? repo) {
+		if (f.Id == id && f.Repo == repo) return f;
+		return f.Folders.Select(c => RecursiveFolderSearch(c, id, repo)).OfType<Folder>().FirstOrDefault();
 	}
 
-	internal Folder RecursiveFolderSearch(Folder f, Guid id, Repository repo) {
-		if (f.Id == id && f.Repo == repo) {
-			return f;
-		}
-		foreach (var c in f.Folders) {
-			var ex = RecursiveFolderSearch(c, id, repo);
-			if (ex != null) {
-				return ex;
-			}
-		}
-		return null;
+	internal TreeNode? LocateNodeHostingTrigger(TreeNode tn, Trigger t) {
+		return tn.Tag == t ? tn : tn.Nodes.Cast<TreeNode>().Select(tc => LocateNodeHostingTrigger(tc, t)).OfType<TreeNode>().FirstOrDefault();
 	}
 
-	internal TreeNode LocateNodeHostingTrigger(TreeNode tn, Trigger t) {
-		if (tn.Tag == t) {
-			return tn;
-		}
-		foreach (TreeNode tc in tn.Nodes) {
-			var tp = LocateNodeHostingTrigger(tc, t);
-			if (tp != null) {
-				return tp;
-			}
-		}
-		return null;
+	internal TreeNode? LocateNodeHostingRepository(TreeNode tn, Repository r) =>
+		tn.Nodes.Cast<TreeNode>().FirstOrDefault(tc => tc.Tag == r);
+
+	internal TreeNode? LocateNodeHostingFolder(TreeNode tn, Folder f) {
+		return tn.Tag == f ? tn : tn.Nodes.Cast<TreeNode>().Select(tc => LocateNodeHostingFolder(tc, f)).OfType<TreeNode>().FirstOrDefault();
 	}
 
-	internal TreeNode LocateNodeHostingRepository(TreeNode tn, Repository r) {
-		foreach (TreeNode tc in tn.Nodes) {
-			if (tc.Tag == r) {
-				return tc;
-			}
-		}
-		return null;
-	}
-
-	internal TreeNode LocateNodeHostingFolder(TreeNode tn, Folder f) {
-		if (tn.Tag == f) {
-			return tn;
-		}
-		foreach (TreeNode tc in tn.Nodes) {
-			var tp = LocateNodeHostingFolder(tc, f);
-			if (tp != null) {
-				return tp;
-			}
-		}
-		return null;
-	}
-
-	internal TreeNode LocateNodeHostingTriggerId(TreeNode tn, Guid id, Repository repo) {
+	internal TreeNode? LocateNodeHostingTriggerId(TreeNode tn, Guid id, Repository repo) {
 		var t = GetTriggerById(id, repo);
-		if (t == null) {
-			return null;
-		}
-		return LocateNodeHostingTrigger(tn, t);
+		return t == null ? null : LocateNodeHostingTrigger(tn, t);
 	}
 
-	internal TreeNode LocateNodeHostingRepositoryId(TreeNode tn, Guid id) {
+	internal TreeNode? LocateNodeHostingRepositoryId(TreeNode tn, Guid id) {
 		var r = GetRepositoryById(id);
-		if (r == null) {
-			return null;
-		}
-		return LocateNodeHostingRepository(tn, r);
+		return r == null ? null : LocateNodeHostingRepository(tn, r);
 	}
 
-	internal TreeNode LocateNodeHostingFolderId(TreeNode tn, Guid id, Repository repo) {
+	internal TreeNode? LocateNodeHostingFolderId(TreeNode tn, Guid id, Repository repo) {
 		var f = GetFolderById(id, repo);
-		if (f == null) {
-			return null;
-		}
-		return LocateNodeHostingFolder(tn, f);
+		return f == null ? null : LocateNodeHostingFolder(tn, f);
 	}
 
 	public static bool IsAdmin() {
@@ -213,7 +165,7 @@ public partial class RealPlugin {
 }
 
 public static class Extensions {
-	public static string FullMessage(this Exception ex) {
+	public static string FullMessage(this Exception? ex) {
 		if (ex == null)
 			return string.Empty;
 

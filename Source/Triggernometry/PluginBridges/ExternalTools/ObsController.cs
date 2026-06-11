@@ -168,8 +168,7 @@ internal class ObsController : IDisposable {
 					respCallbacks.TryGetValue(resp.requestId, out respCallback);
 					respCallbacks.Remove(resp.requestId);
 				}
-				if (respCallback != null)
-					respCallback(resp);
+				respCallback?.Invoke(resp);
 				break;
 			case OpCode.RequestBatchResponse:
 				var respBatch = JsonSerializer.Deserialize<Message<RequestBatchResponseOp>>(e.Data)?.d;
@@ -178,8 +177,7 @@ internal class ObsController : IDisposable {
 					respBatchCallbacks.TryGetValue(respBatch.requestId, out respBatchCallback);
 					respBatchCallbacks.Remove(respBatch.requestId);
 				}
-				if (respBatchCallback != null)
-					respBatchCallback(respBatch);
+				respBatchCallback?.Invoke(respBatch);
 				break;
 		}
 	}

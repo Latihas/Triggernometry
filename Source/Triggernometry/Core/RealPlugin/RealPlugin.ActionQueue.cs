@@ -15,8 +15,8 @@ public partial class RealPlugin {
 	public readonly List<QueuedAction> ActionQueue = [];
 	// internal AutoResetEvent ActionUpdateEvent;
 	private long curOrdinal;
-	internal object QueueProcessingLock = new();
-	internal bool QueueProcessing = true;
+	// internal object QueueProcessingLock = new();
+	// internal bool QueueProcessing = true;
 
 	public delegate void ActionExecutionHook(Context ctx, ActionOld a);
 

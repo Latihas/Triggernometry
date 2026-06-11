@@ -94,10 +94,7 @@ public class Context {
 	internal int PeekActionResult(bool previous, int i) {
 		lock (ActionResults) {
 			if (previous) {
-				if (ActionResults.Count > 0) {
-					return ActionResults[^1];
-				}
-				return 0;
+				return ActionResults.Count > 0 ? ActionResults[^1] : 0;
 			}
 			if (i < 1 || i > ActionResults.Count) {
 				return 0;
@@ -125,7 +122,7 @@ public class Context {
 	}
 
 	internal string GetNumGroup(int groupIdx) {
-		string result = null;
+		string? result = null;
 
 		if (_numRegexGroups != null) {
 			if (groupIdx >= 0 && groupIdx < _numRegexGroups.Count)
@@ -143,7 +140,7 @@ public class Context {
 	}
 
 	internal string GetNamedGroup(string groupName) {
-		string result = null;
+		string? result = null;
 
 		if (_namedRegexGroups != null) {
 			if (_namedRegexGroups.TryGetValue(groupName, out var value))

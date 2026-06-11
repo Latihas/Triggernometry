@@ -285,18 +285,13 @@ internal class ActionOverlayText : ActionBase {
 	#region Implementation
 
 	internal override string DescribeImplementation() {
-		switch (Operation) {
-			case OperationEnum.Activate:
-				return I18n.Translate("internal/Action/desctextauraact", "activate text overlay ({0}) with expression ({1})", Name, Text);
-			case OperationEnum.Deactivate:
-				return I18n.Translate("internal/Action/desctextauradeact", "deactivate text overlay ({0})", Name);
-			case OperationEnum.DeactivateAll:
-				return I18n.Translate("internal/Action/desctextauradeactall", "deactivate all text overlays");
-			case OperationEnum.DeactivateRegex:
-				return I18n.Translate("internal/Action/desctextauradeactrex", "deactivate text overlays matching regular expression ({0})", Name);
-			default:
-				return NotImplementedEnumMessage(Operation);
-		}
+		return Operation switch {
+			OperationEnum.Activate => I18n.Translate("internal/Action/desctextauraact", "activate text overlay ({0}) with expression ({1})", Name, Text),
+			OperationEnum.Deactivate => I18n.Translate("internal/Action/desctextauradeact", "deactivate text overlay ({0})", Name),
+			OperationEnum.DeactivateAll => I18n.Translate("internal/Action/desctextauradeactall", "deactivate all text overlays"),
+			OperationEnum.DeactivateRegex => I18n.Translate("internal/Action/desctextauradeactrex", "deactivate text overlays matching regular expression ({0})", Name),
+			_ => NotImplementedEnumMessage(Operation)
+		};
 	}
 
 	internal override void ExecuteImplementation(ActionInstance ai) {
