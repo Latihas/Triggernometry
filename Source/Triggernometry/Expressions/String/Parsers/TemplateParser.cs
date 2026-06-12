@@ -28,7 +28,7 @@ internal static class TemplateParser {
 	}
 
 	private static string ParseTemplateMatch(TemplateMatch m, Context ctx, bool isNumeric = false) {
-		string result;
+		string? result;
 		if (m.NumIndex == null) // "${...}"
 		{
 			result = ParseSingleTemplate(m.Expression ?? "", ctx, isNumeric);
@@ -159,7 +159,7 @@ internal static class TemplateParser {
 	}
 
 	/// <summary> Null if not matched. </summary>
-	internal static string ParseSingleTemplate(string templateBody, Context ctx, bool isTestModeNumeric) {
+	internal static string? ParseSingleTemplate(string templateBody, Context? ctx, bool isTestModeNumeric) {
 		ctx = ctx ?? Context.Unbound;
 		return KeywordParser.TryParse(templateBody, ctx, isTestModeNumeric) // ${_xxx} ${regexGroup} ${regexIdx}
 		       ?? ColonParser.TryParse(templateBody, ctx) // expressions start with "xxx:"

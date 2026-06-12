@@ -90,14 +90,14 @@ public partial class RealPlugin {
 	// private bool complainAboutReload;
 	public string pluginName { get; set; }
 	public string pluginPath { get; set; }
-	internal Endpoint _ep;
+	internal Endpoint? _ep;
 	private bool firstevent = true;
 	internal bool isRunningAsAdmin;
 	internal string? currentZone;
 	internal DateTime LastDelayWarning = DateTime.Now;
 	public VariableStore sessionvars = new();
-	internal ObsController _obs;
-	internal LiveSplitController _livesplit;
+	internal ObsController? _obs;
+	internal LiveSplitController? _livesplit;
 	internal CancellationTokenSource? cts;
 	internal object ctslock = new();
 	// public Form mainform { get; set; }
@@ -121,11 +121,10 @@ public partial class RealPlugin {
 	public SimpleBoolDelegate ActInitedHook { get; set; }
 	public ACTEncounterLogDelegate ACTEncounterLogHook { get; set; }
 
-	private static RealPlugin _instance;
+	private static RealPlugin? _instance;
 	public static RealPlugin Instance {
 		get {
-			if (_instance == null)
-				_instance = new RealPlugin();
+			_instance ??= new RealPlugin();
 			return _instance;
 		}
 	}
@@ -363,7 +362,6 @@ public partial class RealPlugin {
 		// ui?.CloseForms();
 		BridgeFFXIV.UnsubscribeFromNetworkEvents(this);
 		if (_ep != null) {
-			_ep.Stop();
 			_ep.Dispose();
 			_ep = null;
 		}
@@ -372,7 +370,7 @@ public partial class RealPlugin {
 			_obs = null;
 		}
 		if (_livesplit != null) {
-			_livesplit?.Dispose();
+			_livesplit.Dispose();
 			_livesplit = null;
 		}
 		Memory.DisposeXivProcHandle();

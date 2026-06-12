@@ -9,7 +9,7 @@ using Triggernometry.PluginBridges;
 namespace Triggernometry.Expressions.String.Parsers;
 
 internal static class KeywordParser {
-	internal static string TryParse(string rawExpr, Context ctx, bool isTestModeNumeric) {
+	internal static string? TryParse(string rawExpr, Context? ctx, bool isTestModeNumeric) {
 		ctx = ctx ?? Context.Unbound;
 		var plug = ctx.Plugin; // can be null
 

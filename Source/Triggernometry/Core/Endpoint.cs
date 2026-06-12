@@ -24,22 +24,22 @@ internal class Endpoint : IDisposable {
 		Stopped
 	}
 
-	internal RealPlugin plug => RealPlugin.Instance;
+	internal static RealPlugin plug => RealPlugin.Instance;
 	internal StatusEnum Status { get; set; }
 	internal string StatusDescription { get; set; } = "zzz";
-	private Context curctx;
+	private Context? curctx;
 	internal uint ReceivedTelegrams;
 	internal List<Tuple<DateTime, string>> teleHistory = [];
 
 	internal delegate void StatusChangeDelegate(StatusEnum newStatus, string statusDesc);
 
-	internal event StatusChangeDelegate OnStatusChange;
+	internal event StatusChangeDelegate? OnStatusChange;
 
 	public Endpoint() {
 		SetStatus(StatusEnum.Stopped, null);
 	}
 
-	private void SetStatus(StatusEnum st, string desc) {
+	private void SetStatus(StatusEnum st, string? desc) {
 		var notify = false;
 		if (st != StatusEnum.Unchanged) {
 			Status = st;
@@ -49,11 +49,8 @@ internal class Endpoint : IDisposable {
 			StatusDescription = $"[{DateTime.Now}] {desc}";
 			notify = true;
 		}
-		if (notify) {
-			if (OnStatusChange != null) {
-				OnStatusChange(Status, StatusDescription);
-			}
-		}
+		if (notify && OnStatusChange != null)
+			OnStatusChange(Status, StatusDescription);
 	}
 
 	public void Start() {
@@ -103,21 +100,15 @@ internal class Endpoint : IDisposable {
 		SetStatus(StatusEnum.Stopped, null);
 	}
 
-	public void Dispose() {
-		Stop();
-	}
+	public void Dispose() => Stop();
 
-	public void ThreadProc(object o) {
-		var ctx = (Context)o;
+	public void ThreadProc(object? o) {
+		var ctx = (Context)o!;
 		var http = ctx.Listener;
 		SetStatus(StatusEnum.Started, $"Waiting for connections on {ctx.Endpoint}");
 		while (ctx.Running && http.IsListening) {
 			try {
-				HttpListenerContext hctx = null;
-				hctx = http.GetContext();
-				if (hctx == null) {
-					continue;
-				}
+				var hctx = http.GetContext();
 				var t = new Task(() => {
 					try {
 						var req = hctx.Request;

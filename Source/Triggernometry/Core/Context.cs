@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Triggernometry.Expressions.Maths;
 using Triggernometry.Expressions.String;
 using Triggernometry.Localization;
@@ -17,21 +16,20 @@ namespace Triggernometry.Core;
 public class Context {
 	internal Guid id = Guid.NewGuid();
 	internal bool testByPlaceholder;
-	private readonly RealPlugin _plugOverride;
-	internal RealPlugin Plugin => _plugOverride ?? Instance;
-	public readonly Trigger Trigger;
+	internal RealPlugin Plugin => field ?? Instance;
+	public readonly Trigger? Trigger;
 	internal ActionOld.TriggerForceTypeEnum forceType;
 
 	internal ActionExecutionHook soundhook;
 	internal ActionExecutionHook ttshook;
 
-	private Dictionary<string, string> _namedRegexGroups;
-	private List<string> _numRegexGroups;
+	private Dictionary<string, string>? _namedRegexGroups;
+	private List<string>? _numRegexGroups;
 	internal DateTime triggeredTime;
 	internal string zoneName = "";
-	internal string regexPattern; // todo
+	// internal string regexPattern; // todo
 	internal string triggeredText = "";
-	internal string zoneIdOverride = null;
+	internal string? zoneIdOverride = null;
 
 	internal string contextResponse = "";
 	internal int contextResponseCode = 0;
@@ -39,7 +37,7 @@ public class Context {
 	internal bool isContextJsonParsed = false;
 
 	internal readonly List<int> ActionResults = [];
-	internal Dictionary<Mutex, int> heldmutices = new();
+	// internal Dictionary<Mutex, int> heldmutices = new();
 
 	// to-do: refactor these dynamic expressions
 	internal int loopIterator = 0;
@@ -75,7 +73,7 @@ public class Context {
 	/// </summary>
 	public Context(Trigger trigger, RealPlugin plugOverride) {
 		Trigger = trigger;
-		_plugOverride = plugOverride;
+		Plugin = plugOverride;
 	}
 
 	public override string ToString() => id + " for " + (Trigger != null ? Trigger.LogName : "(no trigger)") + " at " + triggeredTime;
@@ -121,7 +119,7 @@ public class Context {
 		}
 	}
 
-	internal string GetNumGroup(int groupIdx) {
+	internal string? GetNumGroup(int groupIdx) {
 		string? result = null;
 
 		if (_numRegexGroups != null) {
@@ -133,13 +131,13 @@ public class Context {
 				result = "";
 		}
 
-		if (result != null && Plugin != null) {
+		if (result != null) {
 			result = Plugin.cfg.PerformSubstitution(result, Substitution.SubstitutionScopeEnum.CaptureGroup);
 		}
 		return result;
 	}
 
-	internal string GetNamedGroup(string groupName) {
+	internal string? GetNamedGroup(string groupName) {
 		string? result = null;
 
 		if (_namedRegexGroups != null) {
@@ -151,7 +149,7 @@ public class Context {
 				result = "";
 		}
 
-		if (result != null && Plugin != null) {
+		if (result != null) {
 			result = Plugin.cfg.PerformSubstitution(result, Substitution.SubstitutionScopeEnum.CaptureGroup);
 		}
 		return result;
@@ -183,29 +181,26 @@ public class Context {
 
 	public delegate void LoggerCallback(object o, string message);
 
-	public double EvaluateNumericExpression(LoggerDelegate logger, object o, string expr) {
+	public double EvaluateNumericExpression(LoggerDelegate logger, object o, string? expr) {
 		var exp = ExpandVariables(logger, o, true, expr ?? "");
-		if (Plugin != null) {
-			exp = Plugin.cfg.PerformSubstitution(exp, Substitution.SubstitutionScopeEnum.NumericExpression);
-		}
+
+		exp = Plugin.cfg.PerformSubstitution(exp, Substitution.SubstitutionScopeEnum.NumericExpression);
+
 		return MathParser.Parse(exp);
 	}
 
-	public string EvaluateStringExpression(LoggerDelegate logger, object o, string expr) {
+	public string EvaluateStringExpression(LoggerDelegate? logger, object o, string? expr) {
 		var exp = ExpandVariables(logger, o, false, expr ?? "");
-		if (Plugin != null) {
-			exp = Plugin.cfg.PerformSubstitution(exp, Substitution.SubstitutionScopeEnum.StringExpression);
-		}
-		return exp;
+		return Plugin.cfg.PerformSubstitution(exp, Substitution.SubstitutionScopeEnum.StringExpression);
 	}
 
 	public delegate void LoggerDelegate(object o, string msg);
 
 
-	public string ExpandVariables(LoggerDelegate logger, object o, bool isNumeric, string expr) {
+	public string ExpandVariables(LoggerDelegate? logger, object o, bool isNumeric, string expr) {
 		var result = StringParser.Parse(expr, this, isNumeric);
 		// log expansions: ${...} => ...
-		if (Plugin?.cfg?.LogVariableExpansions == true &&
+		if (Plugin.cfg.LogVariableExpansions &&
 		    result != expr &&
 		    Trigger?.GetDebugLevel(Plugin) >= DebugLevelEnum.Verbose) // should not be DebugLevelEnum.Inherit here
 		{
@@ -213,7 +208,7 @@ public class Context {
 			if (logger != null) {
 				logger(o, log);
 			} else {
-				Plugin?.FilteredAddToLog(DebugLevelEnum.Verbose, log, Trigger);
+				Plugin.FilteredAddToLog(DebugLevelEnum.Verbose, log, Trigger);
 			}
 		}
 		return result;

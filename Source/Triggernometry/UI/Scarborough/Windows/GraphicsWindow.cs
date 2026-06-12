@@ -49,23 +49,23 @@ public class GraphicsWindow : OverlayWindow {
 	/// <summary>
 	///     Fires when a new Scene / frame needs to be rendered.
 	/// </summary>
-	public event EventHandler<DrawGraphicsEventArgs> DrawGraphics;
+	public event EventHandler<DrawGraphicsEventArgs>? DrawGraphics;
 
 	/// <summary>
 	///     Fires when you should free any resources used for drawing with this instance.
 	/// </summary>
-	public event EventHandler<DestroyGraphicsEventArgs> DestroyGraphics;
+	public event EventHandler<DestroyGraphicsEventArgs>? DestroyGraphics;
 
 	/// <summary>
 	///     Fires when you should allocate any resources you use to draw using this instance.
 	/// </summary>
-	public event EventHandler<SetupGraphicsEventArgs> SetupGraphics;
+	public event EventHandler<SetupGraphicsEventArgs>? SetupGraphics;
 
 	/// <summary>
 	///     Initializes a new GraphicsWindow.
 	/// </summary>
 	/// <param name="device">Optionally specify a Graphics device to use.</param>
-	public GraphicsWindow(Graphics device = null) {
+	public GraphicsWindow(Graphics? device = null) {
 		_watch = Stopwatch.StartNew();
 
 		SizeChanged += GraphicsWindow_SizeChanged;
@@ -122,7 +122,8 @@ public class GraphicsWindow : OverlayWindow {
 		try {
 			_thread.Join();
 		} catch {
-		} // ignore "already exited" exception
+			// ignore "already exited" exception
+		}
 	}
 
 	/// <summary>
@@ -162,6 +163,7 @@ public class GraphicsWindow : OverlayWindow {
 		try {
 			_thread.Join();
 		} catch {
+			//
 		}
 	}
 
@@ -209,7 +211,7 @@ public class GraphicsWindow : OverlayWindow {
 		OnDestroyGraphics(Graphics);
 	}
 
-	private void GraphicsWindow_SizeChanged(object sender, OverlaySizeEventArgs e) {
+	private void GraphicsWindow_SizeChanged(object? sender, OverlaySizeEventArgs e) {
 		if (Graphics.IsInitialized) {
 			Graphics.Resize(e.Width, e.Height);
 		} else {
@@ -218,7 +220,7 @@ public class GraphicsWindow : OverlayWindow {
 		}
 	}
 
-	private void GraphicsWindow_VisibilityChanged(object sender, OverlayVisibilityEventArgs e) {
+	private void GraphicsWindow_VisibilityChanged(object? sender, OverlayVisibilityEventArgs e) {
 		_isPaused = !e.IsVisible;
 	}
 
