@@ -62,7 +62,7 @@ public static class CSharpScriptCompiler {
 
 	public static string GetScriptDllPath(string script) {
 		var className = GenerateClassName(script);
-		var prefix = ProxyPlugin.DalamudPlugin.Instance.scriptsDir;
+		var prefix = ProxyPlugin.DalamudPlugin.scriptsDir;
 		Directory.CreateDirectory(prefix);
 		return Path.Combine(prefix, className + ".dll");
 	}

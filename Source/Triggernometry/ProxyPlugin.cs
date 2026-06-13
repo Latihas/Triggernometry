@@ -120,7 +120,7 @@ public class ProxyPlugin : IActPluginV1 {
 		if (dalamudPlugin.Configuration.Version != latestVer) {
 			try {
 				RealPlugin.Instance.cfg.CompileFailedScripts.Clear();
-				Directory.Delete(Path.Combine(DalamudPlugin.Instance.scriptsDir, "Scripts"), true);
+				Directory.Delete(Path.Combine(DalamudPlugin.scriptsDir, "Scripts"), true);
 			} catch (Exception ex) {
 				log.Warning($"Error Updating Configuration: {ex}");
 			}
