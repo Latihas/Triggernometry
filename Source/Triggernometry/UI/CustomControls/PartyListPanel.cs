@@ -104,7 +104,6 @@ public class PartyListPanel : TableLayoutPanel {
 			.Take(PlayerCount)
 			.Cast<Entity?>()
 			.ToList();
-
 		while (entities.Count < PlayerCount) {
 			entities.Add(null);
 		}

@@ -11,180 +11,6 @@ using Triggernometry.Utilities;
 namespace Triggernometry.FFXIV;
 
 public class Entity {
-	#region Basic Properties
-
-	public bool Exist { get; set; } = true;
-	public virtual PluginSource PluginSource { get; set; } = PluginSource.None;
-
-	public virtual IntPtr Address { get; set; }
-	public virtual string Name { get; set; } = "";
-	public virtual uint ID { get; set; }
-	public virtual uint BNpcID { get; set; }
-	public virtual uint OwnerID { get; set; }
-	public virtual EntityType Type { get; set; }
-	public virtual byte EffectiveDistance { get; set; }
-	public virtual ObjectStatus ObjectStatus { get; set; }
-	public virtual float PosX { get; set; }
-	public virtual float PosY { get; set; }
-	public virtual float PosZ { get; set; }
-	public virtual float Heading { get; set; }
-	public virtual float Radius { get; set; }
-	public virtual ModelStatus ModelStatus { get; set; }
-	public virtual bool IsTargetable { get; set; }
-	public virtual uint CurrentHP { get; set; }
-	public virtual uint MaxHP { get; set; }
-	public virtual uint CurrentMP { get; set; }
-	public virtual uint MaxMP { get; set; }
-	public virtual ushort CurrentCP { get; set; }
-	public virtual ushort MaxCP { get; set; }
-	public virtual ushort CurrentGP { get; set; }
-	public virtual ushort MaxGP { get; set; }
-	public virtual short TransformationID { get; set; }
-	public virtual Job Job { get; set; } = Job.EmptyJob;
-	public virtual byte Level { get; set; }
-	public virtual MonsterType MonsterType { get; set; }
-	public virtual bool IsEnemy { get; set; }
-	public virtual bool IsAggressive { get; set; }
-	public virtual bool InCombat { get; set; }
-	public virtual bool InParty { get; set; }
-	public virtual bool InAlliance { get; set; }
-	public virtual bool IsFriend { get; set; }
-	public virtual byte WeaponID { get; set; }
-	public virtual uint TargetID { get; set; }
-	public virtual uint BNpcNameID { get; set; }
-	public virtual ushort CurrentWorldID { get; set; }
-	public virtual ushort WorldID { get; set; }
-	public virtual List<Status> Statuses { get; set; } = [];
-	public virtual bool IsCasting { get; set; }
-	public virtual byte CastType { get; set; }
-	public virtual uint CastID { get; set; }
-	public virtual uint CastTargetID { get; set; }
-	public virtual float CastPosX { get; set; }
-	public virtual float CastPosY { get; set; }
-	public virtual float CastPosZ { get; set; }
-	public virtual float CastTime { get; set; }
-	public virtual float MaxCastTime { get; set; }
-
-	public string HexAddress => Address.ToString("X");
-	public string HexID => ID.ToString("X");
-	public string OwnerHexID => OwnerID.ToString("X");
-	public string TargetHexID => TargetID.ToString("X");
-	public string CastHexID => CastID.ToString("X");
-	public bool IsCharacter => Type is EntityType.Pc or EntityType.BattleNpc or EntityType.EventNpc or EntityType.Retainer;
-
-	public Vector2 PosXY => new(PosX, PosY);
-	public Vector3 Pos => new(PosX, PosY, PosZ);
-
-	public static Entity NullEntity() => new() {
-		Exist = false
-	};
-
-	public virtual Entity Snapshot() => new() {
-		Exist = Exist,
-		PluginSource = PluginSource.None,
-		Address = Address,
-		Name = Name,
-		ID = ID,
-		BNpcID = BNpcID,
-		OwnerID = OwnerID,
-		Type = Type,
-		EffectiveDistance = EffectiveDistance,
-		ObjectStatus = ObjectStatus,
-		PosX = PosX,
-		PosY = PosY,
-		PosZ = PosZ,
-		Heading = Heading,
-		Radius = Radius,
-		ModelStatus = ModelStatus,
-		IsTargetable = IsTargetable,
-		CurrentHP = CurrentHP,
-		MaxHP = MaxHP,
-		CurrentMP = CurrentMP,
-		MaxMP = MaxMP,
-		CurrentCP = CurrentCP,
-		MaxCP = MaxCP,
-		CurrentGP = CurrentGP,
-		MaxGP = MaxGP,
-		TransformationID = TransformationID,
-		Job = Job,
-		Level = Level,
-		MonsterType = MonsterType,
-		IsEnemy = IsEnemy,
-		IsAggressive = IsAggressive,
-		InCombat = InCombat,
-		InParty = InParty,
-		InAlliance = InAlliance,
-		IsFriend = IsFriend,
-		WeaponID = WeaponID,
-		TargetID = TargetID,
-		BNpcNameID = BNpcNameID,
-		CurrentWorldID = CurrentWorldID,
-		WorldID = WorldID,
-		Statuses = Statuses.Select(s => s.Snapshot()).ToList(),
-		IsCasting = IsCasting,
-		CastType = CastType,
-		CastID = CastID,
-		CastTargetID = CastTargetID,
-		CastPosX = CastPosX,
-		CastPosY = CastPosY,
-		CastPosZ = CastPosZ,
-		CastTime = CastTime,
-		MaxCastTime = MaxCastTime
-	};
-
-	#endregion Basic Properties
-
-	#region Get Entities
-
-	public static IEnumerable<Entity> GetEntities(Func<Entity, bool> filter)
-		=> GetEntities().Where(filter);
-
-	public static IEnumerable<Entity> GetEntities(Func<Entity, bool> filter, bool useOverlay)
-		=> GetEntities(useOverlay).Where(filter);
-
-	public static IEnumerable<Entity> GetEntities() {
-		var result = ModuleCombatants.InternalGetEntities().ToList();
-		if (!result.Any())
-			result = BridgeFFXIV.InternalGetEntities().ToList();
-		return result;
-	}
-
-	public static IEnumerable<Entity> GetEntities(bool useOverlay) => useOverlay ? ModuleCombatants.InternalGetEntities() : BridgeFFXIV.InternalGetEntities();
-
-	public static Entity GetEntityByID(string hexID) => GetEntityByID(uint.Parse(hexID, NumberStyles.HexNumber, CultureInfo.InvariantCulture));
-
-	public static Entity GetEntityByID(uint id) {
-		var result = ModuleCombatants.InternalGetEntityByID(id);
-		if (!result.Exist)
-			result = BridgeFFXIV.InternalGetEntityByID(id);
-		return result;
-	}
-
-	public static Entity GetEntityByID(string hexID, bool useOverlay) => GetEntityByID(uint.Parse(hexID, NumberStyles.HexNumber, CultureInfo.InvariantCulture), useOverlay);
-	public static Entity GetEntityByID(uint id, bool useOverlay) => useOverlay ? ModuleCombatants.InternalGetEntityByID(id) : BridgeFFXIV.InternalGetEntityByID(id);
-
-	public static Entity GetMyself() {
-		var result = ModuleCombatants.InternalGetMyself();
-		if (!result.Exist)
-			result = BridgeFFXIV.InternalGetMyself();
-		return result;
-	}
-
-	public static Entity GetMyself(bool useOverlay) => useOverlay ? ModuleCombatants.InternalGetMyself() : BridgeFFXIV.InternalGetMyself();
-
-	/// <summary> Cache when changing zone / starting ACT.</summary>
-	internal static void UpdateMySnapshot() => MySnapshot = GetMyself();
-
-	public static Entity MySnapshot { get; private set; } = NullEntity();
-	public static uint MyID => MySnapshot.ID;
-	public static string MyHexID => MySnapshot.HexID;
-	public static string MyName => MySnapshot.Name;
-	public static IntPtr MyAddress => MySnapshot.Address;
-
-	#endregion Get Entities
-
-	private static float Round4(float value) => (float)Math.Round(value, 4);
-
 	internal static readonly Dictionary<string, Func<Entity, object>> _propAccessors
 		= new(StringComparer.OrdinalIgnoreCase) {
 			{ "Exist", e => e.Exist },
@@ -458,6 +284,8 @@ public class Entity {
 			"Order", "StatusIDs", "Marker", "MarkerID"
 		], StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase);
 
+	private static float Round4(float value) => (float)Math.Round(value, 4);
+
 	private static string PercentXP(string propName, float current, float max, string[] args) {
 		CheckArgCount("0-1", propName, args);
 
@@ -470,6 +298,178 @@ public class Entity {
 
 	private static void CheckArgCount(string expectedCount, string methodName, string[] args)
 		=> ArgHelper.CheckArgCount(expectedCount, args?.Count() ?? 0, methodName);
+
+	#region Basic Properties
+
+	public bool Exist { get; set; } = true;
+	public virtual PluginSource PluginSource { get; set; } = PluginSource.None;
+
+	public virtual IntPtr Address { get; set; }
+	public virtual string Name { get; set; } = "";
+	public virtual uint ID { get; set; }
+	public virtual uint BNpcID { get; set; }
+	public virtual uint OwnerID { get; set; }
+	public virtual EntityType Type { get; set; }
+	public virtual byte EffectiveDistance { get; set; }
+	public virtual ObjectStatus ObjectStatus { get; set; }
+	public virtual float PosX { get; set; }
+	public virtual float PosY { get; set; }
+	public virtual float PosZ { get; set; }
+	public virtual float Heading { get; set; }
+	public virtual float Radius { get; set; }
+	public virtual ModelStatus ModelStatus { get; set; }
+	public virtual bool IsTargetable { get; set; }
+	public virtual uint CurrentHP { get; set; }
+	public virtual uint MaxHP { get; set; }
+	public virtual uint CurrentMP { get; set; }
+	public virtual uint MaxMP { get; set; }
+	public virtual ushort CurrentCP { get; set; }
+	public virtual ushort MaxCP { get; set; }
+	public virtual ushort CurrentGP { get; set; }
+	public virtual ushort MaxGP { get; set; }
+	public virtual short TransformationID { get; set; }
+	public virtual Job Job { get; set; } = Job.EmptyJob;
+	public virtual byte Level { get; set; }
+	public virtual MonsterType MonsterType { get; set; }
+	public virtual bool IsEnemy { get; set; }
+	public virtual bool IsAggressive { get; set; }
+	public virtual bool InCombat { get; set; }
+	public virtual bool InParty { get; set; }
+	public virtual bool InAlliance { get; set; }
+	public virtual bool IsFriend { get; set; }
+	public virtual byte WeaponID { get; set; }
+	public virtual uint TargetID { get; set; }
+	public virtual uint BNpcNameID { get; set; }
+	public virtual ushort CurrentWorldID { get; set; }
+	public virtual ushort WorldID { get; set; }
+	public virtual List<Status> Statuses { get; set; } = [];
+	public virtual bool IsCasting { get; set; }
+	public virtual byte CastType { get; set; }
+	public virtual uint CastID { get; set; }
+	public virtual uint CastTargetID { get; set; }
+	public virtual float CastPosX { get; set; }
+	public virtual float CastPosY { get; set; }
+	public virtual float CastPosZ { get; set; }
+	public virtual float CastTime { get; set; }
+	public virtual float MaxCastTime { get; set; }
+
+	public string HexAddress => Address.ToString("X");
+	public string HexID => ID.ToString("X");
+	public string OwnerHexID => OwnerID.ToString("X");
+	public string TargetHexID => TargetID.ToString("X");
+	public string CastHexID => CastID.ToString("X");
+	public bool IsCharacter => Type is EntityType.Pc or EntityType.BattleNpc or EntityType.EventNpc or EntityType.Retainer;
+
+	public Vector2 PosXY => new(PosX, PosY);
+	public Vector3 Pos => new(PosX, PosY, PosZ);
+
+	public static Entity NullEntity() => new() {
+		Exist = false
+	};
+
+	public virtual Entity Snapshot() => new() {
+		Exist = Exist,
+		PluginSource = PluginSource.None,
+		Address = Address,
+		Name = Name,
+		ID = ID,
+		BNpcID = BNpcID,
+		OwnerID = OwnerID,
+		Type = Type,
+		EffectiveDistance = EffectiveDistance,
+		ObjectStatus = ObjectStatus,
+		PosX = PosX,
+		PosY = PosY,
+		PosZ = PosZ,
+		Heading = Heading,
+		Radius = Radius,
+		ModelStatus = ModelStatus,
+		IsTargetable = IsTargetable,
+		CurrentHP = CurrentHP,
+		MaxHP = MaxHP,
+		CurrentMP = CurrentMP,
+		MaxMP = MaxMP,
+		CurrentCP = CurrentCP,
+		MaxCP = MaxCP,
+		CurrentGP = CurrentGP,
+		MaxGP = MaxGP,
+		TransformationID = TransformationID,
+		Job = Job,
+		Level = Level,
+		MonsterType = MonsterType,
+		IsEnemy = IsEnemy,
+		IsAggressive = IsAggressive,
+		InCombat = InCombat,
+		InParty = InParty,
+		InAlliance = InAlliance,
+		IsFriend = IsFriend,
+		WeaponID = WeaponID,
+		TargetID = TargetID,
+		BNpcNameID = BNpcNameID,
+		CurrentWorldID = CurrentWorldID,
+		WorldID = WorldID,
+		Statuses = Statuses.Select(s => s.Snapshot()).ToList(),
+		IsCasting = IsCasting,
+		CastType = CastType,
+		CastID = CastID,
+		CastTargetID = CastTargetID,
+		CastPosX = CastPosX,
+		CastPosY = CastPosY,
+		CastPosZ = CastPosZ,
+		CastTime = CastTime,
+		MaxCastTime = MaxCastTime
+	};
+
+	#endregion Basic Properties
+
+	#region Get Entities
+
+	public static IEnumerable<Entity> GetEntities(Func<Entity, bool> filter)
+		=> GetEntities().Where(filter);
+
+	public static IEnumerable<Entity> GetEntities(Func<Entity, bool> filter, bool useOverlay)
+		=> GetEntities(useOverlay).Where(filter);
+
+	public static IEnumerable<Entity> GetEntities() {
+		var result = ModuleCombatants.InternalGetEntities().ToList();
+		if (result.Count == 0)
+			result = BridgeFFXIV.InternalGetEntities().ToList();
+		return result;
+	}
+
+	public static IEnumerable<Entity> GetEntities(bool useOverlay) => useOverlay ? ModuleCombatants.InternalGetEntities() : BridgeFFXIV.InternalGetEntities();
+
+	public static Entity GetEntityByID(string hexID) => GetEntityByID(uint.Parse(hexID, NumberStyles.HexNumber, CultureInfo.InvariantCulture));
+
+	public static Entity GetEntityByID(uint id) {
+		var result = ModuleCombatants.InternalGetEntityByID(id);
+		if (!result.Exist)
+			result = BridgeFFXIV.InternalGetEntityByID(id);
+		return result;
+	}
+
+	public static Entity GetEntityByID(string hexID, bool useOverlay) => GetEntityByID(uint.Parse(hexID, NumberStyles.HexNumber, CultureInfo.InvariantCulture), useOverlay);
+	public static Entity GetEntityByID(uint id, bool useOverlay) => useOverlay ? ModuleCombatants.InternalGetEntityByID(id) : BridgeFFXIV.InternalGetEntityByID(id);
+
+	public static Entity GetMyself() {
+		var result = ModuleCombatants.InternalGetMyself();
+		if (!result.Exist)
+			result = BridgeFFXIV.InternalGetMyself();
+		return result;
+	}
+
+	public static Entity GetMyself(bool useOverlay) => useOverlay ? ModuleCombatants.InternalGetMyself() : BridgeFFXIV.InternalGetMyself();
+
+	/// <summary> Cache when changing zone / starting ACT.</summary>
+	internal static void UpdateMySnapshot() => MySnapshot = GetMyself();
+
+	public static Entity MySnapshot { get; private set; } = NullEntity();
+	public static uint MyID => MySnapshot.ID;
+	public static string MyHexID => MySnapshot.HexID;
+	public static string MyName => MySnapshot.Name;
+	public static IntPtr MyAddress => MySnapshot.Address;
+
+	#endregion Get Entities
 }
 
 #region Enums

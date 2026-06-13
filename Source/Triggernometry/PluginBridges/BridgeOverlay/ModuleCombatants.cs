@@ -87,29 +87,28 @@ internal static class ModuleCombatants {
 		if (!BridgeOverlay.Ready) yield break;
 		if (BridgeOverlay.Ready && Ready == false) {
 			Initialize();
-			if (Ready == false) {
-				yield break;
-			}
+			if (Ready == false) yield break;
 		}
 		var seen = new HashSet<uint>();
 		unsafe {
 			if (charmapAddress == null) yield break;
 		}
-		Entity? entity = null;
+		IEnumerable<Pointer<GameObject>> list;
 		unsafe {
-			foreach (var x in CharacterManager.Instance()->BattleCharas.ToArray()
-				         .Select(entry => (Pointer<GameObject>)(GameObject*)entry.Value)
-				         .Where(entry => entry.Value != null)) {
-				var combatant = GetMobFromByteArray(x.Value, 0);
-				if (combatant == null || seen.Contains(combatant.ID))
-					continue;
-				entity = new OpEntity(combatant, (IntPtr)x.Value);
-				seen.Add(entity.ID);
-				break;
-			}
+			list = CharacterManager.Instance()->BattleCharas.ToArray()
+				.Select(entry => (Pointer<GameObject>)(GameObject*)entry.Value)
+				.Where(entry => entry.Value != null);
 		}
-		if (entity == null) yield break;
-		yield return entity;
+		foreach (var x in list) {
+			Entity? entity;
+			unsafe {
+				var combatant = GetMobFromByteArray(x.Value, 0);
+				if (combatant == null || seen.Contains(combatant.ID)) continue;
+				entity = new OpEntity(combatant, (IntPtr)x.Value);
+			}
+			seen.Add(entity.ID);
+			yield return entity;
+		}
 	}
 
 	/// <returns>Null if not found.</returns>

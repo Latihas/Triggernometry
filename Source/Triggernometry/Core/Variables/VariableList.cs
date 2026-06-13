@@ -10,14 +10,11 @@ namespace Triggernometry.Core.Variables;
 
 [XmlRoot(ElementName = "VariableList")]
 public class VariableList : Variable {
-	[XmlArrayItem(ElementName = "VariableScalar", Type = typeof(VariableScalar))] [XmlArrayItem(ElementName = "VariableList", Type = typeof(VariableList))] [XmlArrayItem(ElementName = "VariableTable", Type = typeof(VariableTable))]
-	public List<Variable> Values { get; set; } = [];
-
 	public VariableList() {
 	}
 
 	public VariableList(IEnumerable<string> values) {
-		Values = values.Select(v => (Variable)new VariableScalar(v)).ToList();
+		Values = values.Select(Variable (v) => new VariableScalar(v)).ToList();
 	}
 
 	public VariableList(IEnumerable<double> values) : this(values.Select(v => v.ToString(CultureInfo.InvariantCulture))) {
@@ -26,8 +23,6 @@ public class VariableList : Variable {
 	public VariableList(IEnumerable<int> values) : this(values.Select(v => v.ToString(CultureInfo.InvariantCulture))) {
 	}
 
-	public int Size => Values.Count;
-
 	public VariableList(IEnumerable<object> objs) {
 		foreach (var obj in objs) {
 			Values.Add(new VariableScalar {
@@ -35,6 +30,11 @@ public class VariableList : Variable {
 			});
 		}
 	}
+
+	[XmlArrayItem(ElementName = "VariableScalar", Type = typeof(VariableScalar))] [XmlArrayItem(ElementName = "VariableList", Type = typeof(VariableList))] [XmlArrayItem(ElementName = "VariableTable", Type = typeof(VariableTable))]
+	public List<Variable> Values { get; set; } = [];
+
+	public int Size => Values.Count;
 
 	public override string ToString() => string.Join(",", Values);
 
