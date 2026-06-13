@@ -14,36 +14,14 @@ using TriggernometryProxy;
 
 namespace Triggernometry.UI;
 
-internal class Scarborough : IDisposable {
-	public class ItemAction {
-		public enum ActionTypeEnum {
-			Activate,
-			Deactivate,
-			DeactivateAll,
-			RenderingOn,
-			RenderingOff,
-			DeactivateRegex,
-			DeactivateTrigger
-		}
-
-		public enum ItemTypeEnum {
-			Image,
-			Text
-		}
-
-		public ActionTypeEnum Action { get; set; }
-		public ScarboroughItem Item { get; set; }
-		public ItemTypeEnum ItemType { get; set; }
-		public ManualResetEvent? Completed { get; set; } = null;
-		public string Id { get; set; }
-	}
-
+public class Scarborough : IDisposable {
 	private long CurOrdinal = 1;
-	internal bool RenderingActive { get; set; }
-	internal RealPlugin plug { get; set; }
-	private ConcurrentQueue<ItemAction> ItemActions { get; set; } = new();
 
 	public Dictionary<string, ScarboroughImage> imageitems = new();
+	private double lag;
+
+	private DateTime prevTick = DateTime.Now;
+	private RenderCollection rc = new();
 	public Dictionary<string, ScarboroughText> textitems = new();
 
 	public Scarborough() {
@@ -51,6 +29,10 @@ internal class Scarborough : IDisposable {
 		RenderingActive = true;
 		ProxyPlugin.Framework.Update += Render;
 	}
+
+	internal bool RenderingActive { get; set; }
+	internal RealPlugin plug { get; set; }
+	private ConcurrentQueue<ItemAction> ItemActions { get; set; } = new();
 
 	public void Dispose() {
 		ProxyPlugin.Framework.Update -= Render;
@@ -340,13 +322,6 @@ internal class Scarborough : IDisposable {
 		});
 	}
 
-	public class DeferredMessage {
-		public Context ctx { get; set; }
-		public RealPlugin plug { get; set; }
-		public RealPlugin.DebugLevelEnum level { get; set; } = RealPlugin.DebugLevelEnum.None;
-		public string Message { get; set; } = "";
-	}
-
 	private void ProcessMessages(IEnumerable<DeferredMessage> msgs) {
 		foreach (var msg in msgs) {
 			if (msg.ctx != null) {
@@ -556,22 +531,6 @@ internal class Scarborough : IDisposable {
 		ProcessMessages(messages);
 	}
 
-	private class RenderCollection {
-		public List<ScarboroughItem> items = [];
-
-		public RenderCollection() {
-			Clear();
-		}
-
-		public void Clear() => items.Clear();
-
-		public void Add(ScarboroughItem si) => items.Add(si);
-	}
-
-	private DateTime prevTick = DateTime.Now;
-	private double lag;
-	private RenderCollection rc = new();
-
 	public void Render(IFramework framework) {
 		var tickTime = DateTime.Now;
 		var msSince = (tickTime - prevTick).TotalMilliseconds;
@@ -585,5 +544,47 @@ internal class Scarborough : IDisposable {
 			UpdateText(numTicks, ref rc);
 		}
 		if (rc.items.Count > 0) Render(rc);
+	}
+
+	public class ItemAction {
+		public enum ActionTypeEnum {
+			Activate,
+			Deactivate,
+			DeactivateAll,
+			RenderingOn,
+			RenderingOff,
+			DeactivateRegex,
+			DeactivateTrigger
+		}
+
+		public enum ItemTypeEnum {
+			Image,
+			Text
+		}
+
+		public ActionTypeEnum Action { get; set; }
+		public ScarboroughItem Item { get; set; }
+		public ItemTypeEnum ItemType { get; set; }
+		public ManualResetEvent? Completed { get; set; } = null;
+		public string Id { get; set; }
+	}
+
+	public class DeferredMessage {
+		public Context ctx { get; set; }
+		public RealPlugin plug { get; set; }
+		public RealPlugin.DebugLevelEnum level { get; set; } = RealPlugin.DebugLevelEnum.None;
+		public string Message { get; set; } = "";
+	}
+
+	private class RenderCollection {
+		public List<ScarboroughItem> items = [];
+
+		public RenderCollection() {
+			Clear();
+		}
+
+		public void Clear() => items.Clear();
+
+		public void Add(ScarboroughItem si) => items.Add(si);
 	}
 }

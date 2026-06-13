@@ -13,13 +13,19 @@ using Triggernometry.PluginBridges;
 namespace Triggernometry.UI.CustomControls;
 
 public class PartyListPanel : TableLayoutPanel {
-	private List<PlayerLabel> _players = [];
+	private static readonly string[] jobOrder = [
+		"WAR", "MRD", "PLD", "GLA", "DRK", "GNB",
+		"WHM", "CNJ", "AST", "SGE", "SCH",
+		"SAM", "MNK", "PGL", "DRG", "LNC", "NIN", "ROG", "RPR", "VPR",
+		"BRD", "ARC", "MCH", "DNC", "BLM", "THM", "PCT", "RDM", "SMN", "ACN", "BLU"
+	];
 	public readonly int PlayerCount;
 	public readonly string[] PlayerDescriptions;
-
-	public readonly string PlayerNamesLvarName;
 	public readonly string PlayerIdsLvarName;
 	public readonly string PlayerIdxVarName;
+
+	public readonly string PlayerNamesLvarName;
+	private List<PlayerLabel> _players = [];
 
 	public PartyListPanel(
 		string[] playerDescriptions,
@@ -87,13 +93,6 @@ public class PartyListPanel : TableLayoutPanel {
 		}
 	}
 
-	private static readonly string[] jobOrder = [
-		"WAR", "MRD", "PLD", "GLA", "DRK", "GNB",
-		"WHM", "CNJ", "AST", "SGE", "SCH",
-		"SAM", "MNK", "PGL", "DRG", "LNC", "NIN", "ROG", "RPR", "VPR",
-		"BRD", "ARC", "MCH", "DNC", "BLM", "THM", "PCT", "RDM", "SMN", "ACN", "BLU"
-	];
-
 	private List<Entity?> GetSortedPartyMembers() {
 		var entities = Entity.GetEntities()
 			.Where(e => e.HexID.StartsWith("10")) // is player
@@ -111,14 +110,12 @@ public class PartyListPanel : TableLayoutPanel {
 		}
 
 		if (entities.Count == 8 // Double Caster => D2 / D4
-		    && entities[5].Job.SubRole == Job.RoleType.PhysicalRanged
-		    && entities[6].Job.SubRole == Job.RoleType.MagicalRanged
-		    && entities[7].Job.SubRole == Job.RoleType.MagicalRanged) {
+		    && entities[5]?.Job.SubRole == Job.RoleType.PhysicalRanged
+		    && entities[6]?.Job.SubRole == Job.RoleType.MagicalRanged
+		    && entities[7]?.Job.SubRole == Job.RoleType.MagicalRanged) {
 			(entities[5], entities[6]) = (entities[6], entities[5]);
-			if (entities[7].Job.NameEN3 == "BLM") // with BLM: BLM D2
-			{
+			if (entities[7]?.Job.NameEN3 == "BLM") // with BLM: BLM D2
 				(entities[5], entities[7]) = (entities[7], entities[5]);
-			}
 		}
 		return entities;
 	}
@@ -198,12 +195,34 @@ public class PartyListPanel : TableLayoutPanel {
 	}
 
 	public class PlayerLabel : Label {
+		public readonly string? HexID;
+		public readonly string? JobName;
 		public readonly PartyListPanel ParentTable;
 		public readonly string? PlayerName;
-		public Job.RoleType? SubRole;
-		public readonly string? JobName;
-		public readonly string? HexID;
 		private Label _draggingClone;
+		public Job.RoleType? SubRole;
+
+		public PlayerLabel(PartyListPanel parent, Entity? entity, int order) {
+			ParentTable = parent;
+			if (entity != null) {
+				PlayerName = entity.Name;
+				SubRole = entity.Job.SubRole;
+				JobName = CultureInfo.CurrentCulture.Name.StartsWith("zh-")
+					? entity.Job.NameCN2
+					: entity.Job.NameEN3;
+				HexID = entity.HexID;
+			}
+			Order = order;
+			ForeColor = GetForeColorByRole();
+			Margin = new Padding(10);
+			AutoSize = false;
+			Anchor = AnchorStyles.None;
+			TextAlign = ContentAlignment.MiddleCenter;
+			Cursor = Cursors.SizeAll;
+			MouseDown += PlayerLabel_MouseDown;
+			MouseMove += PlayerLabel_MouseMove;
+			MouseUp += PlayerLabel_MouseUp;
+		}
 
 		/// <summary> Start from 0. </summary>
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -230,28 +249,6 @@ public class PartyListPanel : TableLayoutPanel {
 					}
 				default: return Color.FromArgb(128, 128, 128);
 			}
-		}
-
-		public PlayerLabel(PartyListPanel parent, Entity? entity, int order) {
-			ParentTable = parent;
-			if (entity != null) {
-				PlayerName = entity.Name;
-				SubRole = entity.Job.SubRole;
-				JobName = CultureInfo.CurrentCulture.Name.StartsWith("zh-")
-					? entity.Job.NameCN2
-					: entity.Job.NameEN3;
-				HexID = entity.HexID;
-			}
-			Order = order;
-			ForeColor = GetForeColorByRole();
-			Margin = new Padding(10);
-			AutoSize = false;
-			Anchor = AnchorStyles.None;
-			TextAlign = ContentAlignment.MiddleCenter;
-			Cursor = Cursors.SizeAll;
-			MouseDown += PlayerLabel_MouseDown;
-			MouseMove += PlayerLabel_MouseMove;
-			MouseUp += PlayerLabel_MouseUp;
 		}
 
 		/// <summary> Set the label to the correct position in the parent table according to Order.  </summary>

@@ -41,7 +41,7 @@ internal class ActionBeep : ActionBase {
 
 	internal override string DescribeImplementation() => I18n.Translate("internal/Action/descbeep", "Beep at ({0}) hz for ({1}) ms", Frequency, Duration);
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 		var useSimulatedBeep = plug.cfg.UseSimulatedBeep;

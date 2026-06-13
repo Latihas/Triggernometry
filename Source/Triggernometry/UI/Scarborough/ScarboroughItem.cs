@@ -6,12 +6,27 @@ using Triggernometry.Localization;
 
 namespace Scarborough;
 
-internal abstract class ScarboroughItem : IDisposable {
-	protected Triggernometry.UI.Scarborough Owner { get; set; }
+public abstract class ScarboroughItem : IDisposable {
+	protected Color _bgColor = new();
+	public Graphics? _graphics;
+
+	private int _Height;
+
+	private int _Left;
+
+	private int _Opacity;
+
+	private int _Top;
+
+	private int _Width;
 
 	protected OverlayWindow? _window;
-	public Graphics? _graphics;
-	protected Color _bgColor = new();
+
+	public ScarboroughItem(Triggernometry.UI.Scarborough own) {
+		Owner = own;
+	}
+
+	protected Triggernometry.UI.Scarborough Owner { get; set; }
 
 	internal bool NeedRender { get; set; } = true;
 	internal bool WasHidden { get; set; } = false;
@@ -35,8 +50,6 @@ internal abstract class ScarboroughItem : IDisposable {
 
 	internal bool Changed { get; set; }
 	internal bool InvalidSize { get; set; }
-
-	private int _Left;
 	internal int Left {
 		get => _Left;
 		set {
@@ -46,8 +59,6 @@ internal abstract class ScarboroughItem : IDisposable {
 			}
 		}
 	}
-
-	private int _Top;
 	internal int Top {
 		get => _Top;
 		set {
@@ -57,8 +68,6 @@ internal abstract class ScarboroughItem : IDisposable {
 			}
 		}
 	}
-
-	private int _Width;
 	internal int Width {
 		get => _Width;
 		set {
@@ -68,8 +77,6 @@ internal abstract class ScarboroughItem : IDisposable {
 			}
 		}
 	}
-
-	private int _Height;
 	internal int Height {
 		get => _Height;
 		set {
@@ -79,8 +86,6 @@ internal abstract class ScarboroughItem : IDisposable {
 			}
 		}
 	}
-
-	private int _Opacity;
 	internal int Opacity {
 		get => _Opacity;
 		set {
@@ -89,14 +94,6 @@ internal abstract class ScarboroughItem : IDisposable {
 				_Opacity = value;
 			}
 		}
-	}
-
-	public abstract void Free();
-	public abstract void Render();
-	public abstract bool InternalLogic(int numTicks);
-
-	public ScarboroughItem(Triggernometry.UI.Scarborough own) {
-		Owner = own;
 	}
 
 	public void Dispose() {
@@ -110,6 +107,10 @@ internal abstract class ScarboroughItem : IDisposable {
 			_window = null;
 		}
 	}
+
+	public abstract void Free();
+	public abstract void Render();
+	public abstract bool InternalLogic(int numTicks);
 
 	private string PreprocessExpression(string exp) {
 		exp = exp.Replace("${_x}", Left.ToString());

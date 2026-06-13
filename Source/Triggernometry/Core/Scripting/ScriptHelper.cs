@@ -16,6 +16,8 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 {
 	public static Dictionary<string, object> Storage => RealPlugin.Instance.scriptingStorage;
 
+	public static Process XivProcess => Memory.XivProc;
+
 	public static void Log(int level, string message)
 		=> RealPlugin.Instance.FilteredAddToLog((RealPlugin.DebugLevelEnum)level, message);
 
@@ -84,7 +86,7 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 		}
 	}
 
-	public static void SetScalarVariable(bool isPersistent, string varname, object data) {
+	public static void SetScalarVariable(bool isPersistent, string varname, object? data) {
 		var vs = RealPlugin.Instance.GetVariableStore(isPersistent);
 		lock (vs.Scalar) {
 			if (data == null)
@@ -134,8 +136,6 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 		});
 
 	public static T Deserialize<T>(string s) => JsonSerializer.Deserialize<T>(s);
-
-	public static Process XivProcess => Memory.XivProc;
 
 	public static void RegisterXivProcessUpdatedAction(string key, Action action)
 		=> Memory.RegisterXivProcUpdatedAction(key, action);

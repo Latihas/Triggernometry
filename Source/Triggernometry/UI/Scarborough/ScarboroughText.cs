@@ -7,12 +7,29 @@ using SolidBrush = Scarborough.Drawing.SolidBrush;
 
 namespace Scarborough;
 
-internal class ScarboroughText : ScarboroughItem {
+public class ScarboroughText : ScarboroughItem {
+	private Color _BackgroundColor;
+
+	private float _FontSize;
+
+	private FontStyle _FontStyle;
+
+	private Color _OutlineColor;
+
+	private string _Text;
+
+	private ActionOld.TextAuraAlignmentEnum _TextAlignment;
+
+	private Color _TextColor;
+
+	private bool _UseOutline;
+
+	public ScarboroughText(Triggernometry.UI.Scarborough own) : base(own) {
+	}
+
 	internal string TextExpression { get; set; }
 	internal bool NeedFont { get; set; }
 	internal string FontName { get; set; }
-
-	private ActionOld.TextAuraAlignmentEnum _TextAlignment;
 	internal ActionOld.TextAuraAlignmentEnum TextAlignment {
 		get => _TextAlignment;
 		set {
@@ -22,8 +39,6 @@ internal class ScarboroughText : ScarboroughItem {
 			}
 		}
 	}
-
-	private bool _UseOutline;
 	internal bool UseOutline {
 		get => _UseOutline;
 		set {
@@ -33,8 +48,6 @@ internal class ScarboroughText : ScarboroughItem {
 			}
 		}
 	}
-
-	private float _FontSize;
 	internal float FontSize {
 		get => _FontSize;
 		set {
@@ -44,8 +57,6 @@ internal class ScarboroughText : ScarboroughItem {
 			}
 		}
 	}
-
-	private string _Text;
 	internal string Text {
 		get => _Text;
 		set {
@@ -55,8 +66,6 @@ internal class ScarboroughText : ScarboroughItem {
 			}
 		}
 	}
-
-	private Color _TextColor;
 	internal Color TextColor {
 		get => _TextColor;
 		set {
@@ -66,8 +75,6 @@ internal class ScarboroughText : ScarboroughItem {
 			}
 		}
 	}
-
-	private Color _OutlineColor;
 	internal Color OutlineColor {
 		get => _OutlineColor;
 		set {
@@ -77,8 +84,6 @@ internal class ScarboroughText : ScarboroughItem {
 			}
 		}
 	}
-
-	private Color _BackgroundColor;
 	internal Color BackgroundColor {
 		get => _BackgroundColor;
 		set {
@@ -95,8 +100,6 @@ internal class ScarboroughText : ScarboroughItem {
 			}
 		}
 	}
-
-	private FontStyle _FontStyle;
 	internal FontStyle FontStyle {
 		get => _FontStyle;
 		set {
@@ -109,9 +112,6 @@ internal class ScarboroughText : ScarboroughItem {
 
 	private Font TextFont { get; set; }
 	private SolidBrush TextBrush { get; set; }
-
-	public ScarboroughText(Triggernometry.UI.Scarborough own) : base(own) {
-	}
 
 	public override void Free() {
 		if (TextFont != null) {

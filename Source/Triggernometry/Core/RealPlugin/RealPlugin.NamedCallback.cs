@@ -10,21 +10,6 @@ using Triggernometry.Utilities;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	public class NamedCallback {
-		public int Id { get; set; }
-		public string Name { get; set; }
-		public Delegate Callback { get; set; }
-		public object Obj { get; set; }
-		public string Registrant { get; set; }
-		public DateTime RegistrationTime { get; set; }
-		public DateTime? LastInvoked { get; set; }
-
-		public void Invoke(string val) {
-			Callback.DynamicInvoke(Obj, val);
-			LastInvoked = DateTime.Now;
-		}
-	}
-
 	public Dictionary<int, NamedCallback> callbacksById = new();
 	public Dictionary<string, List<NamedCallback>> callbacksByName = new(StringComparer.OrdinalIgnoreCase);
 
@@ -84,7 +69,7 @@ public partial class RealPlugin {
 
 		lock (callbacksById) {
 			// Find the first free positive integer ID
-			var id = Enumerable.Range(1, int.MaxValue).Where(n => !callbacksById.ContainsKey(n)).First();
+			var id = Enumerable.Range(1, int.MaxValue).First(n => !callbacksById.ContainsKey(n));
 			RegisterNamedCallback(id, name, callback, o, registrant);
 			return id;
 		}
@@ -97,16 +82,11 @@ public partial class RealPlugin {
 	/// </summary>
 	public void UnregisterNamedCallback(int id) {
 		lock (callbacksById) {
-			NamedCallback nc = null;
-			if (!callbacksById.TryGetValue(id, out var value)) {
-				return;
-			}
-			nc = value;
-			callbacksById.Remove(id);
-			callbacksByName[nc.Name].Remove(nc);
-			if (callbacksByName[nc.Name].Count == 0) {
-				callbacksByName.Remove(nc.Name);
-			}
+			if (!callbacksById.Remove(id, out var value)) return;
+
+			callbacksByName[value.Name].Remove(value);
+			if (callbacksByName[value.Name].Count == 0)
+				callbacksByName.Remove(value.Name);
 		}
 	}
 
@@ -115,12 +95,8 @@ public partial class RealPlugin {
 	/// </summary>
 	public void UnregisterNamedCallback(string name) {
 		lock (callbacksById) {
-			if (!callbacksByName.TryGetValue(name, out var value)) {
-				return;
-			}
-			foreach (var nc in value) {
-				callbacksById.Remove(nc.Id);
-			}
+			if (!callbacksByName.TryGetValue(name, out var value)) return;
+			foreach (var nc in value) callbacksById.Remove(nc.Id);
 			callbacksByName.Remove(name);
 		}
 	}
@@ -134,5 +110,20 @@ public partial class RealPlugin {
 		_ = RegisterNamedCallback("TraySliderInfo", (Action<object, string>)TraySlider.CallbackInfo, registrant: nameof(RealPlugin));
 		_ = RegisterNamedCallback("TraySliderWarning", (Action<object, string>)TraySlider.CallbackWarning, registrant: nameof(RealPlugin));
 		_ = RegisterNamedCallback("TraySliderError", (Action<object, string>)TraySlider.CallbackError, registrant: nameof(RealPlugin));
+	}
+
+	public class NamedCallback {
+		public int Id { get; set; }
+		public string Name { get; set; }
+		public Delegate Callback { get; set; }
+		public object Obj { get; set; }
+		public string Registrant { get; set; }
+		public DateTime RegistrationTime { get; set; }
+		public DateTime? LastInvoked { get; set; }
+
+		public void Invoke(string val) {
+			Callback.DynamicInvoke(Obj, val);
+			LastInvoked = DateTime.Now;
+		}
 	}
 }

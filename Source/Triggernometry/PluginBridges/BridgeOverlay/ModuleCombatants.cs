@@ -4,7 +4,6 @@ using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.Interop;
-using RainbowMage.OverlayPlugin.MemoryProcessors;
 using RainbowMage.OverlayPlugin.MemoryProcessors.Combatant;
 using Triggernometry.Core;
 using Triggernometry.FFXIV;
@@ -18,6 +17,21 @@ namespace Triggernometry.PluginBridges;
 
 [OverlayModule]
 internal static class ModuleCombatants {
+	// use the original method from OverlayPlugin
+	/*
+	public static IEnumerable<FFXIV.Entity> InternalGetEntities()
+	{
+	    if (!Ready)
+	    {
+	        RealPlugin.plug.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not ready");
+	        return new List<FFXIV.Entity>();
+	    }
+	    IList combatantList = _getCombatantListMethod.Invoke(_combatantMemoryManager, null) as IList; // List<Combatant> defined by OverlayPlugin
+	    return combatantList.Cast<object>().Select(c => (FFXIV.Entity)new OpEntity(c, IntPtr.Zero));
+	}
+	*/
+
+	private const int ptrSize = 8; // Int64 pointer size
 	/// <summary>
 	///     true: Ready <br />
 	///     false: Not ready <br />
@@ -26,14 +40,12 @@ internal static class ModuleCombatants {
 	public static bool? Ready;
 	private static CombatantMemoryManager _combatantMemoryManager;
 	private static CombatantMemory _currentCombatantMemory;
-	private static FFXIVMemory memory => _currentCombatantMemory.memory;
-	private static IntPtr charmapAddress => _currentCombatantMemory.charmapAddress;
-	private static int numMemoryCombatants => _currentCombatantMemory.numMemoryCombatants;
-	private static int combatantSize => _currentCombatantMemory.combatantSize;
 
 	static ModuleCombatants() {
 		Initialize();
 	}
+
+	private static unsafe GameObject* charmapAddress => _currentCombatantMemory.charmapAddress;
 
 	internal static void Initialize() {
 		try {
@@ -70,22 +82,6 @@ internal static class ModuleCombatants {
 		Ready = true;
 	}
 
-	// use the original method from OverlayPlugin
-	/*
-	public static IEnumerable<FFXIV.Entity> InternalGetEntities()
-	{
-	    if (!Ready)
-	    {
-	        RealPlugin.plug.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not ready");
-	        return new List<FFXIV.Entity>();
-	    }
-	    IList combatantList = _getCombatantListMethod.Invoke(_combatantMemoryManager, null) as IList; // List<Combatant> defined by OverlayPlugin
-	    return combatantList.Cast<object>().Select(c => (FFXIV.Entity)new OpEntity(c, IntPtr.Zero));
-	}
-	*/
-
-	private const int ptrSize = 8; // Int64 pointer size
-
 	/// <returns>Empty if Overlay is not ready.</returns>
 	internal static IEnumerable<Entity> InternalGetEntities() {
 		if (!BridgeOverlay.Ready) yield break;
@@ -95,12 +91,10 @@ internal static class ModuleCombatants {
 				yield break;
 			}
 		}
-
 		var seen = new HashSet<uint>();
-		var source = memory.GetByteArray(charmapAddress, ptrSize * numMemoryCombatants);
-		if (source == null || source.Length == 0)
-			yield break;
-
+		unsafe {
+			if (charmapAddress == null) yield break;
+		}
 		Entity? entity = null;
 		unsafe {
 			foreach (var x in CharacterManager.Instance()->BattleCharas.ToArray()
@@ -118,12 +112,6 @@ internal static class ModuleCombatants {
 		yield return entity;
 	}
 
-	private static unsafe IntPtr GetPointerFromSource(byte[] source, int index) {
-		fixed (byte* bp = source) {
-			return new IntPtr(*(long*)&bp[index * ptrSize]);
-		}
-	}
-
 	/// <returns>Null if not found.</returns>
 	private static unsafe Combatant? GetMobFromByteArray(GameObject* source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
 
@@ -138,6 +126,12 @@ internal static class ModuleCombatants {
 	// OverlayPlugin/OverlayPlugin.Core/MemoryProcessors/Combatant/Common.cs
 	public class OpEntity : Entity {
 		private readonly Combatant _entity; // the original combatant object from OverlayPlugin, properties DO NOT change over time
+
+		internal OpEntity(Combatant opCombatantObj, IntPtr address) {
+			_entity = opCombatantObj;
+			Address = address;
+		}
+
 		public override PluginSource PluginSource { get; set; } = PluginSource.OverlayPlugin;
 		public override IntPtr Address { get; set; } // .Address (not updated yet)
 		public override string Name => _entity.Name;
@@ -217,11 +211,6 @@ internal static class ModuleCombatants {
 		public override float CastTime => _entity.CastDurationCurrent;
 		public override float MaxCastTime => _entity.CastDurationMax;
 
-		internal OpEntity(Combatant opCombatantObj, IntPtr address) {
-			_entity = opCombatantObj;
-			Address = address;
-		}
-
 		internal new static Entity NullEntity() => new() {
 			Exist = false,
 			PluginSource = PluginSource.OverlayPlugin
@@ -230,20 +219,20 @@ internal static class ModuleCombatants {
 
 	// OverlayPlugin/OverlayPlugin.Core/MemoryProcessors/Combatant/Common.cs
 	public class OpStatus : Status {
-		public override PluginSource PluginSource { get; set; } = PluginSource.OverlayPlugin;
-
 		private readonly EffectEntry _rawEffectEntry;
-		public override ushort StatusID => _rawEffectEntry.BuffID;
-		public override ushort Stack => _rawEffectEntry.Stack;
-		public override float Timer => _rawEffectEntry.Timer;
-		public override uint SourceID => _rawEffectEntry.ActorID;
 
 		private readonly Entity _target;
-		public override Entity Target => _target;
 
 		public OpStatus(EffectEntry opEffectEntry, Entity target) {
 			_rawEffectEntry = opEffectEntry;
 			_target = target;
 		}
+
+		public override PluginSource PluginSource { get; set; } = PluginSource.OverlayPlugin;
+		public override ushort StatusID => _rawEffectEntry.BuffID;
+		public override ushort Stack => _rawEffectEntry.Stack;
+		public override float Timer => _rawEffectEntry.Timer;
+		public override uint SourceID => _rawEffectEntry.ActorID;
+		public override Entity Target => _target;
 	}
 }

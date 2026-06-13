@@ -22,7 +22,6 @@ namespace TriggernometryProxy;
 public class ProxyPlugin : IActPluginV1 {
 	public delegate void CustomCallbackDelegate(object o, string param);
 
-	public RealPlugin Instance;
 	public static dynamic DalamudPlugin;
 	public static IDalamudPluginInterface PluginInterface;
 	public static IClientState ClientState;
@@ -33,6 +32,37 @@ public class ProxyPlugin : IActPluginV1 {
 	public static ISigScanner SigScanner;
 	public static Hook<StaticVfxRemoveDelegate>? StaticVfxRemoveHook;
 	public static Hook<ActorVfxRemoveDelegate>? ActorVfxRemoveHook;
+
+	public RealPlugin Instance;
+
+	// private void OFormActMain_OnCombatStart(bool isImport, CombatToggleEventArgs encounterInfo)
+	// {
+	//     ExtendedACTEvents(new string[] { "OnCombatStart" });
+	// }
+	//
+	// private void OFormActMain_OnCombatEnd(bool isImport, CombatToggleEventArgs encounterInfo)
+	// {
+	//     ExtendedACTEvents(new string[] { "OnCombatEnd" });
+	// }
+
+	public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText) {
+	}
+
+	public void DeInitPlugin() {
+		// ActGlobals.oFormActMain.OnCombatEnd -= OFormActMain_OnCombatEnd;
+		// ActGlobals.oFormActMain.OnCombatStart -= OFormActMain_OnCombatStart;
+		ActGlobals.oFormActMain.OnLogLineRead -= OFormActMain_OnLogLineRead;
+		ActGlobals.oFormActMain.BeforeLogLineRead -= OFormActMain_BeforeLogLineRead;
+		PluginInterface.UiBuilder.Draw -= DrawScriptBdl;
+		Framework.Update -= VfxManager.WorkerLoop;
+		ClientState.Logout -= OnLogout;
+		StaticVfxRemoveHook?.Disable();
+		StaticVfxRemoveHook?.Dispose();
+		ActorVfxRemoveHook?.Disable();
+		ActorVfxRemoveHook?.Dispose();
+		RealPlugin.Instance.DeInitAura();
+		Instance.DeInitPlugin();
+	}
 
 	public int RegisterNamedCallback(string name, CustomCallbackDelegate callback, object o, string registrant) {
 		lock (this)
@@ -90,12 +120,12 @@ public class ProxyPlugin : IActPluginV1 {
 		if (dalamudPlugin.Configuration.Version != latestVer) {
 			try {
 				RealPlugin.Instance.cfg.CompileFailedScripts.Clear();
-				Directory.Delete(Path.Combine(RealPlugin.Instance.ConfigPath, "Scripts"), true);
+				Directory.Delete(Path.Combine(DalamudPlugin.Instance.scriptsDir, "Scripts"), true);
 			} catch (Exception ex) {
 				log.Warning($"Error Updating Configuration: {ex}");
 			}
 		}
-		Instance.InitPlugin(logTick);	
+		Instance.InitPlugin(logTick);
 		RealPlugin.Instance.InitAura();
 	}
 
@@ -118,35 +148,6 @@ public class ProxyPlugin : IActPluginV1 {
 				BDLClearCount = 0;
 			}
 		}
-	}
-
-	// private void OFormActMain_OnCombatStart(bool isImport, CombatToggleEventArgs encounterInfo)
-	// {
-	//     ExtendedACTEvents(new string[] { "OnCombatStart" });
-	// }
-	//
-	// private void OFormActMain_OnCombatEnd(bool isImport, CombatToggleEventArgs encounterInfo)
-	// {
-	//     ExtendedACTEvents(new string[] { "OnCombatEnd" });
-	// }
-
-	public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText) {
-	}
-
-	public void DeInitPlugin() {
-		// ActGlobals.oFormActMain.OnCombatEnd -= OFormActMain_OnCombatEnd;
-		// ActGlobals.oFormActMain.OnCombatStart -= OFormActMain_OnCombatStart;
-		ActGlobals.oFormActMain.OnLogLineRead -= OFormActMain_OnLogLineRead;
-		ActGlobals.oFormActMain.BeforeLogLineRead -= OFormActMain_BeforeLogLineRead;
-		PluginInterface.UiBuilder.Draw -= DrawScriptBdl;
-		Framework.Update -= VfxManager.WorkerLoop;
-		ClientState.Logout -= OnLogout;
-		StaticVfxRemoveHook?.Disable();
-		StaticVfxRemoveHook?.Dispose();
-		ActorVfxRemoveHook?.Disable();
-		ActorVfxRemoveHook?.Dispose();
-		RealPlugin.Instance.DeInitAura();
-		Instance.DeInitPlugin();
 	}
 
 	private void OFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo) =>

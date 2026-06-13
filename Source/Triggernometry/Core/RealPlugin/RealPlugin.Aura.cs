@@ -15,8 +15,11 @@ using ExpressionTextBox = Triggernometry.UI.CustomControls.ExpressionTextBox;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	internal UI.Scarborough sc;
 	public readonly Dictionary<string, AuraContainerForm> textauras = new();
+	private double lag;
+
+	private DateTime prevTick = DateTime.Now;
+	public UI.Scarborough sc;
 
 	public void InitAura() {
 		ProxyPlugin.Framework.Update += AuraUpdateThreadProc;
@@ -34,9 +37,6 @@ public partial class RealPlugin {
 		if (hideAuras) sc.HideAllItems();
 		else sc.ShowAllItems();
 	}
-
-	private DateTime prevTick = DateTime.Now;
-	private double lag;
 
 	private void AuraUpdateThreadProc(IFramework framework) {
 		var tickTime = DateTime.Now;

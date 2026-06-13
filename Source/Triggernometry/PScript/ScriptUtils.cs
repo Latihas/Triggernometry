@@ -18,160 +18,19 @@ namespace Triggernometry.PScript;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static partial class ScriptUtils {
+	private static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();
+	public static readonly Regex LogRegexStatusAdd = _LogRegexStatusAdd();
+	public static readonly Regex LogRegexStartsCasting = _LogRegexStartsCasting();
+	public static Context fakectx = new(null);
+	private static readonly Trigger _tri = new();
 	public static IPlayerCharacter Me => ObjectTable.LocalPlayer;
-	public static ulong Me_HexID() => Me.GameObjectId;
+	public static uint CurrentTerritory => ClientState.TerritoryType;
 	public static Func<Vector3> Me_Position => () => Me.Position;
 	public static Func<float> Me_Rotation => () => Me.Rotation;
+	public static ulong Me_HexID() => Me.GameObjectId;
 	public static IGameObject? GetGameObjectById(ulong id) => ObjectTable.SearchById(id);
 	public static Func<Vector3> GetGameObjectById_Position(ulong id) => () => GetGameObjectById(id).Position;
 	public static Func<float> GetGameObjectById_Rotation(ulong id) => () => GetGameObjectById(id).Rotation;
-
-	#region TargetIcon
-
-	[GeneratedRegex("^.{14} TargetIcon 1B:(?<targetId>.{8}):[^:]+:[^:]+:[^:]+:(?<id>.{4}):")]
-	private static partial Regex _LogRegexTargetIcon();
-
-	private static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();
-
-	private static void MatchTargetIcon(string log, List<TargetIcon> dat) {
-		var match = LogRegexTargetIcon.Match(log);
-		if (!match.Success) return;
-		foreach (var d in dat) {
-			var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
-			var id = Convert.ToInt32(match.Groups["id"].Value, 16);
-			if ((d._targetId == null || d._targetId() == targetId) && (d._id == null || d._id == id))
-				d.Action(targetId, id);
-		}
-	}
-
-	public record TargetIcon {
-		internal readonly Func<ulong>? _targetId;
-		internal int? _id;
-		public readonly Action<ulong, int>? actionF;
-		private readonly Action? actionN;
-
-		public void Action(ulong targetId, int id) {
-			if (actionN != null) actionN();
-			else actionF!(targetId, id);
-		}
-
-		public TargetIcon(Action<ulong, int> Action, Func<ulong>? TargetId = null, int? Id = null) {
-			_targetId = TargetId;
-			_id = Id;
-			actionF = Action;
-		}
-
-		public TargetIcon(Action Action, Func<ulong>? TargetId = null, int? Id = null) {
-			_targetId = TargetId;
-			_id = Id;
-			actionN = Action;
-		}
-	}
-
-	#endregion TargetIcon
-
-	#region StatusAdd
-
-	[GeneratedRegex("^.{14} StatusAdd 1A:(?<effectId>[^:]+):[^:]*:[^:]*:(?<sourceId>[^:]+):[^:]*:(?<targetId>[^:]+):[^:]*:(?<count>.{2}):")]
-	private static partial Regex _LogRegexStatusAdd();
-
-	public static readonly Regex LogRegexStatusAdd = _LogRegexStatusAdd();
-
-	public static void MatchStatusAdd(string log, List<StatusAdd> dat) {
-		var match = LogRegexStatusAdd.Match(log);
-		if (!match.Success) return;
-		foreach (var d in dat) {
-			var effectId = Convert.ToInt32(match.Groups["effectId"].Value, 16);
-			var sourceId = Convert.ToUInt64(match.Groups["sourceId"].Value, 16);
-			var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
-			var count = Convert.ToInt32(match.Groups["count"].Value, 16);
-			if ((d._effectId == null || d._effectId == effectId) && (d._sourceId == null || d._sourceId() == sourceId) &&
-			    (d._targetId == null || d._targetId() == targetId) && (d._count == null || d._count == count))
-				d.Action(effectId, sourceId, targetId, count);
-		}
-	}
-
-	public record StatusAdd {
-		public int? _effectId;
-		public readonly Func<ulong>? _sourceId;
-		public readonly Func<ulong>? _targetId;
-		public int? _count;
-		private readonly Action<int, ulong, ulong, int>? actionF;
-		private readonly Action? actionN;
-
-		public void Action(int effectId, ulong sourceId, ulong targetId, int count) {
-			if (actionN != null) actionN();
-			else actionF!(effectId, sourceId, targetId, count);
-		}
-
-		public StatusAdd(Action<int, ulong, ulong, int> Action, int? EffectId = null, Func<ulong>? SourceId = null, Func<ulong>? TargetId = null, int? Count = null) {
-			_effectId = EffectId;
-			_sourceId = SourceId;
-			_targetId = TargetId;
-			_count = Count;
-			actionF = Action;
-		}
-
-		public StatusAdd(Action Action, int? EffectId = null, Func<ulong>? SourceId = null, Func<ulong>? TargetId = null, int? Count = null) {
-			_effectId = EffectId;
-			_sourceId = SourceId;
-			_targetId = TargetId;
-			_count = Count;
-			actionN = Action;
-		}
-	}
-
-	#endregion StatusAdd
-
-	#region StartsCasting
-
-	[GeneratedRegex("^.{14} StartsCasting 14:(?<sourceId>.{8}):[^:]+:(?<id>[^:]+):[^:]+:(?<targetId>[^:]+):")]
-	private static partial Regex _LogRegexStartsCasting();
-
-	public static readonly Regex LogRegexStartsCasting = _LogRegexStartsCasting();
-
-	public static void MatchStartsCasting(string log, List<StartsCasting> dat) {
-		var match = LogRegexStartsCasting.Match(log);
-		if (!match.Success) return;
-		foreach (var d in dat) {
-			var sourceId = Convert.ToUInt64(match.Groups["sourceId"].Value, 16);
-			var id = Convert.ToInt32(match.Groups["id"].Value, 16);
-			var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
-			if ((d._sourceId == null || d._sourceId == sourceId) &&
-			    (d._id == null || d._id == id) &&
-			    (d._targetId == null || d._targetId == targetId))
-				d.Action(sourceId, id, targetId);
-		}
-	}
-
-	public record StartsCasting {
-		public int? _id;
-		public ulong? _sourceId;
-		public ulong? _targetId;
-		private readonly Action<ulong, int, ulong>? actionF;
-		private readonly Action? actionN;
-
-		public void Action(ulong sourceId, int id, ulong targetId) {
-			if (actionN != null) actionN();
-			else actionF!(sourceId, id, targetId);
-		}
-
-		public StartsCasting(Action<ulong, int, ulong> Action, ulong? sourceId = null, int? Id = null, ulong? targetId = null) {
-			_id = Id;
-			_sourceId = sourceId;
-			_targetId = targetId;
-			actionF = Action;
-		}
-
-		public StartsCasting(Action Action, ulong? sourceId = null, int? Id = null, ulong? targetId = null) {
-			_id = Id;
-			_sourceId = sourceId;
-			_targetId = targetId;
-			actionN = Action;
-		}
-	}
-
-	#endregion StartsCasting
 
 	public static void MatchAll(this IScriptBase scriptBase, string logLine) {
 		MatchTargetIcon(logLine, scriptBase.TargetIconList);
@@ -197,6 +56,15 @@ public static partial class ScriptUtils {
 	public static void TTS(string text, int delay = 0) {
 		if (delay > 0) DelayExec(() => ActGlobals.oFormActMain.TTS(text), delay);
 		else ActGlobals.oFormActMain.TTS(text);
+	}
+
+	public static void Beep(float freq, int length) {
+		RealPlugin.Instance.QueueAction(fakectx, _tri, null,
+			new ActionOld {
+				ActionType = ActionOld.ActionTypeEnum.SystemBeep,
+				SystemBeepFreqExpression = freq.ToString(),
+				SystemBeepLengthExpression = length.ToString()
+			}, DateTime.Now, true);
 	}
 
 	public static void DelayExec(Action action, int delay = 0) {
@@ -228,6 +96,159 @@ public static partial class ScriptUtils {
 		return rad2;
 	};
 
+	public static void ShowTexts(string[] strs) {
+		Task.Run(async () => {
+			foreach (var s in strs) {
+				RealPlugin.Instance.InvokeNamedCallback("command", $"/e {s}");
+				await Task.Delay(100);
+			}
+		});
+	}
+
+	#region TargetIcon
+
+	[GeneratedRegex("^.{14} TargetIcon 1B:(?<targetId>.{8}):[^:]+:[^:]+:[^:]+:(?<id>.{4}):")]
+	private static partial Regex _LogRegexTargetIcon();
+
+
+	private static void MatchTargetIcon(string log, List<TargetIcon> dat) {
+		var match = LogRegexTargetIcon.Match(log);
+		if (!match.Success) return;
+		foreach (var d in dat) {
+			var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
+			var id = Convert.ToInt32(match.Groups["id"].Value, 16);
+			if ((d._targetId == null || d._targetId() == targetId) && (d._id == null || d._id == id))
+				d.Action(targetId, id);
+		}
+	}
+
+	public record TargetIcon {
+		internal readonly Func<ulong>? _targetId;
+		public readonly Action<ulong, int>? actionF;
+		private readonly Action? actionN;
+		internal int? _id;
+
+		public TargetIcon(Action<ulong, int> Action, Func<ulong>? TargetId = null, int? Id = null) {
+			_targetId = TargetId;
+			_id = Id;
+			actionF = Action;
+		}
+
+		public TargetIcon(Action Action, Func<ulong>? TargetId = null, int? Id = null) {
+			_targetId = TargetId;
+			_id = Id;
+			actionN = Action;
+		}
+
+		public void Action(ulong targetId, int id) {
+			if (actionN != null) actionN();
+			else actionF!(targetId, id);
+		}
+	}
+
+	#endregion TargetIcon
+
+	#region StatusAdd
+
+	[GeneratedRegex("^.{14} StatusAdd 1A:(?<effectId>[^:]+):[^:]*:[^:]*:(?<sourceId>[^:]+):[^:]*:(?<targetId>[^:]+):[^:]*:(?<count>.{2}):")]
+	private static partial Regex _LogRegexStatusAdd();
+
+
+	public static void MatchStatusAdd(string log, List<StatusAdd> dat) {
+		var match = LogRegexStatusAdd.Match(log);
+		if (!match.Success) return;
+		foreach (var d in dat) {
+			var effectId = Convert.ToInt32(match.Groups["effectId"].Value, 16);
+			var sourceId = Convert.ToUInt64(match.Groups["sourceId"].Value, 16);
+			var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
+			var count = Convert.ToInt32(match.Groups["count"].Value, 16);
+			if ((d._effectId == null || d._effectId == effectId) && (d._sourceId == null || d._sourceId() == sourceId) &&
+			    (d._targetId == null || d._targetId() == targetId) && (d._count == null || d._count == count))
+				d.Action(effectId, sourceId, targetId, count);
+		}
+	}
+
+	public record StatusAdd {
+		public readonly Func<ulong>? _sourceId;
+		public readonly Func<ulong>? _targetId;
+		private readonly Action<int, ulong, ulong, int>? actionF;
+		private readonly Action? actionN;
+		public int? _count;
+		public int? _effectId;
+
+		public StatusAdd(Action<int, ulong, ulong, int> Action, int? EffectId = null, Func<ulong>? SourceId = null, Func<ulong>? TargetId = null, int? Count = null) {
+			_effectId = EffectId;
+			_sourceId = SourceId;
+			_targetId = TargetId;
+			_count = Count;
+			actionF = Action;
+		}
+
+		public StatusAdd(Action Action, int? EffectId = null, Func<ulong>? SourceId = null, Func<ulong>? TargetId = null, int? Count = null) {
+			_effectId = EffectId;
+			_sourceId = SourceId;
+			_targetId = TargetId;
+			_count = Count;
+			actionN = Action;
+		}
+
+		public void Action(int effectId, ulong sourceId, ulong targetId, int count) {
+			if (actionN != null) actionN();
+			else actionF!(effectId, sourceId, targetId, count);
+		}
+	}
+
+	#endregion StatusAdd
+
+	#region StartsCasting
+
+	[GeneratedRegex("^.{14} StartsCasting 14:(?<sourceId>.{8}):[^:]+:(?<id>[^:]+):[^:]+:(?<targetId>[^:]+):")]
+	private static partial Regex _LogRegexStartsCasting();
+
+
+	public static void MatchStartsCasting(string log, List<StartsCasting> dat) {
+		var match = LogRegexStartsCasting.Match(log);
+		if (!match.Success) return;
+		foreach (var d in dat) {
+			var sourceId = Convert.ToUInt64(match.Groups["sourceId"].Value, 16);
+			var id = Convert.ToInt32(match.Groups["id"].Value, 16);
+			var targetId = Convert.ToUInt64(match.Groups["targetId"].Value, 16);
+			if ((d._sourceId == null || d._sourceId == sourceId) &&
+			    (d._id == null || d._id == id) &&
+			    (d._targetId == null || d._targetId == targetId))
+				d.Action(sourceId, id, targetId);
+		}
+	}
+
+	public record StartsCasting {
+		private readonly Action<ulong, int, ulong>? actionF;
+		private readonly Action? actionN;
+		public int? _id;
+		public ulong? _sourceId;
+		public ulong? _targetId;
+
+		public StartsCasting(Action<ulong, int, ulong> Action, ulong? sourceId = null, int? Id = null, ulong? targetId = null) {
+			_id = Id;
+			_sourceId = sourceId;
+			_targetId = targetId;
+			actionF = Action;
+		}
+
+		public StartsCasting(Action Action, ulong? sourceId = null, int? Id = null, ulong? targetId = null) {
+			_id = Id;
+			_sourceId = sourceId;
+			_targetId = targetId;
+			actionN = Action;
+		}
+
+		public void Action(ulong sourceId, int id, ulong targetId) {
+			if (actionN != null) actionN();
+			else actionF!(sourceId, id, targetId);
+		}
+	}
+
+	#endregion StartsCasting
+
 	#region Draw
 
 	public enum ShapeType {
@@ -241,11 +262,11 @@ public static partial class ScriptUtils {
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
-		public readonly Func<Vector3> Position = position;
-		public readonly long EndTime = DateTime.Now.Ticks / 10000 + duration;
-		public readonly long Duration = duration;
-		public readonly ShapeType ShapeType = shapeType;
 		public readonly uint Color = color;
+		public readonly long Duration = duration;
+		public readonly long EndTime = DateTime.Now.Ticks / 10000 + duration;
+		public readonly Func<Vector3> Position = position;
+		public readonly ShapeType ShapeType = shapeType;
 		public bool toRecycle;
 	}
 
@@ -271,10 +292,10 @@ public static partial class ScriptUtils {
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class IGCone(Func<Vector3> position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null)
 		: IGBase(position, duration, Cone, color ?? 0x4000FFFFu) {
-		public readonly float R = (float)r;
-		public readonly Func<float> Rotation = rotation;
 		public readonly float AngleRad = (float)angleRad;
 		public readonly int CircleSegments = circleSegments ?? (int)(DefaultCircleSegments * (angleRad / (2 * MathF.PI)));
+		public readonly float R = (float)r;
+		public readonly Func<float> Rotation = rotation;
 
 		public IGCone(Vector3 position, double r, float rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null) : this(() => position, r, () => rotation, angleRad, duration, circleSegments, color) {
 		}
@@ -327,8 +348,8 @@ public static partial class ScriptUtils {
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class IGRay(Func<Vector3> position, float length, Func<float> rotation, long duration, float thickness = 5, uint? color = null)
 		: IGBase(position, duration, Ray, color ?? 0x400000FFu) {
-		public readonly Func<float> Rotation = rotation;
 		public readonly float Length = length;
+		public readonly Func<float> Rotation = rotation;
 		public readonly float Thickness = thickness;
 
 		public IGRay(Vector3 position, float length, float rotation, long duration, float thickness = 5, uint? color = null)
@@ -347,8 +368,8 @@ public static partial class ScriptUtils {
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class IGRing(Func<Vector3> position, double R, double r, long duration, uint? color = null)
 		: IGBase(position, duration, Ring, color ?? 0x40FFFF00u) {
-		public readonly float R = (float)R;
 		public readonly float r = (float)r;
+		public readonly float R = (float)R;
 
 		public IGRing(Vector3 position, double R, double r, long duration, uint? color = null)
 			: this(() => position, R, r, duration, color) {
@@ -492,14 +513,5 @@ public static partial class ScriptUtils {
 		}
 
 		#endregion Draw
-	}
-
-	public static void ShowTexts(string[] strs) {
-		Task.Run(async () => {
-			foreach (var s in strs) {
-				RealPlugin.Instance.InvokeNamedCallback("command", $"/e {s}");
-				await Task.Delay(100);
-			}
-		});
 	}
 }

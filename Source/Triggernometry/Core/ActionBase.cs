@@ -55,6 +55,100 @@ namespace Triggernometry.Core;
 [XmlInclude(typeof(ActionVariableTable))]
 [XmlInclude(typeof(ActionWindowMessage))]
 public abstract class ActionBase {
+	/// <summary>
+	///     Thread-safe cache storing compiled property-copy delegates for each <see cref="ActionBase" /> subclass type.
+	/// </summary>
+	private static readonly ConcurrentDictionary<Type, Action<ActionBase, ActionBase>> _copyCache = new();
+
+
+	public ActionBase Copy() {
+		var clone = (ActionBase)Activator.CreateInstance(GetType());
+		CopyCommonPropertiesTo(clone);
+		CopySpecificPropertiesTo(clone);
+		return clone;
+	}
+
+	/// <summary>
+	///     Copies all generic, non-attribute-based settings from this action into another <see cref="ActionBase" /> instance.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">Thrown if <paramref name="action" /> is <c>null</c>.</exception>
+	internal void CopyCommonPropertiesTo(ActionBase action) {
+		if (action == null)
+			throw new ArgumentNullException(nameof(action));
+
+		action.Enabled = Enabled;
+		action.Id = Id;
+		action.ParentTrigger = ParentTrigger;
+		action.OrderNumber = OrderNumber;
+		action.Condition = (ConditionGroup)Condition?.Duplicate();
+		action.Tag = Tag;
+		action.RefireInterrupt = RefireInterrupt;
+		action.RefireRequeue = RefireRequeue;
+		action.ExecutionDelayExpression = ExecutionDelayExpression;
+		action.Asynchronous = Asynchronous;
+		action.DebugLevel = DebugLevel;
+		action.Description = Description;
+		action.DescBgColor = DescBgColor;
+		action.DescTextColor = DescTextColor;
+		action.DescriptionOverride = DescriptionOverride;
+	}
+
+	internal void CopyCommonPropertiesTo(ActionOld oldAction) {
+		if (oldAction == null)
+			throw new ArgumentNullException(nameof(oldAction));
+
+		oldAction.Enabled = Enabled;
+		oldAction.Id = Id;
+		oldAction.ParentTrigger = ParentTrigger;
+		oldAction.OrderNumber = OrderNumber;
+		oldAction.Condition = (ConditionGroup)Condition?.Duplicate();
+		oldAction.Tag = Tag;
+		oldAction.RefireInterrupt = RefireInterrupt;
+		oldAction.RefireRequeue = RefireRequeue;
+		oldAction.ExecutionDelayExpression = ExecutionDelayExpression;
+		oldAction.Asynchronous = Asynchronous;
+		oldAction.DebugLevel = DebugLevel;
+		oldAction.Description = Description;
+		oldAction.DescBgColor = DescBgColor;
+		oldAction.DescTextColor = DescTextColor;
+		oldAction.DescriptionOverride = DescriptionOverride;
+	}
+
+	/// <summary>
+	///     Copies all subclass-specific properties with <see cref="ActionAttribute" /> from this instance into
+	///     <paramref name="clone" />.  <br />
+	///     Builds and caches an optimized compiled delegate per type.
+	/// </summary>
+	internal virtual void CopySpecificPropertiesTo(ActionBase clone) {
+		var type = GetType();
+
+		var copier = _copyCache.GetOrAdd(type, t => {
+			var src = Expression.Parameter(typeof(ActionBase), "src");
+			var dst = Expression.Parameter(typeof(ActionBase), "dst");
+			var srcCast = Expression.Convert(src, t);
+			var dstCast = Expression.Convert(dst, t);
+
+			var assigns = new List<Expression>();
+			var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+			foreach (var prop in t.GetProperties(flags)) {
+				if (prop.GetCustomAttribute<ActionAttribute>() == null)
+					continue;
+
+				// Build dst.Prop = src.Prop;
+				var srcAccess = Expression.Property(srcCast, prop);
+				var dstAccess = Expression.Property(dstCast, prop);
+				assigns.Add(Expression.Assign(dstAccess, srcAccess));
+			}
+
+			var body = Expression.Block(assigns);
+			var lambda = Expression.Lambda<Action<ActionBase, ActionBase>>(body, src, dst);
+			return lambda.Compile();
+		});
+
+		copier(this, clone);
+	}
+
 	#region Classes and enums
 
 	/// <summary>
@@ -156,16 +250,16 @@ public abstract class ActionBase {
 		internal int _order;
 
 		/// <summary>
+		///     Setting that applies special meaning to properties of specific types, namely System.Guid and System.String
+		/// </summary>
+		internal SpecialTypeEnum _specialtype;
+
+		/// <summary>
 		///     Type hint for the generic editor, can be different from the underlying datatype.
 		///     For example, underlying data might be string, but we want to have an editor for numeric expression.
 		///     If null, type is taken from underlying datatype.
 		/// </summary>
 		internal Type _typehint;
-
-		/// <summary>
-		///     Setting that applies special meaning to properties of specific types, namely System.Guid and System.String
-		/// </summary>
-		internal SpecialTypeEnum _specialtype;
 
 		public ActionAttribute(int order = 0, Type typehint = null, SpecialTypeEnum specialtype = SpecialTypeEnum.None) {
 			_order = order;
@@ -190,13 +284,6 @@ public abstract class ActionBase {
 	///     execution.
 	/// </summary>
 	public class ActionInstance : IComparable {
-		internal DateTime when { get; set; }
-		internal long ordinal { get; set; }
-		internal MutexInformation? mutex { get; set; }
-		internal ActionOld act { get; set; }
-		internal Context ctx { get; set; }
-		internal bool releaseMutex { get; set; }
-
 		public ActionInstance(DateTime when, long ordinal, MutexInformation mtx, ActionOld act, Context ctx, bool releaseMutex) {
 			this.when = when;
 			this.ordinal = ordinal;
@@ -205,6 +292,13 @@ public abstract class ActionBase {
 			this.ctx = ctx;
 			this.releaseMutex = releaseMutex;
 		}
+
+		internal DateTime when { get; set; }
+		internal long ordinal { get; set; }
+		internal MutexInformation? mutex { get; set; }
+		internal ActionOld act { get; set; }
+		internal Context ctx { get; set; }
+		internal bool releaseMutex { get; set; }
 
 		public int CompareTo(object? o) {
 			var b = (ActionInstance)o;
@@ -455,7 +549,7 @@ public abstract class ActionBase {
 	internal DateTime LastExecutionTime { get; set; } = DateTime.MinValue;
 	internal int ExecutionCount { get; set; }
 
-	internal abstract void ExecuteImplementation(ActionInstance ai);
+	internal abstract void ExecuteImplementation(ActionInstance? ai);
 
 	public void Execute(ActionInstance ai) {
 		if (!Enabled) {
@@ -991,98 +1085,4 @@ public abstract class ActionBase {
 	internal virtual Control GetPropertyEditor() => GetGenericPropertyEditor();
 
 	#endregion
-
-
-	public ActionBase Copy() {
-		var clone = (ActionBase)Activator.CreateInstance(GetType());
-		CopyCommonPropertiesTo(clone);
-		CopySpecificPropertiesTo(clone);
-		return clone;
-	}
-
-	/// <summary>
-	///     Copies all generic, non-attribute-based settings from this action into another <see cref="ActionBase" /> instance.
-	/// </summary>
-	/// <exception cref="ArgumentNullException">Thrown if <paramref name="action" /> is <c>null</c>.</exception>
-	internal void CopyCommonPropertiesTo(ActionBase action) {
-		if (action == null)
-			throw new ArgumentNullException(nameof(action));
-
-		action.Enabled = Enabled;
-		action.Id = Id;
-		action.ParentTrigger = ParentTrigger;
-		action.OrderNumber = OrderNumber;
-		action.Condition = (ConditionGroup)Condition?.Duplicate();
-		action.Tag = Tag;
-		action.RefireInterrupt = RefireInterrupt;
-		action.RefireRequeue = RefireRequeue;
-		action.ExecutionDelayExpression = ExecutionDelayExpression;
-		action.Asynchronous = Asynchronous;
-		action.DebugLevel = DebugLevel;
-		action.Description = Description;
-		action.DescBgColor = DescBgColor;
-		action.DescTextColor = DescTextColor;
-		action.DescriptionOverride = DescriptionOverride;
-	}
-
-	internal void CopyCommonPropertiesTo(ActionOld oldAction) {
-		if (oldAction == null)
-			throw new ArgumentNullException(nameof(oldAction));
-
-		oldAction.Enabled = Enabled;
-		oldAction.Id = Id;
-		oldAction.ParentTrigger = ParentTrigger;
-		oldAction.OrderNumber = OrderNumber;
-		oldAction.Condition = (ConditionGroup)Condition?.Duplicate();
-		oldAction.Tag = Tag;
-		oldAction.RefireInterrupt = RefireInterrupt;
-		oldAction.RefireRequeue = RefireRequeue;
-		oldAction.ExecutionDelayExpression = ExecutionDelayExpression;
-		oldAction.Asynchronous = Asynchronous;
-		oldAction.DebugLevel = DebugLevel;
-		oldAction.Description = Description;
-		oldAction.DescBgColor = DescBgColor;
-		oldAction.DescTextColor = DescTextColor;
-		oldAction.DescriptionOverride = DescriptionOverride;
-	}
-
-	/// <summary>
-	///     Thread-safe cache storing compiled property-copy delegates for each <see cref="ActionBase" /> subclass type.
-	/// </summary>
-	private static readonly ConcurrentDictionary<Type, Action<ActionBase, ActionBase>> _copyCache = new();
-
-	/// <summary>
-	///     Copies all subclass-specific properties with <see cref="ActionAttribute" /> from this instance into
-	///     <paramref name="clone" />.  <br />
-	///     Builds and caches an optimized compiled delegate per type.
-	/// </summary>
-	internal virtual void CopySpecificPropertiesTo(ActionBase clone) {
-		var type = GetType();
-
-		var copier = _copyCache.GetOrAdd(type, t => {
-			var src = Expression.Parameter(typeof(ActionBase), "src");
-			var dst = Expression.Parameter(typeof(ActionBase), "dst");
-			var srcCast = Expression.Convert(src, t);
-			var dstCast = Expression.Convert(dst, t);
-
-			var assigns = new List<Expression>();
-			var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
-			foreach (var prop in t.GetProperties(flags)) {
-				if (prop.GetCustomAttribute<ActionAttribute>() == null)
-					continue;
-
-				// Build dst.Prop = src.Prop;
-				var srcAccess = Expression.Property(srcCast, prop);
-				var dstAccess = Expression.Property(dstCast, prop);
-				assigns.Add(Expression.Assign(dstAccess, srcAccess));
-			}
-
-			var body = Expression.Block(assigns);
-			var lambda = Expression.Lambda<Action<ActionBase, ActionBase>>(body, src, dst);
-			return lambda.Compile();
-		});
-
-		copier(this, clone);
-	}
 }

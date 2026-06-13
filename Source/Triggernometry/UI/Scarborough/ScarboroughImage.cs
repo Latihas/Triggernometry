@@ -13,19 +13,25 @@ using Rectangle = Scarborough.Drawing.Rectangle;
 
 namespace Scarborough;
 
-internal class ScarboroughImage : ScarboroughItem {
+public class ScarboroughImage : ScarboroughItem {
+	private PictureBoxSizeMode _Display;
+	private bool IsAnimated;
+	private DateTime LastAdvance = DateTime.MinValue;
+	private int NumberOfFrames = 1;
+
+	private double TimeAccumulator;
+
+	public ScarboroughImage(Triggernometry.UI.Scarborough own) : base(own) {
+	}
+
 	private int CurrentFrame { get; set; }
 	private int CurrentFrameDelay { get; set; }
-	private int NumberOfFrames = 1;
-	private bool IsAnimated;
 	public List<int> FrameDelays { get; set; }
 	public List<Image> Frames { get; set; }
 
 	internal bool NeedImage { get; set; }
 	internal string ImageFilename { get; set; }
 	internal string ImageExpression { get; set; }
-
-	private PictureBoxSizeMode _Display;
 	internal PictureBoxSizeMode Display {
 		get => _Display;
 		set {
@@ -41,15 +47,6 @@ internal class ScarboroughImage : ScarboroughItem {
 	private byte[] ImageToByte(System.Drawing.Image img) {
 		var converter = new ImageConverter();
 		return (byte[])converter.ConvertTo(img, typeof(byte[]));
-	}
-
-	internal sealed class GifData {
-		public int TransparencyIndex { get; set; } = -1;
-		public int BackgroundColor { get; set; } = -1;
-		public bool HasGCTF { get; set; }
-		public int GCTFSize { get; set; } = -1;
-		public int GCTFColors { get; set; } = -1;
-		public Color[] Palette { get; set; }
 	}
 
 	internal GifData GetGifData(byte[] data) {
@@ -194,12 +191,6 @@ internal class ScarboroughImage : ScarboroughItem {
 				LoadImageDataFromByte(plug, g, data);
 			}
 		}
-	}
-
-	private double TimeAccumulator;
-	private DateTime LastAdvance = DateTime.MinValue;
-
-	public ScarboroughImage(Triggernometry.UI.Scarborough own) : base(own) {
 	}
 
 	public bool AdvanceFrame() {
@@ -401,5 +392,14 @@ internal class ScarboroughImage : ScarboroughItem {
 			numTicks--;
 		}
 		return true;
+	}
+
+	internal sealed class GifData {
+		public int TransparencyIndex { get; set; } = -1;
+		public int BackgroundColor { get; set; } = -1;
+		public bool HasGCTF { get; set; }
+		public int GCTFSize { get; set; } = -1;
+		public int GCTFColors { get; set; } = -1;
+		public Color[] Palette { get; set; }
 	}
 }
