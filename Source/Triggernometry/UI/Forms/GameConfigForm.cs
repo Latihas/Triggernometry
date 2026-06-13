@@ -12,40 +12,12 @@ using Triggernometry.UI.CustomControls;
 namespace Triggernometry.UI.Forms;
 
 public partial class GameConfigForm : Form {
-	public struct ConfigInfo {
-		public readonly string Name;
-		public readonly string Version;
-		public readonly string Author;
-		public readonly string ConfigName; // 保存配置的触发器永久变量名
-		public string Description {
-			get {
-				var value = Name;
-				if (Version != null) value += $"  v{Version}";
-				if (Author != null) value += $"  by {Author}";
-				return value;
-			}
-		}
-
-		public ConfigInfo(string name, string version, string author, string configName) {
-			Name = name;
-			Version = version;
-			Author = author;
-			ConfigName = configName;
-		}
-	}
-
 	public readonly ConfigInfo Info;
-	public Font UserFont = new("微软雅黑", 10);
 
 	/// <summary> 储存表单中所有 Option 控件的列表。 </summary>
 	private List<Option> _options = [];
 	/// <summary> （可选）表单绑定的小队列表控件。 </summary>
 	private PartyListPanel _partyListPanel;
-	/// <summary> 用于储存用户配置的触发器字典变量。 </summary>
-	public VariableDictionary Config = new();
-
-	/// <summary> 表单上方用于放置所有选项组的 Panel，可滚动。 </summary>
-	private Panel mainPanel = new BackgroundPanel();
 	/// <summary> 表单下方用于放置按钮等控件的 TableLayoutPanel。 </summary>
 	private TableLayoutPanel bottomPanel = new BottomTableLayoutPanel {
 		RowCount = 1,
@@ -55,6 +27,12 @@ public partial class GameConfigForm : Form {
 	public Button btnSave = new MyButton {
 		Text = "保存配置"
 	};
+	/// <summary> 用于储存用户配置的触发器字典变量。 </summary>
+	public VariableDictionary Config = new();
+
+	/// <summary> 表单上方用于放置所有选项组的 Panel，可滚动。 </summary>
+	private Panel mainPanel = new BackgroundPanel();
+	public Font UserFont = new("微软雅黑", 10);
 
 	public GameConfigForm(ConfigInfo info) {
 		// suspend until run
@@ -200,7 +178,7 @@ public partial class GameConfigForm : Form {
 
 		RealPlugin.Instance.GetVariableStore(true).Dict[Info.ConfigName] = Config;
 		RealPlugin.Instance.InvokeNamedCallback("command", "/e <se.10>");
-		RealPlugin.Instance.InvokeNamedCallback("command", $"/{Config.GetValue("cnlPrivate")} 已保存配置。");
+		RealPlugin.Instance.InvokeNamedCallback("command", "/e 已保存配置。");
 		Close();
 	}
 
@@ -214,7 +192,7 @@ public partial class GameConfigForm : Form {
 		RealPlugin.Instance.GetVariableStore(true).Dict[$"{Info.ConfigName}{presetIdx}"] = preset;
 	}
 
-	private void btnSave_Click(object sender, EventArgs e) => SaveToConfig();
+	private void btnSave_Click(object? sender, EventArgs e) => SaveToConfig();
 
 	/// <summary> 读取配置，恢复表单布局，显示表单。</summary>
 	public void Run() {
@@ -222,6 +200,28 @@ public partial class GameConfigForm : Form {
 		ResumeLayout();
 		ShowDialog();
 		Dispose();
+	}
+
+	public struct ConfigInfo {
+		public readonly string Name;
+		public readonly string Version;
+		public readonly string Author;
+		public readonly string ConfigName; // 保存配置的触发器永久变量名
+		public string Description {
+			get {
+				var value = Name;
+				if (Version != null) value += $"  v{Version}";
+				if (Author != null) value += $"  by {Author}";
+				return value;
+			}
+		}
+
+		public ConfigInfo(string name, string version, string author, string configName) {
+			Name = name;
+			Version = version;
+			Author = author;
+			ConfigName = configName;
+		}
 	}
 
 	#region 其它控件类定义（格式调整）
@@ -350,9 +350,10 @@ public partial class GameConfigForm : Form {
 	#region Options
 
 	public abstract class Option {
-		public Label Lbl; // 左侧的描述标签（如果控件不自带文本描述）
-		public Control Ctrl; // 控件，如 ComboBox
 		private readonly ToolTip _tip = new MyToolTip(); // 鼠标悬停时显示提示文本
+		private bool _isUpdatingData;
+		public Control Ctrl; // 控件，如 ComboBox
+		public Label Lbl; // 左侧的描述标签（如果控件不自带文本描述）
 
 		/// <summary> 选项对应的触发器配置字典键名。 </summary>
 		public string ConfigKey { get; set; }
@@ -377,8 +378,10 @@ public partial class GameConfigForm : Form {
 			}
 		}
 
+		// 子类需要实现从 string 到控件数据的转换
+		public abstract string Data { get; set; }
+
 		public event EventHandler DataChanged;
-		private bool _isUpdatingData;
 
 		protected virtual void OnDataChanged() {
 			if (_isUpdatingData) return;
@@ -420,9 +423,6 @@ public partial class GameConfigForm : Form {
 			}
 		}
 
-		// 子类需要实现从 string 到控件数据的转换
-		public abstract string Data { get; set; }
-
 		public virtual void LoadFromConfig(VariableDictionary cfg) {
 			if (ConfigKey == null) return;
 			if (cfg != null && cfg.ContainsKey(ConfigKey)) {
@@ -437,8 +437,6 @@ public partial class GameConfigForm : Form {
 	}
 
 	public class OptionTxt : Option {
-		public TextBox Txt => (TextBox)Ctrl;
-
 		public OptionTxt(string desc, string configKey, string defaultText = "", string hint = null) {
 			Lbl = new MyLabel {
 				Text = desc
@@ -451,6 +449,8 @@ public partial class GameConfigForm : Form {
 			SetHint(hint);
 		}
 
+		public TextBox Txt => (TextBox)Ctrl;
+
 		public override string Data {
 			get => Txt.Text.Trim();
 			set => Txt.Text = value.Trim();
@@ -458,8 +458,6 @@ public partial class GameConfigForm : Form {
 	}
 
 	public class OptionChk : Option {
-		public CheckBox Chk => (CheckBox)Ctrl;
-
 		public OptionChk(string desc, string configKey, bool defaultChecked = false, string hint = null) {
 			Lbl = new MyLabel {
 				Text = desc
@@ -472,6 +470,8 @@ public partial class GameConfigForm : Form {
 			SetHint(hint);
 		}
 
+		public CheckBox Chk => (CheckBox)Ctrl;
+
 		public override string Data {
 			get => Chk.Checked ? "1" : "0";
 			set => Chk.Checked = !MathParser.IsZero(MathParser.Parse(value));
@@ -479,7 +479,6 @@ public partial class GameConfigForm : Form {
 	}
 
 	public class OptionCbx : Option {
-		public ComboBox Cbx => (ComboBox)Ctrl;
 		private readonly BijectDictionary<string, string> _data;
 
 		/// <summary>
@@ -511,6 +510,8 @@ public partial class GameConfigForm : Form {
 			ConfigKey = configKey;
 			SetHint(hint);
 		}
+
+		public ComboBox Cbx => (ComboBox)Ctrl;
 
 		public override string Data {
 			get {
@@ -556,14 +557,9 @@ public partial class GameConfigForm : Form {
 /// <summary> 可以从值检索键的双射字典结构，可以用于将 ComboBox 选项和触发器内存储的键相互映射。</summary>
 public class BijectDictionary<TKey, TValue> {
 	private Dictionary<TKey, TValue> _dict = new();
-	private Dictionary<TValue, TKey> _revDict = new();
 	private List<TKey> _keys = [];
+	private Dictionary<TValue, TKey> _revDict = new();
 	private List<TValue> _values = [];
-	public ReadOnlyCollection<TKey> Keys => _keys.AsReadOnly();
-	public ReadOnlyCollection<TValue> Values => _values.AsReadOnly();
-	public int Count => _dict.Count;
-	public bool ContainsKey(TKey key) => _dict.ContainsKey(key);
-	public bool ContainsValue(TValue value) => _revDict.ContainsKey(value);
 
 	public BijectDictionary() : this([]) {
 	}
@@ -582,7 +578,13 @@ public class BijectDictionary<TKey, TValue> {
 		}
 	}
 
+	public ReadOnlyCollection<TKey> Keys => _keys.AsReadOnly();
+	public ReadOnlyCollection<TValue> Values => _values.AsReadOnly();
+	public int Count => _dict.Count;
+
 	public TValue this[TKey key] => _dict.GetValueOrDefault(key);
+	public bool ContainsKey(TKey key) => _dict.ContainsKey(key);
+	public bool ContainsValue(TValue value) => _revDict.ContainsKey(value);
 
 	public TKey GetKey(TValue value) => _revDict.GetValueOrDefault(value);
 

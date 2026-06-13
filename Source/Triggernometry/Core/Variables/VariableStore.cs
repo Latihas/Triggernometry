@@ -67,11 +67,7 @@ public class VariableStore {
 	}
 
 	public void UnsetVariable<TValue>(Dictionary<string, TValue> variables, string name) {
-		lock (variables) {
-			if (variables.ContainsKey(name)) {
-				variables.Remove(name);
-			}
-		}
+		lock (variables) { variables.Remove(name); }
 	}
 
 	public void UnsetVariableRegex<TValue>(Dictionary<string, TValue> variables, Regex rex) {

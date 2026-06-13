@@ -63,18 +63,12 @@ public class ActionActInteraction : ActionBase {
 	#region Implementation
 
 	internal override string DescribeImplementation() {
-		switch (Operation) {
-			case OperationEnum.SetCombatState:
-				return !BoolParam
-					? I18n.Translate("internal/Action/descactcombatend", "end ACT encounter")
-					: I18n.Translate("internal/Action/descactcombatstart", "start ACT encounter");
-			case OperationEnum.LogAllNetwork:
-				return I18n.Translate("internal/Action/descactlogallnetwork", "{0} option: Log all network data", I18n.TranslateEnable(BoolParam));
-			case OperationEnum.UseDeucalion:
-				return I18n.Translate("internal/Action/descactusedeucalion", "{0} option: Use Deucalion (injection)", I18n.TranslateEnable(BoolParam));
-			default:
-				return NotImplementedEnumMessage(Operation);
-		}
+		return Operation switch {
+			OperationEnum.SetCombatState => !BoolParam ? I18n.Translate("internal/Action/descactcombatend", "end ACT encounter") : I18n.Translate("internal/Action/descactcombatstart", "start ACT encounter"),
+			OperationEnum.LogAllNetwork => I18n.Translate("internal/Action/descactlogallnetwork", "{0} option: Log all network data", I18n.TranslateEnable(BoolParam)),
+			OperationEnum.UseDeucalion => I18n.Translate("internal/Action/descactusedeucalion", "{0} option: Use Deucalion (injection)", I18n.TranslateEnable(BoolParam)),
+			_ => NotImplementedEnumMessage(Operation)
+		};
 	}
 
 	internal override void ExecuteImplementation(ActionInstance ai) {

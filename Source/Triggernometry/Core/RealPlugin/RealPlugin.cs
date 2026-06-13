@@ -24,84 +24,67 @@ using Font = System.Drawing.Font;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	public class CustomTriggerProxy {
-		public bool Active { get; set; }
-		public string ShortRegexString { get; set; }
-		public string SoundData { get; set; }
-		public int SoundType { get; set; }
-		public string TimerName { get; set; }
-		public bool Tabbed { get; set; }
-		public bool Timer { get; set; }
-	}
-
-	public class CustomTriggerCategoryProxy {
-		public string Category { get; set; }
-		public bool RestrictToCategoryZone { get; set; }
-		public List<CustomTriggerProxy> Items = [];
-	}
-
-	public class PluginWrapper {
-		public object? pluginObj { get; set; }
-		// public Panel PnlInfo { get; set; }
-		// public TabPage TabPage { get; set; }
-		// public FileInfo  PluginFile { get; set; }
-		// public Label LblTitle { get; set; }
-		// public Label LblStatus { get; set; }
-		// public Button BtnX { get; set; }
-		// public CheckBox CbxEnabled { get; set; }
-		public string FileVersion { get; set; } = "99.99.99.99";
-		// public string PluginType { get; set; }
-	}
-
-	public IntPtr XivProcHandle => Memory.XivProcHandle;
-
-	private delegate void LogLineProcDelegate(LogEvent le);
-
-	public delegate bool SimpleBoolDelegate();
-
-	public delegate void SimpleVoidDelegate();
-
-	public delegate double SimpleDoubleDelegate();
-
-	public delegate string SimpleStringDelegate();
+	public delegate void ACTEncounterLogDelegate(string message);
 
 	public delegate void BoolDelegate(bool boolParam);
-
-	public delegate void TabPageDelegate(TabPage tp);
-
-	public delegate void TtsDelegate(string text);
-
-	public delegate void SoundDelegate(string filename, int volume);
 
 	public delegate List<CustomTriggerCategoryProxy> CustomTriggerDelegate();
 
 	public delegate PluginWrapper InstanceDelegate(string ActPluginName, string ActPluginType);
 
-	public delegate void ACTEncounterLogDelegate(string message);
+	public delegate bool SimpleBoolDelegate();
+
+	public delegate double SimpleDoubleDelegate();
+
+	public delegate string SimpleStringDelegate();
+
+	public delegate void SimpleVoidDelegate();
+
+	public delegate void SoundDelegate(string filename, int volume);
+
+	public delegate void TabPageDelegate(TabPage tp);
+
+	public delegate void TtsDelegate(string text);
+
+	private static RealPlugin? _instance;
+
+	private static IPluginLog Log;
+
+	public static int UProgress = 100;
+	public static string UState = "就绪";
 
 	private readonly Queue<LogEvent> EventQueue = [];
+	internal Endpoint? _ep;
+	internal LiveSplitController? _livesplit;
+	internal ObsController? _obs;
+	internal CancellationTokenSource? cts;
+	internal object ctslock = new();
+	internal string? currentZone;
+	internal Task EventQueueTask;
+	private bool firstevent = true;
+	internal bool isRunningAsAdmin;
+	internal DateTime LastDelayWarning = DateTime.Now;
+	// public Form mainform { get; set; }
+	internal int MinX = int.MaxValue, MinY = int.MaxValue, MaxX = int.MinValue, MaxY = int.MinValue;
 	private ManualResetEvent QueueWakeupEvent;
+	public VariableStore sessionvars = new();
 	public UserInterface ui = UserInterface.Instance;
+
+	private RealPlugin() {
+		ThreadPool.SetMinThreads(10, 10);
+		BridgeFFXIV.OnLogEvent += BridgeFFXIV_OnLogEvent;
+		_ep = new Endpoint();
+		_ep.OnStatusChange += _ep_OnStatusChange;
+	}
+
+	public IntPtr XivProcHandle => Memory.XivProcHandle;
 	[Obsolete("Use ConfigPath")] public string path => ConfigPath;
 	public string ConfigPath { get; set; }
 	private bool isInitialized { get; set; }
-	internal Task EventQueueTask;
 	// private TabPage mytp;
 	// private bool complainAboutReload;
 	public string pluginName { get; set; }
 	public string pluginPath { get; set; }
-	internal Endpoint? _ep;
-	private bool firstevent = true;
-	internal bool isRunningAsAdmin;
-	internal string? currentZone;
-	internal DateTime LastDelayWarning = DateTime.Now;
-	public VariableStore sessionvars = new();
-	internal ObsController? _obs;
-	internal LiveSplitController? _livesplit;
-	internal CancellationTokenSource? cts;
-	internal object ctslock = new();
-	// public Form mainform { get; set; }
-	internal int MinX = int.MaxValue, MinY = int.MaxValue, MaxX = int.MinValue, MaxY = int.MinValue;
 
 	public SimpleBoolDelegate InCombatHook { get; set; }
 	public SimpleBoolDelegate CustomTriggerCheckHook { get; set; }
@@ -120,8 +103,6 @@ public partial class RealPlugin {
 	public SimpleVoidDelegate CheckUpdateHook { get; set; }
 	public SimpleBoolDelegate ActInitedHook { get; set; }
 	public ACTEncounterLogDelegate ACTEncounterLogHook { get; set; }
-
-	private static RealPlugin? _instance;
 	public static RealPlugin Instance {
 		get {
 			_instance ??= new RealPlugin();
@@ -129,18 +110,9 @@ public partial class RealPlugin {
 		}
 	}
 
-	private static IPluginLog Log;
-
 	public static void ResetPlugin(IPluginLog log) {
 		_instance = new RealPlugin();
 		Log = log;
-	}
-
-	private RealPlugin() {
-		ThreadPool.SetMinThreads(10, 10);
-		BridgeFFXIV.OnLogEvent += BridgeFFXIV_OnLogEvent;
-		_ep = new Endpoint();
-		_ep.OnStatusChange += _ep_OnStatusChange;
 	}
 
 	internal static Font CreateFontFromDefinition(string name, float size, ActionOld.TextAuraEffectEnum effect) {
@@ -342,9 +314,6 @@ public partial class RealPlugin {
 		}
 		UserInterface.BuildTriggerTreeFromConfiguration(null, null);
 	}
-
-	public static int UProgress = 100;
-	public static string UState = "就绪";
 
 	public static void ShowProgress(int progress, string state) {
 		UProgress = Math.Max(0, progress);
@@ -594,9 +563,17 @@ public partial class RealPlugin {
 			}
 			var szone = BridgeFFXIV.ZoneID;
 			try {
-				foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => i.pluginObj as IScriptBase))
-					if (script!.TerritoryIds() == null || script.TerritoryIds().Contains(szone))
+				foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => (IScriptBase)i.pluginObj)) {
+					if (script.TerritoryIds() == null || script.TerritoryIds().Contains(szone))
 						script.MatchAll(logLine);
+					if (script.TerritoryIds() != null) {
+						foreach (var (regex, action) in script.IgnoreTerritory) {
+							var match = regex.Match(logLine);
+							if (!match.Success) continue;
+							action(match.Groups);
+						}
+					}
+				}
 			} catch (Exception ex) {
 				FilteredAddToLog(DebugLevelEnum.Warning, ex.ToString());
 			}
@@ -663,4 +640,35 @@ public partial class RealPlugin {
 
 	public VariableStore GetVariableStore(bool isPersistent)
 		=> isPersistent ? cfg.PersistentVariables : sessionvars;
+
+	public class CustomTriggerProxy {
+		public bool Active { get; set; }
+		public string ShortRegexString { get; set; }
+		public string SoundData { get; set; }
+		public int SoundType { get; set; }
+		public string TimerName { get; set; }
+		public bool Tabbed { get; set; }
+		public bool Timer { get; set; }
+	}
+
+	public class CustomTriggerCategoryProxy {
+		public List<CustomTriggerProxy> Items = [];
+		public string Category { get; set; }
+		public bool RestrictToCategoryZone { get; set; }
+	}
+
+	public class PluginWrapper {
+		public object? pluginObj { get; set; }
+		// public Panel PnlInfo { get; set; }
+		// public TabPage TabPage { get; set; }
+		// public FileInfo  PluginFile { get; set; }
+		// public Label LblTitle { get; set; }
+		// public Label LblStatus { get; set; }
+		// public Button BtnX { get; set; }
+		// public CheckBox CbxEnabled { get; set; }
+		public string FileVersion { get; set; } = "99.99.99.99";
+		// public string PluginType { get; set; }
+	}
+
+	private delegate void LogLineProcDelegate(LogEvent le);
 }

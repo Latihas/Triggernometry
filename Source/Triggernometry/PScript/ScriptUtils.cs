@@ -18,7 +18,7 @@ namespace Triggernometry.PScript;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static partial class ScriptUtils {
-	private static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();
+	public static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();
 	public static readonly Regex LogRegexStatusAdd = _LogRegexStatusAdd();
 	public static readonly Regex LogRegexStartsCasting = _LogRegexStartsCasting();
 	public static Context fakectx = new(null);
@@ -31,15 +31,16 @@ public static partial class ScriptUtils {
 	public static IGameObject? GetGameObjectById(ulong id) => ObjectTable.SearchById(id);
 	public static Func<Vector3> GetGameObjectById_Position(ulong id) => () => GetGameObjectById(id).Position;
 	public static Func<float> GetGameObjectById_Rotation(ulong id) => () => GetGameObjectById(id).Rotation;
+	public static void Log(string message) => RealPlugin.Instance.InvokeNamedCallback("command", $"/e {message}");
 
 	public static void MatchAll(this IScriptBase scriptBase, string logLine) {
 		MatchTargetIcon(logLine, scriptBase.TargetIconList);
 		MatchStartsCasting(logLine, scriptBase.StartsCastingList);
 		MatchStatusAdd(logLine, scriptBase.StatusAddList);
-		foreach (var p in scriptBase.CustomList) {
-			var match = p.Item1.Match(logLine);
+		foreach (var (regex, action) in scriptBase.CustomList) {
+			var match = regex.Match(logLine);
 			if (!match.Success) return;
-			p.Item2(match.Groups);
+			action(match.Groups);
 		}
 	}
 
