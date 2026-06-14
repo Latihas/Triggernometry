@@ -29,7 +29,7 @@ public class UseActionModule : ModuleBase {
 		UseAction(actionType, actionId, targetId, mode);
 	}
 
-	public unsafe bool UseAction(ActionType actionType, uint actionId, uint targetId, ActionManager.UseActionMode mode = ActionManager.UseActionMode.None) {
+	public unsafe bool UseAction(ActionType actionType, uint actionId, HexOrDecId targetId, ActionManager.UseActionMode mode = ActionManager.UseActionMode.None) {
 		CheckIfAnyZeroPtr();
 		var extraParam = (uint)(actionType == ActionType.Item ? 0xFFFF : 0);
 		const uint comboRouteID = 0;
