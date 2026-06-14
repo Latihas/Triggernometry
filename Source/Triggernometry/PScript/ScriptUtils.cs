@@ -516,6 +516,7 @@ public static partial class ScriptUtils {
 
 		#endregion Draw
 	}
+
 	public static void Place(string expr) {
 		try {
 			var sb = new StringBuilder("{");

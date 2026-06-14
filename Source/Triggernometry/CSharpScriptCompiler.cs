@@ -215,7 +215,7 @@ public static class CSharpScriptCompiler {
 			);
 			var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
 			if (errors.Length != 0) {
-				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, "编译错误：");
+				RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"编译错误：{scriptCode}");
 				foreach (var error in errors)
 					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
 						$"位置 {error.Location.GetLineSpan().StartLinePosition.ToString()}：{error.GetMessage()}");

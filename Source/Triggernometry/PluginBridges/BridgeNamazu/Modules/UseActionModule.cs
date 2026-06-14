@@ -29,13 +29,13 @@ public class UseActionModule : ModuleBase {
 		UseAction(actionType, actionId, targetId, mode);
 	}
 
-	public unsafe bool UseAction(ActionType actionType, uint actionId, HexOrDecId targetId, ActionManager.UseActionMode mode = ActionManager.UseActionMode.None) {
+	public unsafe bool UseAction(ActionType actionType, uint actionId, DataStringHelper.HexOrDecId targetId, ActionManager.UseActionMode mode = ActionManager.UseActionMode.None) {
 		CheckIfAnyZeroPtr();
 		var extraParam = (uint)(actionType == ActionType.Item ? 0xFFFF : 0);
 		const uint comboRouteID = 0;
 		var result = RunOnTick(() => ActionManager.Instance()->UseAction((ActionType)(int)actionType, actionId, targetId, extraParam, (ActionManager.UseActionMode)(int)mode, comboRouteID, (bool*)0));
 		if (result)
-			NamazuLog($"[UseAction] {actionType} ({(int)actionType}), action = {actionId} (0x{actionId:X}), target = {targetId:X}, mode = {mode} ({(int)mode})");
+			NamazuLog($"[UseAction] {actionType} ({(int)actionType}), action = {actionId} (0x{actionId:X}), target = {(uint)targetId:X}, mode = {mode} ({(int)mode})");
 		return result;
 	}
 

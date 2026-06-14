@@ -34,12 +34,12 @@ public abstract class ModuleBase {
 	public void CheckIfAnyZeroPtr() => CheckBeforeExecution(GetType().Name);
 
 	public void NamazuLog(string msg) => BridgeNamazu.Log(msg);
-        public void TriggerLog(RealPlugin.DebugLevelEnum level, string msg) => RealPlugin.Instance?.UnfilteredAddToLog(level, msg);
-        public void InfoLog(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Info, msg);
-        public void CustomLog(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Custom, msg);
-        public void Custom2Log(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Custom2, msg);
-        public void WarningLog(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Warning, msg);
-        public void ErrorLog(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Error, msg);
+	public void TriggerLog(RealPlugin.DebugLevelEnum level, string msg) => RealPlugin.Instance?.UnfilteredAddToLog(level, msg);
+	public void InfoLog(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Info, msg);
+	public void CustomLog(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Custom, msg);
+	public void Custom2Log(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Custom2, msg);
+	public void WarningLog(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Warning, msg);
+	public void ErrorLog(string msg) => TriggerLog(RealPlugin.DebugLevelEnum.Error, msg);
 
 	public void Sideload(params string[] methodTags) {
 		BridgeNamazu.AddSideloadModule(this);
@@ -155,11 +155,10 @@ public abstract class ModuleBase {
 		GetConfigDict().Values.Remove(key);
 	}
 
-        public static VariableDictionary GetConfigDict()
-        {
-            var store = RealPlugin.Instance?.GetVariableStore(true);
-            var cfg = store?.GetDictVariable("PNE_cfg", true);
-            return cfg ?? new VariableDictionary();
+	public static VariableDictionary GetConfigDict() {
+		var store = RealPlugin.Instance?.GetVariableStore(true);
+		var cfg = store?.GetDictVariable("PNE_cfg", true);
+		return cfg ?? new VariableDictionary();
 	}
 }
 

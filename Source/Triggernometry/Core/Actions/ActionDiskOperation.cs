@@ -177,7 +177,9 @@ internal class ActionDiskOperation : ActionBase {
 				var vt = vs.GetTableVariable(varname, true);
 				if (data.Count > 0 && datawidth > 0) {
 					string vtchanger;
-					vtchanger = ctx.Trigger != null ? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe()) : I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
+					vtchanger = ctx.Trigger != null
+						? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe())
+						: I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
 					vt.Resize(datawidth, data.Count);
 					var y = 1;
 					foreach (var row in data) {
@@ -205,7 +207,9 @@ internal class ActionDiskOperation : ActionBase {
 							Value = dat
 						}, "");
 					}
-					x.LastChanger = ctx.Trigger != null ? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe()) : I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
+					x.LastChanger = ctx.Trigger != null
+						? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe())
+						: I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
 					x.LastChanged = DateTime.Now;
 				}
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/filelistset",

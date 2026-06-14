@@ -57,122 +57,108 @@ public class StaticVfx : VfxBase {
 		=> VfxManager.Remove(this);
 
 	/// <summary>
-        /// 将本次解析到的参数合并到当前 VFX 的参数源状态上。Create 时会补齐默认位姿；Modify 时仅覆盖显式指定的参数。
+	///     将本次解析到的参数合并到当前 VFX 的参数源状态上。Create 时会补齐默认位姿；Modify 时仅覆盖显式指定的参数。
 	/// </summary>
 	public void ApplyArgs(StaticVfxArgs newArgs, bool isCreate) {
 		if (newArgs == null)
 			throw new ArgumentNullException(nameof(newArgs));
 
-            ApplyPosArgs(newArgs, isCreate);
-            ApplyAngleOrTargetArgs(newArgs, isCreate);
-            ApplyScaleArgs(newArgs);
-            ApplyColorArgs(newArgs);
-            ApplyTransformArgs(newArgs);
-            Validate();
-        }
+		ApplyPosArgs(newArgs, isCreate);
+		ApplyAngleOrTargetArgs(newArgs, isCreate);
+		ApplyScaleArgs(newArgs);
+		ApplyColorArgs(newArgs);
+		ApplyTransformArgs(newArgs);
+		Validate();
+	}
 
-        private static DynamicCoordArg DefaultPos() 
-            => DynamicCoordArg.FromCoord(new CartesianCoord(0, 0, 0));
-        private static Vector3 DefaultAngle() 
-            => new Vector3((float)Math.PI, 0, 0);
+	private static DynamicCoordArg DefaultPos()
+		=> DynamicCoordArg.FromCoord(new CartesianCoord(0, 0, 0));
 
-        private void ApplyPosArgs(StaticVfxArgs newArgs, bool isCreate)
-        {
-			// 若指定了 Pos，则写入当前参数源
-			if (newArgs.Pos != null)
-				PosArg = newArgs.Pos.Duplicate();
+	private static Vector3 DefaultAngle() => new((float)Math.PI, 0, 0);
 
-            // 若未指定，且为 Create，则使用默认值
-            else if (isCreate)
-                PosArg = DefaultPos();
-        }
+	private void ApplyPosArgs(StaticVfxArgs newArgs, bool isCreate) {
+		// 若指定了 Pos，则写入当前参数源
+		if (newArgs.Pos != null)
+			PosArg = newArgs.Pos.Duplicate();
 
-        private void ApplyAngleOrTargetArgs(StaticVfxArgs newArgs, bool isCreate)
-        {
-            // 若指定了 Target，则切换至两点位姿模式
-            if (newArgs.Target != null)
-                SwitchToPosTargetMode(newArgs.Target);
+		// 若未指定，且为 Create，则使用默认值
+		else if (isCreate)
+			PosArg = DefaultPos();
+	}
 
-            // 若指定了 Angle3D，则切换至单点位姿模式
-            else if (newArgs.Angle3D.HasValue)
-                SwitchToPosAngleMode(newArgs.Angle3D.Value);
+	private void ApplyAngleOrTargetArgs(StaticVfxArgs newArgs, bool isCreate) {
+		// 若指定了 Target，则切换至两点位姿模式
+		if (newArgs.Target != null)
+			SwitchToPosTargetMode(newArgs.Target);
 
-            // 若均未指定，且为 Create，则使用默认值
-            else if (isCreate)
-                SwitchToPosAngleMode(DefaultAngle());
-        }
+		// 若指定了 Angle3D，则切换至单点位姿模式
+		else if (newArgs.Angle3D.HasValue)
+			SwitchToPosAngleMode(newArgs.Angle3D.Value);
 
-        private void SwitchToPosTargetMode(DynamicCoordArg target)
-        {
-            TargetArg = target.Duplicate();
-				Angle3DArg = null;
-			}
+		// 若均未指定，且为 Create，则使用默认值
+		else if (isCreate)
+			SwitchToPosAngleMode(DefaultAngle());
+	}
 
-        private void SwitchToPosAngleMode(Vector3 angle)
-        {
-            Angle3DArg = angle;
-				TargetArg = null;
-			}
+	private void SwitchToPosTargetMode(DynamicCoordArg target) {
+		TargetArg = target.Duplicate();
+		Angle3DArg = null;
+	}
 
-        private void ApplyScaleArgs(StaticVfxArgs newArgs)
-        {
-            if (newArgs.Scale != null)
-            {
-                ScaleArg = newArgs.Scale.Duplicate();
-            }
+	private void SwitchToPosAngleMode(Vector3 angle) {
+		Angle3DArg = angle;
+		TargetArg = null;
+	}
+
+	private void ApplyScaleArgs(StaticVfxArgs newArgs) {
+		if (newArgs.Scale != null) {
+			ScaleArg = newArgs.Scale.Duplicate();
 		}
+	}
 
-        private void ApplyColorArgs(StaticVfxArgs newArgs)
-        {
-		if (newArgs.Color.HasValue)
-            {
+	private void ApplyColorArgs(StaticVfxArgs newArgs) {
+		if (newArgs.Color.HasValue) {
 			Color = newArgs.Color.Value;
-            }
-        }
+		}
+	}
 
-        private void ApplyTransformArgs(StaticVfxArgs newArgs)
-        {
-            // 平移变换：坐标系中心
+	private void ApplyTransformArgs(StaticVfxArgs newArgs) {
+		// 平移变换：坐标系中心
 		if (newArgs.TransformCenter != null)
 			TransformCenterArg = newArgs.TransformCenter.Duplicate();
 
-            // 旋转变换：坐标系正北
-            if (newArgs.TransformNorthAngle.HasValue)
-            {
+		// 旋转变换：坐标系正北
+		if (newArgs.TransformNorthAngle.HasValue) {
 			var angle = newArgs.TransformNorthAngle.Value;
 
 			// 哨兵值，清空固定角度，方向与 O 指定的实体同步
 			if (double.IsNaN(angle)) {
 				TransformNorthAngle = null;
 				TransformNorthCoordArg = null;
-                }
-                // 指定角度
-                else
-                {
+			}
+			// 指定角度
+			else {
 				TransformNorthAngle = angle;
 				TransformNorthCoordArg = null;
 			}
-            }
-            // 指定正北的坐标或实体
-            else if (newArgs.TransformNorthTarget != null)
-            {
+		}
+		// 指定正北的坐标或实体
+		else if (newArgs.TransformNorthTarget != null) {
 			TransformNorthCoordArg = newArgs.TransformNorthTarget.Duplicate();
 			TransformNorthAngle = null;
 		}
 
-            // 伸缩变换：XY 翻转选项
+		// 伸缩变换：XY 翻转选项
 		if (newArgs.TransformKeepX.HasValue)
-                TransformKeepX = newArgs.TransformKeepX;
+			TransformKeepX = newArgs.TransformKeepX;
 
 		if (newArgs.TransformKeepY.HasValue)
-                TransformKeepY = newArgs.TransformKeepY;
-        }
+			TransformKeepY = newArgs.TransformKeepY;
+	}
 
-        private void Validate()
-        {
-            // 当前状态校验：_d 依赖两点距离，因此最终状态中必须有 Target。
+	private void Validate() {
+		// 当前状态校验：_d 依赖两点距离，因此最终状态中必须有 Target。
 		if (ScaleArg?.HasDistanceToken == true && TargetArg == null)
 			throw new ArgumentException("[PictoACT] Scale 使用 _d 时，当前 VFX 必须已有 Target，或本次指定 Target。");
 	}
-    
 }

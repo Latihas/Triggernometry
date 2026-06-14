@@ -168,6 +168,7 @@ public partial class RealPlugin {
 	}
 
 	private readonly Lock SaveConfigFileLock = new();
+
 	private void SaveConfigToFile(Configuration cfg, string filename, bool switchprevious) {
 		lock (SaveConfigFileLock) {
 			try {
