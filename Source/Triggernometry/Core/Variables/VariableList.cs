@@ -39,7 +39,7 @@ public class VariableList : Variable {
 	public override string ToString() => string.Join(",", Values);
 
 	public override int CompareTo(object o) {
-		if (!(o is Variable)) {
+		if (o is not Variable) {
 			throw new InvalidOperationException();
 		}
 		if (o is VariableScalar) {

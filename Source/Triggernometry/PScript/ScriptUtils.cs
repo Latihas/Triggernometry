@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Advanced_Combat_Tracker;
@@ -22,7 +23,7 @@ public static partial class ScriptUtils {
 	public static readonly Regex LogRegexStatusAdd = _LogRegexStatusAdd();
 	public static readonly Regex LogRegexStartsCasting = _LogRegexStartsCasting();
 	public static Context fakectx = new(null);
-	private static readonly Trigger _tri = new();
+	public static readonly Trigger _tri = new();
 	public static IPlayerCharacter Me => ObjectTable.LocalPlayer;
 	public static uint CurrentTerritory => ClientState.TerritoryType;
 	public static Func<Vector3> Me_Position => () => Me.Position;
@@ -514,5 +515,29 @@ public static partial class ScriptUtils {
 		}
 
 		#endregion Draw
+	}
+	public static void Place(string expr) {
+		try {
+			var sb = new StringBuilder("{");
+			foreach (var s in expr.Split(';')) {
+				var parts = s.Split(':');
+				var name = parts[0] switch {
+					"1" => "One",
+					"2" => "Two",
+					"3" => "Three",
+					"4" => "Four",
+					_ => parts[0]
+				};
+				if (parts[1] == "clear")
+					sb.Append($"\"{name}\":{{}},");
+				else {
+					var xy = parts[1].Split(',');
+					sb.Append($"\"{name}\":{{\"X\":{xy[0]},\"Z\":{xy[1]},\"Y\":0,\"Active\":true}},");
+				}
+			}
+			RealPlugin.Instance.InvokeNamedCallback("place", sb.Append('}').ToString());
+		} catch (Exception ex) {
+			Log($"Place Error({expr}):{ex.StackTrace}");
+		}
 	}
 }
