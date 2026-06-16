@@ -467,7 +467,7 @@ public partial class ExpressionTextBox : UserControl {
 	///     For validating the expression with placeholder values based on ExpressionType.
 	///     Set background color based on the result.
 	/// </summary>
-	private static Context contextForValidation = new(null) {
+	private static readonly Context contextForValidation = new(null) {
 		testByPlaceholder = true
 	};
 
@@ -557,7 +557,7 @@ public partial class ExpressionTextBox : UserControl {
 		= new(@"[$¤]\{e?!?(?<persist>p?)(?<type>[vltd]|text|image)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[{}\n]*)[^\${}]*\}", RegexOptions.Compiled);
 
 	private string CurrentMatch;
-	private Timer acfDebounceTimer = new();
+	private readonly Timer acfDebounceTimer = new();
 
 	public AutoCompleteForm acf;
 
@@ -696,7 +696,7 @@ public partial class ExpressionTextBox : UserControl {
 	}
 
 	private void TextBox1_KeyDown(object sender, KeyEventArgs e) {
-		if (e.KeyData == Keys.Up || e.KeyData == Keys.Down || e.KeyData == Keys.PageDown || e.KeyData == Keys.PageUp) {
+		if (e.KeyData is Keys.Up or Keys.Down or Keys.PageDown or Keys.PageUp) {
 			if (AutocompleteActive()) {
 				if (e.KeyData == Keys.Up) {
 					acf.PreviousAutocompleteItem();
@@ -713,7 +713,7 @@ public partial class ExpressionTextBox : UserControl {
 				e.Handled = true;
 				e.SuppressKeyPress = true;
 			}
-		} else if (e.KeyCode == Keys.Left || e.KeyCode == Keys.Right) {
+		} else if (e.KeyCode is Keys.Left or Keys.Right) {
 			HideAutocomplete();
 		}
 	}
@@ -788,7 +788,7 @@ public partial class ExpressionTextBox : UserControl {
 			textBox1.Paste(ac);
 	}
 
-	private static Regex reCaptureGroups = new(@"\$\{(?<capture>[\p{L}\d_]+?)\}");
+	private static readonly Regex reCaptureGroups = new(@"\$\{(?<capture>[\p{L}\d_]+?)\}");
 
 	/// <summary> Check if the pure alphanumeric ${...} expressions are all capture groups or special variables (like _since) </summary>
 	internal static bool CheckValidBasicExpression(string expression) {
@@ -1279,8 +1279,8 @@ public partial class ExpressionTextBox : UserControl {
 
 	#region Color
 
-	private static Regex regexHexColor = new(@"^#? *(?<rgb>[\dA-Fa-f]{3}|[\dA-Fa-f]{6})$");
-	private static Regex regexNumColor = new(@"^(?<r>\d+(?:\.\d+)?) *, *(?<g>\d+(?:\.\d+)?) *, *(?<b>\d+(?:\.\d+)?)$");
+	private static readonly Regex regexHexColor = new(@"^#? *(?<rgb>[\dA-Fa-f]{3}|[\dA-Fa-f]{6})$");
+	private static readonly Regex regexNumColor = new(@"^(?<r>\d+(?:\.\d+)?) *, *(?<g>\d+(?:\.\d+)?) *, *(?<b>\d+(?:\.\d+)?)$");
 
 	/// <summary>
 	///     Parse a user-input raw color string to a <see cref="Color" />. <br /><br />
@@ -1354,17 +1354,17 @@ public partial class ExpressionTextBox : UserControl {
 
 	#region Store Variable Names Dynamically
 
-	private static List<string> tmpScalarNames = [];
-	private static List<string> tmpListNames = [];
-	private static List<string> tmpTableNames = [];
-	private static List<string> tmpDictNames = [];
-	private static List<string> tmpTextNames = [];
-	private static List<string> tmpImageNames = [];
+	private static readonly List<string> tmpScalarNames = [];
+	private static readonly List<string> tmpListNames = [];
+	private static readonly List<string> tmpTableNames = [];
+	private static readonly List<string> tmpDictNames = [];
+	private static readonly List<string> tmpTextNames = [];
+	private static readonly List<string> tmpImageNames = [];
 
-	private static List<string> prsScalarNames = [];
-	private static List<string> prsListNames = [];
-	private static List<string> prsTableNames = [];
-	private static List<string> prsDictNames = [];
+	private static readonly List<string> prsScalarNames = [];
+	private static readonly List<string> prsListNames = [];
+	private static readonly List<string> prsTableNames = [];
+	private static readonly List<string> prsDictNames = [];
 
 	public enum AutofillTypeEnum {
 		None,
@@ -1603,8 +1603,7 @@ public partial class ExpressionTextBox : UserControl {
 				}
 				// if it is a single-char op
 				Select(index, 1);
-			} else if (type == SupportedExpressionTypeEnum.String || type == SupportedExpressionTypeEnum.Color
-			                                                      || type == SupportedExpressionTypeEnum.Regex) // To do: better logic for regexes
+			} else if (type is SupportedExpressionTypeEnum.String or SupportedExpressionTypeEnum.Color or SupportedExpressionTypeEnum.Regex) // To do: better logic for regexes
 			{
 				var separators = new HashSet<char>($"^$¤{{}}[]()<>,.:;=|/\\'\"，。？！、：；（）《》「」『』【】“”‘’…{ParserCommon.LINEBREAK}");
 				if (type == SupportedExpressionTypeEnum.Regex)
@@ -1677,7 +1676,7 @@ public partial class ExpressionTextBox : UserControl {
 			['\''] = '\'' // too complicated to determine if a " or ' is left/right, so always consider it as left for now
 		};
 
-		private static Dictionary<char, char> _rightBracketChars = _leftBracketChars.ToDictionary(pair => pair.Value, pair => pair.Key);
+		private static readonly Dictionary<char, char> _rightBracketChars = _leftBracketChars.ToDictionary(pair => pair.Value, pair => pair.Key);
 
 		private void SelectEnclosedBrackets(int index) {
 			var clicked = Text[index];
@@ -1689,7 +1688,7 @@ public partial class ExpressionTextBox : UserControl {
 			} else if (_rightBracketChars.TryGetValue(clicked, out var c)) {
 				pair = c;
 				direction = -1;
-			} else if ((clicked == '$' || clicked == '¤') && index < Text.Length - 1 && Text[index + 1] == '{') {
+			} else if (clicked is '$' or '¤' && index < Text.Length - 1 && Text[index + 1] == '{') {
 				SelectEnclosedBrackets(index + 1);
 				return;
 			} else {
@@ -1843,7 +1842,7 @@ public partial class ExpressionTextBox : UserControl {
 			var counts = _leftBracketChars.ToDictionary(pair => pair.Key, _ => 0);
 			for (index = SelectionStart - 1; index >= 0; index--) {
 				var c = Text[index];
-				if (c == '\"' || c == '\'') {
+				if (c is '\"' or '\'') {
 					continue;
 				}
 				if (_rightBracketChars.TryGetValue(c, out var pair)) {

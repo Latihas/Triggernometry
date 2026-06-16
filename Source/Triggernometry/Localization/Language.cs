@@ -52,7 +52,7 @@ public sealed class Language {
 
 	public string Lookup(string key) => TranslationsLookup.GetValueOrDefault(key);
 
-	private Dictionary<string, string> _missingTranslations = new();
+	private readonly Dictionary<string, string> _missingTranslations = new();
 
 	public string Translate(string key, string text, params object[] args) {
 		if (IsDefault) { TranslationsLookup.TryAdd(key, text); }

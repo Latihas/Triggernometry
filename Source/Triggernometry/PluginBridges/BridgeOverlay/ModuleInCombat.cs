@@ -8,7 +8,7 @@ namespace Triggernometry.PluginBridges;
 [OverlayModule]
 internal static class ModuleInCombat {
 	public static readonly bool Ready;
-	private static IInCombatMemory _inCombatMemoryManager;
+	private static readonly IInCombatMemory _inCombatMemoryManager;
 
 	static ModuleInCombat() {
 		try {

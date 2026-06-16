@@ -9,7 +9,7 @@ public abstract class ConditionComponent {
 
 	public event ChangeDelegate OnPropertyChange;
 
-	private static object lobject = new();
+	private static readonly object lobject = new();
 	private static long IdCounter = 1;
 	public long Id { get; set; }
 

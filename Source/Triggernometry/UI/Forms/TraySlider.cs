@@ -34,12 +34,12 @@ internal partial class TraySliderForm : Form {
 	private bool _activated;
 	private bool _choiceClicked;
 	private bool _hasMouse;
-	private bool _forceShow;
+	private readonly bool _forceShow;
 
 	protected override bool ShowWithoutActivation => true;
 
 	internal TraySliderForm(int buttonCount, int durationMs, bool forceShow) {
-		if (buttonCount > 3 || buttonCount < 0)
+		if (buttonCount is > 3 or < 0)
 			throw new ArgumentOutOfRangeException(nameof(buttonCount), "Button count must be 0-3.");
 
 		InitializeComponent();
@@ -79,7 +79,7 @@ internal partial class TraySliderForm : Form {
 	}
 
 	private void ConfigureButtons(int buttonCount) {
-		if (buttonCount > 3 || buttonCount < 0)
+		if (buttonCount is > 3 or < 0)
 			throw new ArgumentOutOfRangeException(nameof(buttonCount), "Button count must be 0-3.");
 
 		var buttons = new[] { Button1, Button2, Button3 };

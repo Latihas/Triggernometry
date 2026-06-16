@@ -577,7 +577,7 @@ public class Scarborough : IDisposable {
 	}
 
 	private class RenderCollection {
-		public List<ScarboroughItem> items = [];
+		public readonly List<ScarboroughItem> items = [];
 
 		public RenderCollection() {
 			Clear();

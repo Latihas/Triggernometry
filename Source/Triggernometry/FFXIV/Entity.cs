@@ -72,7 +72,7 @@ public class Entity {
 			{ "CurrentWorldID", e => e.CurrentWorldID },
 			{ "WorldID", e => e.WorldID },
 			{ "HomeWorldID", e => e.WorldID }, {
-				"WorldName", e => e.Type == EntityType.Pc || e.Type == EntityType.Retainer /* Retainer needs to be tested */
+				"WorldName", e => e.Type is EntityType.Pc or EntityType.Retainer /* Retainer needs to be tested */
 					? BridgeFFXIV.GetIdEntity(e.HexID).GetValue("worldname").ToString()
 					: ""
 			},

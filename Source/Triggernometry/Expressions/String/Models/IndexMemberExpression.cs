@@ -179,7 +179,7 @@ public readonly struct IndexMemberExpression {
 					var c2 = expr[k];
 
 					// Another '[' or '.' invalidates this dot
-					if (c2 == '[' || c2 == '.') {
+					if (c2 is '[' or '.') {
 						i = k - 1; // Skip ahead
 						isValidDot = false;
 						break;

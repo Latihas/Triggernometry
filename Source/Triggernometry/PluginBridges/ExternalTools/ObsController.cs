@@ -42,9 +42,9 @@ internal class ObsController : IDisposable {
 
 	private WebSocket WSConnection;
 	private const int maxRpcVersion = 1;
-	private object lockobj = new();
-	private Dictionary<string, Action<RequestResponseOp>> respCallbacks = new();
-	private Dictionary<string, Action<RequestBatchResponseOp>> respBatchCallbacks = new();
+	private readonly object lockobj = new();
+	private readonly Dictionary<string, Action<RequestResponseOp>> respCallbacks = new();
+	private readonly Dictionary<string, Action<RequestBatchResponseOp>> respBatchCallbacks = new();
 	private Action<HelloOp> helloCallback;
 	private AutoResetEvent authRespReceived;
 

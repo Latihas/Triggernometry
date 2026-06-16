@@ -14,7 +14,7 @@ namespace Triggernometry.UI.Aura.Renderer;
 internal sealed class Scarborough : RendererBase {
 	#region Generic properties
 
-	private OverlayWindow _window = null;
+	private readonly OverlayWindow _window = null;
 	// private Graphics _graphics = null;
 	// private Color _bgColor = new Color();
 

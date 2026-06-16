@@ -131,9 +131,7 @@ internal class ActionDiskOperation : ActionBase {
 		var persist = I18n.TrlVarPersist(Persistent);
 		var cache = I18n.TrlCacheFile(UseCache);
 		var vs = plug.GetVariableStore(Persistent);
-		if (Operation == OperationEnum.ReadCSVIntoTableVariable ||
-		    Operation == OperationEnum.ReadIntoListVariable ||
-		    Operation == OperationEnum.ReadIntoVariable) {
+		if (Operation is OperationEnum.ReadCSVIntoTableVariable or OperationEnum.ReadIntoListVariable or OperationEnum.ReadIntoVariable) {
 			var u = new Uri(filename);
 			if (!u.IsFile) {
 				var fn = Path.Combine(plug.ConfigPath, "TriggernometryFileCache");

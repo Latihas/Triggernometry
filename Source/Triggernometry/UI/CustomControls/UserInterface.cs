@@ -2337,8 +2337,8 @@ public class UserInterface {
 		}
 	}
 
-	private static Dictionary<object, bool> _nodeExpandedStates = new();
-	private static Dictionary<object, bool> _nodeCheckedStates = new();
+	private static readonly Dictionary<object, bool> _nodeExpandedStates = new();
+	private static readonly Dictionary<object, bool> _nodeCheckedStates = new();
 	private static readonly Vector4 ColorGrey = new(0.5f, 0.5f, 0.5f, 1.0f);
 
 	public static void ImportResultsFromForm(object tag, string content) {

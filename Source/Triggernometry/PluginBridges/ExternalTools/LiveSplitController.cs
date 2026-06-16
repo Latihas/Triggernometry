@@ -17,7 +17,7 @@ internal class LiveSplitController : IDisposable {
 
 	private NamedPipeClientStream client;
 	private StreamWriter clientWriter;
-	private object lockobj = new();
+	private readonly object lockobj = new();
 
 	public void Dispose() {
 		clientWriter?.Dispose();

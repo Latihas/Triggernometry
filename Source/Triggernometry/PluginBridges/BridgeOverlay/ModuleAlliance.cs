@@ -8,7 +8,7 @@ namespace Triggernometry.PluginBridges;
 [OverlayModule]
 internal static class ModuleAlliance {
 	public static readonly bool Ready;
-	private static IPartyMemory _partyMemoryManager;
+	private static readonly IPartyMemory _partyMemoryManager;
 
 	static ModuleAlliance() {
 		try {

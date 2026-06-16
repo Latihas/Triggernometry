@@ -167,7 +167,7 @@ public class Image : IDisposable {
 	/// </returns>
 	public static bool Equals(Image left, Image right) => left?.Equals(right) == true;
 
-	private static Guid[] FallbackFormats = [
+	private static readonly Guid[] FallbackFormats = [
 		PixelFormat.Format32bppPBGRA
 	];
 

@@ -71,7 +71,6 @@ internal sealed class DynamicCoordArg {
 			return false;
 
 		return
-			entityId is >= 0x10000000 and <= 0x10FFFFFF ||
-			entityId is >= 0x40000000 and <= 0x40FFFFFF;
+			entityId is >= 0x10000000 and <= 0x10FFFFFF or >= 0x40000000 and <= 0x40FFFFFF;
 	}
 }

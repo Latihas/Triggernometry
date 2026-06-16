@@ -164,8 +164,8 @@ public partial class PictoACTModule : ModuleBase {
 		var type = ParseRemoveType(args);
 
 		// 只在移除 Static / All 时中断延迟任务。
-		var isStatic = type == RemoveVfxType.Static || type == RemoveVfxType.All;
-		var isActor = type == RemoveVfxType.Actor || type == RemoveVfxType.All;
+		var isStatic = type is RemoveVfxType.Static or RemoveVfxType.All;
+		var isActor = type is RemoveVfxType.Actor or RemoveVfxType.All;
 
 		if (isStatic && GetConfig<bool>("StaticVfx") != false) {
 			// 先中断匹配 Tag / Regex 的延迟任务。

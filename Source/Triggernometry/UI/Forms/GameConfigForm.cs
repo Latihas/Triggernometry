@@ -15,11 +15,11 @@ public partial class GameConfigForm : Form {
 	public readonly ConfigInfo Info;
 
 	/// <summary> 储存表单中所有 Option 控件的列表。 </summary>
-	private List<Option> _options = [];
+	private readonly List<Option> _options = [];
 	/// <summary> （可选）表单绑定的小队列表控件。 </summary>
 	private PartyListPanel _partyListPanel;
 	/// <summary> 表单下方用于放置按钮等控件的 TableLayoutPanel。 </summary>
-	private TableLayoutPanel bottomPanel = new BottomTableLayoutPanel {
+	private readonly TableLayoutPanel bottomPanel = new BottomTableLayoutPanel {
 		RowCount = 1,
 		ColumnCount = 1
 	};
@@ -31,7 +31,7 @@ public partial class GameConfigForm : Form {
 	public VariableDictionary Config = new();
 
 	/// <summary> 表单上方用于放置所有选项组的 Panel，可滚动。 </summary>
-	private Panel mainPanel = new BackgroundPanel();
+	private readonly Panel mainPanel = new BackgroundPanel();
 	public Font UserFont = new("微软雅黑", 10);
 
 	public GameConfigForm(ConfigInfo info) {
@@ -526,8 +526,8 @@ public partial class GameConfigForm : Form {
 	}
 
 	public class OptionCustom : Option {
-		private Func<Control, string> _getter;
-		private Action<Control, string> _setter;
+		private readonly Func<Control, string> _getter;
+		private readonly Action<Control, string> _setter;
 
 		public OptionCustom(
 			string desc, string configKey, Control ctrl,
@@ -556,10 +556,10 @@ public partial class GameConfigForm : Form {
 
 /// <summary> 可以从值检索键的双射字典结构，可以用于将 ComboBox 选项和触发器内存储的键相互映射。</summary>
 public class BijectDictionary<TKey, TValue> {
-	private Dictionary<TKey, TValue> _dict = new();
-	private List<TKey> _keys = [];
-	private Dictionary<TValue, TKey> _revDict = new();
-	private List<TValue> _values = [];
+	private readonly Dictionary<TKey, TValue> _dict = new();
+	private readonly List<TKey> _keys = [];
+	private readonly Dictionary<TValue, TKey> _revDict = new();
+	private readonly List<TValue> _values = [];
 
 	public BijectDictionary() : this([]) {
 	}

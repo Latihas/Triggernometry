@@ -30,8 +30,8 @@ public partial class Job {
 	public bool IsTank => Role == RoleType.Tank;
 	public bool IsHealer => Role == RoleType.Healer;
 	public bool IsDPS => Role == RoleType.DPS;
-	public bool IsMeleeDPS => SubRole == RoleType.StrengthMelee || SubRole == RoleType.DexterityMelee;
-	public bool IsRangedDPS => SubRole == RoleType.PhysicalRanged || SubRole == RoleType.MagicalRanged;
+	public bool IsMeleeDPS => SubRole is RoleType.StrengthMelee or RoleType.DexterityMelee;
+	public bool IsRangedDPS => SubRole is RoleType.PhysicalRanged or RoleType.MagicalRanged;
 	public bool IsCrafter => Role == RoleType.Crafter;
 	public bool IsGatherer => Role == RoleType.Gatherer;
 
@@ -55,8 +55,8 @@ public partial class Job {
 		MagicalRanged = DPS | 6
 	}
 
-	private static List<Job> _jobs = [];
-	private static Dictionary<string, Job> _jobByNames = new(StringComparer.OrdinalIgnoreCase);
+	private static readonly List<Job> _jobs = [];
+	private static readonly Dictionary<string, Job> _jobByNames = new(StringComparer.OrdinalIgnoreCase);
 
 	/// <summary>Retrieve a Job object using a JobEnum identifier.</summary>
 	/// <param name="job">The job enum value.</param>

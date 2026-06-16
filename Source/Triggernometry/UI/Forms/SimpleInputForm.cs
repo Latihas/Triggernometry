@@ -6,9 +6,9 @@ using Triggernometry.UI.CustomControls;
 namespace Triggernometry.UI.Forms;
 
 public partial class SimpleInputForm : Form {
-	private ExpressionTextBox expEditedValue;
-	private Button okButton;
-	private TableLayoutPanel table;
+	private readonly ExpressionTextBox expEditedValue;
+	private readonly Button okButton;
+	private readonly TableLayoutPanel table;
 
 	public SimpleInputForm(string title, ExpressionTextBox.SupportedExpressionTypeEnum exprType, string defaultValue = "") {
 		//InitializeComponent();

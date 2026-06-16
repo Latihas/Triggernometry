@@ -361,8 +361,7 @@ public partial class ActionOld {
 		set {
 			_DictVariableOp = Enum.Parse<DictVariableOpEnum>(value);
 #pragma warning disable CS0612 // obsolete
-			if (_DictVariableOp == DictVariableOpEnum.GetEntityByName ||
-			    _DictVariableOp == DictVariableOpEnum.GetEntityById)
+			if (_DictVariableOp is DictVariableOpEnum.GetEntityByName or DictVariableOpEnum.GetEntityById)
 #pragma warning restore CS0612
 			{
 				_DictVariableOp = DictVariableOpEnum.GetEntity;
@@ -1199,7 +1198,7 @@ public partial class ActionOld {
 	internal string _MouseX = "0";
 	[XmlAttribute] public string MouseX {
 		get {
-			if (_MouseX == "0" || _MouseX == "") {
+			if (_MouseX is "0" or "") {
 				return null;
 			}
 			return _MouseX;
@@ -1210,7 +1209,7 @@ public partial class ActionOld {
 	internal string _MouseY = "0";
 	[XmlAttribute] public string MouseY {
 		get {
-			if (_MouseY == "0" || _MouseY == "") {
+			if (_MouseY is "0" or "") {
 				return null;
 			}
 			return _MouseY;

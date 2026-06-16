@@ -93,7 +93,7 @@ public static class Memory {
 		}
 	}
 
-	private static Dictionary<string, Action> _xivProcUpdatedActions = new();
+	private static readonly Dictionary<string, Action> _xivProcUpdatedActions = new();
 
 	// could be used in scripts
 	public static void RegisterXivProcUpdatedAction(string key, Action action) {

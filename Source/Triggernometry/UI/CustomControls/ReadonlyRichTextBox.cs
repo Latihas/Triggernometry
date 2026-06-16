@@ -219,7 +219,7 @@ public class RichTextBoxHelper : ReadonlyRichTextBox // to do: change to CustomC
 				if (ch == ',' && SelectionColor == stringColor) {
 					continue;
 				}
-				if (ch == ',' || ch == '|' || ch == '=' || ch == ';' || ch == ':' || ch == ParserCommon.LINEBREAK) {
+				if (ch is ',' or '|' or '=' or ';' or ':' or ParserCommon.LINEBREAK) {
 					SelectionColor = separatorColor;
 				}
 			}
@@ -265,10 +265,7 @@ public class ReadonlyRichTextBox : RichTextBox {
 
 	protected override void WndProc(ref Message m) {
 		HideCaret(Handle);
-		if (m.Msg == WM_SETFOCUS || m.Msg == WM_KEYDOWN || m.Msg == WM_KEYUP ||
-		    m.Msg == WM_LBUTTONDOWN || m.Msg == WM_LBUTTONUP || m.Msg == WM_MOUSEMOVE || m.Msg == WM_LBUTTONDBLCLK ||
-		    m.Msg == WM_RBUTTONDOWN || m.Msg == WM_RBUTTONUP || m.Msg == WM_RBUTTONDBLCLK ||
-		    m.Msg == WM_SETCURSOR) {
+		if (m.Msg is WM_SETFOCUS or WM_KEYDOWN or WM_KEYUP or WM_LBUTTONDOWN or WM_LBUTTONUP or WM_MOUSEMOVE or WM_LBUTTONDBLCLK or WM_RBUTTONDOWN or WM_RBUTTONUP or WM_RBUTTONDBLCLK or WM_SETCURSOR) {
 		} else if (m.Msg == WM_MOUSEWHEEL && AllowWheelThrough) {
 			SendMessage(Parent.Handle, m.Msg, m.WParam, m.LParam);
 		} else {

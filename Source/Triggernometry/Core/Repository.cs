@@ -416,7 +416,7 @@ public class Repository {
 		} catch (TaskCanceledException) // Cancelled by caller, do nothing. Should not happen here, just in case the code changes in the future
 		{
 			return (null, null);
-		} catch (Exception ex) when (ex is TimeoutException || ex is HttpRequestException) {
+		} catch (Exception ex) when (ex is TimeoutException or HttpRequestException) {
 			AddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Repository/metadatatimeout",
 				"Couldn't get metadata for repository {0}: HTTP request timeout. Exception: {1}", Name, ex.Message));
 			return (null, null);
@@ -463,7 +463,7 @@ public class Repository {
 		} catch (TaskCanceledException) // Cancelled by caller, do nothing. Should not happen here, just in case the code changes in the future
 		{
 			return false;
-		} catch (Exception ex) when (ex is TimeoutException || ex is HttpRequestException) {
+		} catch (Exception ex) when (ex is TimeoutException or HttpRequestException) {
 			AddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Repository/updatetimeout",
 				"Couldn't update repository {0}: network error or timeout. Exception: {1}", Name, ex.Message));
 			return false;

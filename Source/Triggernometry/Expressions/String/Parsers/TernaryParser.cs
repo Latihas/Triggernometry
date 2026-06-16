@@ -29,7 +29,7 @@ internal static class TernaryParser {
 		var lastChar = input[lastIndex];
 
 		int? sepIndex = null;
-		if (lastChar == '\'' || lastChar == '\"') {
+		if (lastChar is '\'' or '\"') {
 			var quoteIndex = input.LastIndexOf(lastChar, lastIndex - 1);
 			if (quoteIndex != -1) {
 				sepIndex = input.LastIndexOf(sep, quoteIndex - 1);

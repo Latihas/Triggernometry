@@ -68,7 +68,7 @@ public static class ArgHelper {
 				last1 = null;
 			}
 			// "..."
-			else if (part == "..." || part == "…") {
+			else if (part is "..." or "…") {
 				var d = last1 - last2
 				        ?? throw new ArgumentException($"Invalid argument count expression: '...' \nIn:{requiredCount}");
 				if (d <= 0)
@@ -165,7 +165,7 @@ public static class ArgHelper {
 
 		// optimize for default input
 		var checkDefault = slicesStr.Replace(" ", "");
-		if (checkDefault == "" || checkDefault == ":" || checkDefault == "::") {
+		if (checkDefault is "" or ":" or "::") {
 			return Enumerable.Range(0, totalLength).ToList();
 		}
 

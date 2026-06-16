@@ -259,17 +259,21 @@ public static partial class ScriptUtils {
 		Line,
 		Rect,
 		Ray,
-		Ring
+		Ring,
+		Dot
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
 		public readonly uint Color = color;
 		public readonly long Duration = duration;
-		public readonly long EndTime = DateTime.Now.Ticks / 10000 + duration;
+		public readonly long EndTime = duration == long.MaxValue ? long.MaxValue : DateTime.Now.Ticks / 10000 + duration;
 		public readonly Func<Vector3> Position = position;
 		public readonly ShapeType ShapeType = shapeType;
-		public bool toRecycle;
+		internal bool toRecycle;
+		public bool toRemove;
+
+		public void Remove() => toRemove = true;
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
@@ -378,8 +382,22 @@ public static partial class ScriptUtils {
 		}
 	}
 
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+	public class IGDot(Func<Vector3> position, float size, long? duration = null, uint? color = null)
+		: IGBase(position, duration ?? long.MaxValue, Dot, color ?? 0xFFFFFFFFu) {
+		public readonly float size = size;
+
+		public IGDot(Vector3 position, float size, long? duration = null, uint? color = null)
+			: this(() => position, size, duration, color) {
+		}
+	}
+
 	public static void DrawShape(IGBase shape) {
 		lock (ScriptDrawList) ScriptDrawList.Add(shape);
+	}
+
+	public static void RemoveShape(IGBase shape) {
+		lock (ScriptDrawList) ScriptDrawList.Remove(shape);
 	}
 
 	public static List<IGBase> ScriptDrawList = [];
@@ -408,6 +426,9 @@ public static partial class ScriptUtils {
 					break;
 				case Ring:
 					bdl.DrawIGRing((IGRing)shape);
+					break;
+				case Dot:
+					bdl.DrawIGDot((IGDot)shape);
 					break;
 			}
 		}
@@ -512,6 +533,11 @@ public static partial class ScriptUtils {
 				bdl.PathFillConvex(ring.Color);
 				bdl.PathClear();
 			}
+		}
+
+		private void DrawIGDot(IGDot dot) {
+			if (GameGui.WorldToScreen(dot.Position(), out var p))
+				bdl.AddCircleFilled(p, dot.size, dot.Color);
 		}
 
 		#endregion Draw

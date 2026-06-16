@@ -75,7 +75,7 @@ public abstract partial class XIVCoord {
 		return new Vector3((float)cart.X, (float)cart.Y, (float)cart.Z);
 	}
 
-	private static Regex rexOpKeywords = OpKeywordsRegex();
+	private static readonly Regex rexOpKeywords = OpKeywordsRegex();
 
 	/// <summary>
 	///     将一串直角坐标、极坐标、或混合方式指定的坐标解析并叠加，如：<br /><br />

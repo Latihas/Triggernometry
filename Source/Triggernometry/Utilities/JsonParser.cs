@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace Triggernometry.Utilities;
 
 internal class JsonParser {
-	private JsonSerializerOptions opts;
+	private readonly JsonSerializerOptions opts;
 
 	private class ObjectConverter : JsonConverter<object> {
 		public override object? Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {

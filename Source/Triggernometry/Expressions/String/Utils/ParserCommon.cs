@@ -46,7 +46,7 @@ public static partial class ParserCommon {
 	}
 
 	/// <summary> replace linebreaks with the placeholder when converting charcode to char </summary>
-	internal static char GetReplacedChar(int charcode) => charcode == 10 || charcode == 13 ? LINEBREAK : (char)charcode;
+	internal static char GetReplacedChar(int charcode) => charcode is 10 or 13 ? LINEBREAK : (char)charcode;
 
 	/// For arguments and regex in ${func:...}.
 	/// __LB__ / '｛' => '{';   __RB__ / '｝' => '}';

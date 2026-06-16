@@ -80,7 +80,7 @@ public class ActionWindowMessage : ActionBase {
 			// the same condition check as in WindowsUtils.FindWindowsByTitleRegex
 			target = I18n.Translate("internal/Action/descwindowtargetnone", "(unspecified window name)");
 		}
-		if (ProcessId == "" || ProcessId == "0") {
+		if (ProcessId is "" or "0") {
 			target = I18n.Translate("internal/Action/descwindowtargetsingle", "the first window whose title match ({0})", WindowTitle);
 		} else if (ProcessId == "-1") {
 			target = I18n.Translate("internal/Action/descwindowtargetall", "all windows whose titles match ({0})", WindowTitle);

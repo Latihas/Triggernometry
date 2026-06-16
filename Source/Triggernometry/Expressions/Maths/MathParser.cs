@@ -589,7 +589,7 @@ public partial class MathParser {
 			} else {
 				totalMin = double.Parse(etString, CultureInfo);
 			}
-			if (totalMin < 0 || totalMin > 1440) {
+			if (totalMin is < 0 or > 1440) {
 				throw new Exception();
 			}
 		} catch {
@@ -952,7 +952,7 @@ public partial class MathParser {
 						while (tokens.IndexOf(op) != -1) {
 							var opPlace = OperatorRightAssociative[op] ? tokens.LastIndexOf(op) : tokens.IndexOf(op);
 
-							if ((op == "+" || op == "-")
+							if (op is "+" or "-"
 							    && (opPlace == 0 || OperatorArity.ContainsKey(tokens[opPlace - 1]))) {
 								// the current op is plus/minus
 								ApplyPlusMinusToNumber(tokens, opPlace);

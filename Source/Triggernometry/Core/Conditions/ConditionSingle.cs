@@ -101,7 +101,7 @@ public sealed class ConditionSingle : ConditionComponent {
 		var desc = "";
 		var descL = ExpressionL is { Length: > 256 } ? ExpressionL[..256] + "..." : ExpressionL;
 		var descR = ExpressionR is { Length: > 256 } ? ExpressionR[..256] + "..." : ExpressionR;
-		if (ConditionType == CndTypeEnum.ListContains || ConditionType == CndTypeEnum.ListDoesNotContain) {
+		if (ConditionType is CndTypeEnum.ListContains or CndTypeEnum.ListDoesNotContain) {
 			desc = I18n.Translate("internal/ConditionSingle/listvar", "List variable specified by");
 			desc += " ";
 			switch (ExpressionTypeL) {

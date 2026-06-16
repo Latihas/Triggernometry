@@ -132,11 +132,13 @@ public class ProxyPlugin : IActPluginV1 {
 	private static void OnLogout(int type, int code) => VfxManager.Clear();
 
 	private static void DrawScriptBdl() {
+		if (ObjectTable.LocalPlayer == null) return;
 		var bdl = ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
 		var now = DateTime.Now.Ticks / 10000;
 		lock (ScriptDrawList) {
 			foreach (var shape in ScriptDrawList.Where(shape => !shape.toRecycle)) {
-				if (now > shape.EndTime) {
+				if (now > shape.EndTime || shape.toRemove) {
+					shape.toRemove = false;
 					shape.toRecycle = true;
 					BDLClearCount++;
 					continue;
