@@ -8,6 +8,7 @@ using static Triggernometry.PScript.ScriptUtils;
 namespace Triggernometry.PScript;
 
 public abstract class IScriptBase : IActPluginV1 {
+	public virtual bool IsDev => false;
 	public virtual string Desc => "无信息";
 	public virtual List<TargetIcon> TargetIconList => [];
 	public virtual List<StartsCasting> StartsCastingList => [];

@@ -28,12 +28,22 @@ public static partial class ScriptUtils {
 	public static uint CurrentTerritory => ClientState.TerritoryType;
 	public static Func<Vector3> Me_Position => () => Me.Position;
 	public static Func<float> Me_Rotation => () => Me.Rotation;
-	public static ulong Me_HexID() => Me.GameObjectId;
+	public static ulong Me_HexID() => Me.EntityId;
 	public static IGameObject? GetGameObjectById(ulong id) => ObjectTable.SearchById(id);
 	public static Func<Vector3> GetGameObjectById_Position(ulong id) => () => GetGameObjectById(id).Position;
 	public static Func<float> GetGameObjectById_Rotation(ulong id) => () => GetGameObjectById(id).Rotation;
 	public static void Log(string message) => RealPlugin.Instance.InvokeNamedCallback("command", $"/e {message}");
 
+	public enum JobCat {
+		MT,
+		ST,
+		H1,
+		H2,
+		D1,
+		D2,
+		D3,
+		D4
+	}
 	public static void MatchAll(this IScriptBase scriptBase, string logLine) {
 		MatchTargetIcon(logLine, scriptBase.TargetIconList);
 		MatchStartsCasting(logLine, scriptBase.StartsCastingList);
