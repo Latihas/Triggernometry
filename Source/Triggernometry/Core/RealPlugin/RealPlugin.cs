@@ -564,8 +564,9 @@ public partial class RealPlugin {
 			var szone = BridgeFFXIV.ZoneID;
 			try {
 				foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => (IScriptBase)i.pluginObj)) {
-					if (script.TerritoryIds() == null || script.TerritoryIds().Contains(szone))
+					if (script.TerritoryIds() == null || script.TerritoryIds().Contains(szone)) {
 						script.MatchAll(logLine);
+					}
 					if (script.TerritoryIds() != null) {
 						foreach (var (regex, action) in script.IgnoreTerritory) {
 							var match = regex.Match(logLine);

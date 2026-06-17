@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -44,20 +45,22 @@ public static partial class ScriptUtils {
 		D3,
 		D4
 	}
+
 	public static void MatchAll(this IScriptBase scriptBase, string logLine) {
 		MatchTargetIcon(logLine, scriptBase.TargetIconList);
 		MatchStartsCasting(logLine, scriptBase.StartsCastingList);
 		MatchStatusAdd(logLine, scriptBase.StatusAddList);
+		// RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,$"{scriptBase.GetType()}/{scriptBase.CustomList.Count}/{logLine}");
 		foreach (var (regex, action) in scriptBase.CustomList) {
 			var match = regex.Match(logLine);
-			if (!match.Success) return;
+			if (!match.Success) continue;
 			action(match.Groups);
 		}
 	}
 
 	public static void ClearAllIGShape() {
 		lock (ScriptDrawList)
-			foreach (var c in ScriptDrawList)
+			foreach (var c in ScriptDrawList.Where(c => !c.persist))
 				c.toRecycle = true;
 	}
 
@@ -274,7 +277,7 @@ public static partial class ScriptUtils {
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color) {
+	public class IGBase(Func<Vector3> position, long duration, ShapeType shapeType, uint color, bool persist = false) {
 		public readonly uint Color = color;
 		public readonly long Duration = duration;
 		public readonly long EndTime = duration == long.MaxValue ? long.MaxValue : DateTime.Now.Ticks / 10000 + duration;
@@ -282,6 +285,7 @@ public static partial class ScriptUtils {
 		public readonly ShapeType ShapeType = shapeType;
 		internal bool toRecycle;
 		public bool toRemove;
+		public readonly bool persist = persist;
 
 		public void Remove() => toRemove = true;
 	}
@@ -290,12 +294,12 @@ public static partial class ScriptUtils {
 	public class IGCircle : IGBase {
 		internal readonly (float, float)[] _params;
 
-		public IGCircle(Vector3 position, double r, long duration, uint? color = null)
-			: this(() => position, r, duration, color) {
+		public IGCircle(Vector3 position, double r, long duration, uint? color = null, bool persist = false)
+			: this(() => position, r, duration, color, persist) {
 		}
 
-		public IGCircle(Func<Vector3> position, double r, long duration, uint? color = null)
-			: base(position, duration, Circle, color ?? 0x40FFFF00u) {
+		public IGCircle(Func<Vector3> position, double r, long duration, uint? color = null, bool persist = false)
+			: base(position, duration, Circle, color ?? 0x40FFFF00u, persist) {
 			var r1 = (float)r;
 			_params = new (float, float)[DefaultCircleSegments + 1];
 			for (var i = 0; i <= DefaultCircleSegments; i++) {
@@ -306,99 +310,102 @@ public static partial class ScriptUtils {
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGCone(Func<Vector3> position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null)
-		: IGBase(position, duration, Cone, color ?? 0x4000FFFFu) {
+	public class IGCone(Func<Vector3> position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null, bool persist = false)
+		: IGBase(position, duration, Cone, color ?? 0x4000FFFFu, persist) {
 		public readonly float AngleRad = (float)angleRad;
 		public readonly int CircleSegments = circleSegments ?? (int)(DefaultCircleSegments * (angleRad / (2 * MathF.PI)));
 		public readonly float R = (float)r;
 		public readonly Func<float> Rotation = rotation;
 
-		public IGCone(Vector3 position, double r, float rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null) : this(() => position, r, () => rotation, angleRad, duration, circleSegments, color) {
+		public IGCone(Vector3 position, double r, float rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null, bool persist = false) : this(() => position, r, () => rotation, angleRad, duration, circleSegments, color,
+			persist) {
 		}
 
-		public IGCone(Vector3 position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null) : this(() => position, r, rotation, angleRad, duration, circleSegments, color) {
+		public IGCone(Vector3 position, double r, Func<float> rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null, bool persist = false) : this(() => position, r, rotation, angleRad, duration, circleSegments, color,
+			persist) {
 		}
 
-		public IGCone(Func<Vector3> position, double r, float rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null) : this(position, r, () => rotation, angleRad, duration, circleSegments, color) {
+		public IGCone(Func<Vector3> position, double r, float rotation, double angleRad, long duration, int? circleSegments = null, uint? color = null, bool persist = false) : this(position, r, () => rotation, angleRad, duration, circleSegments, color,
+			persist) {
 		}
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null)
-		: IGBase(position, duration, Line, color ?? 0x400000FFu) {
+	public class IGLine(Func<Vector3> position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null, bool persist = false)
+		: IGBase(position, duration, Line, color ?? 0x400000FFu, persist) {
 		public readonly Func<Vector3> Position2 = position2;
 		public readonly float Thickness = thickness;
 
-		public IGLine(Vector3 position, Vector3 position2, long duration, float thickness = 5, uint? color = null)
-			: this(() => position, () => position2, duration, thickness, color) {
+		public IGLine(Vector3 position, Vector3 position2, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(() => position, () => position2, duration, thickness, color, persist) {
 		}
 
-		public IGLine(Vector3 position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null)
-			: this(() => position, position2, duration, thickness, color) {
+		public IGLine(Vector3 position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(() => position, position2, duration, thickness, color, persist) {
 		}
 
-		public IGLine(Func<Vector3> position, Vector3 position2, long duration, float thickness = 5, uint? color = null)
-			: this(position, () => position2, duration, thickness, color) {
+		public IGLine(Func<Vector3> position, Vector3 position2, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(position, () => position2, duration, thickness, color, persist) {
 		}
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null)
-		: IGBase(position, duration, Rect, color ?? 0x400000FFu) {
+	public class IGRect(Func<Vector3> position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null, bool persist = false)
+		: IGBase(position, duration, Rect, color ?? 0x400000FFu, persist) {
 		public readonly Func<Vector3> Position2 = position2;
 		public readonly float Thickness = thickness;
 
-		public IGRect(Vector3 position, Vector3 position2, long duration, float thickness = 5, uint? color = null)
-			: this(() => position, () => position2, duration, thickness, color) {
+		public IGRect(Vector3 position, Vector3 position2, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(() => position, () => position2, duration, thickness, color, persist) {
 		}
 
-		public IGRect(Vector3 position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null)
-			: this(() => position, position2, duration, thickness, color) {
+		public IGRect(Vector3 position, Func<Vector3> position2, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(() => position, position2, duration, thickness, color, persist) {
 		}
 
-		public IGRect(Func<Vector3> position, Vector3 position2, long duration, float thickness = 5, uint? color = null)
-			: this(position, () => position2, duration, thickness, color) {
+		public IGRect(Func<Vector3> position, Vector3 position2, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(position, () => position2, duration, thickness, color, persist) {
 		}
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGRay(Func<Vector3> position, float length, Func<float> rotation, long duration, float thickness = 5, uint? color = null)
-		: IGBase(position, duration, Ray, color ?? 0x400000FFu) {
+	public class IGRay(Func<Vector3> position, float length, Func<float> rotation, long duration, float thickness = 5, uint? color = null, bool persist = false)
+		: IGBase(position, duration, Ray, color ?? 0x400000FFu, persist) {
 		public readonly float Length = length;
 		public readonly Func<float> Rotation = rotation;
 		public readonly float Thickness = thickness;
 
-		public IGRay(Vector3 position, float length, float rotation, long duration, float thickness = 5, uint? color = null)
-			: this(() => position, length, () => rotation, duration, thickness, color) {
+		public IGRay(Vector3 position, float length, float rotation, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(() => position, length, () => rotation, duration, thickness, color, persist) {
 		}
 
-		public IGRay(Vector3 position, float length, Func<float> rotation, long duration, float thickness = 5, uint? color = null)
-			: this(() => position, length, rotation, duration, thickness, color) {
+		public IGRay(Vector3 position, float length, Func<float> rotation, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(() => position, length, rotation, duration, thickness, color, persist) {
 		}
 
-		public IGRay(Func<Vector3> position, float length, float rotation, long duration, float thickness = 5, uint? color = null)
-			: this(position, length, () => rotation, duration, thickness, color) {
+		public IGRay(Func<Vector3> position, float length, float rotation, long duration, float thickness = 5, uint? color = null, bool persist = false)
+			: this(position, length, () => rotation, duration, thickness, color, persist) {
 		}
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGRing(Func<Vector3> position, double R, double r, long duration, uint? color = null)
-		: IGBase(position, duration, Ring, color ?? 0x40FFFF00u) {
+	public class IGRing(Func<Vector3> position, double R, double r, long duration, uint? color = null, bool persist = false)
+		: IGBase(position, duration, Ring, color ?? 0x40FFFF00u, persist) {
 		public readonly float r = (float)r;
 		public readonly float R = (float)R;
 
-		public IGRing(Vector3 position, double R, double r, long duration, uint? color = null)
-			: this(() => position, R, r, duration, color) {
+		public IGRing(Vector3 position, double R, double r, long duration, uint? color = null, bool persist = false)
+			: this(() => position, R, r, duration, color, persist) {
 		}
 	}
 
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
-	public class IGDot(Func<Vector3> position, float size, long? duration = null, uint? color = null)
-		: IGBase(position, duration ?? long.MaxValue, Dot, color ?? 0xFFFFFFFFu) {
+	public class IGDot(Func<Vector3> position, float size, long? duration = null, uint? color = null, bool persist = false)
+		: IGBase(position, duration ?? long.MaxValue, Dot, color ?? 0xFFFFFFFFu, persist) {
 		public readonly float size = size;
 
-		public IGDot(Vector3 position, float size, long? duration = null, uint? color = null)
-			: this(() => position, size, duration, color) {
+		public IGDot(Vector3 position, float size, long? duration = null, uint? color = null, bool persist = false)
+			: this(() => position, size, duration, color, persist) {
 		}
 	}
 

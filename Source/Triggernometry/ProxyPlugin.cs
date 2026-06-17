@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Advanced_Combat_Tracker;
@@ -84,7 +83,7 @@ public class ProxyPlugin : IActPluginV1 {
 	}
 
 	public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui,
-		ISigScanner sigScanner, int latestVer, Action<string> logTick) {
+		ISigScanner sigScanner, Action<string> logTick) {
 		DalamudPlugin = dalamudPlugin;
 		PluginInterface = dalamudPluginInterface;
 		ClientState = clientState;
@@ -117,14 +116,6 @@ public class ProxyPlugin : IActPluginV1 {
 		PluginInterface.UiBuilder.Draw += DrawScriptBdl;
 		ClientState.Logout += OnLogout;
 		Framework.Update += VfxManager.WorkerLoop;
-		if (dalamudPlugin.Configuration.Version != latestVer) {
-			try {
-				RealPlugin.Instance.cfg.CompileFailedScripts.Clear();
-				Directory.Delete(Path.Combine(DalamudPlugin.scriptsDir, "Scripts"), true);
-			} catch (Exception ex) {
-				log.Warning($"Error Updating Configuration: {ex}");
-			}
-		}
 		Instance.InitPlugin(logTick);
 		RealPlugin.Instance.InitAura();
 	}
