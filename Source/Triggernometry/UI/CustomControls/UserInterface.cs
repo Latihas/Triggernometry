@@ -2451,162 +2451,166 @@ public class UserInterface {
 	}
 
 	private static void RenderTreeNode(string text, object tag, bool isDisabled, Action? renderChildren) {
-		_nodeExpandedStates.TryAdd(tag, false);
-		_nodeCheckedStates[tag] = tag switch {
-			Folder folder => folder.Enabled,
-			Trigger trigger => trigger.Enabled,
-			Repository repo => repo.Enabled,
-			RepositoryFolder repoFolder => repoFolder.Enabled,
-			_ => false
-		};
-		if (isDisabled) ImGui.PushStyleColor(ImGuiCol.Text, ColorGrey);
-		var flags = ImGuiTreeNodeFlags.None;
-		if (renderChildren == null) flags |= ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
-		var isChecked = _nodeCheckedStates[tag];
-		if (ImGui.Checkbox($"##check_{tag.GetHashCode()}", ref isChecked)) {
-			switch (tag) {
-				case Folder folder:
-					folder.Enabled = isChecked;
-					break;
-				case Trigger trigger:
-					trigger.Enabled = isChecked;
-					if (isChecked) RealPlugin.Instance.TriggerEnabled(trigger);
-					else RealPlugin.Instance.TriggerDisabled(trigger);
-					break;
-				case Repository repo:
-					repo.Enabled = isChecked;
-					break;
-				case RepositoryFolder repoFolder:
-					repoFolder.Enabled = isChecked;
-					break;
-			}
-			BuildTriggerTreeFromConfiguration(null, null);
-			Task.Run(RealPlugin.Instance.SaveCurrentConfig);
-		}
-		ImGui.SameLine();
-		var isExpanded = ImGui.TreeNodeEx(
-			$"{text}##{tag.GetHashCode()}",
-			flags
-		);
-		if (ImGui.IsItemClicked(ImGuiMouseButton.Right)) ImGui.OpenPopup($"context_menu_{tag.GetHashCode()}");
-		if (ImGui.BeginPopup($"context_menu_{tag.GetHashCode()}")) {
-			var tempStylePopped = false;
-			if (isDisabled) {
-				ImGui.PopStyleColor();
-				tempStylePopped = true;
-			}
-			switch (tag) {
-				case Repository repo: {
-					if (ImGui.MenuItem("更新"))
-						_ = RealPlugin.Instance.UpdateRepositoriesAsync([repo], false);
-					if (ImGui.MenuItem("编辑"))
-						ProxyPlugin.DalamudPlugin.RepoWindow.Open(repo);
-					break;
+		try {
+			_nodeExpandedStates.TryAdd(tag, false);
+			_nodeCheckedStates[tag] = tag switch {
+				Folder folder => folder.Enabled,
+				Trigger trigger => trigger.Enabled,
+				Repository repo => repo.Enabled,
+				RepositoryFolder repoFolder => repoFolder.Enabled,
+				_ => false
+			};
+			if (isDisabled) ImGui.PushStyleColor(ImGuiCol.Text, ColorGrey);
+			var flags = ImGuiTreeNodeFlags.None;
+			if (renderChildren == null) flags |= ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
+			var isChecked = _nodeCheckedStates[tag];
+			if (ImGui.Checkbox($"##check_{tag.GetHashCode()}", ref isChecked)) {
+				switch (tag) {
+					case Folder folder:
+						folder.Enabled = isChecked;
+						break;
+					case Trigger trigger:
+						trigger.Enabled = isChecked;
+						if (isChecked) RealPlugin.Instance.TriggerEnabled(trigger);
+						else RealPlugin.Instance.TriggerDisabled(trigger);
+						break;
+					case Repository repo:
+						repo.Enabled = isChecked;
+						break;
+					case RepositoryFolder repoFolder:
+						repoFolder.Enabled = isChecked;
+						break;
 				}
-				case RepositoryFolder: {
-					if (ImGui.MenuItem("添加")) {
-						var repos = new Repository();
-						AddRepo(repos, false);
-						ProxyPlugin.DalamudPlugin.RepoWindow.Open(repos);
+				BuildTriggerTreeFromConfiguration(null, null);
+				Task.Run(RealPlugin.Instance.SaveCurrentConfig);
+			}
+			ImGui.SameLine();
+			var isExpanded = ImGui.TreeNodeEx(
+				$"{text}##{tag.GetHashCode()}",
+				flags
+			);
+			if (ImGui.IsItemClicked(ImGuiMouseButton.Right)) ImGui.OpenPopup($"context_menu_{tag.GetHashCode()}");
+			if (ImGui.BeginPopup($"context_menu_{tag.GetHashCode()}")) {
+				var tempStylePopped = false;
+				if (isDisabled) {
+					ImGui.PopStyleColor();
+					tempStylePopped = true;
+				}
+				switch (tag) {
+					case Repository repo: {
+						if (ImGui.MenuItem("更新"))
+							_ = RealPlugin.Instance.UpdateRepositoriesAsync([repo], false);
+						if (ImGui.MenuItem("编辑"))
+							ProxyPlugin.DalamudPlugin.RepoWindow.Open(repo);
+						break;
 					}
-					if (ImGui.MenuItem("全部更新")) _ = RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
-					break;
-				}
-				case Trigger trigger: {
-					if (ImGui.MenuItem("执行(忽略条件)"))
-						ForceFireTrigger(trigger, TriggerForceTypeEnum.SkipAll);
-					if (ImGui.MenuItem("执行(考虑条件)"))
-						ForceFireTrigger(trigger, TriggerForceTypeEnum.SkipExceptConditions);
-					if (ImGui.MenuItem("编辑触发器"))
-						ProxyPlugin.DalamudPlugin.TriggerWindow.Open(trigger);
-					break;
-				}
-				case Folder folder: {
-					if (ImGui.MenuItem("编辑"))
-						ProxyPlugin.DalamudPlugin.FolderWindow.Open(folder);
-					break;
-				}
-			}
-			ImGui.Separator();
-			if (ImGui.MenuItem("新建分组")) {
-				var target = tag switch {
-					Trigger trigger => trigger.Parent,
-					Folder folder => folder,
-					_ => null
-				};
-				if (target != null) {
-					var f = new Folder();
-					target.Folders.Add(f);
-					ProxyPlugin.DalamudPlugin.FolderWindow.Open(f);
-				}
-			}
-			if (ImGui.MenuItem("新建触发器")) {
-				var target = tag switch {
-					Trigger trigger => trigger.Parent,
-					Folder folder => folder,
-					_ => null
-				};
-				if (target != null) {
-					var t = new Trigger();
-					target.Triggers.Add(t);
-					ProxyPlugin.DalamudPlugin.TriggerWindow.Open(t);
-				}
-			}
-			ImGui.Separator();
-			// if (ImGui.MenuItem("导入"))
-			// 	ProxyPlugin.DalamudPlugin.ImportWindow.Open(tag);
-			if (ImGui.MenuItem("从剪切板导入(粘贴)"))
-				ProxyPlugin.DalamudPlugin.ImportWindow.Import(tag, ImGui.GetClipboardText());
-			if (ImGui.MenuItem("导出(复制到剪切板)"))
-				ImGui.SetClipboardText(ExportSelection(tag).Serialize());
-			ImGui.Separator();
-			if (ImGui.MenuItem("移除")) {
-				lock (RealPlugin.Instance) {
-					switch (tag) {
-						case Trigger triggerx:
-							RealPlugin.Instance.RemoveTrigger(triggerx);
-							triggerx.Parent.Triggers.Remove(triggerx);
-							ProxyPlugin.DalamudPlugin.ActionWindow.Open(tag);
-							ProxyPlugin.DalamudPlugin.TriggerWindow.Open(tag);
-							break;
-						case Folder folderx:
-							RemoveAllTriggers(folderx);
-							folderx.Parent.Folders.Remove(folderx);
-							ProxyPlugin.DalamudPlugin.FolderWindow.Open(tag);
-							break;
-						case Repository repository:
-							RemoveRepo(repository.Address);
-							ProxyPlugin.DalamudPlugin.RepoWindow.Open(tag);
-							break;
+					case RepositoryFolder: {
+						if (ImGui.MenuItem("添加")) {
+							var repos = new Repository();
+							AddRepo(repos, false);
+							ProxyPlugin.DalamudPlugin.RepoWindow.Open(repos);
+						}
+						if (ImGui.MenuItem("全部更新")) _ = RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
+						break;
+					}
+					case Trigger trigger: {
+						if (ImGui.MenuItem("执行(忽略条件)"))
+							ForceFireTrigger(trigger, TriggerForceTypeEnum.SkipAll);
+						if (ImGui.MenuItem("执行(考虑条件)"))
+							ForceFireTrigger(trigger, TriggerForceTypeEnum.SkipExceptConditions);
+						if (ImGui.MenuItem("编辑触发器"))
+							ProxyPlugin.DalamudPlugin.TriggerWindow.Open(trigger);
+						break;
+					}
+					case Folder folder: {
+						if (ImGui.MenuItem("编辑"))
+							ProxyPlugin.DalamudPlugin.FolderWindow.Open(folder);
+						break;
 					}
 				}
+				ImGui.Separator();
+				if (ImGui.MenuItem("新建分组")) {
+					var target = tag switch {
+						Trigger trigger => trigger.Parent,
+						Folder folder => folder,
+						_ => null
+					};
+					if (target != null) {
+						var f = new Folder();
+						target.Folders.Add(f);
+						ProxyPlugin.DalamudPlugin.FolderWindow.Open(f);
+					}
+				}
+				if (ImGui.MenuItem("新建触发器")) {
+					var target = tag switch {
+						Trigger trigger => trigger.Parent,
+						Folder folder => folder,
+						_ => null
+					};
+					if (target != null) {
+						var t = new Trigger();
+						target.Triggers.Add(t);
+						ProxyPlugin.DalamudPlugin.TriggerWindow.Open(t);
+					}
+				}
+				ImGui.Separator();
+				// if (ImGui.MenuItem("导入"))
+				// 	ProxyPlugin.DalamudPlugin.ImportWindow.Open(tag);
+				if (ImGui.MenuItem("从剪切板导入(粘贴)"))
+					ProxyPlugin.DalamudPlugin.ImportWindow.Import(tag, ImGui.GetClipboardText());
+				if (ImGui.MenuItem("导出(复制到剪切板)"))
+					ImGui.SetClipboardText(ExportSelection(tag).Serialize());
+				ImGui.Separator();
+				if (ImGui.MenuItem("移除")) {
+					lock (RealPlugin.Instance) {
+						switch (tag) {
+							case Trigger triggerx:
+								RealPlugin.Instance.RemoveTrigger(triggerx);
+								triggerx.Parent.Triggers.Remove(triggerx);
+								ProxyPlugin.DalamudPlugin.ActionWindow.Open(tag);
+								ProxyPlugin.DalamudPlugin.TriggerWindow.Open(tag);
+								break;
+							case Folder folderx:
+								RemoveAllTriggers(folderx);
+								folderx.Parent.Folders.Remove(folderx);
+								ProxyPlugin.DalamudPlugin.FolderWindow.Open(tag);
+								break;
+							case Repository repository:
+								RemoveRepo(repository.Address);
+								ProxyPlugin.DalamudPlugin.RepoWindow.Open(tag);
+								break;
+						}
+					}
+				}
+				ImGui.EndPopup();
+				if (tempStylePopped) ImGui.PushStyleColor(ImGuiCol.Text, ColorGrey);
 			}
-			ImGui.EndPopup();
-			if (tempStylePopped) ImGui.PushStyleColor(ImGuiCol.Text, ColorGrey);
-		}
 
-		if (_nodeCheckedStates[tag] != isChecked) {
-			_nodeCheckedStates[tag] = isChecked;
-			switch (tag) {
-				case Folder folder:
-					folder.Enabled = isChecked;
-					break;
-				case Trigger trigger:
-					trigger.Enabled = isChecked;
-					break;
-				case Repository repo:
-					repo.Enabled = isChecked;
-					break;
+			if (_nodeCheckedStates[tag] != isChecked) {
+				_nodeCheckedStates[tag] = isChecked;
+				switch (tag) {
+					case Folder folder:
+						folder.Enabled = isChecked;
+						break;
+					case Trigger trigger:
+						trigger.Enabled = isChecked;
+						break;
+					case Repository repo:
+						repo.Enabled = isChecked;
+						break;
+				}
 			}
+			_nodeExpandedStates[tag] = isExpanded;
+			if (isExpanded && renderChildren != null) {
+				ImGui.Indent();
+				renderChildren();
+				ImGui.Unindent();
+				ImGui.TreePop();
+			}
+			if (isDisabled) ImGui.PopStyleColor();
+		} catch (Exception e) {
+			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, e.ToString());
 		}
-		_nodeExpandedStates[tag] = isExpanded;
-		if (isExpanded && renderChildren != null) {
-			ImGui.Indent();
-			renderChildren();
-			ImGui.Unindent();
-			ImGui.TreePop();
-		}
-		if (isDisabled) ImGui.PopStyleColor();
 	}
 
 
