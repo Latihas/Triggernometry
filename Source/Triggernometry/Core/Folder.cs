@@ -6,6 +6,7 @@ using Triggernometry.Core.Serialization;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Localization;
 using Triggernometry.PluginBridges;
+using TriggernometryProxy;
 
 namespace Triggernometry.Core;
 
@@ -247,10 +248,10 @@ public class Folder {
 		var ret = true;
 		var f = this;
 		while (f != null && ret) {
-			if (ret && f.ZoneFilterEnabled) {
+			if (ret && (f.ZoneFilterEnabled || ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Trn)) {
 				ret = f._regexCacheZone != null && f._regexCacheZone.IsMatch(zone);
 			}
-			if (ret && f.FFXIVZoneFilterEnabled) {
+			if (ret && (f.FFXIVZoneFilterEnabled || ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Trn)) {
 				ret = f._regexCacheFfxivZoneId != null && f._regexCacheFfxivZoneId.IsMatch(BridgeFFXIV.ZoneID.ToString());
 			}
 			f = f.Parent;
@@ -265,13 +266,13 @@ public class Folder {
 			if (!f.Enabled) {
 				return FilterFailReason.NotEnabled;
 			}
-			if (ret && f.ZoneFilterEnabled) {
+			if (ret && (f.ZoneFilterEnabled || ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Trn)) {
 				ret = f._regexCacheZone != null && f._regexCacheZone.IsMatch(le.ZoneName);
 			}
 			if (ret && f.EventFilterEnabled) {
 				ret = f._regexCacheEvent != null && f._regexCacheEvent.IsMatch(le.Text);
 			}
-			if (ret && f.FFXIVZoneFilterEnabled) {
+			if (ret && (f.FFXIVZoneFilterEnabled || ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Trn)) {
 				var zId = le.ZoneId ?? BridgeFFXIV.ZoneID.ToString();
 				ret = f._regexCacheFfxivZoneId != null && f._regexCacheFfxivZoneId.IsMatch(zId);
 			}

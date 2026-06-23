@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Advanced_Combat_Tracker;
 using Dalamud.Bindings.ImGui;
@@ -564,6 +565,7 @@ public static partial class ScriptUtils {
 		try {
 			var sb = new StringBuilder("{");
 			foreach (var s in expr.Split(';')) {
+				if (string.IsNullOrEmpty(s)) continue;
 				var parts = s.Split(':');
 				var name = parts[0] switch {
 					"1" => "One",
@@ -581,7 +583,31 @@ public static partial class ScriptUtils {
 			}
 			RealPlugin.Instance.InvokeNamedCallback("place", sb.Append('}').ToString());
 		} catch (Exception ex) {
-			Log($"Place Error({expr}):{ex.StackTrace}");
+			Log($"Place Error({expr}):{ex}");
+		}
+	}
+
+	extension(Dictionary<string, CancellationTokenSource?> ctsPool) {
+		public void DestroyCts(string key) {
+			if (!ctsPool.TryGetValue(key, out var value)) return;
+			value?.Cancel();
+			value?.Dispose();
+			ctsPool[key] = null;
+		}
+
+		public CancellationToken CreateCts(string key) {
+			var cts = new CancellationTokenSource();
+			ctsPool[key] = cts;
+			return cts.Token;
+		}
+
+		public bool GetToken(string key, out CancellationToken token) {
+			if (!ctsPool.TryGetValue(key, out var cts) || cts == null) {
+				token = CancellationToken.None;
+				return false;
+			}
+			token = cts.Token;
+			return true;
 		}
 	}
 }

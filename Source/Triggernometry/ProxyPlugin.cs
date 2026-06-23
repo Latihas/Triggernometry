@@ -10,6 +10,7 @@ using Dalamud.Hooking;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Triggernometry.Core;
+using Triggernometry.FFXIV;
 using Triggernometry.PluginBridges;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 using static Triggernometry.PluginBridges.BridgeNamazu.Modules.VfxModule;
@@ -227,29 +228,43 @@ public class ProxyPlugin : IActPluginV1 {
 			mainform.ActiveZone?.ActiveEncounter.LogLines.Add(new LogLineEntry(DateTime.Now, message, 0xFFF, mainform.GlobalTimeSorter));
 	}
 
-	// [Obsolete("Use GetPluginDataByType instead.")]
-	// public static ActPluginData GetPluginDataByName(string name) => GetPluginDataByType(name);
-	// public static ActPluginData GetPluginDataByType(string name)
-	// {
-	//     foreach (var plugin in ActGlobals.oFormActMain.ActPlugins)
-	//     {
-	//         if (plugin.cbEnabled.Checked && plugin.pluginObj?.GetType()?.ToString() == name)
-	//         {
-	//             return plugin;
-	//         }
-	//     }
-	//     return null;
-	// }
+	#region Add
 
-	// public static ActPluginData GetPluginDataByFileName(string name)
-	// {
-	//     foreach (var plugin in ActGlobals.oFormActMain.ActPlugins)
-	//     {
-	//         if (plugin.cbEnabled.Checked && plugin.pluginFile?.Name == name)
-	//         {
-	//             return plugin;
-	//         }
-	//     }
-	//     return null;
-	// }
+	public static PartyInfo? currentPartyInfo;
+
+	public class PartyInfo(PartyInfo.PartyPlayer[] players, uint Territory) {
+		public readonly PartyPlayer[] players = players;
+		public uint Territory = Territory;
+		public PartyPlayer Me() => players.First(i => i.name == ObjectTable.LocalPlayer?.Name.ToString());
+
+		public class PartyPlayer {
+			public JobEnum job;
+			public int order;
+			public JobCat jobcat;
+			public string name;
+			public string world;
+
+			// ReSharper disable once UnusedMember.Global
+			public PartyPlayer() { }
+
+			public PartyPlayer(Job job, string name, string world, int order) {
+				this.job = job.JobType;
+				this.order = order;
+				jobcat = job.SubRole switch {
+					Job.RoleType.PureHealer => JobCat.H1,
+					Job.RoleType.FlexHealer => JobCat.H1,
+					Job.RoleType.BarrierHealer => JobCat.H2,
+					Job.RoleType.StrengthMelee => JobCat.D1,
+					Job.RoleType.DexterityMelee => JobCat.D2,
+					Job.RoleType.PhysicalRanged => JobCat.D3,
+					Job.RoleType.MagicalRanged => JobCat.D4,
+					_ => JobCat.MT
+				};
+				this.name = name;
+				this.world = world;
+			}
+		}
+	}
+
+	#endregion
 }

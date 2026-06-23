@@ -18,6 +18,7 @@ using Triggernometry.PluginBridges.ExternalTools;
 using Triggernometry.PScript;
 using Triggernometry.UI.CustomControls;
 using Triggernometry.Utilities;
+using TriggernometryProxy;
 using Font = System.Drawing.Font;
 
 // ReSharper disable once CheckNamespace
@@ -564,10 +565,10 @@ public partial class RealPlugin {
 			var szone = BridgeFFXIV.ZoneID;
 			try {
 				foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => (IScriptBase)i.pluginObj)) {
-					if (script.TerritoryIds() == null || script.TerritoryIds().Contains(szone)) {
+					if (script.TerritoryIds() == null || script.TerritoryIds().Contains(szone) || ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Script) {
 						script.MatchAll(logLine);
 					}
-					if (script.TerritoryIds() != null) {
+					if (script.TerritoryIds() != null || ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Script) {
 						foreach (var (regex, action) in script.IgnoreTerritory) {
 							var match = regex.Match(logLine);
 							if (!match.Success) continue;
