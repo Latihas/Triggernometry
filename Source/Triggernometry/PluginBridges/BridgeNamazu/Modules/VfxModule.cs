@@ -163,7 +163,7 @@ public partial class VfxModule : ModuleBase {
 		if (vfxPtr == null || (IntPtr)vfxPtr == IntPtr.Zero) return false;
 		var found = VfxManager.TryUnregisterActor((IntPtr)vfxPtr, out var vfx);
 		if (!found && !scheduleRemovalByGame) {
-			Custom2Log($"[ActorVfx] 移除特效：（已移除）@{(IntPtr)vfxPtr:X}");
+			// Custom2Log($"[ActorVfx] 移除特效：（已移除）@{(IntPtr)vfxPtr:X}");
 			return false;
 		}
 		if (!ProxyPlugin.ActorVfxRemoveHook.IsEnabled) {
@@ -238,7 +238,7 @@ public partial class VfxModule : ModuleBase {
 		CheckIfAnyZeroPtr();
 		if (vfxPtr == null || (IntPtr)vfxPtr == IntPtr.Zero) return false;
 		if (!VfxManager.TryUnregisterStatic((IntPtr)vfxPtr, out _)) {
-			Custom2Log($"[StaticVfx] 移除特效：（已移除）@{(IntPtr)vfxPtr:X}");
+			// Custom2Log($"[StaticVfx] 移除特效：（已移除）@{(IntPtr)vfxPtr:X}");
 			return false;
 		}
 		if (!ProxyPlugin.StaticVfxRemoveHook.IsEnabled) {
