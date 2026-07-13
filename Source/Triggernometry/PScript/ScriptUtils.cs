@@ -24,9 +24,10 @@ public static partial class ScriptUtils {
 	public static readonly Regex LogRegexTargetIcon = _LogRegexTargetIcon();
 	public static readonly Regex LogRegexStatusAdd = _LogRegexStatusAdd();
 	public static readonly Regex LogRegexStartsCasting = _LogRegexStartsCasting();
-	public static Context fakectx = new(null);
-	public static readonly Trigger _tri = new();
+	public static readonly Context fakectx = new(null);
+	public static readonly Trigger faketri = new();
 	public static IPlayerCharacter Me => ObjectTable.LocalPlayer;
+	public static string Me_Name => Me.Name.ToString();
 	public static uint CurrentTerritory => ClientState.TerritoryType;
 	public static Func<Vector3> Me_Position => () => Me.Position;
 	public static Func<float> Me_Rotation => () => Me.Rotation;
@@ -51,7 +52,6 @@ public static partial class ScriptUtils {
 		MatchTargetIcon(logLine, scriptBase.TargetIconList);
 		MatchStartsCasting(logLine, scriptBase.StartsCastingList);
 		MatchStatusAdd(logLine, scriptBase.StatusAddList);
-		// RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,$"{scriptBase.GetType()}/{scriptBase.CustomList.Count}/{logLine}");
 		foreach (var (regex, action) in scriptBase.CustomList) {
 			var match = regex.Match(logLine);
 			if (!match.Success) continue;
@@ -75,7 +75,7 @@ public static partial class ScriptUtils {
 	}
 
 	public static void Beep(float freq, int length) {
-		RealPlugin.Instance.QueueAction(fakectx, _tri, null,
+		RealPlugin.Instance.QueueAction(fakectx, faketri, null,
 			new ActionOld {
 				ActionType = ActionOld.ActionTypeEnum.SystemBeep,
 				SystemBeepFreqExpression = freq.ToString(),
