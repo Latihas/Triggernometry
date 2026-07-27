@@ -35,7 +35,7 @@ public static partial class ScriptUtils {
 	public static IGameObject? GetGameObjectById(ulong id) => ObjectTable.SearchById(id);
 	public static Func<Vector3> GetGameObjectById_Position(ulong id) => () => GetGameObjectById(id).Position;
 	public static Func<float> GetGameObjectById_Rotation(ulong id) => () => GetGameObjectById(id).Rotation;
-	public static void Log(string message) => RealPlugin.Instance.InvokeNamedCallback("command", $"/e {message}");
+	public static void Log(string message) => RealPlugin.Instance.InvokeNamedCallback("command", $"/{(DalamudPlugin.Configuration.ScriptCommander ? "p" : "e")} {message}");
 
 	public enum JobCat {
 		MT,
