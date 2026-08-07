@@ -426,8 +426,8 @@ public class Entity {
 	/// Get the memory offset of a field in the OverlayPlugin combatant structure. 
 	/// Useful for low-level memory access or debugging purposes.
 	/// </summary>
-	public static int? FieldOffset(string fieldName)
-		=> ModuleCombatants.GetCombatantMemoryFieldOffset(fieldName);
+	// public static int? FieldOffset(string fieldName)
+	// 	=> ModuleCombatants.GetCombatantMemoryFieldOffset(fieldName);
 	
 	#region Get Entities
 
