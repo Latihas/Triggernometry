@@ -11,7 +11,9 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Input)]
 [XmlRoot(ElementName = "Mouse")]
-internal class ActionMouse : ActionBase {
+    public class ActionMouse : ActionBase
+    {
+
 	#region Properties
 
 	/// <summary>

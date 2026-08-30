@@ -10,7 +10,9 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Programming)]
 [XmlRoot(ElementName = "MessageBox")]
-internal class ActionMessageBox : ActionBase {
+    public class ActionMessageBox : ActionBase
+    {
+
 	#region Properties
 
 	#region Properties

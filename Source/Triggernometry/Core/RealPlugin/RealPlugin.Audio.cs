@@ -65,7 +65,6 @@ public partial class RealPlugin {
 				return;
 			}
 		}
-
 		ActGlobals.oFormActMain.TTS(text);
 	}
 

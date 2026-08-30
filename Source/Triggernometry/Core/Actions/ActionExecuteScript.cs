@@ -10,7 +10,8 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Programming)]
 [XmlRoot(ElementName = "ExecuteScript")]
-internal class ActionExecuteScript : ActionBase {
+    public class ActionExecuteScript : ActionBase {
+
 	#region Properties
 
 	/// <summary>
