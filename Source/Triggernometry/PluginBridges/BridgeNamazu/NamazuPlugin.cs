@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
+using System.Threading;
 using PostNamazu;
 using PostNamazu.Actions;
 using Triggernometry.FFXIV;
@@ -116,28 +120,93 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 	// 	return _plugin.ExecuteInFrameLock<T>(func);
 	// }
 	//
-	// public void Call(IntPtr ptr, params object[] args) {
-	// 	_plugin.Call(ptr, args);
-	// }
-	//
-	// public T Call<T>(IntPtr ptr, params object[] args) where T : struct {
-	// 	return _plugin.Call<T>(ptr, args);
-	// }
-	//
-	// public void DirectCall(IntPtr ptr, params object[] args) {
-	// 	_plugin.DirectCall(ptr, args);
-	// }
-	//
-	// public T DirectCall<T>(IntPtr ptr, params object[] args) where T : struct {
-	// 	return _plugin.DirectCall<T>(ptr, args);
-	// }
-	//
-	// public void CallVirtualFunction(IntPtr objAddress, int vFuncIndex, params object[] args)
-	// 	=> CallVirtualFunction<IntPtr>(objAddress, vFuncIndex, args);
-	//
-	// public T CallVirtualFunction<T>(IntPtr objAddress, int vFuncIndex, params object[] args) where T : struct {
-	// 	var vTablePtr = Memory.Read<IntPtr>(objAddress);
-	// 	var vFuncPtr = Memory.Read<IntPtr>(vTablePtr + 8 * vFuncIndex);
-	// 	return Call<T>(vFuncPtr, new object[] { objAddress }.Concat(args).ToArray());
-	// }
+	private static class NativeDelegateBuilder {
+		private sealed class Signature(Type returnType, Type[] paramTypes) : IEquatable<Signature> {
+			private readonly Type ReturnType = returnType;
+			private readonly Type[] ParamTypes = paramTypes;
+
+			public bool Equals(Signature other) {
+				if (other == null) return false;
+				if (ReturnType != other.ReturnType || ParamTypes.Length != other.ParamTypes.Length)
+					return false;
+				return !ParamTypes.Where((t, i) => t != other.ParamTypes[i]).Any();
+			}
+
+			public override bool Equals(object obj) => Equals(obj as Signature);
+
+			public override int GetHashCode() {
+				unchecked {
+					return ParamTypes.Aggregate(ReturnType.GetHashCode(), (current, t) => current * 397 ^ t.GetHashCode());
+				}
+			}
+		}
+
+		private static readonly Dictionary<Signature, Type> Cache = new();
+		private static readonly ModuleBuilder Module = CreateModule();
+		private static int Counter;
+
+		private static ModuleBuilder CreateModule() {
+			var asm = AssemblyBuilder.DefineDynamicAssembly(
+				new AssemblyName("Triggernometry.BridgeNamazu.NativeDelegates"),
+				AssemblyBuilderAccess.Run);
+			return asm.DefineDynamicModule("Main");
+		}
+
+		private static Type GetOrCreate(CallingConvention convention, Type returnType, Type[] paramTypes) {
+			var key = new Signature(returnType, paramTypes);
+			lock (Cache) {
+				if (Cache.TryGetValue(key, out var cached)) return cached;
+				var tb = Module.DefineType(
+					"NativeDelegate_" + Interlocked.Increment(ref Counter),
+					TypeAttributes.Public | TypeAttributes.Sealed,
+					typeof(MulticastDelegate));
+				var ufpCtor = typeof(UnmanagedFunctionPointerAttribute)
+					.GetConstructor([typeof(CallingConvention)]);
+				tb.SetCustomAttribute(new CustomAttributeBuilder(ufpCtor, [convention]));
+				var ctor = tb.DefineConstructor(
+					MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.RTSpecialName,
+					CallingConventions.Standard,
+					[typeof(object), typeof(IntPtr)]);
+				ctor.SetImplementationFlags(MethodImplAttributes.Runtime | MethodImplAttributes.Managed);
+				var invoke = tb.DefineMethod("Invoke",
+					MethodAttributes.Public | MethodAttributes.HideBySig
+					                        | MethodAttributes.NewSlot | MethodAttributes.Virtual,
+					returnType, paramTypes);
+				invoke.SetImplementationFlags(MethodImplAttributes.Runtime | MethodImplAttributes.Managed);
+				var type = tb.CreateTypeInfo().AsType();
+				Cache[key] = type;
+				return type;
+			}
+		}
+
+		public static object Invoke(IntPtr funcPtr, CallingConvention convention, Type returnType, object[] args) {
+			var paramTypes = new Type[args.Length];
+			for (var i = 0; i < args.Length; i++)
+				paramTypes[i] = args[i]?.GetType() ?? typeof(object);
+			var delType = GetOrCreate(convention, returnType, paramTypes);
+			var d = Marshal.GetDelegateForFunctionPointer(funcPtr, delType);
+			return d.DynamicInvoke(args);
+		}
+	}
+
+	public void Call(IntPtr ptr, params object[] args)
+		=> NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(void), args);
+
+	public T Call<T>(IntPtr ptr, params object[] args) where T : struct
+		=> (T)NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(T), args);
+
+	public void DirectCall(IntPtr ptr, params object[] args)
+		=> NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(void), args);
+
+	public T DirectCall<T>(IntPtr ptr, params object[] args) where T : struct
+		=> (T)NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(T), args);
+
+	public void CallVirtualFunction(IntPtr objAddress, int vFuncIndex, params object[] args)
+		=> CallVirtualFunction<IntPtr>(objAddress, vFuncIndex, args);
+
+	public T CallVirtualFunction<T>(IntPtr objAddress, int vFuncIndex, params object[] args) where T : struct {
+		var vTablePtr = Memory.Read<IntPtr>(objAddress);
+		var vFuncPtr = Memory.Read<IntPtr>(vTablePtr + IntPtr.Size * vFuncIndex);
+		return Call<T>(vFuncPtr, [objAddress, .. args]);
+	}
 }

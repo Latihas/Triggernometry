@@ -8,6 +8,7 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
 public abstract class VfxBase {
 	public unsafe VfxObject* Vfx { get; set; }
+	public unsafe IntPtr Ptr { get => (IntPtr)Vfx; set => Vfx = (VfxObject*)value; }
 	public string Path { get; set; }
 	public string Tag { get; set; }
 	public bool Removed { get; set; }

@@ -14,33 +14,38 @@ namespace Triggernometry;
 
 public static class CSharpScriptCompiler {
 	public static readonly string[] SystemReferenes = [
-		"System.Runtime.dll",
-		"System.Private.CoreLib.dll",
-		"System.Console.dll",
-		"System.Linq.dll",
-		"System.Collections.dll",
 		"System.Collections.NonGeneric.dll",
+		"System.Collections.dll",
+		"System.ComponentModel.dll",
+		"System.ComponentModel.Primitives.dll",
+		"System.ComponentModel.TypeConverter.dll",
+		"System.Console.dll",
+		"System.Core.dll",
+		"System.Diagnostics.Process.dll",
+		"System.Drawing.Primitives.dll",
+		"System.Drawing.dll",
+		"System.Linq.dll",
+		"System.Numerics.Vectors.dll",
+		"System.Numerics.dll",
+		"System.Private.CoreLib.dll",
 		"System.Text.RegularExpressions.dll",
 		"System.Threading.Tasks.dll",
-		"System.Numerics.dll",
-		"System.Numerics.Vectors.dll",
-		"System.Core.dll",
-		"System.Xml.dll",
 		"System.Xml.Linq.dll",
-		"System.Drawing.dll",
-		"System.ComponentModel.Primitives.dll",
-		"System.Drawing.Primitives.dll"
+		"System.Xml.dll",
+		"System.Runtime.dll"
 	];
 	public static readonly string[] SystemTypeReferenes = [
+		"System.Drawing.Font, System.Drawing.Common",
+		"Windows.Win32.Graphics.Gdi.IHdcContext, System.Private.Windows.Core",
+		"System.Drawing.IGraphics, System.Private.Windows.GdiPlus",
 		"System.Windows.Forms.Form, System.Windows.Forms",
-		"System.Windows.Forms.Padding, System.Windows.Forms",
-		"System.Drawing.Font, System.Drawing.Common"
+		"System.Windows.Forms.Padding, System.Windows.Forms.Primitives"
 	];
 	public static readonly string[] PluginDirReferenes = [
-		"Triggernometry.dll",
 		"Advanced Combat Tracker.dll",
+		"IINACTEx.dll",
 		"PostNamazu.dll",
-		"IINACTEx.dll"
+		"Triggernometry.dll"
 	];
 	public static readonly string[] DalamudDirReferenes = [
 		"Dalamud.dll",

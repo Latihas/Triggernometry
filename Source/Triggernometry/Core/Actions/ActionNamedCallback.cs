@@ -9,9 +9,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.RemoteControl)]
 [XmlRoot(ElementName = "NamedCallback")]
-    public class ActionNamedCallback : ActionBase
-    {
-
+public class ActionNamedCallback : ActionBase {
 	#region Properties
 
 	/// <summary>

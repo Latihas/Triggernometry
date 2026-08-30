@@ -12,7 +12,7 @@ using static Triggernometry.PluginBridges.BridgeNamazu.Modules.ModuleBase;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
-internal static class VfxManager {
+public static class VfxManager {
 	public static readonly ConcurrentDictionary<IntPtr, ActorVfx> ActorVfxs = [];
 
 	public static readonly ConcurrentDictionary<IntPtr, StaticVfx> StaticVfxs = [];

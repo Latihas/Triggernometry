@@ -11,8 +11,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Programming)]
 [XmlRoot(ElementName = "FolderOperation")]
-    public class ActionFolderOperation : ActionBase {
-
+public class ActionFolderOperation : ActionBase {
 	#region Properties
 
 	/// <summary>

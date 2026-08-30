@@ -11,8 +11,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.RemoteControl)]
 [XmlRoot(ElementName = "LiveSplitControl")]
-    public class ActionLiveSplitControl : ActionBase {
-
+public class ActionLiveSplitControl : ActionBase {
 	#region Properties
 
 	/// <summary>

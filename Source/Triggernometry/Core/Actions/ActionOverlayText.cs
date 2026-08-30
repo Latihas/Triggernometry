@@ -10,9 +10,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Overlay)]
 [XmlRoot(ElementName = "OverlayText")]
-    public class ActionOverlayText : ActionBase
-    {
-
+public class ActionOverlayText : ActionBase {
 	#region Properties
 
 	// todo probably needs a custom property editor

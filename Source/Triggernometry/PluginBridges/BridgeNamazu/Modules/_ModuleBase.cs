@@ -32,6 +32,7 @@ public abstract class ModuleBase {
 	}
 
 	public void CheckIfAnyZeroPtr() => CheckBeforeExecution(GetType().Name);
+	public void CheckIfAnyZeroPtr(params object[] args) => CheckIfAnyZeroPtr();
 
 	public void NamazuLog(string msg) => BridgeNamazu.Log(msg);
 	public void TriggerLog(RealPlugin.DebugLevelEnum level, string msg) => RealPlugin.Instance?.UnfilteredAddToLog(level, msg);

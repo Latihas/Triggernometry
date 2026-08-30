@@ -23,6 +23,7 @@ public abstract class IScriptBase : IActPluginV1 {
 	protected void ResetCts() {
 		foreach (var ct in CtsPool.Keys) CtsPool.DestroyCts(ct);
 	}
+
 	public virtual void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText) {
 	}
 

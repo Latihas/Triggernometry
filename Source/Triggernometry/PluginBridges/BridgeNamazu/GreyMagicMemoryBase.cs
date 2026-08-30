@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using Dalamud;
 using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu;
@@ -6,6 +9,8 @@ namespace Triggernometry.PluginBridges.BridgeNamazu;
 /// <summary>
 ///     Wrapper for GreyMagic.MemoryBase
 /// </summary>
+[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+[SuppressMessage("Performance", "CA1822:将成员标记为 static")]
 public class GreyMagicMemoryBase {
 	// private static readonly Lock ExecLock = new();
 
@@ -16,7 +21,7 @@ public class GreyMagicMemoryBase {
 	// }).Result;
 
 	// Base class properties
-	// public Process Process => _memory.Process;
+	public Process Process => Process.GetCurrentProcess();
 	// public IntPtr ProcessHandle => _memory.ProcessHandle;
 	// public bool IsProcessOpen => _memory.IsProcessOpen;
 	// public IntPtr ImageBase => _memory.ImageBase;
@@ -35,10 +40,10 @@ public class GreyMagicMemoryBase {
 	//     => _memory.Read<T>(isRelative, addrs);
 	// public T Read<T>(IntPtr addr, bool isRelative) where T : struct
 	//     => _memory.Read<T>(addr, isRelative);
-	// public T Read<T>(IntPtr addr) where T : struct {
-	// 	SafeMemory.Read<T>(addr, out var res);
-	// 	return res;
-	// }
+	public T Read<T>(IntPtr addr) where T : struct {
+		SafeMemory.Read<T>(addr, out var res);
+		return res;
+	}
 
 	// public T[] ReadArray<T>(IntPtr addr, int count, bool isRelative) where T : struct
 	//     => _memory.ReadArray<T>(addr, count, isRelative);

@@ -14,8 +14,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Input)]
 [XmlRoot(ElementName = "Keypress")]
-    public class ActionKeypress : ActionBase {
-
+public class ActionKeypress : ActionBase {
 	#region Properties
 
 	/// <summary>

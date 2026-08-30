@@ -14,8 +14,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Networking)]
 [XmlRoot(ElementName = "JsonRequest")]
-    public class ActionJsonRequest : ActionBase {
-
+public class ActionJsonRequest : ActionBase {
 	#region Properties
 
 	/*

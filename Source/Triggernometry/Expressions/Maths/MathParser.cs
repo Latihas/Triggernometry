@@ -673,7 +673,7 @@ public partial class MathParser {
 
 	/// <summary> Enter the math expression in form of a list of tokens. </summary>
 	/// <param name="mathExpression"></param>
-	public double Parse(ReadOnlyCollection<string> mathExpression) => MathParserLogic([..mathExpression]);
+	public double Parse(ReadOnlyCollection<string> mathExpression) => MathParserLogic([.. mathExpression]);
 
 	/// <summary>
 	///     This will convert a string expression into a list of tokens that

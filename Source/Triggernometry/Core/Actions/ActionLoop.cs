@@ -13,9 +13,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Programming)]
 [XmlRoot(ElementName = "Loop")]
-    public class ActionLoop : ActionBase
-    {
-
+public class ActionLoop : ActionBase {
 	#region Properties
 
 	// todo probably needs a custom property editor

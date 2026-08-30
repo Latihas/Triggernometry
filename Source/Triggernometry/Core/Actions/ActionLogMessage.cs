@@ -9,9 +9,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Programming)]
 [XmlRoot(ElementName = "LogMessage")]
-    public class ActionLogMessage : ActionBase
-    {
-
+public class ActionLogMessage : ActionBase {
 	#region Properties
 
 	/// <summary>

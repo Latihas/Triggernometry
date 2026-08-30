@@ -465,11 +465,11 @@ public class Repository {
 			return false;
 		} catch (Exception ex) when (ex is TimeoutException or HttpRequestException) {
 			AddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Repository/updatetimeout",
-				"Couldn't update repository {0}: network error or timeout. Exception: {1}", Name, ex.Message));
+				"Couldn't update repository {0}: network error or timeout. Exception: {1}", Name, ex));
 			return false;
 		} catch (Exception ex) {
 			AddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Repository/updateex",
-				"Couldn't update repository {0} due to exception: {1}", Name, ex.Message));
+				"Couldn't update repository {0} due to exception: {1}", Name, ex));
 			return false;
 		}
 	}

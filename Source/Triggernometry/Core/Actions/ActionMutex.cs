@@ -9,9 +9,7 @@ namespace Triggernometry.Core.Actions;
 /// </summary>
 [ActionCategory(ActionCategory.CategoryTypeEnum.Programming)]
 [XmlRoot(ElementName = "Mutex")]
-    public class ActionMutex : ActionBase
-    {
-
+public class ActionMutex : ActionBase {
 	#region Properties
 
 	/// <summary>
