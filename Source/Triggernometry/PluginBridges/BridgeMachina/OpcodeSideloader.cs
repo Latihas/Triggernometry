@@ -184,7 +184,7 @@ public static partial class OpcodeSideloader {
 	}
 
 	private static void SetOpcodeManagerRegion(string regionName) {
-		OpcodeManager.Instance.SetRegion(GetMachinaRegion(regionName));
+		OpcodeManager.Instance.SetRegion(GetMachinaRegion(regionName), null);
 	}
 
 	private static void UpdateOpcodeManagerBackingStore(object opcodeManagerInstance, string regionName, Dictionary<string, ushort> opcodes) {
