@@ -7,7 +7,6 @@ using System.Threading;
 using System.Windows.Forms;
 using Triggernometry.Core;
 using Triggernometry.Core.Variables;
-using Triggernometry.Expressions.Maths;
 using Triggernometry.UI.CustomControls;
 
 namespace Triggernometry.UI.Forms;
@@ -220,7 +219,7 @@ public partial class GameConfigForm : Form {
 			"command",
 			$"/{Config.GetValue("cnlPrivate")} 已保存配置。");
 
-		this.Close();
+		Close();
 	}
 
 	public void SaveToPreset(int presetIdx, string presetName) {
@@ -282,7 +281,7 @@ public partial class GameConfigForm : Form {
 				continue;
 
 			if (form.InvokeRequired)
-				form.Invoke(new Action(form.Close));
+				form.Invoke(form.Close);
 			form.Close();
 		}
 	}
@@ -397,4 +396,3 @@ public partial class GameConfigForm : Form {
             return duplicate;
         }
     }
-}

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Advanced_Combat_Tracker;
+using FFXIV_ACT_Plugin.Common;
 using FFXIV_ACT_Plugin.Common.Models;
 using Triggernometry.Core;
 using Triggernometry.Core.Variables;
@@ -46,38 +47,33 @@ public static class BridgeFFXIV {
 	public static int GetProcessId() => GetProcess().Id;
 
 	public static string GetProcessName() => GetProcess().ProcessName;
-	public static event Action<uint, string> ZoneChanged
-	{
-		add
-		{
-			ModifyZoneChangedSubscription(value, true);
-		}
-		remove
-		{
-			ModifyZoneChangedSubscription(value, false);
+	public static string GetGameVersion() => GetInstance().DataRepository.GetGameVersion();
+	private static ZoneChangedDelegate? _ZoneChangedDelegate;
+	public static event Action<uint, string> ZoneChanged {
+		add => ModifyZoneChangedSubscription(value, true);
+		remove => ModifyZoneChangedSubscription(value, false);
+	}
+
+	private static void ModifyZoneChangedSubscription(Action<uint, string> callback, bool isSubscribe) {
+		try {
+			if (isSubscribe) {
+				_ZoneChangedDelegate = new ZoneChangedDelegate(callback);
+				GetInstance().DataSubscription.ZoneChanged += _ZoneChangedDelegate;
+			} else {
+				if (_ZoneChangedDelegate != null) GetInstance().DataSubscription.ZoneChanged -= _ZoneChangedDelegate;
+			}
+		} catch (Exception ex) {
+			LogMessage(RealPlugin.DebugLevelEnum.Error, isSubscribe
+				? I18n.Translate(
+					"internal/ffxiv/ffxivzonechangedexception",
+					"Could not subscribe to FFXIV zone change due to an exception: {0}",
+					ex.Message)
+				: I18n.Translate(
+					"internal/ffxiv/ffxivzonechangedexception-",
+					"Could not unsubscribe from FFXIV zone change due to an exception: {0}",
+					ex.Message));
 		}
 	}
-	private static void ModifyZoneChangedSubscription(Action<uint, string> callback, bool isSubscribe)
-        {
-            try
-     
-       {
-              if(isSubscribe)	GetInstance().DataSubscription.ZoneChanged +=callback;
-else GetInstance().DataSubscription.ZoneChanged -=callback;
-            }
-            catch (Exception ex)
-            {
-	            LogMessage(RealPlugin.DebugLevelEnum.Error, isSubscribe
-		            ? I18n.Translate(
-			            "internal/ffxiv/ffxivzonechangedexception",
-			            "Could not subscribe to FFXIV zone change due to an exception: {0}",
-			            ex.Message)
-		            : I18n.Translate(
-			            "internal/ffxiv/ffxivzonechangedexception-",
-			            "Could not unsubscribe from FFXIV zone change due to an exception: {0}",
-			            ex.Message));  }
-        }
-
 
 
 	private static void LogMessage(RealPlugin.DebugLevelEnum level, string message) => OnLogEvent?.Invoke(level, message);
@@ -321,14 +317,13 @@ else GetInstance().DataSubscription.ZoneChanged -=callback;
 			LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/updateexception", "Exception in FFXIV state update: {0} at stage {1}", ex.Message, phase));
 		}
 	}
-	
+
 	public static int SortPlayersSelf(VariableDictionary a, VariableDictionary b) {
 		if (a == Myself && b != Myself) {
-		return -1;
+			return -1;
 		}
-            if (b == Myself && a != Myself)
-            {
-             	return 1;
+		if (b == Myself && a != Myself) {
+			return 1;
 		}
 		return SortPlayers(a, b);
 	}
@@ -342,7 +337,7 @@ else GetInstance().DataSubscription.ZoneChanged -=callback;
 		if (av > bv) {
 			return 1;
 		}
-           // https://github.com/paissaheavyindustries/Triggernometry/issues/9
+		// https://github.com/paissaheavyindustries/Triggernometry/issues/9
 		return b.GetValue("id").CompareTo(a.GetValue("id"));
 	}
 

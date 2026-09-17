@@ -16,7 +16,7 @@ namespace Triggernometry.UI.Forms
             private readonly ToolTip _tip = new MyToolTip();   // 鼠标悬停时显示提示文本
 
             /// <summary> 选项对应的触发器配置字典键名。 </summary>
-            public string ConfigKey { get; set; } = null;
+            public string ConfigKey { get; set; }
 
             public bool Enabled
             {
@@ -43,7 +43,7 @@ namespace Triggernometry.UI.Forms
             }
 
             public event EventHandler DataChanged;
-            private bool _isUpdatingData = false;
+            private bool _isUpdatingData;
 
             protected virtual void OnDataChanged()
             {

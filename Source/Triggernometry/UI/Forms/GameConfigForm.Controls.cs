@@ -7,8 +7,7 @@ namespace Triggernometry.UI.Forms
     {
         private class MyGroupBox : GroupBox
         {
-            public MyGroupBox(string text) : base()
-            {
+	        public MyGroupBox(string text) {
                 Dock = DockStyle.Top;
                 AutoSize = true;
                 AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -17,49 +16,27 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class MyCheckBox : System.Windows.Forms.CheckBox
+        private class MyCheckBox : CheckBox
         {
-            public MyCheckBox() : base()
-            {
+	        public MyCheckBox() {
                 AutoSize = true;
                 Dock = DockStyle.Fill;
                 Margin = new Padding(10);
             }
         }
 
-        private class MyTextBox : System.Windows.Forms.TextBox
+        private class MyTextBox : TextBox
         {
-            public MyTextBox() : base()
-            {
+	        public MyTextBox() {
                 AutoSize = true;
                 Dock = DockStyle.Fill;
                 Margin = new Padding(10);
             }
         }
 
-        private class MyComboBox : System.Windows.Forms.ComboBox
+        private class MyComboBox : ComboBox
         {
-            public MyComboBox() : base()
-            {
-                AutoSize = true;
-                Dock = DockStyle.Fill;
-                Margin = new Padding(10);
-            }
-
-            protected override void WndProc(ref Message m)
-            {
-                if (m.Msg == 0x020A)  // WM_MOUSEWHEEL
-                {
-                    return;  // No-scroll
-                }
-                base.WndProc(ref m);
-            }
-        }
-
-        private class MyNumericUpDown : System.Windows.Forms.NumericUpDown
-        {
-            public MyNumericUpDown() : base()
-            {
+	        public MyComboBox() {
                 AutoSize = true;
                 Dock = DockStyle.Fill;
                 Margin = new Padding(10);
@@ -75,20 +52,36 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class MyLabel : System.Windows.Forms.Label
+        private class MyNumericUpDown : NumericUpDown
         {
-            public MyLabel() : base()
+	        public MyNumericUpDown() {
+                AutoSize = true;
+                Dock = DockStyle.Fill;
+                Margin = new Padding(10);
+            }
+
+            protected override void WndProc(ref Message m)
             {
+                if (m.Msg == 0x020A)  // WM_MOUSEWHEEL
+                {
+                    return;  // No-scroll
+                }
+                base.WndProc(ref m);
+            }
+        }
+
+        private class MyLabel : Label
+        {
+	        public MyLabel() {
                 AutoSize = true;
                 Dock = DockStyle.Fill;
                 Margin = new Padding(10);
             }
         }
 
-        private class MyButton : System.Windows.Forms.Button
+        private class MyButton : Button
         {
-            public MyButton() : base()
-            {
+	        public MyButton() {
                 Anchor = AnchorStyles.None;
                 AutoSize = true;
                 Margin = new Padding(10);
@@ -96,10 +89,9 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class SeperatorPanel : System.Windows.Forms.Panel
+        private class SeperatorPanel : Panel
         {
-            public SeperatorPanel() : base()
-            {
+	        public SeperatorPanel() {
                 Height = 2;
                 BackColor = Color.DarkGray;
                 Dock = DockStyle.Fill;
@@ -108,27 +100,23 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class BackgroundPanel : System.Windows.Forms.Panel
+        private class BackgroundPanel : Panel
         {
-            public BackgroundPanel() : base()
-            {
+	        public BackgroundPanel() {
                 AutoSize = true;
                 AutoSizeMode = AutoSizeMode.GrowAndShrink;
                 Dock = DockStyle.Fill;
                 AutoScroll = true;
             }
 
-            protected override Point ScrollToControl(Control activeControl)
-            {
-                // 防止自动滚动，使页面突然跳转到窗口范围外的 txtbox 等
-                return this.DisplayRectangle.Location;
-            }
+            protected override Point ScrollToControl(Control activeControl) =>
+	            // 防止自动滚动，使页面突然跳转到窗口范围外的 txtbox 等
+	            DisplayRectangle.Location;
         }
 
-        private class GroupPanel : System.Windows.Forms.Panel
+        private class GroupPanel : Panel
         {
-            public GroupPanel() : base()
-            {
+	        public GroupPanel() {
                 AutoSize = true;
                 AutoSizeMode = AutoSizeMode.GrowAndShrink;
                 Dock = DockStyle.Top;
@@ -136,10 +124,9 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        public class OptionsTableLayoutPanel : System.Windows.Forms.TableLayoutPanel
+        public class OptionsTableLayoutPanel : TableLayoutPanel
         {
-            public OptionsTableLayoutPanel() : base()
-            {
+	        public OptionsTableLayoutPanel() {
                 AutoSize = true;
                 AutoSizeMode = AutoSizeMode.GrowAndShrink;
                 Dock = DockStyle.Fill;
@@ -150,19 +137,17 @@ namespace Triggernometry.UI.Forms
             }
         }
 
-        private class BottomTableLayoutPanel : System.Windows.Forms.TableLayoutPanel
+        private class BottomTableLayoutPanel : TableLayoutPanel
         {
-            public BottomTableLayoutPanel() : base()
-            {
+	        public BottomTableLayoutPanel() {
                 Dock = DockStyle.Bottom;
                 ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             }
         }
 
-        private class MyToolTip : System.Windows.Forms.ToolTip
+        private class MyToolTip : ToolTip
         {
-            public MyToolTip() : base()
-            {
+	        public MyToolTip() {
                 InitialDelay = 500;
                 AutoPopDelay = 60000;
                 ReshowDelay = 100;

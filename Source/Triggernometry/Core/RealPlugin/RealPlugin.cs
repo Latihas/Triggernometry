@@ -11,6 +11,7 @@ using Advanced_Combat_Tracker;
 using Dalamud.Plugin.Services;
 using Triggernometry.Core.Variables;
 using Triggernometry.FFXIV;
+using Triggernometry.FFXIV.LogTranscribe;
 using Triggernometry.Localization;
 using Triggernometry.PluginBridges;
 using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
@@ -20,13 +21,6 @@ using Triggernometry.UI.CustomControls;
 using Triggernometry.Utilities;
 using TriggernometryProxy;
 using Font = System.Drawing.Font;
-using Triggernometry.Core.Variables;
-using Triggernometry.FFXIV.LogTranscribe;
-using Triggernometry.Localization;
-using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
-using Triggernometry.PluginBridges.ExternalTools;
-using Triggernometry.UI.CustomControls;
-using Triggernometry.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
@@ -337,7 +331,7 @@ public partial class RealPlugin {
 	}
 
 	public void DeInitPlugin() {
-		PluginBridges.BridgeFFXIV.ZoneChanged -= ZoneChangeDelegate;
+		BridgeFFXIV.ZoneChanged -= ZoneChangeDelegate;
 		// ui?.CloseForms();
 		if (_ep != null) {
 			_ep.Dispose();
@@ -466,9 +460,9 @@ public partial class RealPlugin {
 
         internal void LogLineProcessor(LogEvent le)
         {
-            if (firstevent == true)
+	        if (firstevent)
             {
-                PluginBridges.BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
+	            BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
 			firstevent = false;
 		}
 		switch (le.Source) {

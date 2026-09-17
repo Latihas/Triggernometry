@@ -11,7 +11,7 @@ namespace Triggernometry.FFXIV.LogTranscribe
     internal static class LogTranscriber
     {
         private static readonly object StateLock = new object();
-        private static int _generation = 0;
+        private static int _generation;
 
         internal static void Reset(bool clearTerritoryRecord)
         {

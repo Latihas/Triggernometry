@@ -69,7 +69,7 @@ internal static class DictEvaluator {
                     CheckArgCountLocal("1-2");
 			{
                         string key = args[0];
-                        string defaultValue = GetArgument(args, 1, null);
+                        var defaultValue = GetArgument(args, 1);
 
                         return vd => vd.Values.TryGetValue(key, out var val) 
                             ? val.ToString() 
