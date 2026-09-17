@@ -46,15 +46,39 @@ public static class BridgeFFXIV {
 	public static int GetProcessId() => GetProcess().Id;
 
 	public static string GetProcessName() => GetProcess().ProcessName;
-
-	public static string GetGameVersion() => GetInstance().DataRepository.GetGameVersion();
-
-	public static void SubscribeToZoneChanged(RealPlugin p) =>
-		GetInstance().DataSubscription.ZoneChanged += p.ZoneChangeDelegate;
-
-	public static void UnsubscribeFromNetworkEvents(RealPlugin p) {
-		// GetInstance().DataSubscription.ParsedLogLine -= p.NetworkLogLineReceiver;
+	public static event Action<uint, string> ZoneChanged
+	{
+		add
+		{
+			ModifyZoneChangedSubscription(value, true);
+		}
+		remove
+		{
+			ModifyZoneChangedSubscription(value, false);
+		}
 	}
+	private static void ModifyZoneChangedSubscription(Action<uint, string> callback, bool isSubscribe)
+        {
+            try
+     
+       {
+              if(isSubscribe)	GetInstance().DataSubscription.ZoneChanged +=callback;
+else GetInstance().DataSubscription.ZoneChanged -=callback;
+            }
+            catch (Exception ex)
+            {
+	            LogMessage(RealPlugin.DebugLevelEnum.Error, isSubscribe
+		            ? I18n.Translate(
+			            "internal/ffxiv/ffxivzonechangedexception",
+			            "Could not subscribe to FFXIV zone change due to an exception: {0}",
+			            ex.Message)
+		            : I18n.Translate(
+			            "internal/ffxiv/ffxivzonechangedexception-",
+			            "Could not unsubscribe from FFXIV zone change due to an exception: {0}",
+			            ex.Message));  }
+        }
+
+
 
 	private static void LogMessage(RealPlugin.DebugLevelEnum level, string message) => OnLogEvent?.Invoke(level, message);
 
@@ -297,25 +321,14 @@ public static class BridgeFFXIV {
 			LogMessage(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/ffxiv/updateexception", "Exception in FFXIV state update: {0} at stage {1}", ex.Message, phase));
 		}
 	}
-
-	/*private static void DebugPlayerSorting(string header, IEnumerable<VariableClump> vc)
-	{
-	    int ro = 1;
-	    foreach (VariableClump a in vc)
-	    {
-	        System.Diagnostics.Debug.WriteLine(header + ": " + ro + " -- " + a.GetValue("name") + ", " + a.GetValue("job") + " --> " + a.GetValue("order") + " / " + cfg.GetPartyOrderValue(a.GetValue("jobid")));
-	        ro++;
-	    }
-	}*/
-
+	
 	public static int SortPlayersSelf(VariableDictionary a, VariableDictionary b) {
 		if (a == Myself && b != Myself) {
-			//System.Diagnostics.Debug.WriteLine(a.GetValue("name") + " (ME) < " + b.GetValue("name"));
-			return -1;
+		return -1;
 		}
-		if (b == Myself && a != Myself) {
-			//System.Diagnostics.Debug.WriteLine(a.GetValue("name") + " > " + b.GetValue("name") + " (ME)");
-			return 1;
+            if (b == Myself && a != Myself)
+            {
+             	return 1;
 		}
 		return SortPlayers(a, b);
 	}
@@ -324,15 +337,12 @@ public static class BridgeFFXIV {
 		var av = cfg.GetPartyOrderValue(a.GetValue("jobid").ToString());
 		var bv = cfg.GetPartyOrderValue(b.GetValue("jobid").ToString());
 		if (av < bv) {
-			//System.Diagnostics.Debug.WriteLine(a.GetValue("name") + " (" + av + ") < " + b.GetValue("name") + " (" + bv + ")");
 			return -1;
 		}
 		if (av > bv) {
-			//System.Diagnostics.Debug.WriteLine(a.GetValue("name") + " (" + av + ") > " + b.GetValue("name") + " (" + bv + ")");
 			return 1;
 		}
-		//System.Diagnostics.Debug.WriteLine(a.GetValue("name") + " (" + av + ") -(" + a.GetValue("name").CompareTo(b.GetValue("name")) + ")- " + b.GetValue("name") + " (" + bv + ")");
-		// https://github.com/paissaheavyindustries/Triggernometry/issues/9
+           // https://github.com/paissaheavyindustries/Triggernometry/issues/9
 		return b.GetValue("id").CompareTo(a.GetValue("id"));
 	}
 

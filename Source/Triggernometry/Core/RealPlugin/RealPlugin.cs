@@ -20,6 +20,13 @@ using Triggernometry.UI.CustomControls;
 using Triggernometry.Utilities;
 using TriggernometryProxy;
 using Font = System.Drawing.Font;
+using Triggernometry.Core.Variables;
+using Triggernometry.FFXIV.LogTranscribe;
+using Triggernometry.Localization;
+using Triggernometry.PluginBridges.BridgeNamazu.Vfx;
+using Triggernometry.PluginBridges.ExternalTools;
+using Triggernometry.UI.CustomControls;
+using Triggernometry.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
@@ -291,6 +298,7 @@ public partial class RealPlugin {
 			// 	}
 			// }
 			FilteredAddToLog(DebugLevelEnum.Info, $"*: {MinX},{MinY} - {MaxX},{MaxY}");
+			LogTranscriber.Reset(true);
 			InitActionQueue();
 			var cancellationToken = GetCancellationToken();
 			EventQueueTask = Task.Run(() => LogLineProcessorAsync(cancellationToken), cancellationToken);
@@ -329,8 +337,8 @@ public partial class RealPlugin {
 	}
 
 	public void DeInitPlugin() {
+		PluginBridges.BridgeFFXIV.ZoneChanged -= ZoneChangeDelegate;
 		// ui?.CloseForms();
-		BridgeFFXIV.UnsubscribeFromNetworkEvents(this);
 		if (_ep != null) {
 			_ep.Dispose();
 			_ep = null;
@@ -349,6 +357,8 @@ public partial class RealPlugin {
 			var waitTask = EventQueueTask.WaitAsync(TimeSpan.FromSeconds(5));
 			waitTask.GetAwaiter().GetResult();
 		}
+		// ExitEvent?.Set();
+		LogTranscriber.Reset(true);
 		EventQueueTask = null;
 		DeinitActionQueue();
 		// DeInitAura();
@@ -454,9 +464,11 @@ public partial class RealPlugin {
 		}
 	}
 
-	public void LogLineProcessor(LogEvent le) {
-		if (firstevent) {
-			BridgeFFXIV.SubscribeToZoneChanged(this);
+        internal void LogLineProcessor(LogEvent le)
+        {
+            if (firstevent == true)
+            {
+                PluginBridges.BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
 			firstevent = false;
 		}
 		switch (le.Source) {
@@ -520,10 +532,13 @@ public partial class RealPlugin {
 		}
 	}
 
-	public void EndpointReceive(string data) {
-		var detectedZone = currentZone ?? "";
-		try {
-			if (cfg.LogEndpoint) {
+        public void EndpointReceive(string data)
+        {
+	        var detectedZone = currentZone ?? "";
+            try
+            {
+                if (cfg.LogEndpoint)
+                {
 				FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/endpointline", "Endpoint data: ({0})", data));
 			}
 			LogLineQueuer(data, detectedZone, LogEvent.SourceEnum.Endpoint);
@@ -538,6 +553,7 @@ public partial class RealPlugin {
 		}
 		if (currentZone == null || detectedZone != currentZone) {
 			currentZone = detectedZone;
+                LogTranscriber.Reset(false);
 			ZoneChanged(currentZone);
 		}
 		try {
@@ -554,10 +570,10 @@ public partial class RealPlugin {
 		if (isImport || !isInitialized) return;
 		if (currentZone == null || detectedZone != currentZone) {
 			currentZone = detectedZone;
+                LogTranscriber.Reset(false);
 			ZoneChanged(currentZone);
 		}
 		try {
-			if (logLine == "" || logLine.Length >= 5 && logLine[^5..] == "] FB:") return;
 			if (cfg.LogNormalEvents) {
 				logFlattenACT.Enqueue(logLine);
 				if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.TryDequeue(out _);
@@ -579,17 +595,19 @@ public partial class RealPlugin {
 			} catch (Exception ex) {
 				FilteredAddToLog(DebugLevelEnum.Warning, ex.ToString());
 			}
+			FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/logline", "Log line: ({0})", logLine));
 			LogLineQueuer(logLine, detectedZone, LogEvent.SourceEnum.Log);
+			LogTranscriber.Process(logLine, detectedZone);
 		} catch (Exception ex) {
 			FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/procex", "Exception ({0}) when processing log line ({1}) in zone ({2})", ex, logLine, detectedZone));
 		}
 	}
 
-	/// <summary> Invoked by <see cref="Triggernometry.PluginBridges.BridgeFFXIV.SubscribeToZoneChanged" /></summary>
-	public void ZoneChangeDelegate(uint ZoneID, string ZoneName) {
+	public void ZoneChangeDelegate(uint ZoneID, string ZoneName) { // zoneName 没用到？
 		// PluginBridges.BridgeFFXIV.ZoneID = ZoneID;
 		BridgeFFXIV.UpdateState(); // fix player id, etc. after travelling to a new server
 		Entity.UpdateMySnapshot();
+		// currentZone = ZoneName; 需要测试
 		ZoneChanged(currentZone);
 	}
 

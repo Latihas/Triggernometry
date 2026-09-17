@@ -4,51 +4,12 @@ namespace Triggernometry.FFXIV;
 
 public enum JobEnum {
 	None = -1,
-	ADV = 0,
-	GLA = 1,
-	PGL = 2,
-	MRD = 3,
-	LNC = 4,
-	ARC = 5,
-	CNJ = 6,
-	THM = 7,
-	CRP = 8,
-	BSM = 9,
-	ARM = 10,
-	GSM = 11,
-	LTW = 12,
-	WVR = 13,
-	ALC = 14,
-	CUL = 15,
-	MIN = 16,
-	BTN = 17,
-	FSH = 18,
-	PLD = 19,
-	MNK = 20,
-	WAR = 21,
-	DRG = 22,
-	BRD = 23,
-	WHM = 24,
-	BLM = 25,
-	ACN = 26,
-	SMN = 27,
-	SCH = 28,
-	ROG = 29,
-	NIN = 30,
-	MCH = 31,
-	DRK = 32,
-	AST = 33,
-	SAM = 34,
-	RDM = 35,
-	BLU = 36,
-	GNB = 37,
-	DNC = 38,
-	RPR = 39,
-	SGE = 40,
-	VPR = 41,
-	PCT = 42,
-	_43 = 43,
-	_44 = 44
+        ADV = 0, GLA = 1, PGL = 2, MRD = 3, LNC = 4, ARC = 5, CNJ = 6, THM = 7,
+        CRP = 8, BSM = 9, ARM = 10, GSM = 11, LTW = 12, WVR = 13, ALC = 14, CUL = 15,
+        MIN = 16, BTN = 17, FSH = 18, PLD = 19, MNK = 20, WAR = 21, DRG = 22, BRD = 23,
+        WHM = 24, BLM = 25, ACN = 26, SMN = 27, SCH = 28, ROG = 29, NIN = 30, MCH = 31,
+        DRK = 32, AST = 33, SAM = 34, RDM = 35, BLU = 36, GNB = 37, DNC = 38, RPR = 39,
+        SGE = 40, VPR = 41, PCT = 42, BST = 43, _44 = 44, _45 = 45,
 }
 
 public partial class Job {
@@ -98,6 +59,7 @@ public partial class Job {
 	public static Job SGE => GetJob(JobEnum.SGE);
 	public static Job VPR => GetJob(JobEnum.VPR);
 	public static Job PCT => GetJob(JobEnum.PCT);
+        public static Job BST => GetJob(JobEnum.BST);
 
 	static Job() {
 		_jobs = new List<Job> {
@@ -141,7 +103,7 @@ public partial class Job {
 				SubRole = RoleType.StrengthMelee,
 				NameCN1 = "格",
 				NameCN2 = "格斗",
-				NameJP1 = "闘",
+                    NameJP1 = "格",
 				NameTCN1 = "格",
 				NameTCN2 = "格斗",
 				NameCN = "格斗家",
@@ -365,7 +327,7 @@ public partial class Job {
 				SubRole = RoleType.Gatherer,
 				NameCN1 = "矿",
 				NameCN2 = "采矿",
-				NameJP1 = "鉱",
+                    NameJP1 = "採",
 				NameTCN1 = "礦",
 				NameTCN2 = "采礦",
 				NameCN = "采矿工",
@@ -477,7 +439,7 @@ public partial class Job {
 				SubRole = RoleType.PhysicalRanged,
 				NameCN1 = "诗",
 				NameCN2 = "诗人",
-				NameJP1 = "詩",
+                    NameJP1 = "吟",
 				NameTCN1 = "詩",
 				NameTCN2 = "詩人",
 				NameCN = "吟游诗人",
@@ -792,21 +754,21 @@ public partial class Job {
 				NameKR = "Pictomancien",
 				NameTCN = "繪靈法師"
 			},
-			new() {
-				JobType = JobEnum._43,
-				SubRole = RoleType.None,
-				NameCN1 = "丽",
-				NameCN2 = "四三",
-				NameJP1 = "丽",
-				NameTCN1 = "麗",
-				NameTCN2 = "四三",
-				NameCN = "job_43",
-				NameDE = "job_43",
-				NameEN = "job_43",
-				NameFR = "job_43",
-				NameJP = "job_43",
-				NameKR = "job_43",
-				NameTCN = "job_43"
+                new Job {
+                    JobType = JobEnum.BST,
+                    SubRole = RoleType.StrengthMelee,
+                    NameCN1 = "兽",
+                    NameCN2 = "驯兽",
+                    NameJP1 = "獣",
+                    NameTCN1 = "獸",
+                    NameTCN2 = "馴獸",
+                    NameCN = "驯兽师",
+                    NameDE = "Bestienbändiger",
+                    NameEN = "Beastmaster",
+                    NameFR = "Dresseur",
+                    NameJP = "魔獣使い",
+                    NameKR = "마수조련사",
+                    NameTCN = "馴獸師",
 			},
 			new() {
 				JobType = JobEnum._44,
@@ -824,7 +786,22 @@ public partial class Job {
 				NameKR = "job_44",
 				NameTCN = "job_44"
 			},
-
+                new Job {
+                    JobType = JobEnum._45,
+                    SubRole = RoleType.None,
+                    NameCN1 = "玉",
+                    NameCN2 = "四五",
+                    NameJP1 = "玉",
+                    NameTCN1 = "玉",
+                    NameTCN2 = "四五",
+                    NameCN = "job_45",
+                    NameDE = "job_45",
+                    NameEN = "job_45",
+                    NameFR = "job_45",
+                    NameJP = "job_45",
+                    NameKR = "job_45",
+                    NameTCN = "job_45",
+                },
 			#endregion Other Jobs
 		};
 
@@ -837,7 +814,7 @@ public partial class Job {
 		XivDefaultOrder = [
 			PLD, GLA, WAR, MRD, DRK, GNB,
 			WHM, CNJ, SCH, AST, SGE,
-			MNK, PGL, DRG, LNC, NIN, ROG, SAM, RPR, VPR,
+                MNK, PGL, DRG, LNC, NIN, ROG, SAM, RPR, VPR, BST,
 			BRD, ARC, MCH, DNC,
 			BLM, THM, SMN, ACN, RDM, PCT, BLU,
 			CRP, BSM, ARM, GSM, LTW, WVR, ALC, CUL,

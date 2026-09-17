@@ -1550,12 +1550,6 @@ public class UserInterface {
 	//                 }
 	//                 plug.LogLineQueuerMass(lines, ti.txtZoneName.Text, src, true, ti.cbxZoneType.SelectedIndex == 1);
 	//                 plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/UserInterface/loglinequeuedone", "Done"));
-	//                 /*
-	//                 foreach (string line in lines)
-	//                 {
-	//                     plug.FilteredAddToLog(Plugin.DebugLevelEnum.Verbose, "User log line: (" + line + ")");
-	//                     plug.LogLineQueuer(line, ti.txtZone.Text);
-	//                 }*/
 	//                 break;
 	//         }
 	//     }
@@ -1565,18 +1559,12 @@ public class UserInterface {
 	// {
 	//     lock (formmgmt)
 	//     {
-	//         if (formlog != null)
-	//         {
-	//             formlog.Close();
-	//         }
-	//         if (formsearch != null)
-	//         {
-	//             formsearch.Close();
-	//         }
+	// formlog?.Close();
+	// formsearch?.Close();
 	//     }
 	// }
 	//
-	// private void runBenchmarkToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void rfunBenchmarkToolStripMenuItem_Click(object sender, EventArgs e)
 	// {
 	//     using (Forms.BenchmarkForm bf = new Forms.BenchmarkForm())
 	//     {

@@ -24,13 +24,27 @@ public partial class RealPlugin {
 		return (RepositoryManifest)serializer.Deserialize(reader);
 	}
 
-
-	private static readonly List<string> _legalRepoPrefixes = new() {
-		"https://github.com/paissaheavyindustries/Triggernometry",
+	private static readonly List<string> _legalRepoPrefixes = new List<string> {
+		"https://github.com/paissaheavyindustries/Triggernometry/",
 		"https://vip.123pan.cn/1824544011/",
 		"https://1824544011.v.123pan.cn/",
 		"https://1824544011.cdn.123clouddisk.com/"
 	};
+
+	private bool DetectLegalAddress(string address) {
+		var isLegal = _legalRepoPrefixes.Any(prefix =>
+			address?.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) == true);
+
+		if (!isLegal) {
+			UnfilteredAddToLog(DebugLevelEnum.Error,
+				I18n.IsChineseEnvironment
+					? $"远程仓库地址 {address} 未在信任列表内，已跳过操作。"
+					: $"The repository address {address} is not trusted. The operation has been skipped."
+			);
+		}
+
+		return isLegal;
+	}
 
 	public void AddRepositoryManifestItem(RepositoryManifestItem item, bool shouldUpdate) {
 		// if (ui.InvokeRequired)
@@ -38,19 +52,16 @@ public partial class RealPlugin {
 		//     ui.Invoke(new Action(() => AddRepositoryManifestItem(item, shouldUpdate)));
 		//     return;
 		// }
-		if (!_legalRepoPrefixes.Any(prefix => item.Address.StartsWith(prefix))) {
-			UnfilteredAddToLog(DebugLevelEnum.Error,
-				I18n.IsChineseEnvironment
-					? $"正在尝试添加的远程仓库地址 {item.Address} 未在信任列表内，你需要手动添加此远程仓库。"
-					: $"The repository address {item.Address} you are trying to add is not a trusted address and needs to be added manually."
-			);
-			return;
-		}
+		if (!DetectLegalAddress(item.Address)) return;
+
 
 		// RepositoryFolder rfo = (RepositoryFolder)ui.treeView1.Nodes[1].Tag;
 		var tn = cfg.RepositoryRoot.Repositories
 			// .Select(r => ui.treeView1.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(node => node.Tag == r))
-			.FirstOrDefault(r => r.Address == item.Address);
+			.FirstOrDefault(r => string.Equals(
+				r.Address?.Trim(),
+				item.Address?.Trim(),
+				StringComparison.OrdinalIgnoreCase));
 
 		Repository repo;
 		if (tn != null) {
@@ -120,11 +131,73 @@ public partial class RealPlugin {
 		// }
 	}
 
+	public void ReplaceRepo(string from, string to) {
+		// if (ui.InvokeRequired)
+		// {
+		//     ui.Invoke(new Action(() => ReplaceRepo(from, to)));
+		//     return;
+		// }
+
+		if (string.IsNullOrEmpty(from))
+			return;
+
+		RepositoryFolder rfo = cfg.RepositoryRoot;
+
+		foreach (var repo in rfo.Repositories) {
+			if (string.IsNullOrEmpty(repo?.Address) ||
+			    repo.Address.IndexOf(from, StringComparison.OrdinalIgnoreCase) < 0) {
+				continue;
+			}
+
+			string newAddress = ReplaceIgnoreCase(repo.Address, from, to);
+
+			if (DetectLegalAddress(newAddress)) {
+				repo.Address = newAddress;
+			}
+		}
+	}
+
+	private static string ReplaceIgnoreCase(string source, string oldValue, string newValue) {
+		int index = source.IndexOf(oldValue, StringComparison.OrdinalIgnoreCase);
+		while (index >= 0) {
+			source = source.Remove(index, oldValue.Length).Insert(index, newValue);
+			index = source.IndexOf(oldValue, index + newValue.Length, StringComparison.OrdinalIgnoreCase);
+		}
+		return source;
+	}
+
+	private void CheckDuplicateRepoAddresses() {
+		// if (ui.InvokeRequired)
+		// {
+		//     ui.Invoke(new Action(CheckDuplicateRepoAddresses));
+		//     return;
+		// }
+
+		RepositoryFolder rfo = cfg.RepositoryRoot;
+
+		var duplicates = rfo.Repositories
+			.Where(repo => !string.IsNullOrWhiteSpace(repo.Address))
+			.GroupBy(
+				repo => repo.Address.Trim(),
+				StringComparer.OrdinalIgnoreCase)
+			.Where(group => group.Count() > 1);
+
+		foreach (var group in duplicates) {
+			UnfilteredAddToLog(
+				DebugLevelEnum.Error,
+				$"检测到重复的远程仓库地址：{group.Key}");
+		}
+	}
+
 	public void LoadDefaultRepoCN(bool shouldUpdate = false) {
 		try {
 			var repoManifest = LoadRepositoryManifest(DefaultRepoManifestUrl);
-			repoManifest.Remove.ForEach(RemoveRepo);
+			// repoManifest.Remove.ForEach(RemoveRepo);
+			// repoManifest.Add.ForEach(item => AddRepositoryManifestItem(item, shouldUpdate));
+			repoManifest.Replace.ForEach(item => ReplaceRepo(item.From, item.To));
+			repoManifest.Remove.ForEach(partialUrl => RemoveRepo(partialUrl));
 			repoManifest.Add.ForEach(item => AddRepositoryManifestItem(item, shouldUpdate));
+			CheckDuplicateRepoAddresses();
 		} catch (Exception ex) {
 			FilteredAddToLog(DebugLevelEnum.Error, "无法添加默认远程仓库：" + ex.Message);
 		}
@@ -139,6 +212,18 @@ public partial class RealPlugin {
 		[XmlArray("Remove")]
 		[XmlArrayItem("Item")]
 		public List<string> Remove { get; set; } = [];
+		[XmlArray("Replace")]
+		[XmlArrayItem("Item")]
+		public List<RepositoryManifestReplaceItem> Replace { get; set; }
+			= new List<RepositoryManifestReplaceItem>();
+
+		public class RepositoryManifestReplaceItem {
+			[XmlAttribute]
+			public string From { get; set; } = "";
+
+			[XmlAttribute]
+			public string To { get; set; } = "";
+		}
 	}
 
 	public class RepositoryManifestItem {
