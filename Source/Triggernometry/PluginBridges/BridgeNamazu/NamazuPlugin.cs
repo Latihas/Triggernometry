@@ -8,6 +8,7 @@ using System.Threading;
 using PostNamazu;
 using PostNamazu.Actions;
 using Triggernometry.FFXIV;
+using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu;
 
@@ -189,24 +190,35 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 		}
 	}
 
+	private static T RunOnFrameworkThread<T>(Func<T> func) {
+		var framework = ProxyPlugin.Framework;
+		return framework.IsInFrameworkUpdateThread ? func() : framework.RunOnFrameworkThread(func).GetAwaiter().GetResult();
+	}
+
 	public void Call(IntPtr ptr, params object[] args)
-		=> NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(void), args);
+		=> RunOnFrameworkThread(() =>
+			NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(void), args));
 
 	public T Call<T>(IntPtr ptr, params object[] args) where T : struct
-		=> (T)NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(T), args);
+		=> RunOnFrameworkThread(() =>
+			(T)NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(T), args));
 
 	public void DirectCall(IntPtr ptr, params object[] args)
-		=> NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(void), args);
+		=> RunOnFrameworkThread(() =>
+			NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(void), args));
 
 	public T DirectCall<T>(IntPtr ptr, params object[] args) where T : struct
-		=> (T)NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(T), args);
+		=> RunOnFrameworkThread(() =>
+			(T)NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(T), args));
 
 	public void CallVirtualFunction(IntPtr objAddress, int vFuncIndex, params object[] args)
 		=> CallVirtualFunction<IntPtr>(objAddress, vFuncIndex, args);
 
 	public T CallVirtualFunction<T>(IntPtr objAddress, int vFuncIndex, params object[] args) where T : struct {
-		var vTablePtr = Memory.Read<IntPtr>(objAddress);
-		var vFuncPtr = Memory.Read<IntPtr>(vTablePtr + IntPtr.Size * vFuncIndex);
-		return Call<T>(vFuncPtr, [objAddress, .. args]);
+		return RunOnFrameworkThread(() => {
+			var vTablePtr = Memory.Read<IntPtr>(objAddress);
+			var vFuncPtr = Memory.Read<IntPtr>(vTablePtr + IntPtr.Size * vFuncIndex);
+			return Call<T>(vFuncPtr, [objAddress, .. args]);
+		});
 	}
 }

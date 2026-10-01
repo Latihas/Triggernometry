@@ -82,10 +82,10 @@ public static class CSharpScriptCompiler {
 		}
 		try {
 			var dalamudPathRoot = (string)ProxyPlugin.DalamudPlugin.DalamudStartInfo.WorkingDirectory.ToString();
-			List<string> referencedAssembliesL = [];
-			referencedAssembliesL.AddRange(PluginDirReferenes.Select(r => Path.Combine(ProxyPlugin.DalamudPlugin.PluginAssemblyDirectory, r)).Cast<string>());
-			referencedAssembliesL.AddRange(DalamudDirReferenes.Select(r => Path.Combine(dalamudPathRoot, r)));
-			var referencedAssemblies = referencedAssembliesL.ToArray();
+			string[] referencedAssemblies = [
+				.. PluginDirReferenes.Select(r => Path.Combine(ProxyPlugin.DalamudPlugin.PluginAssemblyDirectory, r)),
+				.. DalamudDirReferenes.Select(r => Path.Combine(dalamudPathRoot, r))
+			];
 			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Info, $"Compiling command: {scriptCode}");
 			SyntaxTree? syntaxTree;
 			var tempClassName = $"{className}_Functions";
