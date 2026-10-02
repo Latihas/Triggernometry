@@ -168,12 +168,11 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 					MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.RTSpecialName,
 					CallingConventions.Standard,
 					[typeof(object), typeof(IntPtr)]);
-				ctor.SetImplementationFlags(MethodImplAttributes.Runtime | MethodImplAttributes.Managed);
+				ctor.SetImplementationFlags(MethodImplAttributes.CodeTypeMask);
 				var invoke = tb.DefineMethod("Invoke",
-					MethodAttributes.Public | MethodAttributes.HideBySig
-					                        | MethodAttributes.NewSlot | MethodAttributes.Virtual,
+					MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual,
 					returnType, paramTypes);
-				invoke.SetImplementationFlags(MethodImplAttributes.Runtime | MethodImplAttributes.Managed);
+				invoke.SetImplementationFlags(MethodImplAttributes.CodeTypeMask);
 				var type = tb.CreateTypeInfo().AsType();
 				Cache[key] = type;
 				return type;
@@ -190,10 +189,7 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 		}
 	}
 
-	private static T RunOnFrameworkThread<T>(Func<T> func) {
-		var framework = ProxyPlugin.Framework;
-		return framework.IsInFrameworkUpdateThread ? func() : framework.RunOnFrameworkThread(func).GetAwaiter().GetResult();
-	}
+	private static T RunOnFrameworkThread<T>(Func<T> func) => ProxyPlugin.Framework.RunOnTick(func).GetAwaiter().GetResult();
 
 	public void Call(IntPtr ptr, params object[] args)
 		=> RunOnFrameworkThread(() =>

@@ -21,7 +21,7 @@ public abstract class ModuleBase {
 
 	public void Scan() {
 		if (ScanMethod == null) throw new Exception($"[鲶鱼精邮差扩展] {GetType().Name} 扫描方法 ScanMethod 未设置。");
-		ScanMethod();
+		RunOnTickV(ScanMethod);
 	}
 
 	public void CheckBeforeExecution(string command) {
