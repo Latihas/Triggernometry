@@ -179,7 +179,14 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 			}
 		}
 
-		public static object Invoke(IntPtr funcPtr, CallingConvention convention, Type returnType, object[] args) {
+		public static object Invoke(IntPtr funcPtr, CallingConvention convention, Type returnType, object[] args,
+			bool requireReceiver = false) {
+			if (funcPtr == IntPtr.Zero)
+				throw new InvalidOperationException("原生函数地址为空，已取消调用");
+			if (requireReceiver && args.Length > 0 && args[0] is IntPtr receiver && receiver == IntPtr.Zero)
+				throw new InvalidOperationException(
+					$"原生函数 {funcPtr.ToInt64():X} 的第一个参数（实例指针）为空，已取消调用");
+
 			var paramTypes = new Type[args.Length];
 			for (var i = 0; i < args.Length; i++)
 				paramTypes[i] = args[i]?.GetType() ?? typeof(object);
@@ -193,11 +200,11 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 
 	public void Call(IntPtr ptr, params object[] args)
 		=> RunOnFrameworkThread(() =>
-			NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(void), args));
+			NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(void), args, true));
 
 	public T Call<T>(IntPtr ptr, params object[] args) where T : struct
 		=> RunOnFrameworkThread(() =>
-			(T)NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(T), args));
+			(T)NativeDelegateBuilder.Invoke(ptr, CallingConvention.Winapi, typeof(T), args, true));
 
 	public void DirectCall(IntPtr ptr, params object[] args)
 		=> RunOnFrameworkThread(() =>
@@ -212,8 +219,16 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 
 	public T CallVirtualFunction<T>(IntPtr objAddress, int vFuncIndex, params object[] args) where T : struct {
 		return RunOnFrameworkThread(() => {
+			if (objAddress == IntPtr.Zero)
+				throw new InvalidOperationException("虚表调用的对象指针为空，已取消调用");
+			if (vFuncIndex < 0)
+				throw new ArgumentOutOfRangeException(nameof(vFuncIndex));
 			var vTablePtr = Memory.Read<IntPtr>(objAddress);
+			if (vTablePtr == IntPtr.Zero)
+				throw new InvalidOperationException("虚表地址为空，已取消调用");
 			var vFuncPtr = Memory.Read<IntPtr>(vTablePtr + IntPtr.Size * vFuncIndex);
+			if (vFuncPtr == IntPtr.Zero)
+				throw new InvalidOperationException($"虚表函数地址为空，索引={vFuncIndex}，已取消调用");
 			return Call<T>(vFuncPtr, [objAddress, .. args]);
 		});
 	}

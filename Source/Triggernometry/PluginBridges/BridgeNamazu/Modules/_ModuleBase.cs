@@ -21,7 +21,7 @@ public abstract class ModuleBase {
 
 	public void Scan() {
 		if (ScanMethod == null) throw new Exception($"[鲶鱼精邮差扩展] {GetType().Name} 扫描方法 ScanMethod 未设置。");
-		RunOnTickV(ScanMethod);
+		ScanMethod();
 	}
 
 	public void CheckBeforeExecution(string command) {
@@ -32,7 +32,12 @@ public abstract class ModuleBase {
 	}
 
 	public void CheckIfAnyZeroPtr() => CheckBeforeExecution(GetType().Name);
-	public void CheckIfAnyZeroPtr(params object[] args) => CheckIfAnyZeroPtr();
+
+	public void CheckIfAnyZeroPtr(params IntPtr[] ptrs) {
+		CheckIfAnyZeroPtr();
+		if (ptrs.Any(p => p == IntPtr.Zero))
+			throw new Exception($"[鲶鱼精邮差扩展] {GetType().Name} 指令执行所需的 IntPtr 未初始化，无法执行指令。");
+	}
 
 	public void NamazuLog(string msg) => BridgeNamazu.Log(msg);
 	public void TriggerLog(RealPlugin.DebugLevelEnum level, string msg) => RealPlugin.Instance?.UnfilteredAddToLog(level, msg);
