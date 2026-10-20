@@ -425,6 +425,14 @@ public class Configuration {
 
 	[XmlAttribute] public bool UseScarborough { get; set; } = true;
 
+	public enum ScarboroughRendererModeEnum {
+		Original,
+		DalamudImGui
+	}
+
+	[XmlAttribute]
+	public ScarboroughRendererModeEnum ScarboroughRendererMode { get; set; } = ScarboroughRendererModeEnum.Original;
+
 	#endregion
 
 	// Others

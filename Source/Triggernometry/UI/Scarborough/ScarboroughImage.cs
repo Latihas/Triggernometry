@@ -17,6 +17,7 @@ using Color = Scarborough.Drawing.Color;
 using Graphics = Scarborough.Drawing.Graphics;
 using Image = Scarborough.Drawing.Image;
 using GdiGraphics = System.Drawing.Graphics;
+using DrawingRectangle = Scarborough.Drawing.Rectangle;
 
 namespace Scarborough;
 
@@ -226,6 +227,11 @@ public class ScarboroughImage(Triggernometry.UI.Scarborough own) : ScarboroughIt
 
 	public void LoadImageOnDemand() {
 		Free();
+		if (!Owner.IsImGuiRenderer) {
+			LoadImageData(plug, _graphics!, ImageFilename);
+			return;
+		}
+
 		var path = ResolveImagePath(ImageFilename);
 		if (string.IsNullOrWhiteSpace(path) || ProxyPlugin.TextureProvider == null) return;
 
@@ -287,7 +293,107 @@ public class ScarboroughImage(Triggernometry.UI.Scarborough own) : ScarboroughIt
 			return;
 		}
 		if (!AdjustSurface()) return;
+		if (Owner.IsImGuiRenderer) {
+			NeedRender = false;
+			return;
+		}
+
+		AdjustVisibility();
 		NeedRender = false;
+		var graphics = _graphics!;
+		graphics.BeginScene();
+		graphics.ClearScene(_bgColor);
+		if (!Owner.RenderingActive || InvalidSize || OriginalImage == null) {
+			graphics.EndScene();
+			return;
+		}
+
+		switch (Display) {
+			case PictureBoxSizeMode.Zoom: {
+				var mW = Width / OriginalImage.Width;
+				var mH = Height / OriginalImage.Height;
+				float aW;
+				float aH;
+				if (mH < mW) {
+					aW = mH * OriginalImage.Width;
+					aH = Height;
+				} else if (mW < mH) {
+					aW = Width;
+					aH = mW * OriginalImage.Height;
+				} else {
+					aW = Width;
+					aH = Height;
+				}
+				graphics.DrawImage(
+					OriginalImage,
+					(Width - aW) / 2,
+					(Height - aH) / 2,
+					(Width - aW) / 2 + aW,
+					(Height - aH) / 2 + aH,
+					Opacity / 100.0f);
+				break;
+			}
+			case PictureBoxSizeMode.Normal:
+				if (OriginalImage.Width <= Width && OriginalImage.Height <= Height) {
+					graphics.DrawImage(
+						OriginalImage,
+						0,
+						0,
+						OriginalImage.Width,
+						OriginalImage.Height,
+						Opacity / 100.0f);
+				} else if (OriginalImage.Width <= Width) {
+					graphics.DrawImageEx(
+						OriginalImage,
+						new DrawingRectangle(0, 0, OriginalImage.Width, Height),
+						new DrawingRectangle(0, 0, OriginalImage.Width, Height),
+						Opacity / 100.0f);
+				} else if (OriginalImage.Height <= Height) {
+					graphics.DrawImageEx(
+						OriginalImage,
+						new DrawingRectangle(0, 0, Width, OriginalImage.Height),
+						new DrawingRectangle(0, 0, Width, OriginalImage.Height),
+						Opacity / 100.0f);
+				} else {
+					graphics.DrawImageEx(
+						OriginalImage,
+						new DrawingRectangle(0, 0, Width, Height),
+						new DrawingRectangle(0, 0, Width, Height),
+						Opacity / 100.0f);
+				}
+				break;
+			case PictureBoxSizeMode.CenterImage:
+				if (OriginalImage.Width <= Width && OriginalImage.Height <= Height) {
+					graphics.DrawImage(
+						OriginalImage,
+						(Width - OriginalImage.Width) / 2,
+						(Height - OriginalImage.Height) / 2,
+						(Width - OriginalImage.Width) / 2 + OriginalImage.Width,
+						(Height - OriginalImage.Height) / 2 + OriginalImage.Height,
+						Opacity / 100.0f);
+				} else {
+					graphics.DrawImageEx(
+						OriginalImage,
+						new DrawingRectangle(
+							OriginalImage.Width / 2 - Width / 2,
+							OriginalImage.Height / 2 - Height / 2,
+							OriginalImage.Width / 2 + Width / 2,
+							OriginalImage.Height / 2 + Height / 2),
+						new DrawingRectangle(0, 0, Width, Height),
+						Opacity / 100.0f);
+				}
+				break;
+			case PictureBoxSizeMode.StretchImage:
+				graphics.DrawImage(
+					OriginalImage,
+					0,
+					0,
+					Width,
+					Height,
+					Opacity / 100.0f);
+				break;
+		}
+		graphics.EndScene();
 	}
 
 	internal override void DrawImGui(ImDrawListPtr drawList) {

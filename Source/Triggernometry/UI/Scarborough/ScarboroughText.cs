@@ -7,14 +7,19 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.FontIdentifier;
 using Dalamud.Interface.ManagedFontAtlas;
 using Dalamud.Interface.Utility;
+using SharpDX.DirectWrite;
 using Triggernometry.Core;
 using TriggernometryProxy;
 using FontStyle = System.Drawing.FontStyle;
+using ScarboroughFont = Scarborough.Drawing.Font;
+using ScarboroughSolidBrush = Scarborough.Drawing.SolidBrush;
 
 namespace Scarborough;
 
 public class ScarboroughText(Triggernometry.UI.Scarborough own) : ScarboroughItem(own) {
 	private IFontHandle? FontHandle;
+	private ScarboroughFont? TextFont;
+	private ScarboroughSolidBrush? TextBrush;
 	private string FontHandleKey { get; set; }
 	private readonly List<string> cachedLines = [];
 	private readonly List<float> cachedLineWidths = [];
@@ -113,6 +118,10 @@ public class ScarboroughText(Triggernometry.UI.Scarborough own) : ScarboroughIte
 	}
 
 	public override void Free() {
+		TextFont?.Dispose();
+		TextFont = null;
+		TextBrush?.Dispose();
+		TextBrush = null;
 		FontHandle?.Dispose();
 		FontHandle = null;
 		FontHandleKey = null;
@@ -122,21 +131,143 @@ public class ScarboroughText(Triggernometry.UI.Scarborough own) : ScarboroughIte
 	}
 
 	public void LoadFontOnDemand() {
+		if (Owner.IsImGuiRenderer) return;
+		Free();
+		if (!AdjustSurface()) return;
+		LoadFontData(plug);
+		CreateBrush();
 		NeedFont = false;
 	}
 
 	public void CreateBrush() {
+		if (Owner.IsImGuiRenderer || _graphics == null) return;
+		TextBrush = new ScarboroughSolidBrush(_graphics.GetRenderTarget());
 	}
 
 	public override void Render() {
-		NeedFont = false;
+		if (Owner.IsImGuiRenderer) {
+			NeedFont = false;
+			NeedRender = false;
+			AdjustSurface();
+			return;
+		}
+
+		if (NeedFont) {
+			if (!AdjustSurface()) {
+				AdjustVisibility();
+				return;
+			}
+			LoadFontOnDemand();
+			NeedFont = false;
+			NeedRender = true;
+		}
+		if (!Owner.RenderingActive) {
+			if (!WasHidden) {
+				NeedRender = true;
+				WasHidden = true;
+			}
+		} else if (WasHidden) {
+			NeedRender = true;
+			WasHidden = false;
+		}
+		if (!NeedRender) return;
+		if (!AdjustSurface()) {
+			AdjustVisibility();
+			return;
+		}
+		AdjustVisibility();
 		NeedRender = false;
-		AdjustSurface();
+		var graphics = _graphics!;
+		graphics.BeginScene();
+		if (!Owner.RenderingActive || InvalidSize) {
+			graphics.ClearScene(new Drawing.Color());
+			graphics.EndScene();
+			return;
+		}
+		if (BackgroundColor != Color.Transparent) {
+			_bgColor.A = Opacity / 100.0f;
+		}
+		graphics.ClearScene(_bgColor);
+		var paragraphAlignment = ParagraphAlignment.Center;
+		var textAlignment = SharpDX.DirectWrite.TextAlignment.Center;
+		switch (TextAlignment) {
+			case ActionOld.TextAuraAlignmentEnum.TopLeft:
+				paragraphAlignment = ParagraphAlignment.Near;
+				textAlignment = SharpDX.DirectWrite.TextAlignment.Leading;
+				break;
+			case ActionOld.TextAuraAlignmentEnum.TopCenter:
+				paragraphAlignment = ParagraphAlignment.Near;
+				break;
+			case ActionOld.TextAuraAlignmentEnum.TopRight:
+				paragraphAlignment = ParagraphAlignment.Near;
+				textAlignment = SharpDX.DirectWrite.TextAlignment.Trailing;
+				break;
+			case ActionOld.TextAuraAlignmentEnum.MiddleLeft:
+				textAlignment = SharpDX.DirectWrite.TextAlignment.Leading;
+				break;
+			case ActionOld.TextAuraAlignmentEnum.MiddleRight:
+				textAlignment = SharpDX.DirectWrite.TextAlignment.Trailing;
+				break;
+			case ActionOld.TextAuraAlignmentEnum.BottomLeft:
+				paragraphAlignment = ParagraphAlignment.Far;
+				textAlignment = SharpDX.DirectWrite.TextAlignment.Leading;
+				break;
+			case ActionOld.TextAuraAlignmentEnum.BottomCenter:
+				paragraphAlignment = ParagraphAlignment.Far;
+				break;
+			case ActionOld.TextAuraAlignmentEnum.BottomRight:
+				paragraphAlignment = ParagraphAlignment.Far;
+				textAlignment = SharpDX.DirectWrite.TextAlignment.Trailing;
+				break;
+		}
+		if (TextBrush != null && TextFont != null) {
+			if (UseOutline) {
+				TextBrush.Color = new Drawing.Color(
+					OutlineColor.R,
+					OutlineColor.G,
+					OutlineColor.B,
+					Opacity / 100.0f);
+				graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, paragraphAlignment, textAlignment, 1, 0, Width, Height, Text);
+				graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, paragraphAlignment, textAlignment, -1, 0, Width, Height, Text);
+				graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, paragraphAlignment, textAlignment, 0, 1, Width, Height, Text);
+				graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, paragraphAlignment, textAlignment, 0, -1, Width, Height, Text);
+			}
+			TextBrush.Color = new Drawing.Color(
+				TextColor.R,
+				TextColor.G,
+				TextColor.B,
+				Opacity / 100.0f);
+			graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, paragraphAlignment, textAlignment, 0, 0, Width, Height, Text);
+		}
+		graphics.EndScene();
 	}
 
 	internal void LoadFontData(RealPlugin plug) {
+		if (Owner.IsImGuiRenderer || _graphics == null) return;
+		TextFont = _graphics.CreateFont(
+			FontName,
+			FontSize,
+			(FontStyle & FontStyle.Bold) == FontStyle.Bold,
+			(FontStyle & FontStyle.Italic) == FontStyle.Italic,
+			true
+		);
 	}
 
+	public override bool InternalLogic(int numTicks) {
+		while (numTicks > 0) {
+			if (!GenericLogic()) {
+				return false;
+			}
+			numTicks--;
+		}
+		Text = EvaluateStringExpression(ctx, TextExpression);
+		return true;
+	}
+
+	/*
+	 * The ImGui renderer below keeps text layout cached because Draw is called
+	 * every frame, while the legacy renderer above only redraws changed items.
+	 */
 	internal override void DrawImGui(ImDrawListPtr drawList) {
 		if (!Owner.RenderingActive || !AdjustSurface() || string.IsNullOrEmpty(Text)) return;
 		var fontHandle = EnsureFontHandle();
@@ -312,14 +443,4 @@ public class ScarboroughText(Triggernometry.UI.Scarborough own) : ScarboroughIte
 		cachedLineWidths.Add(ImGui.CalcTextSize(line).X * scale);
 	}
 
-	public override bool InternalLogic(int numTicks) {
-		while (numTicks > 0) {
-			if (!GenericLogic()) {
-				return false;
-			}
-			numTicks--;
-		}
-		Text = EvaluateStringExpression(ctx, TextExpression);
-		return true;
-	}
 }

@@ -174,12 +174,48 @@ public abstract class ScarboroughItem(Triggernometry.UI.Scarborough own) : IDisp
 	}
 
 	protected void AdjustVisibility() {
-		// ImGui draw lists are rebuilt every frame, so visibility is handled by DrawImGui.
+		if (Owner.IsImGuiRenderer || _window == null) return;
+		if (_window.IsVisible) {
+			if (InvalidSize || !Owner.RenderingActive) {
+				_window.Hide();
+			}
+		} else if (!InvalidSize && Owner.RenderingActive) {
+			_window.Show();
+		}
 	}
 
 	protected bool AdjustSurface() {
 		InvalidSize = Width <= 0 || Height <= 0;
-		return !InvalidSize;
+		if (InvalidSize || Owner.IsImGuiRenderer) return !InvalidSize;
+
+		if (_window == null) {
+			_window = new OverlayWindow(Left, Top, Width, Height) {
+				IsTopmost = true,
+				IsVisible = true
+			};
+			_graphics = new Graphics {
+				MeasureFPS = false,
+				Width = _window.Width,
+				Height = _window.Height,
+				PerPrimitiveAntiAliasing = true,
+				TextAntiAliasing = true,
+				UseMultiThreadedFactories = false,
+				VSync = false,
+				WindowHandle = IntPtr.Zero
+			};
+			_window.CreateWindow();
+			_graphics.WindowHandle = _window.Handle;
+			_graphics.Setup();
+		} else {
+			if (Left != _window.X || Top != _window.Y) {
+				_window.Move(Left, Top);
+			}
+			if (Width != _window.Width || Height != _window.Height) {
+				_window.Resize(Width, Height);
+				_graphics!.Resize(Width, Height);
+			}
+		}
+		return true;
 	}
 
 	protected static uint ToImGuiColor(System.Drawing.Color color, float opacity = 1.0f) {

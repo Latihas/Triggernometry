@@ -7,6 +7,7 @@ using System.Threading;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Plugin.Services;
 using Scarborough;
+using Scarborough.PInvoke;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 using TriggernometryProxy;
@@ -28,12 +29,22 @@ public class Scarborough : IDisposable {
 	private readonly List<DeferredMessage> deferredMessages = [];
 	private readonly List<ScarboroughItem> renderItemsToRemove = [];
 	private bool drawItemsDirty = true;
+	private readonly bool drawCallbackRegistered;
 	public Dictionary<string, ScarboroughText> textitems = new();
 
+	internal Configuration.ScarboroughRendererModeEnum RendererMode { get; }
+	internal bool IsImGuiRenderer => RendererMode == Configuration.ScarboroughRendererModeEnum.DalamudImGui;
+
 	public Scarborough() {
+		RendererMode = RealPlugin.Instance.cfg?.ScarboroughRendererMode
+		               ?? Configuration.ScarboroughRendererModeEnum.Original;
 		RenderingActive = true;
+		if (!IsImGuiRenderer) User32.InitializeWindowClass();
 		ProxyPlugin.Framework.Update += Render;
-		ProxyPlugin.PluginInterface.UiBuilder.Draw += DrawImGui;
+		if (IsImGuiRenderer) {
+			ProxyPlugin.PluginInterface.UiBuilder.Draw += DrawImGui;
+			drawCallbackRegistered = true;
+		}
 	}
 
 	internal bool RenderingActive { get; set; }
@@ -42,7 +53,7 @@ public class Scarborough : IDisposable {
 
 	public void Dispose() {
 		ProxyPlugin.Framework.Update -= Render;
-		ProxyPlugin.PluginInterface.UiBuilder.Draw -= DrawImGui;
+		if (drawCallbackRegistered) ProxyPlugin.PluginInterface.UiBuilder.Draw -= DrawImGui;
 		lock (stateLock) {
 			foreach (var image in imageitems.Values) image.Dispose();
 			foreach (var text in textitems.Values) text.Dispose();
@@ -546,9 +557,13 @@ public class Scarborough : IDisposable {
 			}
 		}
 		if (drawItemsDirty) {
-			drawItems.Clear();
-			drawItems.AddRange(rc.items);
-			drawItems.Sort((a, b) => a.Ordinal.CompareTo(b.Ordinal));
+			if (IsImGuiRenderer) {
+				drawItems.Clear();
+				drawItems.AddRange(rc.items);
+				drawItems.Sort((a, b) => a.Ordinal.CompareTo(b.Ordinal));
+			} else {
+				drawItems.Clear();
+			}
 			drawItemsDirty = false;
 		}
 		ProcessMessages(deferredMessages);
@@ -576,6 +591,7 @@ public class Scarborough : IDisposable {
 	}
 
 	private void DrawImGui() {
+		if (!IsImGuiRenderer) return;
 		lock (stateLock) {
 			if (!RenderingActive || drawItems.Count == 0) return;
 			var drawList = ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
