@@ -573,12 +573,16 @@ public partial class RealPlugin {
 				if (logFlattenACT.Count > cfg.LogFlattenMaxCount) logFlattenACT.TryDequeue(out _);
 			}
 			var szone = BridgeFFXIV.ZoneID;
+			var ignoreReplay = ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Script;
 			try {
-				foreach (var script in ActGlobals.oFormActMain.ActPlugins.Where(i => i.isIScriptBase).Select(i => (IScriptBase)i.pluginObj)) {
-					if (script.TerritoryIds() == null || script.TerritoryIds().Contains(szone) || ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Script) {
+				foreach (var actPlugin in ActGlobals.oFormActMain.ActPlugins) {
+					if (!actPlugin.isIScriptBase) continue;
+					var script = (IScriptBase)actPlugin.pluginObj;
+					var territoryIds = script.TerritoryIds();
+					if (territoryIds == null || territoryIds.Contains(szone) || ignoreReplay) {
 						script.MatchAll(logLine);
 					}
-					if (script.TerritoryIds() != null || ProxyPlugin.DalamudPlugin.ActxtEditor.IsReplayIgnoreT_Script) {
+					if (territoryIds != null || ignoreReplay) {
 						foreach (var (regex, action) in script.IgnoreTerritory) {
 							var match = regex.Match(logLine);
 							if (!match.Success) continue;

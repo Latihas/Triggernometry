@@ -1,99 +1,101 @@
-﻿using System.Drawing;
-using SharpDX.DirectWrite;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
+using System.Numerics;
+using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.FontIdentifier;
+using Dalamud.Interface.ManagedFontAtlas;
+using Dalamud.Interface.Utility;
 using Triggernometry.Core;
-using Font = Scarborough.Drawing.Font;
+using TriggernometryProxy;
 using FontStyle = System.Drawing.FontStyle;
-using SolidBrush = Scarborough.Drawing.SolidBrush;
 
 namespace Scarborough;
 
-public class ScarboroughText : ScarboroughItem {
-	private Color _BackgroundColor;
-
-	private float _FontSize;
-
-	private FontStyle _FontStyle;
-
-	private Color _OutlineColor;
-
-	private string _Text;
-
-	private ActionOld.TextAuraAlignmentEnum _TextAlignment;
-
-	private Color _TextColor;
-
-	private bool _UseOutline;
-
-	public ScarboroughText(Triggernometry.UI.Scarborough own) : base(own) {
-	}
+public class ScarboroughText(Triggernometry.UI.Scarborough own) : ScarboroughItem(own) {
+	private IFontHandle? FontHandle;
+	private string FontHandleKey { get; set; }
+	private readonly List<string> cachedLines = [];
+	private readonly List<float> cachedLineWidths = [];
+	private string cachedText = "";
+	private string cachedFontHandleKey = "";
+	private int cachedWidth;
+	private float cachedFontSize;
+	private float cachedScale;
+	private float cachedDefaultFontSize;
+	private float cachedGlobalScale;
+	private float cachedLineHeight;
+	private bool cachedFontAvailable;
+	private bool hasTextLayout;
 
 	internal string TextExpression { get; set; }
 	internal bool NeedFont { get; set; }
 	internal string FontName { get; set; }
 	internal ActionOld.TextAuraAlignmentEnum TextAlignment {
-		get => _TextAlignment;
+		get;
 		set {
-			if (value != _TextAlignment) {
+			if (value != field) {
 				Changed = true;
-				_TextAlignment = value;
+				field = value;
 			}
 		}
 	}
 	internal bool UseOutline {
-		get => _UseOutline;
+		get;
 		set {
-			if (value != _UseOutline) {
+			if (value != field) {
 				Changed = true;
-				_UseOutline = value;
+				field = value;
 			}
 		}
 	}
 	internal float FontSize {
-		get => _FontSize;
+		get;
 		set {
-			if (value != _FontSize) {
+			if (value != field) {
 				Changed = true;
-				_FontSize = value;
+				field = value;
 			}
 		}
 	}
 	internal string Text {
-		get => _Text;
+		get;
 		set {
-			if (value != _Text) {
+			if (value != field) {
 				Changed = true;
-				_Text = value;
+				field = value;
 			}
 		}
 	}
 	internal Color TextColor {
-		get => _TextColor;
+		get;
 		set {
-			if (value != _TextColor) {
+			if (value != field) {
 				Changed = true;
-				_TextColor = value;
+				field = value;
 			}
 		}
 	}
 	internal Color OutlineColor {
-		get => _OutlineColor;
+		get;
 		set {
-			if (value != _OutlineColor) {
+			if (value != field) {
 				Changed = true;
-				_OutlineColor = value;
+				field = value;
 			}
 		}
 	}
 	internal Color BackgroundColor {
-		get => _BackgroundColor;
+		get;
 		set {
-			if (value != _BackgroundColor) {
+			if (value != field) {
 				Changed = true;
-				_BackgroundColor = value;
-				if (_BackgroundColor != Color.Transparent) {
-					_bgColor.R = _BackgroundColor.R / 255.0f;
-					_bgColor.G = _BackgroundColor.G / 255.0f;
-					_bgColor.B = _BackgroundColor.B / 255.0f;
+				field = value;
+				if (field != Color.Transparent) {
+					_bgColor.R = field.R / 255.0f;
+					_bgColor.G = field.G / 255.0f;
+					_bgColor.B = field.B / 255.0f;
 				} else {
 					_bgColor = new Drawing.Color();
 				}
@@ -101,136 +103,213 @@ public class ScarboroughText : ScarboroughItem {
 		}
 	}
 	internal FontStyle FontStyle {
-		get => _FontStyle;
+		get;
 		set {
-			if (value != _FontStyle) {
+			if (value != field) {
 				Changed = true;
-				_FontStyle = value;
+				field = value;
 			}
 		}
 	}
 
-	private Font TextFont { get; set; }
-	private SolidBrush TextBrush { get; set; }
-
 	public override void Free() {
-		if (TextFont != null) {
-			TextFont.Dispose();
-			TextFont = null;
-		}
-		if (TextBrush != null) {
-			TextBrush.Dispose();
-			TextBrush = null;
-		}
+		FontHandle?.Dispose();
+		FontHandle = null;
+		FontHandleKey = null;
+		cachedLines.Clear();
+		cachedLineWidths.Clear();
+		hasTextLayout = false;
 	}
 
 	public void LoadFontOnDemand() {
-		Free();
-		LoadFontData(plug);
-		CreateBrush();
+		NeedFont = false;
 	}
 
 	public void CreateBrush() {
-		TextBrush = new SolidBrush(_graphics.GetRenderTarget());
 	}
 
 	public override void Render() {
-		if (NeedFont) {
-			if (_window == null) {
-				if (!AdjustSurface()) {
-					AdjustVisibility();
-					return;
-				}
-			}
-			LoadFontOnDemand();
-			NeedFont = false;
-			NeedRender = true;
-		}
-		if (!Owner.RenderingActive) {
-			if (!WasHidden) {
-				NeedRender = true;
-				WasHidden = true;
-			}
-		} else {
-			if (WasHidden) {
-				NeedRender = true;
-				WasHidden = false;
-			}
-		}
-		if (!NeedRender) {
-			return;
-		}
-		if (!AdjustSurface()) {
-			AdjustVisibility();
-			return;
-		}
-		AdjustVisibility();
+		NeedFont = false;
 		NeedRender = false;
-		_graphics.BeginScene();
-		if (!Owner.RenderingActive || InvalidSize) {
-			var tempBgColor = new Drawing.Color();
-			_graphics.ClearScene(tempBgColor);
-			_graphics.EndScene();
-			return;
-		}
-		if (BackgroundColor != Color.Transparent) {
-			_bgColor.A = Opacity / 100.0f;
-		}
-		_graphics.ClearScene(_bgColor);
-		var pa = ParagraphAlignment.Center;
-		var ta = SharpDX.DirectWrite.TextAlignment.Center;
-		switch (TextAlignment) {
-			case ActionOld.TextAuraAlignmentEnum.TopLeft:
-				pa = ParagraphAlignment.Near;
-				ta = SharpDX.DirectWrite.TextAlignment.Leading;
-				break;
-			case ActionOld.TextAuraAlignmentEnum.TopCenter:
-				pa = ParagraphAlignment.Near;
-				break;
-			case ActionOld.TextAuraAlignmentEnum.TopRight:
-				pa = ParagraphAlignment.Near;
-				ta = SharpDX.DirectWrite.TextAlignment.Trailing;
-				break;
-			case ActionOld.TextAuraAlignmentEnum.MiddleLeft:
-				ta = SharpDX.DirectWrite.TextAlignment.Leading;
-				break;
-			case ActionOld.TextAuraAlignmentEnum.MiddleCenter:
-				break;
-			case ActionOld.TextAuraAlignmentEnum.MiddleRight:
-				ta = SharpDX.DirectWrite.TextAlignment.Trailing;
-				break;
-			case ActionOld.TextAuraAlignmentEnum.BottomLeft:
-				pa = ParagraphAlignment.Far;
-				ta = SharpDX.DirectWrite.TextAlignment.Leading;
-				break;
-			case ActionOld.TextAuraAlignmentEnum.BottomCenter:
-				pa = ParagraphAlignment.Far;
-				break;
-			case ActionOld.TextAuraAlignmentEnum.BottomRight:
-				pa = ParagraphAlignment.Far;
-				ta = SharpDX.DirectWrite.TextAlignment.Trailing;
-				break;
-		}
-		if (UseOutline) {
-			TextBrush.Color = new Drawing.Color(OutlineColor.R, OutlineColor.G, OutlineColor.B, Opacity / 100.0f);
-			_graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, pa, ta, 1, 0, Width, Height, Text);
-			_graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, pa, ta, -1, 0, Width, Height, Text);
-			_graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, pa, ta, 0, 1, Width, Height, Text);
-			_graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, pa, ta, 0, -1, Width, Height, Text);
-		}
-		TextBrush.Color = new Drawing.Color(TextColor.R, TextColor.G, TextColor.B, Opacity / 100.0f);
-		_graphics.DrawTextEx(TextFont, FontStyle, FontSize * 1.3f, TextBrush, pa, ta, 0, 0, Width, Height, Text);
-		_graphics.EndScene();
+		AdjustSurface();
 	}
 
 	internal void LoadFontData(RealPlugin plug) {
-		TextFont = _graphics.CreateFont(
-			FontName,
-			FontSize,
-			(FontStyle & FontStyle.Bold) == FontStyle.Bold,
-			(FontStyle & FontStyle.Italic) == FontStyle.Italic,
-			true
-		);
+	}
+
+	internal override void DrawImGui(ImDrawListPtr drawList) {
+		if (!Owner.RenderingActive || !AdjustSurface() || string.IsNullOrEmpty(Text)) return;
+		var fontHandle = EnsureFontHandle();
+		using var fontScope = fontHandle?.Push();
+
+		var origin = Position(Left, Top);
+		var size = new Vector2(Width, Height);
+		var opacity = Math.Clamp(Opacity, 0, 100) / 100.0f;
+		if (BackgroundColor != Color.Transparent)
+			drawList.AddRectFilled(origin, origin + size, ToImGuiColor(BackgroundColor, opacity));
+
+		var globalScale = MathF.Max(ImGuiHelpers.GlobalScale, 0.01f);
+		var fontSize = FontSize > 0 ? FontSize * 1.3f * globalScale : ImGui.GetFontSize();
+		var defaultFontSize = MathF.Max(ImGui.GetFontSize(), 1.0f);
+		var scale = fontSize / defaultFontSize;
+		var lineHeight = ImGui.GetTextLineHeight() * scale;
+		var fontHandleKey = FontHandleKey ?? "";
+		var fontAvailable = fontHandle?.Available == true;
+		if (!hasTextLayout ||
+		    !string.Equals(cachedText, Text, StringComparison.Ordinal) ||
+		    cachedWidth != Width ||
+		    cachedFontSize != fontSize ||
+		    cachedScale != scale ||
+		    cachedDefaultFontSize != defaultFontSize ||
+		    cachedGlobalScale != globalScale ||
+		    cachedLineHeight != lineHeight ||
+		    !string.Equals(cachedFontHandleKey, fontHandleKey, StringComparison.Ordinal) ||
+		    cachedFontAvailable != fontAvailable) {
+			cachedText = Text;
+			cachedWidth = Width;
+			cachedFontSize = fontSize;
+			cachedScale = scale;
+			cachedDefaultFontSize = defaultFontSize;
+			cachedGlobalScale = globalScale;
+			cachedLineHeight = lineHeight;
+			cachedFontHandleKey = fontHandleKey;
+			cachedFontAvailable = fontAvailable;
+			RebuildTextLayout(Text.Replace("\r\n", "\n"), scale, size.X);
+			hasTextLayout = true;
+		}
+
+		var totalHeight = cachedLineHeight * cachedLines.Count;
+		var y = TextAlignment switch {
+			ActionOld.TextAuraAlignmentEnum.TopLeft or
+				ActionOld.TextAuraAlignmentEnum.TopCenter or
+				ActionOld.TextAuraAlignmentEnum.TopRight => origin.Y,
+			ActionOld.TextAuraAlignmentEnum.BottomLeft or
+				ActionOld.TextAuraAlignmentEnum.BottomCenter or
+				ActionOld.TextAuraAlignmentEnum.BottomRight => origin.Y + size.Y - totalHeight,
+			_ => origin.Y + (size.Y - totalHeight) / 2.0f
+		};
+
+		drawList.PushClipRect(origin, origin + size, true);
+		for (var i = 0; i < cachedLines.Count; i++) {
+			var line = cachedLines[i];
+			var lineWidth = cachedLineWidths[i];
+			var x = TextAlignment switch {
+				ActionOld.TextAuraAlignmentEnum.TopLeft or
+					ActionOld.TextAuraAlignmentEnum.MiddleLeft or
+					ActionOld.TextAuraAlignmentEnum.BottomLeft => origin.X,
+				ActionOld.TextAuraAlignmentEnum.TopRight or
+					ActionOld.TextAuraAlignmentEnum.MiddleRight or
+					ActionOld.TextAuraAlignmentEnum.BottomRight => origin.X + size.X - lineWidth,
+				_ => origin.X + (size.X - lineWidth) / 2.0f
+			};
+			var linePosition = new Vector2(x, y + i * lineHeight);
+
+			if (UseOutline) {
+				var outlineColor = ToImGuiColor(OutlineColor, opacity);
+				var outlineOffset = globalScale;
+				AddText(drawList, fontSize, linePosition + new Vector2(outlineOffset, 0), outlineColor, line);
+				AddText(drawList, fontSize, linePosition + new Vector2(-outlineOffset, 0), outlineColor, line);
+				AddText(drawList, fontSize, linePosition + new Vector2(0, outlineOffset), outlineColor, line);
+				AddText(drawList, fontSize, linePosition + new Vector2(0, -outlineOffset), outlineColor, line);
+			}
+
+			var textColor = ToImGuiColor(TextColor, opacity);
+			AddText(drawList, fontSize, linePosition, textColor, line);
+			if ((FontStyle & FontStyle.Bold) == FontStyle.Bold && (fontHandle == null || !fontHandle.Available))
+				AddText(drawList, fontSize, linePosition + new Vector2(0.6f * globalScale, 0), textColor, line);
+
+			if ((FontStyle & FontStyle.Underline) == FontStyle.Underline) {
+				var underlineY = linePosition.Y + lineHeight - 1;
+				drawList.AddLine(new Vector2(linePosition.X, underlineY), new Vector2(linePosition.X + lineWidth, underlineY), textColor);
+			}
+			if ((FontStyle & FontStyle.Strikeout) == FontStyle.Strikeout) {
+				var strikeY = linePosition.Y + lineHeight * 0.55f;
+				drawList.AddLine(new Vector2(linePosition.X, strikeY), new Vector2(linePosition.X + lineWidth, strikeY), textColor);
+			}
+		}
+		drawList.PopClipRect();
+	}
+
+	private static void AddText(ImDrawListPtr drawList, float fontSize, Vector2 position, uint color, string text) {
+		drawList.AddText(ImGui.GetFont(), fontSize, position, color, text);
+	}
+
+	private IFontHandle? EnsureFontHandle() {
+		if (string.IsNullOrWhiteSpace(FontName)) {
+			if (FontHandle != null) {
+				FontHandle.Dispose();
+				FontHandle = null;
+			}
+			FontHandleKey = null;
+			return null;
+		}
+
+		var key = $"{FontName}\0{FontSize}\0{FontStyle & (FontStyle.Bold | FontStyle.Italic)}";
+		if (key == FontHandleKey) return FontHandle;
+
+		FontHandle?.Dispose();
+		FontHandle = null;
+		FontHandleKey = key;
+
+		try {
+			IFontFamilyId? family = null;
+			foreach (var candidate in IFontFamilyId.ListSystemFonts(false)) {
+				if (string.Equals(candidate.EnglishName, FontName, StringComparison.OrdinalIgnoreCase)) {
+					family = candidate;
+					break;
+				}
+			}
+			if (family == null || family.Fonts.Count == 0) return null;
+
+			var fontIndex = family.FindBestMatch(
+				(FontStyle & FontStyle.Bold) != 0 ? 700 : 400,
+				5,
+				(FontStyle & FontStyle.Italic) != 0 ? 1 : 0);
+			if (fontIndex < 0 || fontIndex >= family.Fonts.Count) fontIndex = 0;
+
+			var spec = new SingleFontSpec {
+				FontId = family.Fonts[fontIndex],
+				SizePx = MathF.Max(FontSize * 1.3f, 1.0f)
+			};
+			FontHandle = spec.CreateFontHandle(ProxyPlugin.PluginInterface.UiBuilder.FontAtlas);
+			return FontHandle;
+		} catch {
+			return null;
+		}
+	}
+
+	private void RebuildTextLayout(string text, float scale, float maxWidth) {
+		cachedLines.Clear();
+		cachedLineWidths.Clear();
+		foreach (var sourceLine in text.Split('\n')) {
+			if (sourceLine.Length == 0) {
+				AddCachedLine(string.Empty, scale);
+				continue;
+			}
+			if (ImGui.CalcTextSize(sourceLine).X * scale <= maxWidth) {
+				AddCachedLine(sourceLine, scale);
+				continue;
+			}
+
+			var current = string.Empty;
+			var elements = StringInfo.GetTextElementEnumerator(sourceLine);
+			while (elements.MoveNext()) {
+				var element = elements.GetTextElement();
+				var candidate = current + element;
+				if (current.Length > 0 && ImGui.CalcTextSize(candidate).X * scale > maxWidth) {
+					AddCachedLine(current, scale);
+					current = element;
+				} else {
+					current = candidate;
+				}
+			}
+			AddCachedLine(current, scale);
+		}
+	}
+
+	private void AddCachedLine(string line, float scale) {
+		cachedLines.Add(line);
+		cachedLineWidths.Add(ImGui.CalcTextSize(line).X * scale);
 	}
 
 	public override bool InternalLogic(int numTicks) {

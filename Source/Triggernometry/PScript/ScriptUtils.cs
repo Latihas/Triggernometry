@@ -487,9 +487,11 @@ public static partial class ScriptUtils {
 		}
 
 		private void DrawIGRect(IGRect rect) {
-			var posA = rect.Position();
-			var posB = rect.Position2();
-			var halfThickness = rect.Thickness / 2f;
+			bdl.DrawIGRect(rect.Position(), rect.Position2(), rect.Thickness, rect.Color);
+		}
+
+		private void DrawIGRect(Vector3 posA, Vector3 posB, float thickness, uint color) {
+			var halfThickness = thickness / 2f;
 			var dirAB = posB - posA;
 			if (dirAB == Vector3.Zero) return;
 			dirAB = Vector3.Normalize(dirAB);
@@ -513,7 +515,7 @@ public static partial class ScriptUtils {
 			bdl.PathLineTo(screenB2);
 			bdl.PathLineTo(screenA2);
 			bdl.PathLineTo(screenA1);
-			bdl.PathFillConvex(rect.Color);
+			bdl.PathFillConvex(color);
 			bdl.PathClear();
 		}
 
@@ -521,36 +523,38 @@ public static partial class ScriptUtils {
 			var startPos = ray.Position();
 			var rad = ray.Rotation();
 			var endPos = startPos + new Vector3(MathF.Sin(rad), 0, MathF.Cos(rad)) * ray.Length;
-			bdl.DrawIGRect(new IGRect(startPos, endPos, ray.Duration, ray.Thickness, ray.Color));
+			bdl.DrawIGRect(startPos, endPos, ray.Thickness, ray.Color);
 		}
 
 		private void DrawIGRing(IGRing ring) {
 			var worldPosition = ring.Position();
-			var outerScreenPoints = new Vector2[DefaultCircleSegments + 1];
-			var innerScreenPoints = new Vector2[DefaultCircleSegments + 1];
+			var previousOuter = Vector2.Zero;
+			var previousInner = Vector2.Zero;
 			for (var i = 0; i <= DefaultCircleSegments; i++) {
 				var currentRotation = i * DefaultCircleSegmentFullRotation;
 				GameGui.WorldToScreen(new Vector3(
 					worldPosition.X + ring.R * MathF.Sin(currentRotation),
 					worldPosition.Y,
 					worldPosition.Z + ring.R * MathF.Cos(currentRotation)
-				), out outerScreenPoints[i]);
+				), out var outer);
 				GameGui.WorldToScreen(new Vector3(
 					worldPosition.X + ring.r * MathF.Sin(currentRotation),
 					worldPosition.Y,
 					worldPosition.Z + ring.r * MathF.Cos(currentRotation)
-				), out innerScreenPoints[i]);
+				), out var inner);
+				if (i > 0) {
+					bdl.PathClear();
+					bdl.PathLineTo(previousOuter);
+					bdl.PathLineTo(outer);
+					bdl.PathLineTo(inner);
+					bdl.PathLineTo(previousInner);
+					bdl.PathLineTo(previousOuter);
+					bdl.PathFillConvex(ring.Color);
+				}
+				previousOuter = outer;
+				previousInner = inner;
 			}
 			bdl.PathClear();
-			for (var i = 0; i < DefaultCircleSegments; i++) {
-				bdl.PathLineTo(outerScreenPoints[i]);
-				bdl.PathLineTo(outerScreenPoints[i + 1]);
-				bdl.PathLineTo(innerScreenPoints[i + 1]);
-				bdl.PathLineTo(innerScreenPoints[i]);
-				bdl.PathLineTo(outerScreenPoints[i]);
-				bdl.PathFillConvex(ring.Color);
-				bdl.PathClear();
-			}
 		}
 
 		private void DrawIGDot(IGDot dot) {

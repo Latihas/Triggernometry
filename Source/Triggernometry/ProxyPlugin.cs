@@ -30,6 +30,7 @@ public class ProxyPlugin : IActPluginV1 {
 	public static IFramework Framework;
 	public static IGameInteropProvider GameInteropProvider;
 	public static ISigScanner SigScanner;
+	public static ITextureProvider? TextureProvider;
 	public static Hook<StaticVfxRemoveDelegate>? StaticVfxRemoveHook;
 	public static Hook<ActorVfxRemoveDelegate>? ActorVfxRemoveHook;
 
@@ -84,7 +85,7 @@ public class ProxyPlugin : IActPluginV1 {
 	}
 
 	public void InitPlugin(dynamic dalamudPlugin, IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, IClientState clientState, IFramework framework, IGameInteropProvider gameInteropProvider, IObjectTable objectTable, IGameGui gameGui,
-		ISigScanner sigScanner, Action<string> logTick) {
+		ISigScanner sigScanner, ITextureProvider textureProvider, Action<string> logTick) {
 		DalamudPlugin = dalamudPlugin;
 		PluginInterface = dalamudPluginInterface;
 		ClientState = clientState;
@@ -93,6 +94,7 @@ public class ProxyPlugin : IActPluginV1 {
 		ObjectTable = objectTable;
 		GameGui = gameGui;
 		SigScanner = sigScanner;
+		TextureProvider = textureProvider;
 		RealPlugin.ResetPlugin(log);
 		Instance = RealPlugin.Instance;
 		RealPlugin.Instance.InCombatHook = InCombat;
@@ -128,7 +130,11 @@ public class ProxyPlugin : IActPluginV1 {
 		var bdl = ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
 		var now = DateTime.Now.Ticks / 10000;
 		lock (ScriptDrawList) {
-			foreach (var shape in ScriptDrawList.Where(shape => !shape.toRecycle)) {
+			if (ScriptDrawList.Count == 0) return;
+			var writeIndex = 0;
+			for (var readIndex = 0; readIndex < ScriptDrawList.Count; readIndex++) {
+				var shape = ScriptDrawList[readIndex];
+				if (shape.toRecycle) continue;
 				if (now > shape.EndTime || shape.toRemove) {
 					shape.toRemove = false;
 					shape.toRecycle = true;
@@ -136,9 +142,10 @@ public class ProxyPlugin : IActPluginV1 {
 					continue;
 				}
 				bdl.DrawIGShape(shape);
+				ScriptDrawList[writeIndex++] = shape;
 			}
-			if (BDLClearCount > 100) {
-				ScriptDrawList = ScriptDrawList.Where(i => !i.toRecycle).ToList();
+			if (writeIndex != ScriptDrawList.Count) {
+				ScriptDrawList.RemoveRange(writeIndex, ScriptDrawList.Count - writeIndex);
 				BDLClearCount = 0;
 			}
 		}

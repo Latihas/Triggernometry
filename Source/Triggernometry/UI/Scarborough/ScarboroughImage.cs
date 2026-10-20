@@ -4,25 +4,28 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
+using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Textures;
+using Dalamud.Interface.Textures.TextureWraps;
 using Triggernometry.Core;
+using Triggernometry.UI.Aura;
+using TriggernometryProxy;
 using Color = Scarborough.Drawing.Color;
 using Graphics = Scarborough.Drawing.Graphics;
 using Image = Scarborough.Drawing.Image;
-using Rectangle = Scarborough.Drawing.Rectangle;
+using GdiGraphics = System.Drawing.Graphics;
 
 namespace Scarborough;
 
-public class ScarboroughImage : ScarboroughItem {
-	private PictureBoxSizeMode _Display;
+public class ScarboroughImage(Triggernometry.UI.Scarborough own) : ScarboroughItem(own) {
 	private bool IsAnimated;
 	private DateTime LastAdvance = DateTime.MinValue;
 	private int NumberOfFrames = 1;
 
 	private double TimeAccumulator;
-
-	public ScarboroughImage(Triggernometry.UI.Scarborough own) : base(own) {
-	}
 
 	private int CurrentFrame { get; set; }
 	private int CurrentFrameDelay { get; set; }
@@ -33,16 +36,19 @@ public class ScarboroughImage : ScarboroughItem {
 	internal string ImageFilename { get; set; }
 	internal string ImageExpression { get; set; }
 	internal PictureBoxSizeMode Display {
-		get => _Display;
+		get;
 		set {
-			if (value != _Display) {
+			if (value != field) {
 				Changed = true;
-				_Display = value;
+				field = value;
 			}
 		}
 	}
 
 	private Image OriginalImage { get; set; }
+	private List<IDalamudTextureWrap>? ImGuiFrames { get; set; }
+	private IDalamudTextureWrap? CurrentImGuiFrame { get; set; }
+	private ISharedImmediateTexture? ImGuiTexture { get; set; }
 
 	private byte[] ImageToByte(System.Drawing.Image img) {
 		var converter = new ImageConverter();
@@ -200,10 +206,11 @@ public class ScarboroughImage : ScarboroughItem {
 			TimeAccumulator = 0.0;
 			CurrentFrame = 0;
 			CurrentFrameDelay = FrameDelays[0];
-			OriginalImage = Frames[CurrentFrame];
+			SetCurrentFrame();
 		} else {
 			TimeAccumulator += (DateTime.Now - LastAdvance).TotalMilliseconds;
 			LastAdvance = DateTime.Now;
+			if (CurrentFrameDelay <= 0) CurrentFrameDelay = 1;
 			while (TimeAccumulator >= CurrentFrameDelay) {
 				CurrentFrame++;
 				if (CurrentFrame >= NumberOfFrames) {
@@ -211,43 +218,52 @@ public class ScarboroughImage : ScarboroughItem {
 				}
 				TimeAccumulator -= CurrentFrameDelay;
 				CurrentFrameDelay = FrameDelays[CurrentFrame];
-				if (CurrentFrameDelay <= 0) {
-					break;
-				}
 			}
-			OriginalImage = Frames[CurrentFrame];
+			SetCurrentFrame();
 		}
 		return prev != CurrentFrame;
 	}
 
 	public void LoadImageOnDemand() {
 		Free();
-		LoadImageData(plug, _graphics, ImageFilename);
+		var path = ResolveImagePath(ImageFilename);
+		if (string.IsNullOrWhiteSpace(path) || ProxyPlugin.TextureProvider == null) return;
+
+		try {
+			if (LoadAnimatedImage(path)) return;
+		} catch {
+			Free();
+		}
+
+		ImGuiTexture = ProxyPlugin.TextureProvider.GetFromFileAbsolute(path);
 	}
 
 	public override void Free() {
-		if (NumberOfFrames > 1) {
+		if (ImGuiFrames != null) {
+			foreach (var frame in ImGuiFrames) frame.Dispose();
+			ImGuiFrames.Clear();
+			ImGuiFrames = null;
+		}
+		CurrentImGuiFrame = null;
+		ImGuiTexture = null;
+
+		if (Frames != null) {
 			foreach (var i in Frames) {
-				i.Dispose();
+				if (i != null && !ReferenceEquals(i, OriginalImage)) i.Dispose();
 			}
 			Frames.Clear();
-			OriginalImage = null;
-		} else {
-			if (OriginalImage != null) {
-				OriginalImage.Dispose();
-				OriginalImage = null;
-			}
 		}
+		OriginalImage?.Dispose();
+		OriginalImage = null;
+		IsAnimated = false;
+		NumberOfFrames = 1;
+		CurrentFrame = 0;
+		CurrentFrameDelay = 0;
 	}
 
 	public override void Render() {
 		if (NeedImage) {
-			if (_window == null) {
-				if (!AdjustSurface()) {
-					AdjustVisibility();
-					return;
-				}
-			}
+			if (!AdjustSurface()) return;
 			LoadImageOnDemand();
 			NeedImage = false;
 			NeedRender = true;
@@ -270,118 +286,180 @@ public class ScarboroughImage : ScarboroughItem {
 		if (!NeedRender) {
 			return;
 		}
-		if (!AdjustSurface()) {
-			AdjustVisibility();
-			return;
-		}
-		AdjustVisibility();
+		if (!AdjustSurface()) return;
 		NeedRender = false;
-		_graphics.BeginScene();
-		_graphics.ClearScene(_bgColor);
-		if (!Owner.RenderingActive || InvalidSize) {
-			_graphics.EndScene();
-			return;
+	}
+
+	internal override void DrawImGui(ImDrawListPtr drawList) {
+		if (!Owner.RenderingActive || InvalidSize) return;
+
+		var texture = CurrentImGuiFrame;
+		if (texture == null && ImGuiTexture != null) {
+			try {
+				texture = ImGuiTexture.GetWrapOrEmpty();
+			} catch {
+				return;
+			}
 		}
+		if (texture == null) return;
+
+		var imageWidth = texture.Width;
+		var imageHeight = texture.Height;
+		if (imageWidth <= 0 || imageHeight <= 0) return;
+
+		var destination = new Vector2(Left, Top);
+		var destinationSize = new Vector2(Width, Height);
+		var sourceMin = Vector2.Zero;
+		var sourceMax = Vector2.One;
 		switch (Display) {
 			case PictureBoxSizeMode.Zoom:
-				var mW = Width / OriginalImage.Width;
-				var mH = Height / OriginalImage.Height;
-				float aW, aH;
-				if (mH < mW) {
-					aW = mH * OriginalImage.Width;
-					aH = Height;
-				} else if (mW < mH) {
-					aW = Width;
-					aH = mW * OriginalImage.Height;
-				} else {
-					aW = Width;
-					aH = Height;
-				}
-				_graphics.DrawImage(
-					OriginalImage,
-					(Width - aW) / 2,
-					(Height - aH) / 2,
-					(Width - aW) / 2 + aW,
-					(Height - aH) / 2 + aH,
-					Opacity / 100.0f
-				);
+				var scale = MathF.Min(Width / (float)imageWidth, Height / (float)imageHeight);
+				var scaledSize = new Vector2(imageWidth * scale, imageHeight * scale);
+				destination += (destinationSize - scaledSize) / 2;
+				destinationSize = scaledSize;
 				break;
 			case PictureBoxSizeMode.Normal:
-				if (OriginalImage.Width <= Width && OriginalImage.Height <= Height) {
-					_graphics.DrawImage(
-						OriginalImage,
-						0,
-						0,
-						OriginalImage.Width,
-						OriginalImage.Height,
-						Opacity / 100.0f
-					);
-				} else {
-					if (OriginalImage.Width <= Width) {
-						_graphics.DrawImageEx(
-							OriginalImage,
-							new Rectangle(0, 0, OriginalImage.Width, Height),
-							new Rectangle(0, 0, OriginalImage.Width, Height),
-							Opacity / 100.0f
-						);
-					} else if (OriginalImage.Height <= Height) {
-						_graphics.DrawImageEx(
-							OriginalImage,
-							new Rectangle(0, 0, Width, OriginalImage.Height),
-							new Rectangle(0, 0, Width, OriginalImage.Height),
-							Opacity / 100.0f
-						);
-					} else {
-						_graphics.DrawImageEx(
-							OriginalImage,
-							new Rectangle(0, 0, Width, Height),
-							new Rectangle(0, 0, Width, Height),
-							Opacity / 100.0f
-						);
-					}
-				}
+				destinationSize = new Vector2(MathF.Min(Width, imageWidth), MathF.Min(Height, imageHeight));
+				sourceMax = new Vector2(destinationSize.X / imageWidth, destinationSize.Y / imageHeight);
 				break;
 			case PictureBoxSizeMode.CenterImage:
-				if (OriginalImage.Width <= Width && OriginalImage.Height <= Height) {
-					_graphics.DrawImage(
-						OriginalImage,
-						(Width - OriginalImage.Width) / 2,
-						(Height - OriginalImage.Height) / 2,
-						(Width - OriginalImage.Width) / 2 + OriginalImage.Width,
-						(Height - OriginalImage.Height) / 2 + OriginalImage.Height,
-						Opacity / 100.0f
-					);
-				} else {
-					_graphics.DrawImageEx(
-						OriginalImage,
-						new Rectangle(
-							OriginalImage.Width / 2 - Width / 2,
-							OriginalImage.Height / 2 - Height / 2,
-							OriginalImage.Width / 2 + Width / 2,
-							OriginalImage.Height / 2 + Height / 2
-						),
-						new Rectangle(
-							0,
-							0,
-							Width,
-							Height
-						),
-						Opacity / 100.0f
-					);
-				}
+				var centeredImagePosition = destination + (destinationSize - new Vector2(imageWidth, imageHeight)) / 2;
+				var visibleMin = Vector2.Max(destination, centeredImagePosition);
+				var visibleMax = Vector2.Min(
+					destination + destinationSize,
+					centeredImagePosition + new Vector2(imageWidth, imageHeight));
+				if (visibleMax.X <= visibleMin.X || visibleMax.Y <= visibleMin.Y) return;
+				sourceMin = new Vector2(
+					(visibleMin.X - centeredImagePosition.X) / imageWidth,
+					(visibleMin.Y - centeredImagePosition.Y) / imageHeight);
+				sourceMax = new Vector2(
+					(visibleMax.X - centeredImagePosition.X) / imageWidth,
+					(visibleMax.Y - centeredImagePosition.Y) / imageHeight);
+				destination = visibleMin;
+				destinationSize = visibleMax - visibleMin;
 				break;
 			case PictureBoxSizeMode.StretchImage:
-				_graphics.DrawImage(
-					OriginalImage,
-					0,
-					0,
-					Width,
-					Height,
-					Opacity / 100.0f
-				);
 				break;
 		}
-		_graphics.EndScene();
+
+		drawList.AddImage(
+			texture.Handle,
+			destination,
+			destination + destinationSize,
+			sourceMin,
+			sourceMax,
+			ToImGuiColor(System.Drawing.Color.White, Math.Clamp(Opacity, 0, 100) / 100.0f));
+	}
+
+	private void SetCurrentFrame() {
+		if (ImGuiFrames != null && CurrentFrame >= 0 && CurrentFrame < ImGuiFrames.Count) {
+			CurrentImGuiFrame = ImGuiFrames[CurrentFrame];
+		}
+		if (Frames != null && CurrentFrame >= 0 && CurrentFrame < Frames.Count) {
+			OriginalImage = Frames[CurrentFrame];
+		}
+	}
+
+	private bool LoadAnimatedImage(string path) {
+		if (ProxyPlugin.TextureProvider == null) return false;
+
+		using var stream = File.OpenRead(path);
+		using var image = System.Drawing.Image.FromStream(stream);
+		var dimensions = image.FrameDimensionsList;
+		if (dimensions == null || dimensions.Length == 0) return false;
+
+		var frameDimension = new FrameDimension(dimensions[0]);
+		var frameCount = image.GetFrameCount(frameDimension);
+		if (frameCount <= 1) return false;
+
+		var delays = ReadFrameDelays(image, frameCount);
+		var frames = new List<IDalamudTextureWrap>(frameCount);
+		try {
+			for (var frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+				image.SelectActiveFrame(frameDimension, frameIndex);
+				using var frame = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+				using (var graphics = GdiGraphics.FromImage(frame)) {
+					graphics.Clear(System.Drawing.Color.Transparent);
+					graphics.DrawImageUnscaled(image, 0, 0);
+				}
+
+				var rgba = BitmapToRgba(frame);
+				frames.Add(ProxyPlugin.TextureProvider.CreateFromRaw(
+					RawImageSpecification.Rgba32(frame.Width, frame.Height),
+					rgba,
+					"Triggernometry Scarborough animated image"));
+			}
+		} catch {
+			foreach (var frame in frames) frame.Dispose();
+			throw;
+		}
+
+		if (frames.Count == 0) return false;
+
+		ImGuiFrames = frames;
+		FrameDelays = delays;
+		NumberOfFrames = frames.Count;
+		IsAnimated = true;
+		CurrentFrame = -1;
+		AdvanceFrame();
+		return true;
+	}
+
+	private static List<int> ReadFrameDelays(System.Drawing.Image image, int frameCount) {
+		var delays = new List<int>(frameCount);
+		try {
+			var property = image.GetPropertyItem(0x5100);
+			var value = property.Value ?? [];
+			for (var i = 0; i < frameCount; i++) {
+				var offset = i * 4;
+				var delay = offset + 1 < value.Length
+					? value[offset] | value[offset + 1] << 8
+					: 0;
+				delays.Add(delay * 10);
+			}
+		} catch {
+			for (var i = 0; i < frameCount; i++) delays.Add(100);
+		}
+
+		for (var i = 0; i < delays.Count; i++) {
+			if (delays[i] <= 0) delays[i] = 100;
+		}
+		return delays;
+	}
+
+	private static byte[] BitmapToRgba(Bitmap bitmap) {
+		var rectangle = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+		var bitmapData = bitmap.LockBits(rectangle, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+		try {
+			var rgba = new byte[bitmap.Width * bitmap.Height * 4];
+			var sourceRow = new byte[bitmap.Width * 4];
+			for (var y = 0; y < bitmap.Height; y++) {
+				var sourceY = bitmapData.Stride < 0 ? bitmap.Height - 1 - y : y;
+				Marshal.Copy(
+					IntPtr.Add(bitmapData.Scan0, sourceY * bitmapData.Stride),
+					sourceRow,
+					0,
+					sourceRow.Length);
+				for (var x = 0; x < bitmap.Width; x++) {
+					var source = x * 4;
+					var target = (y * bitmap.Width + x) * 4;
+					rgba[target] = sourceRow[source + 2];
+					rgba[target + 1] = sourceRow[source + 1];
+					rgba[target + 2] = sourceRow[source];
+					rgba[target + 3] = sourceRow[source + 3];
+				}
+			}
+			return rgba;
+		} finally {
+			bitmap.UnlockBits(bitmapData);
+		}
+	}
+
+	private string? ResolveImagePath(string imageFilename) {
+		if (string.IsNullOrWhiteSpace(imageFilename)) return null;
+		if (!Uri.TryCreate(imageFilename, UriKind.Absolute, out var uri)) return Path.GetFullPath(imageFilename);
+		if (uri.IsFile) return uri.LocalPath;
+		return AuraImage.GetImageFilename(plug, imageFilename);
 	}
 
 	public override bool InternalLogic(int numTicks) {

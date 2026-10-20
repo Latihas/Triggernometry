@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Scarborough.Drawing;
 using Scarborough.Windows;
 using Triggernometry.Core;
@@ -6,27 +8,13 @@ using Triggernometry.Localization;
 
 namespace Scarborough;
 
-public abstract class ScarboroughItem : IDisposable {
+public abstract class ScarboroughItem(Triggernometry.UI.Scarborough own) : IDisposable {
 	protected Color _bgColor = new();
 	public Graphics? _graphics;
 
-	private int _Height;
-
-	private int _Left;
-
-	private int _Opacity;
-
-	private int _Top;
-
-	private int _Width;
-
 	protected OverlayWindow? _window;
 
-	public ScarboroughItem(Triggernometry.UI.Scarborough own) {
-		Owner = own;
-	}
-
-	protected Triggernometry.UI.Scarborough Owner { get; set; }
+	protected Triggernometry.UI.Scarborough Owner { get; set; } = own;
 
 	internal bool NeedRender { get; set; } = true;
 	internal bool WasHidden { get; set; } = false;
@@ -51,47 +39,47 @@ public abstract class ScarboroughItem : IDisposable {
 	internal bool Changed { get; set; }
 	internal bool InvalidSize { get; set; }
 	internal int Left {
-		get => _Left;
+		get;
 		set {
-			if (value != _Left) {
+			if (value != field) {
 				Changed = true;
-				_Left = value;
+				field = value;
 			}
 		}
 	}
 	internal int Top {
-		get => _Top;
+		get;
 		set {
-			if (value != _Top) {
+			if (value != field) {
 				Changed = true;
-				_Top = value;
+				field = value;
 			}
 		}
 	}
 	internal int Width {
-		get => _Width;
+		get;
 		set {
-			if (value != _Width) {
+			if (value != field) {
 				Changed = true;
-				_Width = value;
+				field = value;
 			}
 		}
 	}
 	internal int Height {
-		get => _Height;
+		get;
 		set {
-			if (value != _Height) {
+			if (value != field) {
 				Changed = true;
-				_Height = value;
+				field = value;
 			}
 		}
 	}
 	internal int Opacity {
-		get => _Opacity;
+		get;
 		set {
-			if (value != _Opacity) {
+			if (value != field) {
 				Changed = true;
-				_Opacity = value;
+				field = value;
 			}
 		}
 	}
@@ -111,6 +99,9 @@ public abstract class ScarboroughItem : IDisposable {
 	public abstract void Free();
 	public abstract void Render();
 	public abstract bool InternalLogic(int numTicks);
+
+	internal virtual void DrawImGui(ImDrawListPtr drawList) {
+	}
 
 	private string PreprocessExpression(string exp) {
 		exp = exp.Replace("${_x}", Left.ToString());
@@ -183,52 +174,18 @@ public abstract class ScarboroughItem : IDisposable {
 	}
 
 	protected void AdjustVisibility() {
-		if (_window == null) {
-			return;
-		}
-		if (_window.IsVisible) {
-			if (InvalidSize || !Owner.RenderingActive) {
-				_window.Hide();
-			}
-		} else {
-			if (!InvalidSize && Owner.RenderingActive) {
-				_window.Show();
-			}
-		}
+		// ImGui draw lists are rebuilt every frame, so visibility is handled by DrawImGui.
 	}
 
 	protected bool AdjustSurface() {
 		InvalidSize = Width <= 0 || Height <= 0;
-		if (InvalidSize) {
-			return false;
-		}
-		if (_window == null) {
-			_window = new OverlayWindow(Left, Top, Width, Height) {
-				IsTopmost = true,
-				IsVisible = true
-			};
-			_graphics = new Graphics {
-				MeasureFPS = false,
-				Width = _window.Width,
-				Height = _window.Height,
-				PerPrimitiveAntiAliasing = true,
-				TextAntiAliasing = true,
-				UseMultiThreadedFactories = false,
-				VSync = false,
-				WindowHandle = IntPtr.Zero
-			};
-			_window.CreateWindow();
-			_graphics.WindowHandle = _window.Handle;
-			_graphics.Setup();
-		} else {
-			if (Left != _window.X || Top != _window.Y) {
-				_window.Move(Left, Top);
-			}
-			if (Width != _window.Width || Height != _window.Height) {
-				_window.Resize(Width, Height);
-				_graphics.Resize(Width, Height);
-			}
-		}
-		return true;
+		return !InvalidSize;
 	}
+
+	protected static uint ToImGuiColor(System.Drawing.Color color, float opacity = 1.0f) {
+		var alpha = (byte)Math.Clamp((int)MathF.Round(color.A * opacity), 0, 255);
+		return (uint)(color.R | color.G << 8 | color.B << 16 | alpha << 24);
+	}
+
+	protected static Vector2 Position(int x, int y) => new(x, y);
 }

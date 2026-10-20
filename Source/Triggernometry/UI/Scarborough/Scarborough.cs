@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Plugin.Services;
 using Scarborough;
-using Scarborough.Drawing;
-using Scarborough.PInvoke;
 using Triggernometry.Core;
 using Triggernometry.Localization;
 using TriggernometryProxy;
@@ -18,16 +17,23 @@ public class Scarborough : IDisposable {
 	private long CurOrdinal = 1;
 
 	public Dictionary<string, ScarboroughImage> imageitems = new();
-	private double lag;
+	// private double lag;
 
 	private DateTime prevTick = DateTime.Now;
 	private RenderCollection rc = new();
+	private readonly Lock stateLock = new();
+	private List<ScarboroughItem> drawItems = [];
+	private readonly List<string> imageItemsToRemove = [];
+	private readonly List<string> textItemsToRemove = [];
+	private readonly List<DeferredMessage> deferredMessages = [];
+	private readonly List<ScarboroughItem> renderItemsToRemove = [];
+	private bool drawItemsDirty = true;
 	public Dictionary<string, ScarboroughText> textitems = new();
 
 	public Scarborough() {
-		User32.InitializeWindowClass();
 		RenderingActive = true;
 		ProxyPlugin.Framework.Update += Render;
+		ProxyPlugin.PluginInterface.UiBuilder.Draw += DrawImGui;
 	}
 
 	internal bool RenderingActive { get; set; }
@@ -36,13 +42,18 @@ public class Scarborough : IDisposable {
 
 	public void Dispose() {
 		ProxyPlugin.Framework.Update -= Render;
-		foreach (var text in textitems) {
-			text.Value._graphics.BeginScene();
-			text.Value._graphics.ClearScene(new Color());
-			text.Value._graphics.EndScene();
-			text.Value.Dispose();
+		ProxyPlugin.PluginInterface.UiBuilder.Draw -= DrawImGui;
+		lock (stateLock) {
+			foreach (var image in imageitems.Values) image.Dispose();
+			foreach (var text in textitems.Values) text.Dispose();
+			imageitems.Clear();
+			textitems.Clear();
+			drawItems.Clear();
+			imageItemsToRemove.Clear();
+			textItemsToRemove.Clear();
+			deferredMessages.Clear();
+			renderItemsToRemove.Clear();
 		}
-		DeactivateAllText();
 	}
 
 	private void ExecuteActions() {
@@ -57,6 +68,9 @@ public class Scarborough : IDisposable {
 	}
 
 	internal void ExecuteAction(ItemAction ia) {
+		if (ia.Action != ItemAction.ActionTypeEnum.RenderingOn && ia.Action != ItemAction.ActionTypeEnum.RenderingOff)
+			drawItemsDirty = true;
+
 		switch (ia.Action) {
 			case ItemAction.ActionTypeEnum.RenderingOn:
 				RenderingActive = true;
@@ -110,7 +124,7 @@ public class Scarborough : IDisposable {
 				var toRem = new List<string>();
 				switch (ia.ItemType) {
 					case ItemAction.ItemTypeEnum.Image: {
-						toRem.AddRange(from sx in imageitems where sx.Value.ctx.Trigger.Id.ToString() == ia.Id select sx.Key);
+						toRem.AddRange(from sx in imageitems where sx.Value.ctx?.Trigger?.Id.ToString() == ia.Id select sx.Key);
 						foreach (var rem in toRem) {
 							ScarboroughImage si = null;
 							si = imageitems[rem];
@@ -122,7 +136,7 @@ public class Scarborough : IDisposable {
 					}
 						break;
 					case ItemAction.ItemTypeEnum.Text: {
-						toRem.AddRange(from sx in textitems where sx.Value.ctx.Trigger.Id.ToString() == ia.Id select sx.Key);
+						toRem.AddRange(from sx in textitems where sx.Value.ctx?.Trigger?.Id.ToString() == ia.Id select sx.Key);
 						foreach (var rem in toRem) {
 							ScarboroughText si = null;
 							si = textitems[rem];
@@ -243,6 +257,7 @@ public class Scarborough : IDisposable {
 			existing.UpdateOExpression = si.UpdateOExpression;
 			existing.TTLExpression = si.TTLExpression;
 			existing.Display = si.Display;
+			existing.ImageExpression = si.ImageExpression;
 			existing.ctx = si.ctx;
 			si.ImageFilename = si.EvaluateStringExpression(si.ctx, si.ImageExpression);
 			if (existing.ImageFilename != si.ImageFilename) {
@@ -330,16 +345,16 @@ public class Scarborough : IDisposable {
 				plug.FilteredAddToLog(msg.level, msg.Message);
 			}
 		}
+		if (msgs is List<DeferredMessage> list) list.Clear();
 	}
 
 	private void UpdateImages(int numTicks, ref RenderCollection rc) {
-		var toRem = new List<string>();
-		var messages = new List<DeferredMessage>();
-		toRem.Clear();
+		imageItemsToRemove.Clear();
+		deferredMessages.Clear();
 		foreach (var si in imageitems) {
 			try {
 				if (!si.Value.Logic(numTicks)) {
-					toRem.Add(si.Key);
+					imageItemsToRemove.Add(si.Key);
 				} else {
 					if (si.Value.Changed) {
 						si.Value.NeedRender = true;
@@ -349,7 +364,7 @@ public class Scarborough : IDisposable {
 				}
 			} catch (Exception ex) {
 				if (si.Value.ctx is { Trigger: not null }) {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = si.Value.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
@@ -357,7 +372,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				} else {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
@@ -365,14 +380,15 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-				toRem.Add(si.Key);
+				imageItemsToRemove.Add(si.Key);
 			}
 		}
-		if (toRem.Count > 0) {
-			foreach (var si in toRem) {
+		if (imageItemsToRemove.Count > 0) {
+			drawItemsDirty = true;
+			foreach (var si in imageItemsToRemove) {
 				var sit = imageitems[si];
 				if (sit.ctx is { Trigger: not null }) {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = sit.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Verbose,
@@ -380,7 +396,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				} else {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Verbose,
@@ -392,17 +408,16 @@ public class Scarborough : IDisposable {
 				sit.Dispose();
 			}
 		}
-		ProcessMessages(messages);
+		ProcessMessages(deferredMessages);
 	}
 
 	private void UpdateText(int numTicks, ref RenderCollection rc) {
-		var toRem = new List<string>();
-		var messages = new List<DeferredMessage>();
-		toRem.Clear();
+		textItemsToRemove.Clear();
+		deferredMessages.Clear();
 		foreach (var si in textitems) {
 			try {
 				if (!si.Value.Logic(numTicks)) {
-					toRem.Add(si.Key);
+					textItemsToRemove.Add(si.Key);
 				} else {
 					if (si.Value.Changed) {
 						si.Value.NeedRender = true;
@@ -412,7 +427,7 @@ public class Scarborough : IDisposable {
 				}
 			} catch (Exception ex) {
 				if (si.Value.ctx is { Trigger: not null }) {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = si.Value.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
@@ -420,7 +435,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				} else {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
@@ -428,14 +443,15 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-				toRem.Add(si.Key);
+				textItemsToRemove.Add(si.Key);
 			}
 		}
-		if (toRem.Count > 0) {
-			foreach (var si in toRem) {
+		if (textItemsToRemove.Count > 0) {
+			drawItemsDirty = true;
+			foreach (var si in textItemsToRemove) {
 				var sit = textitems[si];
 				if (sit.ctx is { Trigger: not null }) {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = sit.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Verbose,
@@ -443,7 +459,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				} else {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Verbose,
@@ -455,7 +471,7 @@ public class Scarborough : IDisposable {
 				sit.Dispose();
 			}
 		}
-		ProcessMessages(messages);
+		ProcessMessages(deferredMessages);
 	}
 
 	internal void HideAllItems() {
@@ -471,15 +487,14 @@ public class Scarborough : IDisposable {
 	}
 
 	private void Render(RenderCollection rc) {
-		var toRem = new List<ScarboroughItem>();
-		var messages = new List<DeferredMessage>();
-		rc.items.Sort((a, b) => a.Ordinal.CompareTo(b.Ordinal));
+		renderItemsToRemove.Clear();
+		deferredMessages.Clear();
 		foreach (var si in rc.items) {
 			try {
 				si.Render();
 			} catch (Exception ex) {
 				if (si.ctx is { Trigger: not null }) {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = si.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
@@ -487,7 +502,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				} else {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Error,
@@ -495,13 +510,14 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-				toRem.Add(si);
+				renderItemsToRemove.Add(si);
 			}
 		}
-		if (toRem.Count > 0) {
-			foreach (var si in toRem) {
+		if (renderItemsToRemove.Count > 0) {
+			drawItemsDirty = true;
+			foreach (var si in renderItemsToRemove) {
 				if (si.ctx is { Trigger: not null }) {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = si.ctx,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Verbose,
@@ -509,7 +525,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				} else {
-					messages.Add(new DeferredMessage {
+					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
 							level = RealPlugin.DebugLevelEnum.Verbose,
@@ -518,32 +534,53 @@ public class Scarborough : IDisposable {
 					);
 				}
 				if (si is ScarboroughImage) {
-					var myKey = imageitems.FirstOrDefault(x => x.Value == si).Key;
-					imageitems.Remove(myKey);
+					var pair = imageitems.FirstOrDefault(x => x.Value == si);
+					if (pair.Key != null) imageitems.Remove(pair.Key);
 				}
 				if (si is ScarboroughText) {
-					var myKey = textitems.FirstOrDefault(x => x.Value == si).Key;
-					textitems.Remove(myKey);
+					var pair = textitems.FirstOrDefault(x => x.Value == si);
+					if (pair.Key != null) textitems.Remove(pair.Key);
 				}
 				si.Dispose();
+				rc.items.Remove(si);
 			}
 		}
-		ProcessMessages(messages);
+		if (drawItemsDirty) {
+			drawItems.Clear();
+			drawItems.AddRange(rc.items);
+			drawItems.Sort((a, b) => a.Ordinal.CompareTo(b.Ordinal));
+			drawItemsDirty = false;
+		}
+		ProcessMessages(deferredMessages);
 	}
 
 	public void Render(IFramework framework) {
-		var tickTime = DateTime.Now;
-		var msSince = (tickTime - prevTick).TotalMilliseconds;
-		var numTicks = (int)Math.Floor(msSince);
-		lag = msSince - numTicks;
-		prevTick = tickTime;
-		if (numTicks > 0) {
-			rc.Clear();
-			ExecuteActions();
-			// UpdateImages(numTicks, ref rc);
-			UpdateText(numTicks, ref rc);
+		lock (stateLock) {
+			var tickTime = DateTime.Now;
+			var msSince = (tickTime - prevTick).TotalMilliseconds;
+			var numTicks = (int)Math.Floor(msSince);
+			// lag = msSince - numTicks;
+			prevTick = tickTime;
+			if (numTicks > 0) {
+				rc.Clear();
+				ExecuteActions();
+				UpdateImages(numTicks, ref rc);
+				UpdateText(numTicks, ref rc);
+			}
+			if (rc.items.Count > 0) Render(rc);
+			else {
+				drawItems.Clear();
+				drawItemsDirty = false;
+			}
 		}
-		if (rc.items.Count > 0) Render(rc);
+	}
+
+	private void DrawImGui() {
+		lock (stateLock) {
+			if (!RenderingActive || drawItems.Count == 0) return;
+			var drawList = ImGui.GetBackgroundDrawList(ImGui.GetMainViewport());
+			foreach (var item in drawItems) item.DrawImGui(drawList);
+		}
 	}
 
 	public class ItemAction {
