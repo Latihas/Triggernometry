@@ -32,12 +32,12 @@ public partial class VfxModule : ModuleBase {
 			const string ActorVfxRemoveSig = "0F 11 48 10 48 8D 05"; // the weird one
 			var actorVfxRemoveAddresTemp = ProxyPlugin.SigScanner.ScanText(ActorVfxRemoveSig) + 7;
 			ActorVfxCreateD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxCreateDelegate>(ActorVfxCreatePtr = ProxyPlugin.SigScanner.ScanText(ActorVfxCreateSig));
-			ActorVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxRemoveDelegate>(ActorVfxRemovePtr);
-			StaticVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<StaticVfxRemoveDelegate>(StaticVfxFadeOutPtr);
+			ActorVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxRemoveDelegate>(ActorVfxRemovePtr = Marshal.ReadIntPtr(actorVfxRemoveAddresTemp + Marshal.ReadInt32(actorVfxRemoveAddresTemp) + 4));
+			StaticVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<StaticVfxRemoveDelegate>(StaticVfxFadeOutPtr = ProxyPlugin.SigScanner.ScanText(StaticVfxRemoveSig));
 			StaticVfxRunD = Marshal.GetDelegateForFunctionPointer<StaticVfxRunDelegate>(StaticVfxRunPtr = ProxyPlugin.SigScanner.ScanText(StaticVfxRunSig));
 			StaticVfxCreateD = Marshal.GetDelegateForFunctionPointer<VfxObject.Delegates.Create>(StaticVfxCreatePtr = ProxyPlugin.SigScanner.ScanText(VfxObject.Addresses.Create.String));
-			ProxyPlugin.StaticVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<StaticVfxRemoveDelegate>(StaticVfxFadeOutPtr = ProxyPlugin.SigScanner.ScanText(StaticVfxRemoveSig), StaticVfxRemoveDetour);
-			ProxyPlugin.ActorVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<ActorVfxRemoveDelegate>(ActorVfxRemovePtr = Marshal.ReadIntPtr(actorVfxRemoveAddresTemp + Marshal.ReadInt32(actorVfxRemoveAddresTemp) + 4), ActorVfxRemoveDetour);
+			ProxyPlugin.StaticVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<StaticVfxRemoveDelegate>(StaticVfxFadeOutPtr, StaticVfxRemoveDetour);
+			ProxyPlugin.ActorVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<ActorVfxRemoveDelegate>(ActorVfxRemovePtr, ActorVfxRemoveDetour);
 			ProxyPlugin.StaticVfxRemoveHook.Enable();
 			ProxyPlugin.ActorVfxRemoveHook.Enable();
 		};
