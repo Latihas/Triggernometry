@@ -15,6 +15,7 @@ using TriggernometryProxy;
 namespace Triggernometry.PluginBridges.BridgeNamazu.Modules;
 
 [SuppressMessage("ReSharper", "NotAccessedField.Global")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public partial class VfxModule : ModuleBase {
 	public IntPtr ActorVfxCreatePtr;
 	public IntPtr ActorVfxRemovePtr;
@@ -25,26 +26,18 @@ public partial class VfxModule : ModuleBase {
 	public unsafe VfxModule() {
 		ScanMethod = () => {
 			VfxManager.Clear();
-			var StaticVfxCreateSig = VfxObject.Addresses.Create.String;
 			const string StaticVfxRunSig = "E8 ?? ?? ?? ?? B0 02 EB 02";
 			const string StaticVfxRemoveSig = "40 53 48 83 EC 20 48 8B D9 48 8B 89 ?? ?? ?? ?? 48 85 C9 74 28 33 D2 E8 ?? ?? ?? ?? 48 8B 8B ?? ?? ?? ?? 48 85 C9";
 			const string ActorVfxCreateSig = "40 53 55 56 57 48 81 EC ?? ?? ?? ?? 0F 29 B4 24 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 0F B6 AC 24 ?? ?? ?? ?? 0F 28 F3 49 8B F8";
 			const string ActorVfxRemoveSig = "0F 11 48 10 48 8D 05"; // the weird one
-
-			StaticVfxCreatePtr = ProxyPlugin.SigScanner.ScanText(StaticVfxCreateSig);
-			StaticVfxFadeOutPtr = ProxyPlugin.SigScanner.ScanText(StaticVfxRemoveSig);
-			ActorVfxCreatePtr = ProxyPlugin.SigScanner.ScanText(ActorVfxCreateSig);
 			var actorVfxRemoveAddresTemp = ProxyPlugin.SigScanner.ScanText(ActorVfxRemoveSig) + 7;
-			ActorVfxRemovePtr = Marshal.ReadIntPtr(actorVfxRemoveAddresTemp + Marshal.ReadInt32(actorVfxRemoveAddresTemp) + 4);
-
-			ActorVfxCreateD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxCreateDelegate>(ActorVfxCreatePtr);
-			ActorVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxRemoveDelegate>(ActorVfxCreatePtr);
+			ActorVfxCreateD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxCreateDelegate>(ActorVfxCreatePtr = ProxyPlugin.SigScanner.ScanText(ActorVfxCreateSig));
+			ActorVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<ActorVfxRemoveDelegate>(ActorVfxRemovePtr);
 			StaticVfxRemoveD ??= Marshal.GetDelegateForFunctionPointer<StaticVfxRemoveDelegate>(StaticVfxFadeOutPtr);
 			StaticVfxRunD = Marshal.GetDelegateForFunctionPointer<StaticVfxRunDelegate>(StaticVfxRunPtr = ProxyPlugin.SigScanner.ScanText(StaticVfxRunSig));
-			StaticVfxCreateD = Marshal.GetDelegateForFunctionPointer<VfxObject.Delegates.Create>(StaticVfxCreatePtr);
-
-			ProxyPlugin.StaticVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<StaticVfxRemoveDelegate>(StaticVfxFadeOutPtr, StaticVfxRemoveDetour);
-			ProxyPlugin.ActorVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<ActorVfxRemoveDelegate>(ActorVfxCreatePtr, ActorVfxRemoveDetour);
+			StaticVfxCreateD = Marshal.GetDelegateForFunctionPointer<VfxObject.Delegates.Create>(StaticVfxCreatePtr = ProxyPlugin.SigScanner.ScanText(VfxObject.Addresses.Create.String));
+			ProxyPlugin.StaticVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<StaticVfxRemoveDelegate>(StaticVfxFadeOutPtr = ProxyPlugin.SigScanner.ScanText(StaticVfxRemoveSig), StaticVfxRemoveDetour);
+			ProxyPlugin.ActorVfxRemoveHook ??= ProxyPlugin.GameInteropProvider.HookFromAddress<ActorVfxRemoveDelegate>(ActorVfxRemovePtr = Marshal.ReadIntPtr(actorVfxRemoveAddresTemp + Marshal.ReadInt32(actorVfxRemoveAddresTemp) + 4), ActorVfxRemoveDetour);
 			ProxyPlugin.StaticVfxRemoveHook.Enable();
 			ProxyPlugin.ActorVfxRemoveHook.Enable();
 		};
