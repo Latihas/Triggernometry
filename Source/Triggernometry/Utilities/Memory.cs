@@ -345,7 +345,7 @@ public static class Memory {
 	public static async void UpdateOffset1B() {
 		await _semaphoreSlim1B.WaitAsync();
 		try {
-			_offset1B = await Task.Run(() => GetHeadMarkerOffset());
+			_offset1B = await Task.Run(GetHeadMarkerOffset);
 		} catch (Exception e) {
 			Instance.UnfilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Memory/update1Berror",
 				"Update headmarker offset failed due to exception:\n\n{0}", e.ToString()));

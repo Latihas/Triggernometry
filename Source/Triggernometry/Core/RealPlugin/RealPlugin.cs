@@ -427,7 +427,7 @@ public partial class RealPlugin {
 	// 	}
 	// }
 
-	private async Task LogLineProcessorAsync(CancellationToken cancellationToken) {
+	private Task LogLineProcessorAsync(CancellationToken cancellationToken) {
 		var lxx = new List<LogEvent>();
 		var wh = new[] {
 			cancellationToken.WaitHandle, QueueWakeupEvent
@@ -439,7 +439,7 @@ public partial class RealPlugin {
 				var waitResult = WaitHandle.WaitAny(wh, Timeout.Infinite);
 				switch (waitResult) {
 					case 0:
-						return;
+						return Task.CompletedTask;
 					case 1:
 						lock (EventQueue) {
 							lxx.AddRange(EventQueue);
@@ -450,12 +450,11 @@ public partial class RealPlugin {
 						lxx.Clear();
 						break;
 				}
-			} catch (OperationCanceledException) {
-				return;
-			} catch (Exception ex) {
+			} catch (OperationCanceledException) { return Task.CompletedTask; } catch (Exception ex) {
 				GenericExceptionHandler("LogLineProcessorAsync error", ex);
 			}
 		}
+		return Task.CompletedTask;
 	}
 
 	internal void LogLineProcessor(LogEvent le) {
