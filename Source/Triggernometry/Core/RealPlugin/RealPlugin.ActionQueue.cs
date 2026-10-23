@@ -50,9 +50,7 @@ public partial class RealPlugin {
 		ProxyPlugin.Framework.Update += ActionThreadProc;
 	}
 
-	private void DeinitActionQueue() {
-		ProxyPlugin.Framework.Update -= ActionThreadProc;
-	}
+	private void DeinitActionQueue() => ProxyPlugin.Framework.Update -= ActionThreadProc;
 
 	public class QueuedAction : IComparable {
 		internal DateTime when { get; set; }
@@ -91,10 +89,7 @@ public partial class RealPlugin {
 		public int CompareTo(object o) {
 			var b = (QueuedAction)o;
 			var ex = when.CompareTo(b.when);
-			if (ex != 0) {
-				return ex;
-			}
-			return ordinal.CompareTo(b.ordinal);
+			return ex != 0 ? ex : ordinal.CompareTo(b.ordinal);
 		}
 
 		public void ActionFinished() {
@@ -213,12 +208,11 @@ public partial class RealPlugin {
 	internal void ActionThreadProc(IFramework _) {
 		var now = DateTime.Now;
 		lock (ActionQueue) {
-			while (ActionQueue.Count > 0) {
+			while (ActionQueue.Count != 0) {
 				var tp = ActionQueue[0];
-				if (tp.when <= now) {
-					ActionQueue.RemoveAt(0);
-					tp.act.Execute(tp, tp.ctx);
-				} else break;
+				if (tp.when > now) break;
+				ActionQueue.RemoveAt(0);
+				tp.act.Execute(tp, tp.ctx);
 			}
 		}
 	}
@@ -357,7 +351,7 @@ public partial class RealPlugin {
 	}
 
 	internal MutexInformation GetMutex(string name) {
-		MutexInformation mi = null;
+		MutexInformation mi;
 		lock (mutexes) {
 			if (!mutexes.TryGetValue(name, out var value)) {
 				value = new MutexInformation(name);
