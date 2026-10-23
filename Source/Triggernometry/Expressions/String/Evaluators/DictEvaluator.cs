@@ -65,15 +65,15 @@ internal static class DictEvaluator {
 				return vd => vd.Count(value).ToString();
 			}
 
-                case "get": // get(key, defaultValue)
-                    CheckArgCountLocal("1-2");
+			case "get": // get(key, defaultValue)
+				CheckArgCountLocal("1-2");
 			{
-                        string key = args[0];
-                        var defaultValue = GetArgument(args, 1);
+				var key = args[0];
+				var defaultValue = GetArgument(args, 1);
 
-                        return vd => vd.Values.TryGetValue(key, out var val) 
-                            ? val.ToString() 
-                            : defaultValue ?? throw new Exception($"Key '{key}' not found in dictionary variable '{expr.Name}'.");
+				return vd => vd.Values.TryGetValue(key, out var val)
+					? val.ToString()
+					: defaultValue ?? throw new Exception($"Key '{key}' not found in dictionary variable '{expr.Name}'.");
 			}
 
 			case "keyof":

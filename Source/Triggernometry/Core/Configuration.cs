@@ -266,28 +266,22 @@ public class Configuration {
 
 		public string Replace(string input) => input.Replace(SearchFor, ReplaceWith);
 
-		public int CompareTo(object obj) {
-			var b = (Substitution)obj;
-			var x = SearchFor.CompareTo(b.SearchFor);
+		public int CompareTo(object? obj) {
+			var b = obj as Substitution;
+			var x = SearchFor.CompareTo(b?.SearchFor);
 			if (x != 0) {
 				return x;
 			}
-			x = ReplaceWith.CompareTo(b.ReplaceWith);
-			if (x != 0) {
-				return x;
-			}
-			return Scope.CompareTo(b.Scope);
+			x = ReplaceWith.CompareTo(b?.ReplaceWith);
+			return x != 0 ? x : Scope.CompareTo(b.Scope);
 		}
 	}
 
 	public string PerformSubstitution(string input, Substitution.SubstitutionScopeEnum scope) {
 		if (Substitutions.Count > 0) {
-			var reps = from ix in Substitutions where (ix.Scope & scope) == scope select ix;
-			if (reps.Count() > 0) {
-				foreach (var rep in reps) {
-					input = rep.Replace(input);
-				}
-			}
+			var reps = Substitutions.Where(ix => (ix.Scope & scope) == scope).ToArray();
+			if (reps.Length != 0) 
+				input = reps.Aggregate(input, (current, rep) => rep.Replace(current));
 		}
 		return input;
 	}

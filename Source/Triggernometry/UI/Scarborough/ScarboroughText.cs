@@ -442,5 +442,4 @@ public class ScarboroughText(Triggernometry.UI.Scarborough own) : ScarboroughIte
 		cachedLines.Add(line);
 		cachedLineWidths.Add(ImGui.CalcTextSize(line).X * scale);
 	}
-
 }

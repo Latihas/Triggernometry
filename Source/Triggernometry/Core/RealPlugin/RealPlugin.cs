@@ -458,11 +458,9 @@ public partial class RealPlugin {
 		}
 	}
 
-        internal void LogLineProcessor(LogEvent le)
-        {
-	        if (firstevent)
-            {
-	            BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
+	internal void LogLineProcessor(LogEvent le) {
+		if (firstevent) {
+			BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
 			firstevent = false;
 		}
 		switch (le.Source) {
@@ -526,13 +524,10 @@ public partial class RealPlugin {
 		}
 	}
 
-        public void EndpointReceive(string data)
-        {
-	        var detectedZone = currentZone ?? "";
-            try
-            {
-                if (cfg.LogEndpoint)
-                {
+	public void EndpointReceive(string data) {
+		var detectedZone = currentZone ?? "";
+		try {
+			if (cfg.LogEndpoint) {
 				FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/endpointline", "Endpoint data: ({0})", data));
 			}
 			LogLineQueuer(data, detectedZone, LogEvent.SourceEnum.Endpoint);
@@ -547,7 +542,7 @@ public partial class RealPlugin {
 		}
 		if (currentZone == null || detectedZone != currentZone) {
 			currentZone = detectedZone;
-                LogTranscriber.Reset(false);
+			LogTranscriber.Reset(false);
 			ZoneChanged(currentZone);
 		}
 		try {
@@ -564,7 +559,7 @@ public partial class RealPlugin {
 		if (isImport || !isInitialized) return;
 		if (currentZone == null || detectedZone != currentZone) {
 			currentZone = detectedZone;
-                LogTranscriber.Reset(false);
+			LogTranscriber.Reset(false);
 			ZoneChanged(currentZone);
 		}
 		try {
@@ -601,7 +596,8 @@ public partial class RealPlugin {
 		}
 	}
 
-	public void ZoneChangeDelegate(uint ZoneID, string ZoneName) { // zoneName 没用到？
+	public void ZoneChangeDelegate(uint ZoneID, string ZoneName) {
+		// zoneName 没用到？
 		// PluginBridges.BridgeFFXIV.ZoneID = ZoneID;
 		BridgeFFXIV.UpdateState(); // fix player id, etc. after travelling to a new server
 		Entity.UpdateMySnapshot();

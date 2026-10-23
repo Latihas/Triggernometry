@@ -1,6 +1,7 @@
 ![](https://cdn.discordapp.com/attachments/374517624228544514/399216250057916436/unknown.png)
 
-Triggernometry 是 [Advanced Combat Tracker](https://advancedcombattracker.com/) 的触发器插件，提供变量、条件、表达式等更高级的功能，包含更多类型的动作和更丰富的配置选项。
+Triggernometry 是 [Advanced Combat Tracker](https://advancedcombattracker.com/)
+的触发器插件，提供变量、条件、表达式等更高级的功能，包含更多类型的动作和更丰富的配置选项。
 
 由于原作者自 2024 年（1.2.0.7 版本）后已经停更，此仓库目前独立于原始仓库维护。
 
@@ -12,7 +13,8 @@ Triggernometry 是 [Advanced Combat Tracker](https://advancedcombattracker.com/)
 
 将简易安装程序置于 ACT 安装目录并运行，按照其中的文本提示操作，即可向 ACT 自动添加插件。
 
-此安装程序包含了 Triggernometry 插件本体、汉化文件、及很多触发器功能需要依赖的[鲶鱼精邮差](https://github.com/Natsukage/PostNamazu)插件。
+此安装程序包含了 Triggernometry
+插件本体、汉化文件、及很多触发器功能需要依赖的[鲶鱼精邮差](https://github.com/Natsukage/PostNamazu)插件。
 
 · [一键安装器下载链接](https://www.123865.com/s/1xRXjv-n9qBH)
 
@@ -20,9 +22,9 @@ Triggernometry 是 [Advanced Combat Tracker](https://advancedcombattracker.com/)
 
 如果你倾向于自己安装，可以使用：
 
-· [插件本体下载链接](https://1824544011.cdn.123clouddisk.com/1824544011/Triggernometry_Release_CN/Triggernometry.dll) 
+· [插件本体下载链接](https://1824544011.cdn.123clouddisk.com/1824544011/Triggernometry_Release_CN/Triggernometry.dll)
 
-· [汉化文件下载链接](https://1824544011.cdn.123clouddisk.com/1824544011/Triggernometry_Release_CN/zh-CN.triglations.xml)  
+· [汉化文件下载链接](https://1824544011.cdn.123clouddisk.com/1824544011/Triggernometry_Release_CN/zh-CN.triglations.xml)
 
 默认设置下，插件会在每次启动 ACT 时自动检查并安装更新。
 
@@ -34,7 +36,8 @@ Triggernometry 是 [Advanced Combat Tracker](https://advancedcombattracker.com/)
 
 ## 更新日志
 
-[Triggernometry 更新日志](https://github.com/MnFeN/Triggernometry/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)（2.0.0.0 版以后）
+[Triggernometry 更新日志](https://github.com/MnFeN/Triggernometry/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)（2.0.0.0
+版以后）
 
 ## 文档
 
@@ -51,11 +54,11 @@ https://github.com/MnFeN/Triggernometry/wiki
 - `Triggernometry`：
   
   核心，编译生成 `TriggernometryPlugin.dll`
-  
-- `TriggernometryProxy`：
 
-  包装核心功能的 ACT 插件，编译生成 `Triggernometry.dll`，用于导入 ACT。
+- `TriggernometryProxy`：
   
+  包装核心功能的 ACT 插件，编译生成 `Triggernometry.dll`，用于导入 ACT。
+
 - `TriggernometryScripting`：
   
   并非实际项目，不参与编译。提供前两个项目代码的智能补全提示环境，方便开发者编写触发器 C# 脚本动作的代码。

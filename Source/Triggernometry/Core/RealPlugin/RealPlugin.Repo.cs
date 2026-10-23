@@ -24,7 +24,7 @@ public partial class RealPlugin {
 		return (RepositoryManifest)serializer.Deserialize(reader);
 	}
 
-	private static readonly List<string> _legalRepoPrefixes = new List<string> {
+	private static readonly List<string> _legalRepoPrefixes = new() {
 		"https://github.com/paissaheavyindustries/Triggernometry/",
 		"https://vip.123pan.cn/1824544011/",
 		"https://1824544011.v.123pan.cn/",
@@ -141,7 +141,7 @@ public partial class RealPlugin {
 		if (string.IsNullOrEmpty(from))
 			return;
 
-		RepositoryFolder rfo = cfg.RepositoryRoot;
+		var rfo = cfg.RepositoryRoot;
 
 		foreach (var repo in rfo.Repositories) {
 			if (string.IsNullOrEmpty(repo?.Address) ||
@@ -149,7 +149,7 @@ public partial class RealPlugin {
 				continue;
 			}
 
-			string newAddress = ReplaceIgnoreCase(repo.Address, from, to);
+			var newAddress = ReplaceIgnoreCase(repo.Address, from, to);
 
 			if (DetectLegalAddress(newAddress)) {
 				repo.Address = newAddress;
@@ -158,7 +158,7 @@ public partial class RealPlugin {
 	}
 
 	private static string ReplaceIgnoreCase(string source, string oldValue, string newValue) {
-		int index = source.IndexOf(oldValue, StringComparison.OrdinalIgnoreCase);
+		var index = source.IndexOf(oldValue, StringComparison.OrdinalIgnoreCase);
 		while (index >= 0) {
 			source = source.Remove(index, oldValue.Length).Insert(index, newValue);
 			index = source.IndexOf(oldValue, index + newValue.Length, StringComparison.OrdinalIgnoreCase);
@@ -173,7 +173,7 @@ public partial class RealPlugin {
 		//     return;
 		// }
 
-		RepositoryFolder rfo = cfg.RepositoryRoot;
+		var rfo = cfg.RepositoryRoot;
 
 		var duplicates = rfo.Repositories
 			.Where(repo => !string.IsNullOrWhiteSpace(repo.Address))
@@ -215,7 +215,7 @@ public partial class RealPlugin {
 		[XmlArray("Replace")]
 		[XmlArrayItem("Item")]
 		public List<RepositoryManifestReplaceItem> Replace { get; set; }
-			= new List<RepositoryManifestReplaceItem>();
+			= new();
 
 		public class RepositoryManifestReplaceItem {
 			[XmlAttribute]

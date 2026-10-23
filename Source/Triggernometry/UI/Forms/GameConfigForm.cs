@@ -246,7 +246,7 @@ public partial class GameConfigForm : Form {
 
 
 	/// <summary>
-	/// 在独立 STA 线程中创建并显示配置表单。
+	///     在独立 STA 线程中创建并显示配置表单。
 	/// </summary>
 	/// <param name="info">配置表单信息。</param>
 	/// <param name="setup">用于构建表单内容的方法。</param>
@@ -287,112 +287,95 @@ public partial class GameConfigForm : Form {
 	}
 }
 
-    /// <summary> 可以从值检索键的双射字典结构，可以用于将 ComboBox 选项和触发器内存储的键相互映射。</summary>
-    public class BijectDictionary<TKey, TValue>
-    {
-        private Dictionary<TKey, TValue> _dict = new Dictionary<TKey, TValue>();
-        private Dictionary<TValue, TKey> _revDict = new Dictionary<TValue, TKey>();
-        private List<TKey> _keys = new List<TKey>();
-        private List<TValue> _values = new List<TValue>();
+/// <summary> 可以从值检索键的双射字典结构，可以用于将 ComboBox 选项和触发器内存储的键相互映射。</summary>
+public class BijectDictionary<TKey, TValue> {
+	private Dictionary<TKey, TValue> _dict = new();
+	private Dictionary<TValue, TKey> _revDict = new();
+	private List<TKey> _keys = new();
+	private List<TValue> _values = new();
 
-        public ReadOnlyCollection<TKey> Keys => _keys.AsReadOnly();
-        public ReadOnlyCollection<TValue> Values => _values.AsReadOnly();
+	public ReadOnlyCollection<TKey> Keys => _keys.AsReadOnly();
+	public ReadOnlyCollection<TValue> Values => _values.AsReadOnly();
 
-        public int Count { get => _dict.Count; }
+	public int Count => _dict.Count;
 
-        public bool ContainsKey(TKey key)
-            => _dict.ContainsKey(key);
+	public bool ContainsKey(TKey key)
+		=> _dict.ContainsKey(key);
 
-        public bool ContainsValue(TValue value)
-            => _revDict.ContainsKey(value);
+	public bool ContainsValue(TValue value)
+		=> _revDict.ContainsKey(value);
 
-        public BijectDictionary()
-            : this(new (TKey, TValue)[0])
-        {
-        }
+	public BijectDictionary()
+		: this(new (TKey, TValue)[0]) {
+	}
 
-        public BijectDictionary(params (TKey, TValue)[] items)
-        {
-            foreach (var (key, value) in items)
-            {
-                if (_dict.ContainsKey(key))
-                    throw new Exception(
-                        $"Key \"{key}\" is duplicated in the bijective dictionary.");
+	public BijectDictionary(params (TKey, TValue)[] items) {
+		foreach (var (key, value) in items) {
+			if (_dict.ContainsKey(key))
+				throw new Exception(
+					$"Key \"{key}\" is duplicated in the bijective dictionary.");
 
-                if (_revDict.ContainsKey(value))
-                    throw new Exception(
-                        $"Value \"{value}\" is duplicated in the bijective dictionary.");
+			if (_revDict.ContainsKey(value))
+				throw new Exception(
+					$"Value \"{value}\" is duplicated in the bijective dictionary.");
 
-                _dict[key] = value;
-                _revDict[value] = key;
-                _keys.Add(key);
-                _values.Add(value);
-            }
-        }
+			_dict[key] = value;
+			_revDict[value] = key;
+			_keys.Add(key);
+			_values.Add(value);
+		}
+	}
 
-        public TValue this[TKey key]
-        {
-            get => _dict.TryGetValue(key, out TValue value)
-                ? value
-                : default;
-        }
+	public TValue this[TKey key] => _dict.TryGetValue(key, out var value)
+		? value
+		: default;
 
-        public TKey GetKey(TValue value)
-        {
-            return _revDict.TryGetValue(value, out TKey key)
-                ? key
-                : default;
-        }
+	public TKey GetKey(TValue value) => _revDict.TryGetValue(value, out var key)
+		? key
+		: default;
 
-        public bool RemoveKey(TKey key)
-        {
-            lock (this)
-            {
-                int index = _keys.IndexOf(key);
+	public bool RemoveKey(TKey key) {
+		lock (this) {
+			var index = _keys.IndexOf(key);
 
-                if (index < 0)
-                    return false;
+			if (index < 0)
+				return false;
 
-                Remove(key, _values[index], index);
-                return true;
-            }
-        }
+			Remove(key, _values[index], index);
+			return true;
+		}
+	}
 
-        public bool RemoveValue(TValue value)
-        {
-            lock (this)
-            {
-                int index = _values.IndexOf(value);
+	public bool RemoveValue(TValue value) {
+		lock (this) {
+			var index = _values.IndexOf(value);
 
-                if (index < 0)
-                    return false;
+			if (index < 0)
+				return false;
 
-                Remove(_keys[index], value, index);
-                return true;
-            }
-        }
+			Remove(_keys[index], value, index);
+			return true;
+		}
+	}
 
-        private void Remove(TKey key, TValue value, int index)
-        {
-            _keys.RemoveAt(index);
-            _values.RemoveAt(index);
-            _dict.Remove(key);
-            _revDict.Remove(value);
-        }
+	private void Remove(TKey key, TValue value, int index) {
+		_keys.RemoveAt(index);
+		_values.RemoveAt(index);
+		_dict.Remove(key);
+		_revDict.Remove(value);
+	}
 
-        public BijectDictionary<TKey, TValue> ShallowCopy()
-        {
-            var duplicate = new BijectDictionary<TKey, TValue>();
+	public BijectDictionary<TKey, TValue> ShallowCopy() {
+		var duplicate = new BijectDictionary<TKey, TValue>();
 
-            foreach (var key in _keys)
-            {
-                var value = _dict[key];
-                duplicate._dict.Add(key, value);
-                duplicate._revDict.Add(value, key);
-                duplicate._keys.Add(key);
-                duplicate._values.Add(value);
-            }
+		foreach (var key in _keys) {
+			var value = _dict[key];
+			duplicate._dict.Add(key, value);
+			duplicate._revDict.Add(value, key);
+			duplicate._keys.Add(key);
+			duplicate._values.Add(value);
+		}
 
-            return duplicate;
-        }
-    }
+		return duplicate;
+	}
+}
