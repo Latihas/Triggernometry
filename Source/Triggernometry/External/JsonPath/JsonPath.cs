@@ -208,7 +208,7 @@ sealed partial class JsonPathContext {
 				{
 					foreach (var a in Slice(atom, tail, value, path).Reverse())
 						stack.Push(a);
-				} else if (atom.IndexOf(',') >= 0) // [name1,name2,...]
+				} else if (atom.Contains(',')) // [name1,name2,...]
 				{
 					foreach (var part in RegExp.Split(atom, @"'?,'?").Reverse())
 						stack.Push(Args(part + ";" + tail, value, path));
