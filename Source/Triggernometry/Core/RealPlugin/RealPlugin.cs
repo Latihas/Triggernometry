@@ -62,13 +62,13 @@ public partial class RealPlugin {
 	internal CancellationTokenSource? cts;
 	internal object ctslock = new();
 	internal string? currentZone;
-	internal Task EventQueueTask;
+	// internal Task EventQueueTask;
 	private bool firstevent = true;
 	internal bool isRunningAsAdmin;
 	internal DateTime LastDelayWarning = DateTime.Now;
 	// public Form mainform { get; set; }
 	internal int MinX = int.MaxValue, MinY = int.MaxValue, MaxX = int.MinValue, MaxY = int.MinValue;
-	private ManualResetEvent QueueWakeupEvent;
+	// private ManualResetEvent QueueWakeupEvent;
 	public VariableStore sessionvars = new();
 	public UserInterface ui = UserInterface.Instance;
 
@@ -225,7 +225,7 @@ public partial class RealPlugin {
 			// mytp = pluginScreenSpace;
 			// pluginScreenSpace.Text = "Triggernometry";
 			exwhere = I18n.Translate("internal/Plugin/inievents", "creating events");
-			QueueWakeupEvent = new ManualResetEvent(false);
+			// QueueWakeupEvent = new ManualResetEvent(false);
 			// ActionUpdateEvent = new AutoResetEvent(false);
 			exwhere = I18n.Translate("internal/Plugin/iniui", "creating user interface");
 			// ui = new CustomControls.UserInterface();
@@ -295,7 +295,9 @@ public partial class RealPlugin {
 			LogTranscriber.Reset(true);
 			InitActionQueue();
 			var cancellationToken = GetCancellationToken();
-			EventQueueTask = Task.Run(() => LogLineProcessorAsync(cancellationToken), cancellationToken);
+			lock (EventQueue) EventQueue.Clear();
+			ProxyPlugin.Framework.Update += LogLineProcessorAsync;
+			// EventQueueTask = Task.Run(() => LogLineProcessorAsync(cancellationToken), cancellationToken);
 			// InitAura();
 			_obs = new ObsController();
 			_livesplit = new LiveSplitController();
@@ -346,20 +348,21 @@ public partial class RealPlugin {
 			_livesplit = null;
 		}
 		Memory.DisposeXivProcHandle();
-		RefreshCancellationToken();
-		if (EventQueueTask is { IsCompleted: false }) {
-			var waitTask = EventQueueTask.WaitAsync(TimeSpan.FromSeconds(5));
-			waitTask.GetAwaiter().GetResult();
-		}
+		RefreshCancellationToken(); //TODO
+		ProxyPlugin.Framework.Update -= LogLineProcessorAsync;
+		// if (EventQueueTask is { IsCompleted: false }) {
+		// 	var waitTask = EventQueueTask.WaitAsync(TimeSpan.FromSeconds(5));
+		// 	waitTask.GetAwaiter().GetResult();
+		// }
 		// ExitEvent?.Set();
 		LogTranscriber.Reset(true);
-		EventQueueTask = null;
+		// EventQueueTask = null;
 		DeinitActionQueue();
 		// DeInitAura();
-		if (QueueWakeupEvent != null) {
-			QueueWakeupEvent.Dispose();
-			QueueWakeupEvent = null;
-		}
+		// if (QueueWakeupEvent != null) {
+		// 	QueueWakeupEvent.Dispose();
+		// 	QueueWakeupEvent = null;
+		// }
 		if (!configBroken) {
 			SaveCurrentConfig();
 		}
@@ -399,62 +402,17 @@ public partial class RealPlugin {
 		};
 		lock (EventQueue) {
 			EventQueue.Enqueue(le);
-			QueueWakeupEvent.Set();
+			// QueueWakeupEvent.Set();
 		}
 	}
 
-	// internal void LogLineQueuerMass(IEnumerable<string> text, string zone, LogEvent.SourceEnum src, bool testMode, bool testModeZoneId) {
-	// 	var max = text.Count();
-	// 	var i = 0;
-	// 	var lex = new LogEvent[text.Count()];
-	// 	foreach (var x in text) {
-	// 		lex[i] = new LogEvent {
-	// 			Text = x,
-	// 			ZoneName = zone,
-	// 			Source = src,
-	// 			Timestamp = DateTime.Now,
-	// 			TestMode = testMode,
-	// 			ZoneId = testModeZoneId ? zone : null
-	// 		};
-	// 		i++;
-	// 	}
-	// 	if (lex.Length == 0) return;
-	// 	lock (EventQueue) {
-	// 		foreach (var le in lex) {
-	// 			EventQueue.Enqueue(le);
-	// 		}
-	// 		QueueWakeupEvent.Set();
-	// 	}
-	// }
+	private readonly Queue<LogEvent> lxx = [];
 
-	private Task LogLineProcessorAsync(CancellationToken cancellationToken) {
-		var lxx = new List<LogEvent>();
-		var wh = new[] {
-			cancellationToken.WaitHandle, QueueWakeupEvent
-		};
+	private void LogLineProcessorAsync(IFramework _) {
 		lock (EventQueue)
-			EventQueue.Clear();
-		while (!cancellationToken.IsCancellationRequested) {
-			try {
-				var waitResult = WaitHandle.WaitAny(wh, Timeout.Infinite);
-				switch (waitResult) {
-					case 0:
-						return Task.CompletedTask;
-					case 1:
-						lock (EventQueue) {
-							lxx.AddRange(EventQueue);
-							EventQueue.Clear();
-							QueueWakeupEvent.Reset();
-						}
-						foreach (var lx in lxx) LogLineProcessor(lx);
-						lxx.Clear();
-						break;
-				}
-			} catch (OperationCanceledException) { return Task.CompletedTask; } catch (Exception ex) {
-				GenericExceptionHandler("LogLineProcessorAsync error", ex);
-			}
-		}
-		return Task.CompletedTask;
+			while (EventQueue.TryDequeue(out var line))
+				lxx.Enqueue(line);
+		while (lxx.TryDequeue(out var line)) LogLineProcessor(line);
 	}
 
 	internal void LogLineProcessor(LogEvent le) {
@@ -464,33 +422,26 @@ public partial class RealPlugin {
 		}
 		switch (le.Source) {
 			case LogEvent.SourceEnum.Log:
-				lock (ActiveTextTriggers) // verified
-				{
+				lock (ActiveTextTriggers)
 					foreach (var t in ActiveTextTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-				}
 				break;
 			case LogEvent.SourceEnum.NetworkFFXIV:
-				lock (ActiveFFXIVNetworkTriggers) // verified
-				{
+				lock (ActiveFFXIVNetworkTriggers)
 					foreach (var t in ActiveFFXIVNetworkTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-				}
 				break;
 			case LogEvent.SourceEnum.ACT:
-				lock (ActiveACTTriggers) // verified
-				{
+				lock (ActiveACTTriggers)
 					foreach (var t in ActiveACTTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-				}
 				break;
 			case LogEvent.SourceEnum.Endpoint:
-				lock (ActiveEndpointTriggers) // verified
-				{
+				lock (ActiveEndpointTriggers)
 					foreach (var t in ActiveEndpointTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-				}
 				break;
+			default: throw new ArgumentOutOfRangeException();
 		}
 		var del = (DateTime.Now - le.Timestamp).TotalMilliseconds;
 		if (del > 100.0) {
