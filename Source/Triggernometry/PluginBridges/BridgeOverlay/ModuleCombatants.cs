@@ -39,21 +39,20 @@ internal static class ModuleCombatants {
 	/// </summary>
 	public static bool? Ready;
 	private static CombatantMemoryManager _combatantMemoryManager;
-	private static CombatantMemory _currentCombatantMemory;
+	private static CombatantMemory? _currentCombatantMemory;
 
 	static ModuleCombatants() {
 		Initialize();
 	}
 
-	private static unsafe GameObject* charmapAddress => _currentCombatantMemory.charmapAddress;
+	private static unsafe GameObject* charmapAddress => _currentCombatantMemory != null ? _currentCombatantMemory.charmapAddress : null;
 
-	internal static void Initialize() {
+	private static void Initialize() {
 		try {
 			_combatantMemoryManager = (CombatantMemoryManager)BridgeOverlay.Container.Resolve<ICombatantMemory>();
 			_currentCombatantMemory = _combatantMemoryManager.memory as CombatantMemory;
 			if (_currentCombatantMemory == null) // OverlayPlugin is still scanning memory
 			{
-				_combatantMemoryManager.ScanPointers();
 				_currentCombatantMemory = _combatantMemoryManager.memory as CombatantMemory;
 				if (_currentCombatantMemory == null) {
 					Ready = false;
@@ -217,21 +216,12 @@ internal static class ModuleCombatants {
 	}
 
 	// OverlayPlugin/OverlayPlugin.Core/MemoryProcessors/Combatant/Common.cs
-	public class OpStatus : Status {
-		private readonly EffectEntry _rawEffectEntry;
-
-		private readonly Entity _target;
-
-		public OpStatus(EffectEntry opEffectEntry, Entity target) {
-			_rawEffectEntry = opEffectEntry;
-			_target = target;
-		}
-
+	public class OpStatus(EffectEntry opEffectEntry, Entity target) : Status {
 		public override PluginSource PluginSource { get; set; } = PluginSource.OverlayPlugin;
-		public override ushort StatusID => _rawEffectEntry.BuffID;
-		public override ushort Stack => _rawEffectEntry.Stack;
-		public override float Timer => _rawEffectEntry.Timer;
-		public override uint SourceID => _rawEffectEntry.ActorID;
-		public override Entity Target => _target;
+		public override ushort StatusID => opEffectEntry.BuffID;
+		public override ushort Stack => opEffectEntry.Stack;
+		public override float Timer => opEffectEntry.Timer;
+		public override uint SourceID => opEffectEntry.ActorID;
+		public override Entity Target => target;
 	}
 }

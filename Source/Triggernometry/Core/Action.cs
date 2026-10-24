@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -269,7 +268,7 @@ public partial class ActionOld {
 				AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/actionnotfired", "Action #{0} on trigger '{1}' not fired, condition not met", OrderNumber, ctx.Trigger?.LogName ?? "(null)"));
 			} else {
 				ctx.PushActionResult(1);
-				AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", GetDescription(ctx), Thread.CurrentThread.ManagedThreadId));
+				AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", GetDescription(ctx), Environment.CurrentManagedThreadId));
 
 				if (ActionType == ActionTypeEnum.Loop) {
 					ExecuteLoopAction(ref ctx, qa, out var shouldReturn); // ctx might be changed here
@@ -299,6 +298,7 @@ public partial class ActionOld {
 			try {
 				actionDesc = GetDescription(ctx);
 			} catch {
+				//
 			}
 			actionDesc = actionDesc.Length > 300 ? actionDesc[..297] + "..." : actionDesc;
 			const bool showDetail = true; // _ActionType == ActionTypeEnum.ExecuteScript || _ActionType == ActionTypeEnum.NamedCallback || plug.cfg.DeveloperMode;

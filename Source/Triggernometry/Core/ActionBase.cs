@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -572,20 +571,20 @@ public abstract class ActionBase {
 				var ct = ctx.Plugin.GetCancellationToken();
 				t = new Task(() => {
 					ct.ThrowIfCancellationRequested();
-					AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Thread.CurrentThread.ManagedThreadId));
+					AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
 					ExecuteImplementation(ai);
 					ai?.ActionFinished();
 				});
 			} else {
 				t = new Task(() => {
-					AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Thread.CurrentThread.ManagedThreadId));
+					AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
 					ExecuteImplementation(ai);
 					ai?.ActionFinished();
 				});
 			}
 			t.Start();
 		} else {
-			AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Thread.CurrentThread.ManagedThreadId));
+			AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
 			ExecuteImplementation(ai);
 			ai?.ActionFinished();
 		}

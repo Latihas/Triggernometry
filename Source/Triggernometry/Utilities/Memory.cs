@@ -2,106 +2,89 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Triggernometry.Expressions.String.Utils;
-using Triggernometry.FFXIV;
 using Triggernometry.Localization;
-using Triggernometry.PluginBridges;
+using TriggernometryProxy;
 using static Triggernometry.Core.RealPlugin;
 
 // to-do: I18n
 
 namespace Triggernometry.Utilities;
 
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class Memory {
 	#region XIV Process / Handle
 
-	public const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
+	// public const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
 
-	private static DateTime _lastUpdateTime = DateTime.MinValue;
-	private const int CACHE_INTERVAL_SECONDS = 10;
+	// private static DateTime _lastUpdateTime = DateTime.MinValue;
+	// private const int CACHE_INTERVAL_SECONDS = 10;
 
-	private static Process _xivProc;
-	public static Process XivProc {
-		get {
-			UpdateProcCacheIfNeeded();
-			return _xivProc;
-		}
-	}
+	// private static Process _xivProc;
+	public static Process XivProc => Process.GetCurrentProcess();
 
-	private static int _xivProcId;
-	public static int XivProcId {
-		get {
-			UpdateProcCacheIfNeeded();
-			return _xivProcId;
-		}
-	}
+	public static int XivProcId => Environment.ProcessId;
 
-	private static IntPtr _xivProcHandle = IntPtr.Zero;
-	public static IntPtr XivProcHandle {
-		get {
-			UpdateProcCacheIfNeeded();
-			return _xivProcHandle;
-		}
-	}
+	public static IntPtr XivProcHandle => Process.GetCurrentProcess().Handle;
 
-	public static IntPtr XivBaseAddress => XivProc.MainModule.BaseAddress;
+	public static IntPtr XivBaseAddress => ProxyPlugin.SigScanner.Module.BaseAddress;
 
-	private static void UpdateProcCacheIfNeeded() // any better ways to monitor the changing of ffxiv process?
-	{
-		if ((DateTime.Now - _lastUpdateTime).TotalSeconds > CACHE_INTERVAL_SECONDS) {
-			_lastUpdateTime = DateTime.Now;
+	// private static void UpdateProcCacheIfNeeded() // any better ways to monitor the changing of ffxiv process?
+	// {
+	// 	if ((DateTime.Now - _lastUpdateTime).TotalSeconds > CACHE_INTERVAL_SECONDS) {
+	// 		_lastUpdateTime = DateTime.Now;
+	//
+	// 		_xivProc = BridgeFFXIV.GetProcess();
+	// 		_xivProcId = _xivProc?.Id ?? 0;
+	//
+	// 		if (_xivProcHandle != IntPtr.Zero) {
+	// 			if (GetProcessId(_xivProcHandle) == _xivProcId) {
+	// 				return;
+	// 			}
+	// 			DisposeXivProcHandle();
+	// 		}
+	// 		OnXivProcUpdated();
+	// 		_xivProcHandle = OpenProcess(PROCESS_ALL_ACCESS, false, _xivProcId);
+	// 	}
+	// }
 
-			_xivProc = BridgeFFXIV.GetProcess();
-			_xivProcId = _xivProc?.Id ?? 0;
-
-			if (_xivProcHandle != IntPtr.Zero) {
-				if (GetProcessId(_xivProcHandle) == _xivProcId) {
-					return;
-				}
-				DisposeXivProcHandle();
-			}
-			OnXivProcUpdated();
-			_xivProcHandle = OpenProcess(PROCESS_ALL_ACCESS, false, _xivProcId);
-		}
-	}
-
-	internal static void OnXivProcUpdated() {
-		GameLanguage.ScanOffsets();
-		foreach (var action in _xivProcUpdatedActions.Values) {
-			try {
-				action.Invoke();
-			} catch (Exception ex) {
-				Instance.UnfilteredAddToLog(DebugLevelEnum.Error, ex.ToString());
-			}
-		}
-	}
+	// internal static void OnXivProcUpdated() {
+	// 	// GameLanguage.ScanOffsets();
+	// 	foreach (var action in _xivProcUpdatedActions.Values) {
+	// 		try {
+	// 			action.Invoke();
+	// 		} catch (Exception ex) {
+	// 			Instance.UnfilteredAddToLog(DebugLevelEnum.Error, ex.ToString());
+	// 		}
+	// 	}
+	// }
 
 	public static void DisposeXivProcHandle() {
-		if (_xivProcHandle != IntPtr.Zero) {
-			try {
-				CloseHandle(_xivProcHandle);
-			} catch {
-			}
-			_xivProcHandle = IntPtr.Zero;
-		}
+		// if (_xivProcHandle != IntPtr.Zero) {
+		// 	try {
+		// 		CloseHandle(_xivProcHandle);
+		// 	} catch {
+		// 	}
+		// 	_xivProcHandle = IntPtr.Zero;
+		// }
 	}
 
-	private static readonly Dictionary<string, Action> _xivProcUpdatedActions = new();
+	// private static readonly Dictionary<string, Action> _xivProcUpdatedActions = new();
 
 	// could be used in scripts
 	public static void RegisterXivProcUpdatedAction(string key, Action action) {
-		_xivProcUpdatedActions[key] = action;
+		// _xivProcUpdatedActions[key] = action;
 	}
 
 	public static void UnregisterXivProcUpdatedAction(string key) {
-		_xivProcUpdatedActions.Remove(key);
+		// _xivProcUpdatedActions.Remove(key);
 	}
 
 	[DllImport("kernel32.dll", SetLastError = true)]
@@ -313,29 +296,30 @@ public static class Memory {
 
 	#region MarkingController
 
-	private static int _offset1B;
-	private static readonly SemaphoreSlim _semaphoreSlim1B = new(1, 1);
+	// private static int _offset1B;
+	// private static readonly SemaphoreSlim _semaphoreSlim1B = new(1, 1);
 
-	public static int Offset1B {
-		get {
-			_semaphoreSlim1B.Wait();
-			try {
-				return _offset1B;
-			} finally {
-				_semaphoreSlim1B.Release();
-			}
-		}
-		private set {
-			_semaphoreSlim1B.Wait();
-			try {
-				_offset1B = value;
-				Instance.UnfilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Memory/update1B",
-					"Headmarker offset updated to ({0})", _offset1B));
-			} finally {
-				_semaphoreSlim1B.Release();
-			}
-		}
-	}
+	public static int Offset1B => 0;
+	// {
+	// 	get {
+	// 		_semaphoreSlim1B.Wait();
+	// 		try {
+	// 			return _offset1B;
+	// 		} finally {
+	// 			_semaphoreSlim1B.Release();
+	// 		}
+	// 	}
+	// 	private set {
+	// 		_semaphoreSlim1B.Wait();
+	// 		try {
+	// 			_offset1B = value;
+	// 			Instance.UnfilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Memory/update1B",
+	// 				"Headmarker offset updated to ({0})", _offset1B));
+	// 		} finally {
+	// 			_semaphoreSlim1B.Release();
+	// 		}
+	// 	}
+	// }
 
 	/// <summary>
 	///     Update the headmarker offset. (0x1B log line) <br />
@@ -343,15 +327,15 @@ public static class Memory {
 	///     and locks the offset value until the update is finished.
 	/// </summary>
 	public static async void UpdateOffset1B() {
-		await _semaphoreSlim1B.WaitAsync();
-		try {
-			_offset1B = await Task.Run(GetHeadMarkerOffset);
-		} catch (Exception e) {
-			Instance.UnfilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Memory/update1Berror",
-				"Update headmarker offset failed due to exception:\n\n{0}", e.ToString()));
-		} finally {
-			_semaphoreSlim1B.Release();
-		}
+		// await _semaphoreSlim1B.WaitAsync();
+		// try {
+		// 	_offset1B = await Task.Run(GetHeadMarkerOffset);
+		// } catch (Exception e) {
+		// 	Instance.UnfilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Memory/update1Berror",
+		// 		"Update headmarker offset failed due to exception:\n\n{0}", e.ToString()));
+		// } finally {
+		// 	_semaphoreSlim1B.Release();
+		// }
 	}
 
 	//private static int? _headMarkerOffsetRelAddress3;
@@ -382,17 +366,8 @@ public static class Memory {
 	    }
 	    */
 	// FFXIVClientStructs/FFXIV/Client/Game/UI/MarkingController.cs
-	private static IntPtr _markingControllerPtr = IntPtr.Zero;
-	public static IntPtr MarkingControllerPtr {
-		get {
-			if (_markingControllerPtr == IntPtr.Zero) {
-				var moduleData = ReadModuleData(XivProc);
-				var offset = ScanPoint(moduleData, "48 8d 0d * * * * 4c 8b 85") ?? throw ScanNotFoundException("MarkingControllerPtr");
-				_markingControllerPtr = XivBaseAddress + offset;
-			}
-			return _markingControllerPtr;
-		}
-	}
+	// private static IntPtr _markingControllerPtr = IntPtr.Zero;
+	public static IntPtr MarkingControllerPtr => MarkingController.Addresses.Instance.Value;
 
 	public static IntPtr TargetMarkersPtr => MarkingControllerPtr + 0x10;
 	public static IntPtr WaymarksPtr => MarkingControllerPtr + 0x1E0;
@@ -489,27 +464,15 @@ public static class Memory {
 				} else throw ErrorHelper.InvalidValueError("waymark", I18n.TranslateWord("type"), rawType, $"${{_waymark[{rawType}].{rawProp}}}");
 			}
 			var wm = Read(type);
-			switch (rawProp.ToLower()) {
-				case "active":
-					return wm.Active ? "1" : "0";
-				case "x":
-				case "posx":
-					return wm.X3;
-				case "y":
-				case "posy":
-					return wm.Y3;
-				case "z":
-				case "posz":
-					return wm.Z3;
-				case "xy":
-				case "posxy":
-					return $"{wm.X3}, {wm.Y3}";
-				case "xyz":
-				case "pos":
-					return $"{wm.X3}, {wm.Y3}, {wm.Z3}";
-				default:
-					throw ErrorHelper.InvalidValueError("waymark", I18n.TranslateWord("property"), rawProp, $"${{_waymark[{rawType}].{rawProp}}}");
-			}
+			return rawProp.ToLower() switch {
+				"active" => wm.Active ? "1" : "0",
+				"x" or "posx" => wm.X3,
+				"y" or "posy" => wm.Y3,
+				"z" or "posz" => wm.Z3,
+				"xy" or "posxy" => $"{wm.X3}, {wm.Y3}",
+				"xyz" or "pos" => $"{wm.X3}, {wm.Y3}, {wm.Z3}",
+				_ => throw ErrorHelper.InvalidValueError("waymark", I18n.TranslateWord("property"), rawProp, $"${{_waymark[{rawType}].{rawProp}}}")
+			};
 		}
 	}
 

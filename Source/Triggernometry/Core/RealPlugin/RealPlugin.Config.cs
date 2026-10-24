@@ -17,7 +17,7 @@ public partial class RealPlugin {
 	public Configuration cfg { get; private set; }
 
 	public bool configBroken;
-	internal DateTime lastConfigSave = DateTime.Now;
+	// internal DateTime lastConfigSave = DateTime.Now;
 
 	private void AutofixConfiguration() {
 		if (cfg == null) {
@@ -95,7 +95,8 @@ public partial class RealPlugin {
 	}
 
 	public void SaveCurrentConfig() {
-		lastConfigSave = DateTime.Now;
+		// lastConfigSave = DateTime.Now;
+		Log.Warning("Triggernometry SaveCurrentConfig");
 		SaveConfigToFile(cfg, Path.Combine(ConfigPath, pluginName + ".config.xml"), true);
 	}
 
@@ -169,7 +170,7 @@ public partial class RealPlugin {
 
 	private readonly Lock SaveConfigFileLock = new();
 
-	private void SaveConfigToFile(Configuration cfg, string filename, bool switchprevious) {
+	private void SaveConfigToFile(Configuration cfg_, string filename, bool switchprevious) {
 		lock (SaveConfigFileLock) {
 			try {
 				FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgsave", "Saving configuration to '{0}'", filename));
@@ -178,9 +179,9 @@ public partial class RealPlugin {
 				ns.Add("", "");
 				var xs = new XmlSerializer(typeof(Configuration));
 				using (var ms = new MemoryStream()) {
-					cfg.SecuritySettingsLocked = false;
-					xs.Serialize(ms, cfg, ns);
-					cfg.SecuritySettingsLocked = true;
+					cfg_.SecuritySettingsLocked = false;
+					xs.Serialize(ms, cfg_, ns);
+					cfg_.SecuritySettingsLocked = true;
 					ms.Position = 0;
 					using (var sr = new StreamReader(ms)) {
 						test = sr.ReadToEnd();
@@ -192,7 +193,7 @@ public partial class RealPlugin {
 						sw.Write(test);
 						sw.Flush();
 						ms.Position = 0;
-						var cx = (Configuration)xs.Deserialize(ms);
+						var cx = (Configuration?)xs.Deserialize(ms);
 					}
 				}
 				using (var fs = File.Open(filename + ".temp", FileMode.Create, FileAccess.Write)) {

@@ -197,7 +197,7 @@ public class Context {
 	public delegate void LoggerDelegate(object o, string msg);
 
 
-	public string ExpandVariables(LoggerDelegate? logger, object o, bool isNumeric, string expr) {
+	public string ExpandVariables(LoggerDelegate? logger, object? o, bool isNumeric, string expr) {
 		var result = StringParser.Parse(expr, this, isNumeric);
 		// log expansions: ${...} => ...
 		if (Plugin.cfg.LogVariableExpansions &&
