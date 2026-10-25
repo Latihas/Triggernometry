@@ -75,9 +75,8 @@ public class ActionLoop : ActionBase {
 		);
 	}
 
-        internal override void ExecuteImplementation(ActionInstance ai)
-        {
-            throw new NotImplementedException(I18n.Translate("internal/ActionLoop/specialhandling", "Loop actions require special handling."));
+	internal override void ExecuteImplementation(ActionInstance ai) {
+		throw new NotImplementedException(I18n.Translate("internal/ActionLoop/specialhandling", "Loop actions require special handling."));
 	}
 
 	#endregion

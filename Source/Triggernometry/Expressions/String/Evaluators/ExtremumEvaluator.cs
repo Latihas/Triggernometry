@@ -29,13 +29,13 @@ internal static class ExtremumEvaluator {
 				return source => SafeGetExtremum(source, ParseHex, isMin, I18n.TranslateWord("hex"), expr);
 			case 's':
 				return source => SafeGetExtremum(source, s => s, isMin, I18n.TranslateWord("string"), expr);
-                default: throw InvalidValueError(expr.Member.Name, I18n.TranslateWord("type"), valueType, expr.RawExpression);
+			default: throw InvalidValueError(expr.Member.Name, I18n.TranslateWord("type"), valueType, expr.RawExpression);
 		}
 	}
 
 	private static string SafeGetExtremum<T>(IEnumerable<string> source, Func<string, T> parser, bool isMin,
 		string typeDescription, IndexMemberExpression expr) where T : IComparable<T> {
-		var srcList = source as List<string> ?? source.ToList();
+		var srcList = source as List<string> ?? [.. source];
 		if (source == null || srcList.Count == 0) {
 			throw ExtremumListZeroElementError(expr.Name, expr.RawExpression);
 		}

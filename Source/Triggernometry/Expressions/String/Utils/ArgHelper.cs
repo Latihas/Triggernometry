@@ -28,7 +28,7 @@ public static class ArgHelper {
 	///     Throws <see cref="ArgumentException" /> if not valid.
 	/// </summary>
 	public static void CheckArgCount(string expectedCount, int givenCount, string funcName,
-		string rawExpression = null, Func<int, bool> validatorOverride = null) {
+		string? rawExpression = null, Func<int, bool>? validatorOverride = null) {
 		var validator = validatorOverride ?? GetArgCountValidator(expectedCount);
 		if (!validator(givenCount))
 			throw ErrorHelper.ArgumentCountError(funcName, expectedCount, givenCount, rawExpression);
@@ -36,7 +36,7 @@ public static class ArgHelper {
 
 	/// <summary> Get or build the argument count validator function from the required count expression. </summary>
 	private static Func<int, bool> GetArgCountValidator(string requiredCount) {
-		Func<int, bool> validator;
+		Func<int, bool>? validator;
 		lock (_lockValidators) {
 			if (_validators.TryGetValue(requiredCount, out validator))
 				return validator;
@@ -48,7 +48,7 @@ public static class ArgHelper {
 		int? last2 = null;
 		foreach (var part in parts) {
 			// "1"
-			if (part.All(c => char.IsDigit(c))) {
+			if (part.All(char.IsDigit)) {
 				var exact = int.Parse(part);
 				checks.Add(i => i == exact);
 				last2 = last1;
@@ -71,17 +71,16 @@ public static class ArgHelper {
 			// "..."
 			else if (part is "..." or "…") {
 				var d = last1 - last2
-                        ?? throw new ArgumentException(I18n.Translate("internal/ArgHelper/invalidcountpattern",
-                            "Invalid argument count expression: {0}\nIn: {1}", "'...'", requiredCount));
+				        ?? throw new ArgumentException(I18n.Translate("internal/ArgHelper/invalidcountpattern",
+					        "Invalid argument count expression: {0}\nIn: {1}", "'...'", requiredCount));
 				if (d <= 0)
-                        throw new ArgumentException(I18n.Translate("internal/ArgHelper/invalidcountpattern",
-                            "Invalid argument count expression: {0}\nIn: {1}", $"{last2}, {last1}, ...", requiredCount));
+					throw new ArgumentException(I18n.Translate("internal/ArgHelper/invalidcountpattern",
+						"Invalid argument count expression: {0}\nIn: {1}", $"{last2}, {last1}, ...", requiredCount));
 				checks.Add(i => i > last1 && (i - last1) % d == 0);
 				last1 = null;
-                }
-                else
-                    throw new ArgumentException(I18n.Translate("internal/ArgHelper/invalidcountpattern",
-                        "Invalid argument count expression: {0}\nIn: {1}", part, requiredCount));
+			} else
+				throw new ArgumentException(I18n.Translate("internal/ArgHelper/invalidcountpattern",
+					"Invalid argument count expression: {0}\nIn: {1}", part, requiredCount));
 		}
 		validator = i => checks.Any(f => f(i));
 		lock (_lockValidators) {
@@ -137,7 +136,7 @@ public static class ArgHelper {
 			}
 			result.Add(currentMatch);
 		}
-		return result.ToArray();
+		return [.. result];
 	}
 
 	/// <summary>
@@ -148,7 +147,7 @@ public static class ArgHelper {
 	///     · <paramref name="setEmptyToDefault" />: If the selected argument is empty, consider it as the default value or
 	///     not.
 	/// </summary>
-	public static string GetArgument(string[] args, int index, string defaultValue = null, bool setEmptyToDefault = false) {
+	public static string? GetArgument(string[] args, int index, string? defaultValue = null, bool setEmptyToDefault = false) {
 		if (index >= args.Length || args[index] == "" && setEmptyToDefault)
 			return defaultValue;
 		return args[index];
@@ -171,7 +170,7 @@ public static class ArgHelper {
 		// optimize for default input
 		var checkDefault = slicesStr.Replace(" ", "");
 		if (checkDefault is "" or ":" or "::") {
-			return Enumerable.Range(0, totalLength).ToList();
+			return [.. Enumerable.Range(0, totalLength)];
 		}
 
 		var indices = new List<int>();
@@ -359,7 +358,7 @@ public static class ArgHelper {
 			);
 	}
 
-	/// <summary> Parse a raw argument string into several typed values. <br />Check <see cref="ParseArgs" /> for details. </summary>
+	/// <summary> Parse a raw argument string into several typed values. <br />Check <see /> for details. </summary>
 	public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) ParseArgs
 		<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
 		(this string rawData, params (int idx, object val)[] defaults) {
@@ -374,7 +373,7 @@ public static class ArgHelper {
 			);
 	}
 
-	/// <summary> Parse a raw argument string into several typed values. <br />Check <see cref="ParseArgs" /> for details. </summary>
+	/// <summary> Parse a raw argument string into several typed values. <br />Check <see /> for details. </summary>
 	public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) ParseArgs
 		<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
 		(this string rawData, params (int idx, object val)[] defaults) {
@@ -389,7 +388,7 @@ public static class ArgHelper {
 			);
 	}
 
-	/// <summary> Parse a raw argument string into several typed values. <br />Check <see cref="ParseArgs" /> for details. </summary>
+	/// <summary> Parse a raw argument string into several typed values. <br />Check <see /> for details. </summary>
 	public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) ParseArgs
 		<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
 		(this string rawData, params (int idx, object val)[] defaults) {
@@ -405,7 +404,7 @@ public static class ArgHelper {
 			);
 	}
 
-	/// <summary> Parse a raw argument string into several typed values. <br />Check <see cref="ParseArgs" /> for details. </summary>
+	/// <summary> Parse a raw argument string into several typed values. <br />Check <see /> for details. </summary>
 	public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) ParseArgs
 		<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
 		(this string rawData, params (int idx, object val)[] defaults) {
@@ -465,8 +464,8 @@ public static class ArgHelper {
 			if (value == null) {
 				if (!typeof(T).IsValueType || Nullable.GetUnderlyingType(typeof(T)) != null)
 					return default;
-                    throw new ArgumentException(I18n.Translate("internal/ArgHelper/nulldefaultargument",
-                        "Default argument #{0} of type {1} cannot be null.", index, typeof(T).Name));
+				throw new ArgumentException(I18n.Translate("internal/ArgHelper/nulldefaultargument",
+					"Default argument #{0} of type {1} cannot be null.", index, typeof(T).Name));
 			}
 			try {
 				return (T)value;
@@ -480,7 +479,7 @@ public static class ArgHelper {
 			// fallback
 			return value.ToDataString().ParseData<T>();
 		}
-            throw new ArgumentException(I18n.Translate("internal/ArgHelper/missingargument",
-                "Missing {0} argument #{1} with no default value. Supplied arguments: {2}", typeof(T).Name, index, string.Join(", ", rawArgs)));
+		throw new ArgumentException(I18n.Translate("internal/ArgHelper/missingargument",
+			"Missing {0} argument #{1} with no default value. Supplied arguments: {2}", typeof(T).Name, index, string.Join(", ", rawArgs)));
 	}
 }

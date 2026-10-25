@@ -18,7 +18,7 @@ public static partial class ParserCommon {
 	///     use "⏎" as a single-digit placeholder for linebreaks
 	///     to parse linebreaks as regular characters.
 	/// </summary>
-	public static string ReplaceLineBreak(string str, string placeholder = null) {
+	public static string? ReplaceLineBreak(string? str, string? placeholder = null) {
 		if (str == null)
 			return null;
 
@@ -26,7 +26,7 @@ public static partial class ParserCommon {
 		if (str.IndexOfAny(['\r', '\n']) < 0)
 			return str;
 
-		placeholder = placeholder ?? LINEBREAK.ToString();
+		placeholder ??= LINEBREAK.ToString();
 
 		var sb = new StringBuilder(str.Length);
 		for (var i = 0; i < str.Length; i++) {

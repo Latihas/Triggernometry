@@ -217,7 +217,7 @@ public class Configuration {
 		set {
 			_FfxivCustomPartyOrder = value;
 			_FfxivCustomPartyOrderLookup.Clear();
-			var ex = value.Split(",".ToArray(), StringSplitOptions.RemoveEmptyEntries);
+			var ex = value.Split([.. ","], StringSplitOptions.RemoveEmptyEntries);
 			var subn = 1;
 			foreach (var e in ex) {
 				var et = e.Trim();
@@ -280,7 +280,7 @@ public class Configuration {
 	public string PerformSubstitution(string input, Substitution.SubstitutionScopeEnum scope) {
 		if (Substitutions.Count > 0) {
 			var reps = Substitutions.Where(ix => (ix.Scope & scope) == scope).ToArray();
-			if (reps.Length != 0) 
+			if (reps.Length != 0)
 				input = reps.Aggregate(input, (current, rep) => rep.Replace(current));
 		}
 		return input;
@@ -552,10 +552,8 @@ public class Configuration {
 			var newId = Guid.NewGuid();
 			File.WriteAllText(file, newId.ToString());
 			return newId;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString(), I18n.Translate("internal/Configuration/configtitle", "Triggernometry configuration"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+		} catch (Exception ex) {
+			MessageBox.Show(ex.ToString(), I18n.Translate("internal/Configuration/configtitle", "Triggernometry configuration"), MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return Guid.Empty;
 		}
 	}

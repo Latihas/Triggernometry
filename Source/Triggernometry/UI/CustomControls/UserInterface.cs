@@ -946,7 +946,7 @@ public class UserInterface {
 				// _nodeExpandedStates[ser.ExportedFolder] = true;
 			}
 			int fdjs = 0, tdjs = 0;
-			foreach (Trigger nt in importedTriggers) {
+			foreach (var nt in importedTriggers) {
 				foreach (var a in RecursiveGetActions(nt.Actions)) {
 					if (renamedTriggers.TryGetValue(a._TriggerId, out var trigger)) {
 						a._TriggerId = trigger;

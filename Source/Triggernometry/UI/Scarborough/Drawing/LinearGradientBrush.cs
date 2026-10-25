@@ -113,7 +113,7 @@ public class LinearGradientBrush : IDisposable, IBrush {
 	///     <see langword="true" /> if <paramref name="obj" /> is a LinearGradientBrush and equal to this instance;
 	///     otherwise, <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is LinearGradientBrush brush) {
 			return brush._brush.NativePointer == _brush.NativePointer;
 		}

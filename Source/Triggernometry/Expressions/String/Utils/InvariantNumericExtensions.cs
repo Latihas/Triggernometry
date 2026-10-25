@@ -39,7 +39,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static sbyte ParseSByteWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static sbyte ParseSByteWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseSByte(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -90,7 +90,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static byte ParseByteWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static byte ParseByteWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseByte(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -142,7 +142,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static short ParseShortWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static short ParseShortWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseShort(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -194,7 +194,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static ushort ParseUShortWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static ushort ParseUShortWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseUShort(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -246,7 +246,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static int ParseIntWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static int ParseIntWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseInt(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -298,7 +298,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static uint ParseUIntWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static uint ParseUIntWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseUInt(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -350,7 +350,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static long ParseLongWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static long ParseLongWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseLong(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -402,7 +402,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static ulong ParseULongWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static ulong ParseULongWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseULong(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -454,7 +454,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static float ParseFloatWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static float ParseFloatWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseFloat(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -506,7 +506,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static double ParseDoubleWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static double ParseDoubleWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseDouble(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -558,7 +558,7 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static decimal ParseDecimalWithDetail(this string s, string contextDescription = null, string rawExpression = null)
+	public static decimal ParseDecimalWithDetail(this string s, string? contextDescription = null, string? rawExpression = null)
 		=> s.ParseWithDetail(_s => _s.ParseDecimal(), contextDescription, rawExpression);
 
 	/// <summary>
@@ -589,9 +589,9 @@ public static class InvariantNumericExtensions {
 	///     <br />
 	///     · <paramref name="rawExpression" />: Original expression containing the parsed string (optional).
 	/// </summary>
-	public static T ParseWithDetail<T>(this string input, Func<string, T> parser, string contextDescription = null, string rawExpression = null) {
-		if (input == null) throw new ArgumentNullException(nameof(input));
-		if (parser == null) throw new ArgumentNullException(nameof(parser));
+	public static T ParseWithDetail<T>(this string input, Func<string, T> parser, string? contextDescription = null, string? rawExpression = null) {
+		ArgumentNullException.ThrowIfNull(input);
+		ArgumentNullException.ThrowIfNull(parser);
 		try {
 			return parser(input);
 		} catch (Exception ex) // override the original message and rethrow
@@ -602,29 +602,29 @@ public static class InvariantNumericExtensions {
 		}
 	}
 
-	private static string BuildParseErrorMessage<T>(Exception ex, string input, string contextDescription, string rawExpression) {
+	private static string BuildParseErrorMessage<T>(Exception ex, string input, string? contextDescription, string? rawExpression) {
 		var sb = new StringBuilder();
-            sb.AppendLine(I18n.Translate("internal/InvariantNumericExtensions/parseerror",
-                "Failed to parse '{0}' as {1}: {2}", input, typeof(T).Name, ex.Message));
+		sb.AppendLine(I18n.Translate("internal/InvariantNumericExtensions/parseerror",
+			"Failed to parse '{0}' as {1}: {2}", input, typeof(T).Name, ex.Message));
 
 		if (!string.IsNullOrWhiteSpace(contextDescription))
-                sb.AppendLine(I18n.Translate("internal/InvariantNumericExtensions/context",
-                    "Context: {0}", contextDescription));
+			sb.AppendLine(I18n.Translate("internal/InvariantNumericExtensions/context",
+				"Context: {0}", contextDescription));
 
 		if (rawExpression != null) // allow empty since it could be the user input
-                sb.AppendLine(I18n.Translate("internal/InvariantNumericExtensions/expression",
-                    "Expression: '{0}'", rawExpression));
+			sb.AppendLine(I18n.Translate("internal/InvariantNumericExtensions/expression",
+				"Expression: '{0}'", rawExpression));
 
 		return sb.ToString();
 	}
 
-	private static readonly Dictionary<Type, FieldInfo> _messageFieldCache = new();
+	private static readonly Dictionary<Type, FieldInfo?> _messageFieldCache = new();
 
 	private static void OverrideExceptionMessage(string newMessage, Exception ex) {
-		if (ex == null) throw new ArgumentNullException(nameof(ex));
+		ArgumentNullException.ThrowIfNull(ex);
 
 		var type = ex.GetType();
-		FieldInfo field;
+		FieldInfo? field;
 
 		lock (_messageFieldCache) {
 			if (!_messageFieldCache.TryGetValue(type, out field)) {
@@ -640,7 +640,7 @@ public static class InvariantNumericExtensions {
 			throw new Exception($"{ex.GetType().Name}: {newMessage}", ex);
 	}
 
-	private static FieldInfo FindExceptionMessageField(Type type) {
+	private static FieldInfo? FindExceptionMessageField(Type? type) {
 		while (type != null) {
 			var field =
 				type.GetField("_message", BindingFlags.Instance | BindingFlags.NonPublic)

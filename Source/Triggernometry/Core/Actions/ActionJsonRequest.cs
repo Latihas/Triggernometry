@@ -145,7 +145,7 @@ public class ActionJsonRequest : ActionBase {
 		);
 	}
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 
@@ -160,25 +160,21 @@ public class ActionJsonRequest : ActionBase {
 		if (headers.Length > 0) {
 			headerslist.AddRange(headers.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
 		}
-            if (UseCache)
-            {
-                var endpointh = RealPlugin.GenerateHash(endpoint);
-                var payloadh = RealPlugin.GenerateHash(payload);
-                var headersh = RealPlugin.GenerateHash(headers);
-                var fh = RealPlugin.GenerateHash(Method + endpointh + payloadh + headersh);
-                var fn = Path.Combine(plug.ConfigPath, "TriggernometryJsonCache");
-                if (!Directory.Exists(fn))
-                {
+		if (UseCache) {
+			var endpointh = RealPlugin.GenerateHash(endpoint);
+			var payloadh = RealPlugin.GenerateHash(payload);
+			var headersh = RealPlugin.GenerateHash(headers);
+			var fh = RealPlugin.GenerateHash(Method + endpointh + payloadh + headersh);
+			var fn = Path.Combine(plug.ConfigPath, "TriggernometryJsonCache");
+			if (!Directory.Exists(fn)) {
 				Directory.CreateDirectory(fn);
 			}
 			fn = Path.Combine(fn, fh + ".json");
-                var fromcache = false;
-                if (File.Exists(fn))
-                {
-                    var fi = new FileInfo(fn);
-                    var dt = DateTime.Now.AddMinutes(0 - plug.cfg.CacheJsonExpiry);
-                    if (fi.LastWriteTime > dt && fi.Length > 0)
-                    {
+			var fromcache = false;
+			if (File.Exists(fn)) {
+				var fi = new FileInfo(fn);
+				var dt = DateTime.Now.AddMinutes(0 - plug.cfg.CacheJsonExpiry);
+				if (fi.LastWriteTime > dt && fi.Length > 0) {
 					responseCode = (int)HttpStatusCode.OK;
 					response = File.ReadAllText(fn);
 					fromcache = true;
@@ -188,16 +184,13 @@ public class ActionJsonRequest : ActionBase {
 				var resp = SendJson(ctx, Method, endpoint, payload, headerslist, false); // todo
 				responseCode = resp.Item1;
 				response = resp.Item2;
-                    // Cache files only store the body, so only cache non-empty 200 responses.
-                    if (responseCode == (int)HttpStatusCode.OK && response.Length > 0)
-                    {
-				File.WriteAllText(fn, response);
+				// Cache files only store the body, so only cache non-empty 200 responses.
+				if (responseCode == (int)HttpStatusCode.OK && response.Length > 0) {
+					File.WriteAllText(fn, response);
+				}
 			}
-                }
-            }
-            else
-            {
-                var resp = SendJson(ctx, Method, endpoint, payload, headerslist, false); // todo
+		} else {
+			var resp = SendJson(ctx, Method, endpoint, payload, headerslist, false); // todo
 			responseCode = resp.Item1;
 			response = resp.Item2;
 		}
@@ -223,13 +216,11 @@ public class ActionJsonRequest : ActionBase {
 		}
 		ctx.contextResponse = response;
 		ctx.contextResponseCode = responseCode;
-            ctx.contextJsonResponse = null;
-            ctx.isContextJsonParsed = false;
-            if (FiringExpression != null && FiringExpression.Trim().Length > 0)
-            {
-                var firing = ctx.EvaluateStringExpression(ActionContextLogger, ctx, FiringExpression);
-                if (firing.Length > 0)
-                {
+		ctx.contextJsonResponse = null;
+		ctx.isContextJsonParsed = false;
+		if (FiringExpression != null && FiringExpression.Trim().Length > 0) {
+			var firing = ctx.EvaluateStringExpression(ActionContextLogger, ctx, FiringExpression);
+			if (firing.Length > 0) {
 				plug.LogLineQueuer(firing, "", LogEvent.SourceEnum.Log);
 			}
 		}

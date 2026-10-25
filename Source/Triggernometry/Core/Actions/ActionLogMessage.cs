@@ -77,11 +77,12 @@ public class ActionLogMessage : ActionBase {
 
 	internal override string DescribeImplementation() {
 		if (ProcessAsLogline) {
-			var srcType = "";
+			string srcType;
 			switch (Target) {
 				case LogEvent.SourceEnum.ACT: srcType = "ACT event"; break;
 				case LogEvent.SourceEnum.NetworkFFXIV: srcType = "FFXIV network event"; break;
 				case LogEvent.SourceEnum.Log: srcType = "Normal log line"; break;
+				case LogEvent.SourceEnum.Endpoint:
 				default: return NotImplementedEnumMessage(Target);
 			}
 			srcType = I18n.Translate($"ActionForm/cbxLogMessageTarget[{srcType}]", srcType);
@@ -107,7 +108,7 @@ public class ActionLogMessage : ActionBase {
 		);
 	}
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 
@@ -117,16 +118,14 @@ public class ActionLogMessage : ActionBase {
 			var zone = ctx.EvaluateStringExpression(ActionContextLogger, ctx, plug.currentZone);
 			plug.LogLineQueuer(message, zone, Target);
 		} else {
-			var debugLevel = RealPlugin.DebugLevelEnum.Error;
-			switch (Level) {
-				case LogLevelEnum.Custom: debugLevel = RealPlugin.DebugLevelEnum.Custom; break;
-				case LogLevelEnum.Custom2: debugLevel = RealPlugin.DebugLevelEnum.Custom2; break;
-				case LogLevelEnum.Error: debugLevel = RealPlugin.DebugLevelEnum.Error; break;
-				case LogLevelEnum.Info: debugLevel = RealPlugin.DebugLevelEnum.Info; break;
-				case LogLevelEnum.Verbose: debugLevel = RealPlugin.DebugLevelEnum.Verbose; break;
-				case LogLevelEnum.Warning: debugLevel = RealPlugin.DebugLevelEnum.Warning; break;
-				default: throw NotImplementedEnumException(Level);
-			}
+			var debugLevel = Level switch {
+				LogLevelEnum.Custom => RealPlugin.DebugLevelEnum.Custom,
+				LogLevelEnum.Custom2 => RealPlugin.DebugLevelEnum.Custom2,
+				LogLevelEnum.Error => RealPlugin.DebugLevelEnum.Error,
+				LogLevelEnum.Info => RealPlugin.DebugLevelEnum.Info,
+				LogLevelEnum.Verbose => RealPlugin.DebugLevelEnum.Verbose,
+				LogLevelEnum.Warning => RealPlugin.DebugLevelEnum.Warning, _ => throw NotImplementedEnumException(Level)
+			};
 			AddToLog(ctx, debugLevel, message);
 		}
 		if (AddToACTEncounter) {

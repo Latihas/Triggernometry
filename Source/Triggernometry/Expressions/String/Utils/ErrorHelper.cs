@@ -10,7 +10,7 @@ public static class ErrorHelper // todo I18n cleanup
 			"In ({0}), expected {1} arguments but got {2}.",
 			functionName, expectedCount, givenCount));
 
-	public static ArgumentException ArgumentCountError(string functionName, string expectedCount, int givenCount, string totalExpression) =>
+	public static ArgumentException ArgumentCountError(string functionName, string expectedCount, int givenCount, string? totalExpression) =>
 		new(I18n.Translate("internal/Context/argumentCountError",
 			"In ({0}), expected {1} arguments but got {2}. Expr: ({3})",
 			functionName, expectedCount, givenCount, totalExpression));

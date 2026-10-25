@@ -28,9 +28,9 @@ public static class VfxManager {
 	private static readonly Lock DelayedActionLock = new();
 	private static readonly List<DelayedAction> DelayedActions = [];
 
-	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string tag = null) => Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
+	public static ActorVfx CreateActor(IntPtr srcAddress, IntPtr tgtAddress, string fullPath, string? tag = null) => Module.ActorVfxCreate(srcAddress, tgtAddress, fullPath, tag);
 
-	public static unsafe StaticVfx InitStatic(string fullPath, string tag = null, Action<StaticVfx> modifier = null) {
+	public static unsafe StaticVfx InitStatic(string fullPath, string? tag = null, Action<StaticVfx>? modifier = null) {
 		return RunOnTick(() => {
 			var vfxPtr = Module.StaticVfxCreate(fullPath);
 
@@ -51,7 +51,9 @@ public static class VfxManager {
 			} catch {
 				try {
 					vfx.TryRemove();
-				} catch { }
+				} catch {
+					//
+				}
 				throw;
 			}
 		});
@@ -79,7 +81,7 @@ public static class VfxManager {
 		EnsureWorkerStarted();
 	}
 
-	public static bool TryUnregisterActor(IntPtr ptr, out ActorVfx vfx) {
+	public static bool TryUnregisterActor(IntPtr ptr, out ActorVfx? vfx) {
 		if (!ActorVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
 			return false;
 		vfx.Removed = true;
@@ -87,7 +89,7 @@ public static class VfxManager {
 		return true;
 	}
 
-	public static bool TryUnregisterStatic(IntPtr ptr, out StaticVfx vfx) {
+	public static bool TryUnregisterStatic(IntPtr ptr, out StaticVfx? vfx) {
 		if (!StaticVfxs.TryGetValue(ptr, out vfx) || vfx.Removed)
 			return false;
 		vfx.Removed = true;
@@ -259,7 +261,7 @@ public static class VfxManager {
 	/// <summary>
 	///     自动解析两点位姿模式（如果指定了 Target）或单点位姿模式（如果指定了 Angle3D），并返回最终朝向。若两者都未指定，则返回 null。
 	/// </summary>
-	private static Vector3? ResolveAngles(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, XIVCoord resolvedPos, out double? distance2D, out double? distance3D) {
+	private static Vector3? ResolveAngles(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities, XIVCoord? resolvedPos, out double? distance2D, out double? distance3D) {
 		distance2D = null;
 		distance3D = null;
 
@@ -287,7 +289,7 @@ public static class VfxManager {
 	/// </summary>
 	private static LinearTransformArgs ResolveLinearTransformArgs(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities) {
 		var transform = new LinearTransformArgs();
-		Entity centerEntity = null;
+		Entity? centerEntity = null;
 
 		// 解析坐标系中心 O，并保留同一次解析得到的实体供默认朝向使用。
 		if (vfx.TransformCenterArg != null) {
@@ -345,9 +347,9 @@ public static class VfxManager {
 		return true;
 	}
 
-	private static XIVCoord ResolveCoordArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg arg) => ResolveCoordArg(entities, arg, out _);
+	private static XIVCoord? ResolveCoordArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg? arg) => ResolveCoordArg(entities, arg, out _);
 
-	private static XIVCoord ResolveCoordArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg arg, out Entity resolvedEntity) {
+	private static XIVCoord? ResolveCoordArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg? arg, out Entity? resolvedEntity) {
 		resolvedEntity = null;
 		if (arg == null)
 			return null;
@@ -367,8 +369,8 @@ public static class VfxManager {
 	}
 
 	/// <summary>
-	/// 根据参数解析最终选中的实体；只有 Near/Far 需要每 100 ms 重新排名。
-	/// 缓存仅记录 ID，实体的坐标和朝向在每次调用时仍从当前实体列表读取。
+	///     根据参数解析最终选中的实体；只有 Near/Far 需要每 100 ms 重新排名。
+	///     缓存仅记录 ID，实体的坐标和朝向在每次调用时仍从当前实体列表读取。
 	/// </summary>
 	private static Entity ResolveEntityArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg arg) {
 		if (arg == null || arg.IsFixed)

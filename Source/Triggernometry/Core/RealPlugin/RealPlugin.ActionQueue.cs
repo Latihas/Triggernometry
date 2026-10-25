@@ -53,7 +53,7 @@ public partial class RealPlugin {
 	public class QueuedAction : IComparable {
 		internal DateTime when { get; set; }
 		internal long ordinal { get; set; }
-		internal MutexInformation mutex { get; set; }
+		internal MutexInformation? mutex { get; set; }
 		internal ActionOld act { get; set; }
 		internal Context ctx { get; set; }
 		internal bool releaseMutex { get; set; }
@@ -84,10 +84,10 @@ public partial class RealPlugin {
 			}
 		}
 
-		public int CompareTo(object o) {
-			var b = (QueuedAction)o;
-			var ex = when.CompareTo(b.when);
-			return ex != 0 ? ex : ordinal.CompareTo(b.ordinal);
+		public int CompareTo(object? o) {
+			var b = (QueuedAction?)o;
+			var ex = when.CompareTo(b?.when);
+			return ex != 0 ? ex : ordinal.CompareTo(b?.ordinal);
 		}
 
 		public void ActionFinished() {
@@ -111,7 +111,7 @@ public partial class RealPlugin {
 	///     If <c>null</c>, all actions will be removed.
 	/// </param>
 	/// <returns>The number of queued actions removed from the queue.</returns>
-	internal int CancelQueuedActions(Func<QueuedAction, bool> filter = null) {
+	internal int CancelQueuedActions(Func<QueuedAction, bool>? filter = null) {
 		var removedCount = 0;
 		lock (ActionQueue) {
 			var toRemove = ActionQueue.Where(qa => filter == null || filter(qa)).ToList();
@@ -132,9 +132,9 @@ public partial class RealPlugin {
 		return removedCount;
 	}
 
-	internal ActionOld QueueActions(Context ctx, DateTime startingFrom, IEnumerable<ActionOld> actions, bool sequential, MutexInformation mtx, Context.LoggerDelegate logger) {
+	internal ActionOld? QueueActions(Context ctx, DateTime startingFrom, IEnumerable<ActionOld> actions, bool sequential, MutexInformation? mtx, Context.LoggerDelegate logger) {
 		ActionOld? lastAction = null;
-		var sortedActions = actions.OrderBy(a => a.OrderNumber);
+		var sortedActions = actions.OrderBy(a => a.OrderNumber).ToArray();
 		var finalAction = sortedActions.LastOrDefault(a => a.Enabled);
 		if (!sequential) {
 			foreach (var action in sortedActions) {
@@ -167,14 +167,12 @@ public partial class RealPlugin {
 		return lastAction;
 	}
 
-	public void QueueAction(Context ctx, Trigger t, MutexInformation m, ActionOld a, DateTime when, bool releaseMutex) {
+	public void QueueAction(Context ctx, Trigger? t, MutexInformation? m, ActionOld a, DateTime when, bool releaseMutex) {
 		lock (ActionQueue) // verified
 		{
 			if (!a.RefireRequeue || a.RefireInterrupt) {
-				var ix = from ax in ActionQueue
-					where ax.act.Id == a.Id
-					select ax;
-				if (ix.Count() > 0) {
+				var ix = ActionQueue.Where(ax => ax.act.Id == a.Id).ToArray();
+				if (ix.Length != 0) {
 					if (a.RefireInterrupt) {
 						var rems = new List<QueuedAction>();
 						rems.AddRange(ix);
@@ -227,27 +225,19 @@ public partial class RealPlugin {
 
 	internal Dictionary<string, MutexInformation> mutexes = new();
 
-	internal class MutexTicket : IDisposable {
-		internal Context ctx { get; set; }
-		internal ManualResetEvent ev { get; set; }
-
-		internal MutexTicket(Context c) {
-			ctx = c;
-			ev = new ManualResetEvent(false);
-		}
+	internal class MutexTicket(Context c) : IDisposable {
+		internal Context ctx { get; set; } = c;
+		internal ManualResetEvent ev { get; set; } = new(false);
 
 		public void Dispose() {
-			if (ev != null) {
-				ev.Dispose();
-				ev = null;
-			}
+			ev.Dispose();
 		}
 	}
 
 	public class MutexInformation {
 		private string name { get; set; }
 		internal int refCount { get; set; }
-		internal Context heldBy { get; set; }
+		internal Context? heldBy { get; set; }
 		internal List<MutexTicket> acquireQueue { get; set; }
 
 		internal MutexInformation(string name) {
@@ -294,7 +284,7 @@ public partial class RealPlugin {
 					autoget = true;
 				}
 				if (!autoget) {
-					ownername = heldBy != null ? heldBy.ToString() : null;
+					ownername = heldBy?.ToString();
 				}
 			}
 			while (!m.ev.WaitOne(5000)) {

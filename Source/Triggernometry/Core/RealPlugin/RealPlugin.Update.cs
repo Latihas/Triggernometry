@@ -94,7 +94,7 @@ public partial class RealPlugin {
 		[XmlAttribute] public string Message { get; set; }
 	}
 
-	public void CheckForUpdatesExternal(string manifestUrl = null, bool notifyIfLatest = false, bool forceAutoUpdate = false) {
+	public void CheckForUpdatesExternal(string? manifestUrl = null, bool notifyIfLatest = false, bool forceAutoUpdate = false) {
 	}
 
 	private void UpdatePluginExternal(UpdateManifest um, Version localVersion) {

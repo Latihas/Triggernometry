@@ -9,30 +9,26 @@ namespace Triggernometry.UI.Forms;
 
 public partial class GameConfigForm {
 	public abstract class Option {
-		public Label Lbl; // 左侧的描述标签（如果控件不自带文本描述）
-		public Control Ctrl; // 控件，如 ComboBox
+		public Label? Lbl; // 左侧的描述标签（如果控件不自带文本描述）
+		public Control? Ctrl; // 控件，如 ComboBox
 		private readonly ToolTip _tip = new MyToolTip(); // 鼠标悬停时显示提示文本
 
 		/// <summary> 选项对应的触发器配置字典键名。 </summary>
-		public string ConfigKey { get; set; }
+		public string? ConfigKey { get; set; }
 
 		public bool Enabled {
 			get => Ctrl?.Enabled ?? Lbl?.Enabled ?? true;
 			set {
-				if (Ctrl != null)
-					Ctrl.Enabled = value;
-				if (Lbl != null)
-					Lbl.Enabled = value;
+				Ctrl?.Enabled = value;
+				Lbl?.Enabled = value;
 			}
 		}
 
 		public bool Visible {
 			get => Ctrl?.Visible ?? Lbl?.Visible ?? true;
 			set {
-				if (Ctrl != null)
-					Ctrl.Visible = value;
-				if (Lbl != null)
-					Lbl.Visible = value;
+				Ctrl?.Visible = value;
+				Lbl?.Visible = value;
 			}
 		}
 
@@ -66,7 +62,7 @@ public partial class GameConfigForm {
 				table.SetColumnSpan(Lbl, 2);
 		}
 
-		protected virtual void SetHint(string hint) {
+		protected virtual void SetHint(string? hint) {
 			if (!string.IsNullOrWhiteSpace(hint)) {
 				if (Lbl != null) {
 					_tip.SetToolTip(Lbl, hint);
@@ -103,7 +99,7 @@ public partial class GameConfigForm {
 		/// </summary>
 		/// <param name="text">Label 文本</param>
 		/// <param name="hint">鼠标悬停时显示的提示文本</param>
-		internal OptionLbl(string text, string hint = null) {
+		internal OptionLbl(string text, string? hint = null) {
 			Lbl = new MyLabel { Text = text };
 			Ctrl = null;
 			ConfigKey = null;
@@ -119,7 +115,7 @@ public partial class GameConfigForm {
 	public class OptionTxt : Option {
 		public TextBox Txt => (TextBox)Ctrl;
 
-		public OptionTxt(string desc, string configKey, string defaultText = "", string hint = null) {
+		public OptionTxt(string desc, string configKey, string defaultText = "", string? hint = null) {
 			Lbl = new MyLabel { Text = desc };
 			Ctrl = new MyTextBox { Text = defaultText };
 			Txt.TextChanged += (sender, e) => OnDataChanged();
@@ -136,7 +132,7 @@ public partial class GameConfigForm {
 	public class OptionChk : Option {
 		public CheckBox Chk => (CheckBox)Ctrl;
 
-		public OptionChk(string desc, string configKey, bool defaultChecked = false, string hint = null) {
+		public OptionChk(string desc, string configKey, bool defaultChecked = false, string? hint = null) {
 			Lbl = new MyLabel { Text = desc };
 			Ctrl = new MyCheckBox { Checked = defaultChecked };
 			Chk.CheckedChanged += (sender, e) => OnDataChanged();
@@ -175,7 +171,7 @@ public partial class GameConfigForm {
 		/// <param name="desc">Description of the label (left side).</param>
 		/// <param name="configKey">The key saved into config dictionary.</param>
 		/// <param name="data">BijectDictionary containing the keys and values of the options.</param>
-		public OptionCbx(string desc, string configKey, BijectDictionary<string, string> data, string defaultKey, string hint = null)
+		public OptionCbx(string desc, string configKey, BijectDictionary<string, string> data, string defaultKey, string? hint = null)
 			: this(desc, configKey, data, data.Keys.IndexOf(defaultKey), hint) {
 		}
 
@@ -185,11 +181,11 @@ public partial class GameConfigForm {
 		/// <param name="desc">左侧 label 描述</param>
 		/// <param name="configKey">存储到永久字典变量中的键</param>
 		/// <param name="data">字典键与选项文本描述的双向字典</param>
-		public OptionCbx(string desc, string configKey, BijectDictionary<string, string> data, int defaultIndex = 0, string hint = null) {
+		public OptionCbx(string desc, string configKey, BijectDictionary<string, string> data, int defaultIndex = 0, string? hint = null) {
 			Lbl = new MyLabel { Text = desc };
 			_data = data;
 			Ctrl = new MyComboBox();
-			Cbx.Items.AddRange(data.Values.ToArray());
+			Cbx.Items.AddRange([.. data.Values]);
 			Cbx.SelectedIndex = Cbx.Items.Count == 0 ? -1 :
 				defaultIndex >= 0 && defaultIndex < Cbx.Items.Count ? defaultIndex : 0;
 			Cbx.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -257,14 +253,14 @@ public partial class GameConfigForm {
 	}
 
 	public class OptionCustom : Option {
-		private Func<Control, string> _getter;
-		private Action<Control, string> _setter;
+		private readonly Func<Control, string> _getter;
+		private readonly Action<Control, string> _setter;
 
 		public OptionCustom(
 			string desc, string configKey, Control ctrl,
 			Func<Control, string> getter,
 			Action<Control, string> setter,
-			string defaultData, string hint = null) {
+			string defaultData, string? hint = null) {
 			Lbl = new MyLabel { Text = desc };
 			Ctrl = ctrl;
 			ConfigKey = configKey;

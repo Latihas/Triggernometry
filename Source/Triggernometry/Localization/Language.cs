@@ -11,12 +11,12 @@ public sealed class Language {
 		OutputKey
 	}
 
-	[XmlAttribute] public string LanguageName { get; set; }
-	[XmlAttribute] public MissingHandlingEnum MissingKeyHandling { get; set; }
+	[XmlAttribute] public string LanguageName { get; set; } = "(undefined)";
+	[XmlAttribute] public MissingHandlingEnum MissingKeyHandling { get; set; } = MissingHandlingEnum.DefaultLanguage;
 
-	internal Dictionary<string, string> TranslationsLookup { get; set; }
+	internal Dictionary<string, string> TranslationsLookup { get; set; } = new();
 
-	internal bool IsDefault { get; set; }
+	internal bool IsDefault { get; set; } = true;
 
 	public class TranslationEntry {
 		[XmlAttribute] public string Key { get; set; }
@@ -24,13 +24,6 @@ public sealed class Language {
 	}
 
 	public List<TranslationEntry> Translations = [];
-
-	public Language() {
-		IsDefault = true;
-		LanguageName = "(undefined)";
-		TranslationsLookup = new Dictionary<string, string>();
-		MissingKeyHandling = MissingHandlingEnum.DefaultLanguage;
-	}
 
 	internal void BuildLookup() {
 		foreach (var te in Translations) {
@@ -50,11 +43,11 @@ public sealed class Language {
 		Translations.Sort((a, b) => { return a.Key.CompareTo(b.Key); });
 	}
 
-	public string Lookup(string key) => TranslationsLookup.GetValueOrDefault(key);
+	public string? Lookup(string key) => TranslationsLookup.GetValueOrDefault(key);
 
 	private readonly Dictionary<string, string> _missingTranslations = new();
 
-	public string Translate(string key, string text, params object[] args) {
+	public string Translate(string key, string text, params object?[] args) {
 		if (IsDefault) { TranslationsLookup.TryAdd(key, text); }
 		if (TranslationsLookup.TryGetValue(key, out var data)) {
 			return string.Format(data, args);
@@ -65,16 +58,10 @@ public sealed class Language {
 			//RealPlugin.plug.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, $"Missing translation recorded: \"{key}\" => \"{text}\"");
 		}
 		//end
-		switch (MissingKeyHandling) {
-			case MissingHandlingEnum.DefaultString: {
-				if (TranslationsLookup.TryGetValue("internal/default", out var value)) {
-					return string.Format(value, key);
-				}
-				return string.Format(text, args);
-			}
-			case MissingHandlingEnum.OutputKey:
-				return key;
-		}
+		if (MissingKeyHandling == MissingHandlingEnum.DefaultString) {
+			if (TranslationsLookup.TryGetValue("internal/default", out var value))
+				return string.Format(value, key);
+		} else if (MissingKeyHandling == MissingHandlingEnum.OutputKey) { return key; }
 		return string.Format(text, args);
 	}
 
@@ -82,9 +69,11 @@ public sealed class Language {
 		var sortedKeys = _missingTranslations.Keys.ToList();
 		sortedKeys.Sort();
 
-		return sortedKeys.Select(key => new TranslationEntry {
-			Key = key,
-			Translation = _missingTranslations[key]
-		}).ToList();
+		return [
+			.. sortedKeys.Select(key => new TranslationEntry {
+				Key = key,
+				Translation = _missingTranslations[key]
+			})
+		];
 	}
 }

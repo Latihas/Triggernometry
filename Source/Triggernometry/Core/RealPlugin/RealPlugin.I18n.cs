@@ -26,7 +26,7 @@ public partial class RealPlugin {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchangeok", "Language is now '{0}'",
 				I18n.CurrentLanguage != null ? I18n.CurrentLanguage.LanguageName : "(not set)"
 			));
-			if (cfg != null && I18n.CurrentLanguage != null) 
+			if (cfg != null && I18n.CurrentLanguage != null)
 				cfg.Language = langname == null ? null : I18n.CurrentLanguage.LanguageName;
 		} else {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchangefail", "Couldn't change language from '{0}' to '{1}'",

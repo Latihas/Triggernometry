@@ -4,12 +4,54 @@ namespace Triggernometry.FFXIV;
 
 public enum JobEnum {
 	None = -1,
-        ADV = 0, GLA = 1, PGL = 2, MRD = 3, LNC = 4, ARC = 5, CNJ = 6, THM = 7,
-        CRP = 8, BSM = 9, ARM = 10, GSM = 11, LTW = 12, WVR = 13, ALC = 14, CUL = 15,
-        MIN = 16, BTN = 17, FSH = 18, PLD = 19, MNK = 20, WAR = 21, DRG = 22, BRD = 23,
-        WHM = 24, BLM = 25, ACN = 26, SMN = 27, SCH = 28, ROG = 29, NIN = 30, MCH = 31,
-        DRK = 32, AST = 33, SAM = 34, RDM = 35, BLU = 36, GNB = 37, DNC = 38, RPR = 39,
-        SGE = 40, VPR = 41, PCT = 42, BST = 43, _44 = 44, _45 = 45, _46 = 46, _47 = 47,
+	ADV = 0,
+	GLA = 1,
+	PGL = 2,
+	MRD = 3,
+	LNC = 4,
+	ARC = 5,
+	CNJ = 6,
+	THM = 7,
+	CRP = 8,
+	BSM = 9,
+	ARM = 10,
+	GSM = 11,
+	LTW = 12,
+	WVR = 13,
+	ALC = 14,
+	CUL = 15,
+	MIN = 16,
+	BTN = 17,
+	FSH = 18,
+	PLD = 19,
+	MNK = 20,
+	WAR = 21,
+	DRG = 22,
+	BRD = 23,
+	WHM = 24,
+	BLM = 25,
+	ACN = 26,
+	SMN = 27,
+	SCH = 28,
+	ROG = 29,
+	NIN = 30,
+	MCH = 31,
+	DRK = 32,
+	AST = 33,
+	SAM = 34,
+	RDM = 35,
+	BLU = 36,
+	GNB = 37,
+	DNC = 38,
+	RPR = 39,
+	SGE = 40,
+	VPR = 41,
+	PCT = 42,
+	BST = 43,
+	_44 = 44,
+	_45 = 45,
+	_46 = 46,
+	_47 = 47
 }
 
 public partial class Job {
@@ -60,10 +102,10 @@ public partial class Job {
 	public static Job VPR => GetJob(JobEnum.VPR);
 	public static Job PCT => GetJob(JobEnum.PCT);
 	public static Job BST => GetJob(JobEnum.BST);
-        private static Job _44 => GetJob(JobEnum._44);
-        private static Job _45 => GetJob(JobEnum._45);
-        private static Job _46 => GetJob(JobEnum._46);
-        private static Job _47 => GetJob(JobEnum._47);
+	private static Job _44 => GetJob(JobEnum._44);
+	private static Job _45 => GetJob(JobEnum._45);
+	private static Job _46 => GetJob(JobEnum._46);
+	private static Job _47 => GetJob(JobEnum._47);
 
 	static Job() {
 		_jobs = new List<Job> {
@@ -792,7 +834,7 @@ public partial class Job {
 			},
 			new() {
 				JobType = JobEnum._45,
-                    SubRole = RoleType.PhysicalRanged,
+				SubRole = RoleType.PhysicalRanged,
 				NameCN1 = "玉",
 				NameCN2 = "四五",
 				NameJP1 = "玉",
@@ -806,38 +848,39 @@ public partial class Job {
 				NameKR = "job_45",
 				NameTCN = "job_45"
 			},
-                new Job {
-                    JobType = JobEnum._46,
-                    SubRole = RoleType.None,
-                    NameCN1 = "出",
-                    NameCN2 = "四六",
-                    NameJP1 = "出",
-                    NameTCN1 = "出",
-                    NameTCN2 = "四六",
-                    NameCN = "job_46",
-                    NameDE = "job_46",
-                    NameEN = "job_46",
-                    NameFR = "job_46",
-                    NameJP = "job_46",
-                    NameKR = "job_46",
-                    NameTCN = "job_46",
-                },
-                new Job {
-                    JobType = JobEnum._47,
-                    SubRole = RoleType.None,
-                    NameCN1 = "昆",
-                    NameCN2 = "四七",
-                    NameJP1 = "昆",
-                    NameTCN1 = "昆",
-                    NameTCN2 = "四七",
-                    NameCN = "job_47",
-                    NameDE = "job_47",
-                    NameEN = "job_47",
-                    NameFR = "job_47",
-                    NameJP = "job_47",
-                    NameKR = "job_47",
-                    NameTCN = "job_47",
-                },
+			new() {
+				JobType = JobEnum._46,
+				SubRole = RoleType.None,
+				NameCN1 = "出",
+				NameCN2 = "四六",
+				NameJP1 = "出",
+				NameTCN1 = "出",
+				NameTCN2 = "四六",
+				NameCN = "job_46",
+				NameDE = "job_46",
+				NameEN = "job_46",
+				NameFR = "job_46",
+				NameJP = "job_46",
+				NameKR = "job_46",
+				NameTCN = "job_46"
+			},
+			new() {
+				JobType = JobEnum._47,
+				SubRole = RoleType.None,
+				NameCN1 = "昆",
+				NameCN2 = "四七",
+				NameJP1 = "昆",
+				NameTCN1 = "昆",
+				NameTCN2 = "四七",
+				NameCN = "job_47",
+				NameDE = "job_47",
+				NameEN = "job_47",
+				NameFR = "job_47",
+				NameJP = "job_47",
+				NameKR = "job_47",
+				NameTCN = "job_47"
+			},
+
 			#endregion Other Jobs
 		};
 
@@ -851,9 +894,9 @@ public partial class Job {
 			PLD, GLA, _44, WAR, MRD, DRK, GNB,
 			WHM, CNJ, SCH, AST, SGE,
 			MNK, PGL, DRG, LNC, NIN, ROG, SAM, RPR, VPR, BST,
-                BRD, ARC, MCH, DNC, _45,
+			BRD, ARC, MCH, DNC, _45,
 			BLM, THM, SMN, ACN, RDM, PCT, BLU,
-                _46, _47,
+			_46, _47,
 			CRP, BSM, ARM, GSM, LTW, WVR, ALC, CUL,
 			MIN, BTN, FSH,
 			ADV

@@ -451,10 +451,11 @@ public static class BridgeFFXIV {
 		public override ushort WorldID => (ushort)_entity.WorldID; // uint
 		public override List<Status> Statuses {
 			get {
-				return _entity.NetworkBuffs
-					.Where(rawBuff => (rawBuff?.BuffID ?? 0) != 0)
-					.Select(Status (rawBuff) => new XivStatus(rawBuff, this))
-					.ToList();
+				return [
+					.. _entity.NetworkBuffs
+						.Where(rawBuff => (rawBuff?.BuffID ?? 0) != 0)
+						.Select(Status (rawBuff) => new XivStatus(rawBuff, this))
+				];
 			}
 		}
 		public override bool IsCasting => _entity.IsCasting;

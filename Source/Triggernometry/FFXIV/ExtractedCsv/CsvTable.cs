@@ -44,9 +44,9 @@ public class CsvTable {
 		// 读取整个 CSV 文件
 		var lines = Common.CsvHelper.ReadCsv(filePath);
 		if (lines.Count < 3)
-                throw new InvalidDataException(I18n.Translate("internal/CsvTable/toofewrows", "CSV file {0} has too few rows ({1}) to parse.", filePath, lines.Count));
+			throw new InvalidDataException(I18n.Translate("internal/CsvTable/toofewrows", "CSV file {0} has too few rows ({1}) to parse.", filePath, lines.Count));
 		if (lines[0].Length < 1)
-                throw new InvalidDataException(I18n.Translate("internal/CsvTable/toofewcolumns", "CSV file {0} has too few columns ({1}) to parse.", filePath, lines[0].Length));
+			throw new InvalidDataException(I18n.Translate("internal/CsvTable/toofewcolumns", "CSV file {0} has too few columns ({1}) to parse.", filePath, lines[0].Length));
 
 		// 如果首行是 key,0,1,2,... 的索引行，则跳过
 		var headerLine = 0;
@@ -81,11 +81,11 @@ public class CsvTable {
 		for (var rowIdx = headerLine + 2; rowIdx < lines.Count; rowIdx++) {
 			var row = lines[rowIdx];
 			if (row.Length == 0)
-                    throw new InvalidDataException(I18n.Translate("internal/CsvTable/emptyrow", "CSV file {0}, row {1} is empty and cannot be parsed.", filePath, rowIdx + 1));
+				throw new InvalidDataException(I18n.Translate("internal/CsvTable/emptyrow", "CSV file {0}, row {1} is empty and cannot be parsed.", filePath, rowIdx + 1));
 
 			var key = RowIndexKey.Parse(row[0]); // "1" or "1.0"
 			if (tempTable.ContainsKey(key))
-                    throw new InvalidDataException(I18n.Translate("internal/CsvTable/duplicatekey", "CSV file {0} contains a duplicate key: {1}", filePath, key));
+				throw new InvalidDataException(I18n.Translate("internal/CsvTable/duplicatekey", "CSV file {0} contains a duplicate key: {1}", filePath, key));
 
 			var rowInstance = new CsvRow(this, key, row);
 			tempTable[key] = rowInstance;

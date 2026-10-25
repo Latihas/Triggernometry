@@ -110,7 +110,7 @@ public partial class RealPlugin {
 
 	internal Repository? GetRepositoryById(Guid id) => cfg.RepositoryRoot.Repositories.FirstOrDefault(ix => ix.Id == id);
 
-	internal Trigger? GetTriggerById(Guid id, Repository repo) {
+	internal Trigger? GetTriggerById(Guid id, Repository? repo) {
 		if (id == Guid.Empty) return null;
 		lock (Triggers) {
 			var ix = from ax in Triggers

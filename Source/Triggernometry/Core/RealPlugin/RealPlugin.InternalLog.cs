@@ -39,10 +39,10 @@ public partial class RealPlugin {
 	}
 
 	internal void UnfilteredAddToLog(DebugLevelEnum level, string? msg, Trigger? trig = null)
-		=> UnfilteredAddToLog(level, msg??"", trig, null);
+		=> UnfilteredAddToLog(level, msg ?? "", trig, null);
 
 	internal void UnfilteredAddToLog(DebugLevelEnum level, string? msg, ActionOld? action)
-		=> UnfilteredAddToLog(level, msg??"", action?.ParentTrigger, action);
+		=> UnfilteredAddToLog(level, msg ?? "", action?.ParentTrigger, action);
 
 	internal void UnfilteredAddToLog(DebugLevelEnum level, string msg, Trigger? trig, ActionOld? action) {
 		var dl = "[Triggernometry]: (U)" + msg;
@@ -81,10 +81,10 @@ public partial class RealPlugin {
 	}
 
 	public void FilteredAddToLog(DebugLevelEnum level, string? msg, Trigger? trig = null)
-		=> FilteredAddToLog(level, msg??"", trig, null);
+		=> FilteredAddToLog(level, msg ?? "", trig, null);
 
 	public void FilteredAddToLog(DebugLevelEnum level, string msg, ActionOld? action)
-		=> FilteredAddToLog(level, msg??"", action?.ParentTrigger, action);
+		=> FilteredAddToLog(level, msg ?? "", action?.ParentTrigger, action);
 
 	public void FilteredAddToLog(DebugLevelEnum level, string msg, Trigger? trig, ActionOld? action) {
 		if (cfg != null && level > cfg.DebugLevel) return;

@@ -25,10 +25,10 @@ public sealed class ConditionGroup : ConditionComponent {
 		}
 	}
 
-        [XmlElement(typeof(ConditionGroup))]
-        [XmlElement(typeof(ConditionSingle))]
-        [XmlElement(typeof(ConditionComment))]
-        public List<ConditionComponent> Children { get; set; } = new List<ConditionComponent>();
+	[XmlElement(typeof(ConditionGroup))]
+	[XmlElement(typeof(ConditionSingle))]
+	[XmlElement(typeof(ConditionComment))]
+	public List<ConditionComponent> Children { get; set; } = [];
 
 	public void AddChild(ConditionComponent re) {
 		re.Parent = this;
@@ -65,38 +65,28 @@ public sealed class ConditionGroup : ConditionComponent {
 		return cg;
 	}
 
-        internal static void RebuildParentage(ConditionGroup parentGroup)
-        {
-            foreach (var component in parentGroup.Children)
-            {
-                component.Parent = parentGroup;
-                if (component is ConditionGroup group)
-                {
-                    RebuildParentage(group);
+	internal static void RebuildParentage(ConditionGroup parentGroup) {
+		foreach (var component in parentGroup.Children) {
+			component.Parent = parentGroup;
+			if (component is ConditionGroup group) {
+				RebuildParentage(group);
 			}
 		}
 	}
 
-        internal override bool CheckCondition(Context ctx, Context.LoggerDelegate logger, object o)
-        {
-            // A root containing only notes behaves like an empty condition tree.
-            if (Parent == null && Children.All(cc => cc is ConditionComment))
-            {
+	internal override bool CheckCondition(Context ctx, Context.LoggerDelegate logger, object o) {
+		// A root containing only notes behaves like an empty condition tree.
+		if (Parent == null && Children.All(cc => cc is ConditionComment)) {
 			return true;
 		}
-            switch (Grouping)
-            {
-                case CndGroupingEnum.And:
-                    {
-                        var actives = false;
-                        foreach (var cc in Children)
-                        {
-                            if (cc is ConditionComment) continue;
-                            if (!cc.Enabled)
-                            {
-                                if (Debugger.IsAttached)
-                                {
-                                    Debug.WriteLine("AND: Condition '" + cc + "' not enabled");
+		switch (Grouping) {
+			case CndGroupingEnum.And: {
+				var actives = false;
+				foreach (var cc in Children) {
+					if (cc is ConditionComment) continue;
+					if (!cc.Enabled) {
+						if (Debugger.IsAttached) {
+							Debug.WriteLine("AND: Condition '" + cc + "' not enabled");
 						}
 						continue;
 					}
@@ -116,16 +106,12 @@ public sealed class ConditionGroup : ConditionComponent {
 				}
 			}
 				break;
-                case CndGroupingEnum.Or:
-                    {
-                        foreach (var cc in Children)
-                        {
-                            if (cc is ConditionComment) continue;
-                            if (!cc.Enabled)
-                            {
-                                if (Debugger.IsAttached)
-                                {
-                                    Debug.WriteLine("OR: Condition '" + cc + "' not enabled");
+			case CndGroupingEnum.Or: {
+				foreach (var cc in Children) {
+					if (cc is ConditionComment) continue;
+					if (!cc.Enabled) {
+						if (Debugger.IsAttached) {
+							Debug.WriteLine("OR: Condition '" + cc + "' not enabled");
 						}
 						continue;
 					}
@@ -138,17 +124,13 @@ public sealed class ConditionGroup : ConditionComponent {
 				}
 			}
 				break;
-                case CndGroupingEnum.Xor:
-                    {
-                        var truefound = false;
-                        foreach (var cc in Children)
-                        {
-                            if (cc is ConditionComment) continue;
-                            if (!cc.Enabled)
-                            {
-                                if (Debugger.IsAttached)
-                                {
-                                    Debug.WriteLine("XOR: Condition '" + cc + "' not enabled");
+			case CndGroupingEnum.Xor: {
+				var truefound = false;
+				foreach (var cc in Children) {
+					if (cc is ConditionComment) continue;
+					if (!cc.Enabled) {
+						if (Debugger.IsAttached) {
+							Debug.WriteLine("XOR: Condition '" + cc + "' not enabled");
 						}
 						continue;
 					}
@@ -170,16 +152,12 @@ public sealed class ConditionGroup : ConditionComponent {
 				}
 				return truefound;
 			}
-                case CndGroupingEnum.Not:
-                    {
-                        foreach (var cc in Children)
-                        {
-                            if (cc is ConditionComment) continue;
-                            if (!cc.Enabled)
-                            {
-                                if (Debugger.IsAttached)
-                                {
-                                    Debug.WriteLine("NOT: Condition '" + cc + "' not enabled");
+			case CndGroupingEnum.Not: {
+				foreach (var cc in Children) {
+					if (cc is ConditionComment) continue;
+					if (!cc.Enabled) {
+						if (Debugger.IsAttached) {
+							Debug.WriteLine("NOT: Condition '" + cc + "' not enabled");
 						}
 						continue;
 					}

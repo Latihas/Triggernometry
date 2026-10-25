@@ -56,7 +56,7 @@ public class ScarboroughImage(Triggernometry.UI.Scarborough own) : ScarboroughIt
 		return (byte[])converter.ConvertTo(img, typeof(byte[]));
 	}
 
-	internal GifData GetGifData(byte[] data) {
+	internal GifData? GetGifData(byte[] data) {
 		if (data[0] == 71 || data[1] == 73 || data[2] == 70) {
 			var g = new GifData {
 				BackgroundColor = data[11]

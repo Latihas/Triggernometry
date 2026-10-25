@@ -122,7 +122,7 @@ public class ActionDiskOperation : ActionBase {
 		}
 	}
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 
@@ -172,30 +172,26 @@ public class ActionDiskOperation : ActionBase {
 						data.Add(x);
 					}
 				}
-					string vtchanger;
-                        if (ctx.Trigger != null)
-                        {
-                            vtchanger = I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe());
-                        }
-                        else
-                        {
-                            vtchanger = I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
-                        }
-                        // Build a replacement so missing CSV cells cannot retain old values.
-                        var vt = new VariableTable();
-					vt.Resize(datawidth, data.Count);
-					var y = 1;
-					foreach (var row in data) {
-						for (var x = 0; x < row.Length; x++) {
-							vt.Set(x + 1, y, row[x], vtchanger);
-						}
-						y++;
+				string vtchanger;
+				if (ctx.Trigger != null) {
+					vtchanger = I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe());
+				} else {
+					vtchanger = I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
+				}
+				// Build a replacement so missing CSV cells cannot retain old values.
+				var vt = new VariableTable();
+				vt.Resize(datawidth, data.Count);
+				var y = 1;
+				foreach (var row in data) {
+					for (var x = 0; x < row.Length; x++) {
+						vt.Set(x + 1, y, row[x], vtchanger);
 					}
-                        vt.LastChanged = DateTime.Now;
-                        vt.LastChanger = vtchanger;
-                        lock (vs.Table)
-                        {
-                            vs.Table[varname] = vt;
+					y++;
+				}
+				vt.LastChanged = DateTime.Now;
+				vt.LastChanger = vtchanger;
+				lock (vs.Table) {
+					vs.Table[varname] = vt;
 				}
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/filetableset",
 					"{2}Table variable ({0}) value read from CSV file ({1})", varname, filename, persist));

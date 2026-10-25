@@ -611,7 +611,7 @@ public partial class MathParser {
 	/// <param name="unaryOperation"> The actual math function. Null if this operator is not unary. </param>
 	/// <param name="binaryOperation"> The actual math function. Null if this operator is not binary. </param>
 	private static void AddOperator(string op, bool isRightAssociative, int arity,
-		Func<double, double> unaryOperation = null, Func<double, double, double> binaryOperation = null) {
+		Func<double, double>? unaryOperation = null, Func<double, double, double>? binaryOperation = null) {
 		if (arity != 0) // add the actually used operators (for calculation)
 		{
 			OperatorOrder.Add(op);
@@ -826,7 +826,7 @@ public partial class MathParser {
 					}
 
 					// finally, passing the arguments to the given function
-					tmpResult = LocalFunctions[functionName](args.ToArray());
+					tmpResult = LocalFunctions[functionName]([.. args]);
 				} else {
 					// but if we only have one argument, then we pass it directly to the function
 					tmpResult = LocalFunctions[functionName]([ParseBasicMathExpression(exprTokens, originalTokens)]);
@@ -847,7 +847,7 @@ public partial class MathParser {
 					}
 
 					// finally, passing the arguments to the given function
-					tmpResult = LocalStringFunctions[functionName](sargs.ToArray());
+					tmpResult = LocalStringFunctions[functionName]([.. sargs]);
 				} else {
 					// but if we only have one argument, then we pass it directly to the function
 					var argExpr = string.Join("", exprTokens);

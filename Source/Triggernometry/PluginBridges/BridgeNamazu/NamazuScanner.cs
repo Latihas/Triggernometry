@@ -31,8 +31,8 @@ public class NamazuScanner(SigScanner scanner) {
 	public int DataSectionSize => _scanner.DataSectionSize;
 
 	// Scanning methods
-	public T ScanText<T>(string pattern, Func<IntPtr, T> visitor, string sigName = null)
-		=> _scanner.ScanText<T>(pattern, visitor, sigName);
+	public T ScanText<T>(string pattern, Func<IntPtr, T> visitor, string? sigName = null)
+		=> _scanner.ScanText(pattern, visitor, sigName);
 
 	/// <summary>
 	///     从内存中扫描指定的内存签名，返回唯一匹配的地址，否则报错。<br /><br />
@@ -43,7 +43,7 @@ public class NamazuScanner(SigScanner scanner) {
 	///     <c> E8 * * * * 48 83 C4 ? E9 ? ? ? ? ... </c> <br />
 	///     相对寻址计算方式为 * * * * 后的地址 + 这四字节对应的 int 偏移量。<br /><br />
 	/// </summary>
-	public IntPtr ScanText(string pattern, string name = null)
+	public IntPtr ScanText(string pattern, string? name = null)
 		=> _scanner.ScanText(pattern, name);
 
 	public List<IntPtr> FindPattern(List<int> pattern)

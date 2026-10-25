@@ -114,17 +114,16 @@ public class Repository {
 
 	internal Folder Root { get; set; } = new();
 
-        private bool isContentLoaded;
+	private bool isContentLoaded;
 
-        private readonly Lock _logLock = new();
-        private ConcurrentQueue<string> UpdateLog { get; set; } = [];
-        public string[] UpdateLogSnapshot()
-        {
-            lock (_logLock)
-            {
-                return UpdateLog.ToArray();
-            }
-        }
+	private readonly Lock _logLock = new();
+	private ConcurrentQueue<string> UpdateLog { get; set; } = [];
+
+	public string[] UpdateLogSnapshot() {
+		lock (_logLock) {
+			return [.. UpdateLog];
+		}
+	}
 
 
 	/// <summary>
@@ -148,10 +147,9 @@ public class Repository {
 	///     - Clear UI tree node <br />
 	///     Ensures the repository starts with a clean state for the next import.
 	/// </summary>
-        public void ClearContent()
-        {
-            isContentLoaded = false;
-            Instance.RemoveFolderRuntimeContent(Root);
+	public void ClearContent() {
+		isContentLoaded = false;
+		Instance.RemoveFolderRuntimeContent(Root);
 		Root.Folders.Clear();
 		Root.Triggers.Clear();
 		ReadmeTriggers.Clear();
@@ -282,20 +280,17 @@ public class Repository {
 		}
 
 		// Apply audio routing policy
-            switch (AudioOutput)
-            {
-                case AudioOutputEnum.AlwaysOverride:
-                case AudioOutputEnum.NeverOverride:
-                    {
-                        // None restores the configured global route instead of the action's override.
-                        var routing = AudioOutput == AudioOutputEnum.AlwaysOverride
-                            ? Configuration.AudioRoutingMethodEnum.Triggernometry
-                            : Configuration.AudioRoutingMethodEnum.None;
-                        foreach (var a in ActionOld.RecursiveGetActions(t.Actions))
-                        {
-                            a._SoundRouting = routing;
-                            a._TTSRouting = routing;
-                        }
+		switch (AudioOutput) {
+			case AudioOutputEnum.AlwaysOverride:
+			case AudioOutputEnum.NeverOverride: {
+				// None restores the configured global route instead of the action's override.
+				var routing = AudioOutput == AudioOutputEnum.AlwaysOverride
+					? Configuration.AudioRoutingMethodEnum.Triggernometry
+					: Configuration.AudioRoutingMethodEnum.None;
+				foreach (var a in ActionOld.RecursiveGetActions(t.Actions)) {
+					a._SoundRouting = routing;
+					a._TTSRouting = routing;
+				}
 			}
 				break;
 		}
@@ -407,13 +402,10 @@ public class Repository {
 
 		// --- Step 3: cache expiry check ---
 		DateTime cacheLimit;
-            try
-            {
-                // Cache age starts at the local download, not the remote file's modification.
-                cacheLimit = File.GetLastWriteTime(GetBackupFileName()).AddMinutes(Instance.cfg.CacheRepoExpiry);
-            }
-            catch
-            {
+		try {
+			// Cache age starts at the local download, not the remote file's modification.
+			cacheLimit = File.GetLastWriteTime(GetBackupFileName()).AddMinutes(Instance.cfg.CacheRepoExpiry);
+		} catch {
 			cacheLimit = DateTime.MinValue;
 		}
 		var cacheExpired = cacheLimit < DateTime.Now;
@@ -530,11 +522,9 @@ public class Repository {
 			shouldUpdate = ShouldUpdate(remoteLength, remoteLastModified);
 		}
 
-            // Backups initialize an unloaded repository; unchanged live content stays in place.
-            if (!shouldUpdate && KeepLocalBackup && !isContentLoaded)
-            {
-                if (!TryLoadLocalBackup())
-                {
+		// Backups initialize an unloaded repository; unchanged live content stays in place.
+		if (!shouldUpdate && KeepLocalBackup && !isContentLoaded) {
+			if (!TryLoadLocalBackup()) {
 				// but if the local backup fails to load, still need to update
 				shouldUpdate = true;
 			}
@@ -549,9 +539,8 @@ public class Repository {
 				LocalLastModified = remoteLastModified;
 			}
 
-                // A failed download must not replace working content with a backup either.
-                if (!updated && KeepLocalBackup && !triedLoadBackup && !isContentLoaded)
-                {
+			// A failed download must not replace working content with a backup either.
+			if (!updated && KeepLocalBackup && !triedLoadBackup && !isContentLoaded) {
 				_ = TryLoadLocalBackup();
 			}
 		}
@@ -579,7 +568,7 @@ public class Repository {
 
 	/// <summary>
 	///     Attempt to load the repository from its local backup file. <br />
-        /// Existing content is replaced only after the backup has been parsed successfully.
+	///     Existing content is replaced only after the backup has been parsed successfully.
 	/// </summary>
 	private bool TryLoadLocalBackup() {
 		try {

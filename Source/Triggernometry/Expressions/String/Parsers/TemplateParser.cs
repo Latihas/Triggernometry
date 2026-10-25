@@ -33,19 +33,17 @@ internal static class TemplateParser {
 		if (m.NumIndex == null) // "${...}"
 		{
 			result = ParseSingleTemplate(m.Expression ?? "", ctx, isNumeric);
-                if (result == null)
-                {
-                    var msg = I18n.Translate("internal/TemplateParser/unknowntemplate",
-                        "Text template {0} is not a recognized expression, and no regex capture group with this name exists.", m.RawExpression);
+			if (result == null) {
+				var msg = I18n.Translate("internal/TemplateParser/unknowntemplate",
+					"Text template {0} is not a recognized expression, and no regex capture group with this name exists.", m.RawExpression);
 				throw new FormatException(msg);
 			}
 		} else // "$n"
 		{
 			result = ctx?.GetNumGroup(m.NumIndex.Value);
-                if (result == null && ctx?.Trigger != null)
-                {
-                    var msg = I18n.Translate("internal/TemplateParser/capturegroupoutofrange",
-                        "Regex capture group index {0} is out of range.\nTrigger: {1}", m.RawExpression, ctx.Trigger?.LogName ?? "(null)");
+			if (result == null && ctx?.Trigger != null) {
+				var msg = I18n.Translate("internal/TemplateParser/capturegroupoutofrange",
+					"Regex capture group index {0} is out of range.\nTrigger: {1}", m.RawExpression, ctx.Trigger?.LogName ?? "(null)");
 				ctx.Plugin?.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, msg, ctx.Trigger);
 			}
 		}

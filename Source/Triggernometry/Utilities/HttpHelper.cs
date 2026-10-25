@@ -68,7 +68,7 @@ public static class HttpHelper {
 	///     If backupPath is null, no backup is created.
 	/// </summary>
 	/// <exception cref="OperationCanceledException">
-	///     Thrown when the provided <paramref name="ct" /> was cancelled by the
+	///     Thrown when the provided <paramref /> was cancelled by the
 	///     caller.
 	/// </exception>
 	/// <exception cref="TimeoutException"> Thrown when the HTTP request was cancelled due to timeout. </exception>

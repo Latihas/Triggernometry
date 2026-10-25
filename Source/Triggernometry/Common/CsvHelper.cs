@@ -37,9 +37,8 @@ public static class CsvHelper {
 				// 后续行：按固定列数解析
 				arr = ParseLine(logicalLine, expected, ref sb);
 
-                        if (arr.Length != expected)
-                        {
-                            throw new InvalidDataException(I18n.Translate("internal/CsvHelper/inconsistentcolumns", "CSV {0}, row {1}: expected {2} columns but found {3}.", filePath, row, expected, arr.Length));
+				if (arr.Length != expected) {
+					throw new InvalidDataException(I18n.Translate("internal/CsvHelper/inconsistentcolumns", "CSV {0}, row {1}: expected {2} columns but found {3}.", filePath, row, expected, arr.Length));
 				}
 			}
 
@@ -123,7 +122,7 @@ public static class CsvHelper {
 		}
 
 		list.Add(new string(sb, 0, sbLen));
-		return list.ToArray();
+		return [.. list];
 	}
 
 	// -----------------------------------------

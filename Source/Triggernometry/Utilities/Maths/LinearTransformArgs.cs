@@ -72,7 +72,7 @@ public sealed class LinearTransformArgs {
 
 	public Vector3 TransformAngle3D(Vector3 angle3D) {
 		if (IsScalingMode)
-                throw new InvalidOperationException(I18n.Translate("internal/LinearTransformArgs/unsupported3dscale", "TransformAngle3D does not support scaling mode."));
+			throw new InvalidOperationException(I18n.Translate("internal/LinearTransformArgs/unsupported3dscale", "TransformAngle3D does not support scaling mode."));
 
 		var theta = angle3D.X;
 
@@ -89,7 +89,7 @@ public sealed class LinearTransformArgs {
 
 	public float TransformAngle(float θ) {
 		if (IsScalingMode)
-                throw new InvalidOperationException(I18n.Translate("internal/LinearTransformArgs/unsupportedscale", "TransformAngle does not support scaling mode."));
+			throw new InvalidOperationException(I18n.Translate("internal/LinearTransformArgs/unsupportedscale", "TransformAngle does not support scaling mode."));
 
 		if (!KeepX)
 			θ *= -1;

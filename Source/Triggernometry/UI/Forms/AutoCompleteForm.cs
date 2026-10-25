@@ -73,7 +73,7 @@ public partial class AutoCompleteForm : Form {
 			hadold = true;
 		}
 		listBox1.Items.Clear();
-		listBox1.Items.AddRange(strs.ToArray());
+		listBox1.Items.AddRange([.. strs]);
 		if (hadold) {
 			var i = 0;
 			foreach (var s in strs) {

@@ -22,7 +22,7 @@ public abstract class XIVCoord {
 	///     · 正东（顺时针旋转 90 度）= pi/2。
 	/// </summary>
 	/// <param str="theta">将初始相对坐标系的正北（-pi）旋转到的方向角度。</param>
-	public abstract XIVCoord RotateTo(double θ);
+	public abstract XIVCoord RotateTo(double theta);
 
 	public abstract XIVCoord MoveTo(double dx, double dy, double dz);
 	public XIVCoord MoveTo(XIVCoord center) => this + center;
@@ -87,14 +87,14 @@ public abstract class XIVCoord {
 		RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
 	/// <summary>
-	/// 将直角坐标、极坐标及离散方向坐标解析并叠加。<br/><br/>
-	/// 例如：<br/>
-	/// 10, -10, 0<br/>
-	/// polar 20, -45°, 0<br/>
-	/// 100, 100, 0 polardirN4 10, 2（从给定点向右下偏移 10）<br/>
-	/// polardir8 10, 1（按八方向中的第 1 个方向偏移 10）<br/><br/>
-	/// 各组坐标可使用 plus、minus、polar、minuspolar、polardirN? 等关键字连接。
-	/// polardirN? 与 polardir? 的方向规则一致，但序号增加 0.5，序号以 0 为起点。
+	///     将直角坐标、极坐标及离散方向坐标解析并叠加。<br /><br />
+	///     例如：<br />
+	///     10, -10, 0<br />
+	///     polar 20, -45°, 0<br />
+	///     100, 100, 0 polardirN4 10, 2（从给定点向右下偏移 10）<br />
+	///     polardir8 10, 1（按八方向中的第 1 个方向偏移 10）<br /><br />
+	///     各组坐标可使用 plus、minus、polar、minuspolar、polardirN? 等关键字连接。
+	///     polardirN? 与 polardir? 的方向规则一致，但序号增加 0.5，序号以 0 为起点。
 	/// </summary>
 	public static XIVCoord ParseRawData(string rawCoords) {
 		// 例：x, y, z plus x2, y2 minus x3, y3, z3 polar r, θ polardirN4 r2, index2

@@ -42,18 +42,18 @@ public static class MinimumMatchHelper {
 		if (src == null) throw new ArgumentNullException(nameof(src));
 		if (tgt == null) throw new ArgumentNullException(nameof(tgt));
 		if (costSelector == null) throw new ArgumentNullException(nameof(costSelector));
-            if (src.Length != tgt.Length) throw new ArgumentException(I18n.Translate("internal/MinimumMatchHelper/lengthmismatch", "src and tgt must have the same length."));
+		if (src.Length != tgt.Length) throw new ArgumentException(I18n.Translate("internal/MinimumMatchHelper/lengthmismatch", "src and tgt must have the same length."));
 
-            var n = src.Length;
-            if (n == 0) return (new int[0], 0);
-            if (n > 30) throw new ArgumentOutOfRangeException(nameof(src), I18n.Translate("internal/MinimumMatchHelper/toomanyelements", "Too many elements; at most 30 are supported."));
+		var n = src.Length;
+		if (n == 0) return ([], 0);
+		if (n > 30) throw new ArgumentOutOfRangeException(nameof(src), I18n.Translate("internal/MinimumMatchHelper/toomanyelements", "Too many elements; at most 30 are supported."));
 
 		var cost = new double[n, n];
 		for (var i = 0; i < n; i++) {
 			for (var j = 0; j < n; j++) {
 				var value = costSelector(src[i], tgt[j]);
 				if (double.IsNaN(value) || double.IsInfinity(value))
-                        throw new ArgumentException(I18n.Translate("internal/MinimumMatchHelper/invalidcost", "Pair ({0}, {1}) returned an invalid value: {2}.", i, j, value));
+					throw new ArgumentException(I18n.Translate("internal/MinimumMatchHelper/invalidcost", "Pair ({0}, {1}) returned an invalid value: {2}.", i, j, value));
 
 				cost[i, j] = value;
 			}
@@ -106,7 +106,7 @@ public static class MinimumMatchHelper {
 		for (var tgtIndex = n - 1; tgtIndex >= 0; tgtIndex--) {
 			var srcIndex = prevChoice[curMask];
 			if (srcIndex < 0)
-                    throw new InvalidOperationException(I18n.Translate("internal/MinimumMatchHelper/reconstructionfailed", "Could not reconstruct the complete matching result."));
+				throw new InvalidOperationException(I18n.Translate("internal/MinimumMatchHelper/reconstructionfailed", "Could not reconstruct the complete matching result."));
 
 			matchByTgt[tgtIndex] = srcIndex;
 			curMask = prevMask[curMask];

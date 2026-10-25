@@ -43,7 +43,7 @@ public class Scene : IDisposable {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Scene and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Scene scene) {
 			return scene.Device.Equals(Device);
 		}

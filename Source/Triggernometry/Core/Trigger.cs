@@ -585,9 +585,9 @@ public class Trigger {
 	}
 
 	private List<RealPlugin.QueuedAction> GetSelfQueuedActions(Context ctx)
-		=> ctx.Plugin.ActionQueue.Where(qa => qa.ctx.Trigger.Id == Id).ToList();
+		=> [.. ctx.Plugin.ActionQueue.Where(qa => qa.ctx.Trigger.Id == Id)];
 
-	public void QueueActions(Context ctx, DateTime curtime, RealPlugin.MutexInformation mtx) {
+	public void QueueActions(Context ctx, DateTime curtime, RealPlugin.MutexInformation? mtx) {
 		//System.Diagnostics.Debug.WriteLine("### queuing actions for " + ctx.ToString());
 		if (RealPlugin.Instance.QueueActions(ctx, curtime, Actions, Sequential, mtx, TriggerContextLogger) == null)
 			mtx?.Release(ctx);

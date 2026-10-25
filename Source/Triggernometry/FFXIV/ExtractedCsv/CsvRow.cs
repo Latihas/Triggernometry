@@ -52,7 +52,7 @@ public class CsvRow {
 			throw new KeyNotFoundException(I18n.Translate("internal/CsvRow/columnnotfound", "Column '{0}' was not found.", key));
 
 		if (colIndex < 0 || colIndex >= Fields.Count)
-                throw new IndexOutOfRangeException(I18n.Translate("internal/CsvRow/indexoutofrange", "Column index {0} is out of range.", colIndex));
+			throw new IndexOutOfRangeException(I18n.Translate("internal/CsvRow/indexoutofrange", "Column index {0} is out of range.", colIndex));
 
 		return Fields[colIndex];
 	}
@@ -62,7 +62,7 @@ public class CsvRow {
 	/// </summary>
 	public string Get(int colIndex) {
 		if (colIndex < 0 || colIndex >= Fields.Count)
-                throw new IndexOutOfRangeException(I18n.Translate("internal/CsvRow/indexoutofrange", "Column index {0} is out of range.", colIndex));
+			throw new IndexOutOfRangeException(I18n.Translate("internal/CsvRow/indexoutofrange", "Column index {0} is out of range.", colIndex));
 
 		return Fields[colIndex];
 	}
@@ -98,7 +98,7 @@ public class CsvRow {
 				BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
 				null,
 				Type.EmptyTypes,
-                    null) ?? throw new Exception(I18n.Translate("internal/CsvRow/missingconstructor", "CsvRow subclass {0} must have a parameterless constructor.", type.Name));
+				null) ?? throw new Exception(I18n.Translate("internal/CsvRow/missingconstructor", "CsvRow subclass {0} must have a parameterless constructor.", type.Name));
 
 			// 参数 row
 			var pRow = Expression.Parameter(typeof(CsvRow), "row");
@@ -115,7 +115,7 @@ public class CsvRow {
 			// 找到 CsvRow.CopyBaseFrom(CsvRow) 方法
 			var csvRowType = typeof(CsvRow);
 			var copyMethod = csvRowType.GetMethod("CopyBaseFrom", BindingFlags.Instance | BindingFlags.NonPublic)
-                    ?? throw new Exception(I18n.Translate("internal/CsvRow/missingcopymethod", "Method CsvRow.CopyBaseFrom(CsvRow) was not found."));
+			                 ?? throw new Exception(I18n.Translate("internal/CsvRow/missingcopymethod", "Method CsvRow.CopyBaseFrom(CsvRow) was not found."));
 
 			// ((CsvRow)obj).CopyBaseFrom(row);
 			var callCopyBase = Expression.Call(

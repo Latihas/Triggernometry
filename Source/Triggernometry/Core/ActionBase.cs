@@ -567,16 +567,16 @@ public abstract class ActionBase {
 		}
 		if (Asynchronous) {
 			var ct = ctx.Plugin.GetCancellationToken();
-			_ =  Task.Run(() => {
+			_ = Task.Run(() => {
 				ct.ThrowIfCancellationRequested();
 				AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
 				ExecuteImplementation(ai);
-				ai?.ActionFinished();
+				ai.ActionFinished();
 			}, ct);
 		} else {
 			AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
 			ExecuteImplementation(ai);
-			ai?.ActionFinished();
+			ai.ActionFinished();
 		}
 		LastExecutionResult = true;
 	}

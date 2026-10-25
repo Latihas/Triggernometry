@@ -130,10 +130,10 @@ public abstract class ModuleBase {
 		if (paramTypes.Count >= 17)
 			throw new NotSupportedException("不支持 17 个或以上参数的方法");
 		if (method.ReturnType == typeof(void)) {
-			return Expression.GetActionType(paramTypes.ToArray());
+			return Expression.GetActionType([.. paramTypes]);
 		}
 		paramTypes.Add(method.ReturnType);
-		return Expression.GetFuncType(paramTypes.ToArray());
+		return Expression.GetFuncType([.. paramTypes]);
 	}
 
 	public static T GetConfigOrSetDefault<T>(string key, T defaultValue) {
@@ -147,10 +147,7 @@ public abstract class ModuleBase {
 
 	public static T? GetConfig<T>(string key) where T : struct {
 		var cfg = GetConfigDict();
-		if (cfg.Values.TryGetValue(key, out var rawValue)) {
-			return rawValue.ToString().ParseData<T>();
-		}
-		return null;
+		return cfg.Values.TryGetValue(key, out var rawValue) ? rawValue.ToString()?.ParseData<T>() : null;
 	}
 
 	public static void SetConfig<T>(string key, T data) where T : struct {
@@ -169,27 +166,16 @@ public abstract class ModuleBase {
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public abstract class MethodRegistrationAttribute : Attribute {
+public abstract class MethodRegistrationAttribute(string name, string? tag = null) : Attribute {
 	/// <summary>
 	///     脚本系统的标签，用于分组或筛选
 	/// </summary>
-	public string Tag { get; }
-	public string Name { get; }
-
-	public MethodRegistrationAttribute(string name, string tag = null) {
-		Name = name;
-		Tag = tag;
-	}
+	public string? Tag { get; } = tag;
+	public string Name { get; } = name;
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class CallbackMethodAttribute : MethodRegistrationAttribute {
-	public CallbackMethodAttribute(string name, string tag = null) : base(name, tag) {
-	}
-}
+public class CallbackMethodAttribute(string name, string? tag = null) : MethodRegistrationAttribute(name, tag);
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class ScriptingMethodAttribute : MethodRegistrationAttribute {
-	public ScriptingMethodAttribute(string name, string tag = null) : base(name, tag) {
-	}
-}
+public class ScriptingMethodAttribute(string name, string? tag = null) : MethodRegistrationAttribute(name, tag);

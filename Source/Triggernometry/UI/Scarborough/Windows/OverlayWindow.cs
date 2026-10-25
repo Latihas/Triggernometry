@@ -576,7 +576,7 @@ public class OverlayWindow : IDisposable {
 	///     <see langword="true" /> if <paramref name="obj" /> is a OverlayWindow and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is OverlayWindow value) {
 			return value.IsInitialized == IsInitialized
 			       && value.Handle == Handle;

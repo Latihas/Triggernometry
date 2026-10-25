@@ -8,14 +8,14 @@ namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 internal enum CoordArgKind {
 	Fixed,
 	EntityId,
-	CoordinateSelector,
+	CoordinateSelector
 }
 
 internal enum EntitySelectMode {
 	Direct,
 	Target,
 	Near,
-	Far,
+	Far
 }
 
 internal enum EntitySelectType {
@@ -24,12 +24,12 @@ internal enum EntitySelectType {
 	Healer,
 	NonTank,
 	DPS,
-	Enemy,
+	Enemy
 }
 
 internal sealed class DynamicCoordArg {
 	// 只识别位于整个表达式末尾的选择器，避免将坐标中的小数点当作分隔符。
-	private static readonly Regex EntitySelectorRegex = new Regex(
+	private static readonly Regex EntitySelectorRegex = new(
 		@"\.\s*(?:(?<target>Target)|(?<order>Near|Far)\s*(?<type>NonTank|Player|Tank|Healer|DPS|Enemy)\s*(?<index>\d+))$",
 		RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 	public CoordArgKind Kind { get; private set; }
@@ -78,7 +78,7 @@ internal sealed class DynamicCoordArg {
 
 		return new DynamicCoordArg {
 			Kind = CoordArgKind.CoordinateSelector,
-			FixedCoord = coord,
+			FixedCoord = coord
 		};
 	}
 
@@ -157,7 +157,7 @@ internal sealed class DynamicCoordArg {
 			SelectIndex = SelectIndex,
 			OverrideX = OverrideX,
 			OverrideY = OverrideY,
-			OverrideZ = OverrideZ,
+			OverrideZ = OverrideZ
 		};
 	}
 

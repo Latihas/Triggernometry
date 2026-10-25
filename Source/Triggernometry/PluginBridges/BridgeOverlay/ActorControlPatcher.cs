@@ -36,7 +36,7 @@ public static class ActorControlPatcher {
 			for (var i = 0; i < toAdd.Count; i++) {
 				newArray.SetValue(toAdd[i], original.Length + i);
 			}
-			LineActorControlExtra.AllowedActorControlCategories = newArray.Cast<Server_ActorControlCategory>().ToArray();
+			LineActorControlExtra.AllowedActorControlCategories = [.. newArray.Cast<Server_ActorControlCategory>()];
 			// field.SetValue(null, newArray);
 
 			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Info,

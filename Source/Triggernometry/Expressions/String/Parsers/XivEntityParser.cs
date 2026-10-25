@@ -32,9 +32,9 @@ internal static class XivEntityParser {
 
 		if (isParty && (expr.Index == "1" || expr.Index == Entity.MyName)) {
 			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning,
-                    I18n.Translate("internal/XivEntityParser/deprecatedselfquery",
-                        "Deprecated expression detected: {0}.\nUse ${{_me.Property}} instead of ${{_ffxivparty[1].Property}} or ${{_ffxivparty[${{_ffxivplayer}}].Property}} to query your own properties.\nTrigger: {1}",
-                        expr.RawExpression, ctx?.Trigger?.FullPath ?? "null"),
+				I18n.Translate("internal/XivEntityParser/deprecatedselfquery",
+					"Deprecated expression detected: {0}.\nUse ${{_me.Property}} instead of ${{_ffxivparty[1].Property}} or ${{_ffxivparty[${{_ffxivplayer}}].Property}} to query your own properties.\nTrigger: {1}",
+					expr.RawExpression, ctx?.Trigger?.FullPath ?? "null"),
 				ctx?.Trigger);
 		}
 

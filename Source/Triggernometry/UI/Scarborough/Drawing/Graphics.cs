@@ -1945,7 +1945,7 @@ public class Graphics : IDisposable {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Graphics and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Graphics gfx) {
 			return gfx.WindowHandle == WindowHandle
 			       && gfx.IsInitialized == IsInitialized

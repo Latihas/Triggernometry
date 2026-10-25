@@ -11,8 +11,8 @@ internal static class DictEvaluator {
 	internal static Func<VariableDictionary, string> BuildEvaluator(IndexMemberExpression expr) {
 		// invalid (only name)
 		if (expr.Indexes.Length == 0 && !expr.Member.HasValue)
-                throw new Exception(I18n.Translate("internal/DictEvaluator/indexorpropertyrequired",
-                    "Dictionary variable must include an index or property in expression '{0}'.", expr.RawExpression));
+			throw new Exception(I18n.Translate("internal/DictEvaluator/indexorpropertyrequired",
+				"Dictionary variable must include an index or property in expression '{0}'.", expr.RawExpression));
 
 		// dvar:Name[Key]
 		if (expr.Indexes.Length > 0) {
@@ -74,8 +74,8 @@ internal static class DictEvaluator {
 
 				return vd => vd.Values.TryGetValue(key, out var val)
 					? val.ToString()
-                            : defaultValue ?? throw new Exception(I18n.Translate("internal/DictEvaluator/keynotfound",
-                                "Key '{0}' not found in dictionary variable '{1}'.", key, expr.Name));
+					: defaultValue ?? throw new Exception(I18n.Translate("internal/DictEvaluator/keynotfound",
+						"Key '{0}' not found in dictionary variable '{1}'.", key, expr.Name));
 			}
 
 			case "keyof":
@@ -157,8 +157,8 @@ internal static class DictEvaluator {
 			}
 
 			default:
-                    throw new Exception(I18n.Translate("internal/DictEvaluator/unknownmethod",
-                        "Unknown dict method '{0}' in expression '{1}'.", methodName, expr.RawExpression));
+				throw new Exception(I18n.Translate("internal/DictEvaluator/unknownmethod",
+					"Unknown dict method '{0}' in expression '{1}'.", methodName, expr.RawExpression));
 		}
 	}
 }

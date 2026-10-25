@@ -857,16 +857,17 @@ public class ActionVariableTable : ActionBase {
 					LastChanged = DateTime.Now
 				};
 				var headerRow = new VariableTable.VariableTableRow {
-					Values = propNames.Select(prop => (Variable)new VariableScalar(prop)).ToList()
+					Values = [.. propNames.Select(prop => (Variable)new VariableScalar(prop))]
 				};
 				vt.Rows.Add(headerRow);
 
 				foreach (var entity in entities) {
 					if (entity.ID == 0) continue;
 					var row = new VariableTable.VariableTableRow {
-						Values = propNames.Select(prop => XivEntityParser.EvaluateEntityMembers(entity, prop))
-							.Select(result => (Variable)new VariableScalar(result))
-							.ToList()
+						Values = [
+							.. propNames.Select(prop => XivEntityParser.EvaluateEntityMembers(entity, prop))
+								.Select(result => (Variable)new VariableScalar(result))
+						]
 					};
 					vt.Rows.Add(row);
 				}

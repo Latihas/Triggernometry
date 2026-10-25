@@ -23,14 +23,14 @@ public readonly struct MemberExpression {
 	///     · Empty array: parentheses present but no arguments: Name() <br />
 	///     · Non-empty array: arguments parsed from parentheses: Name(args)
 	/// </summary>
-	public readonly string[] _args;
+	public readonly string[]? _args;
 
 	/// <summary>
 	///     Get the argument parsing result, or an empty array if no arguments were given.
 	/// </summary>
 	public string[] Args => _args ?? [];
 
-	private readonly string _rawExpression;
+	private readonly string? _rawExpression;
 
 	/// <summary>
 	///     Get the original expression. Reconstructed if the raw expression has not been provided.
@@ -50,7 +50,7 @@ public readonly struct MemberExpression {
 	/// <summary>
 	///     Creates an instance directly from the given data. Name should not be null.
 	/// </summary>
-	public MemberExpression(string name, string[] args, string rawExpression = null) {
+	public MemberExpression(string name, string[]? args, string? rawExpression = null) {
 		Name = name ?? throw new ArgumentNullException(nameof(name));
 		_args = args;
 		_rawExpression = rawExpression;

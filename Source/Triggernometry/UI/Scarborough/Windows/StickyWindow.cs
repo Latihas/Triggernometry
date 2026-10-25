@@ -9,7 +9,7 @@ namespace Scarborough.Windows;
 ///     Represents a StickyWindow which uses a GraphicsWindow sticks to a parent window.
 /// </summary>
 public class StickyWindow : GraphicsWindow {
-	private Stopwatch _watch;
+	private Stopwatch? _watch;
 
 	/// <summary>
 	///     Gets or Sets an IntPtr which is used to identify the parent window.
@@ -66,7 +66,7 @@ public class StickyWindow : GraphicsWindow {
 	/// </summary>
 	/// <param name="parentWindow">An IntPtr representing the parent windows handle.</param>
 	/// <param name="device">Optionally specify a Graphics device to use.</param>
-	public StickyWindow(IntPtr parentWindow, Graphics device = null) : base(device) {
+	public StickyWindow(IntPtr parentWindow, Graphics? device = null) : base(device) {
 		if (!User32.IsWindow(parentWindow)) throw new ArgumentOutOfRangeException(nameof(parentWindow));
 
 		ParentWindowHandle = parentWindow;

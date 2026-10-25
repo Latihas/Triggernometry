@@ -20,8 +20,8 @@ internal static partial class StringFunctionParser {
 	internal static string TryParse(string operand) {
 		var funcMatch = rexFunc.Match(operand);
 		if (!funcMatch.Success)
-                throw new Exception(I18n.Translate("internal/StringFunctionParser/invalidsyntax",
-                    "Invalid function expression syntax: '{0}'", operand));
+			throw new Exception(I18n.Translate("internal/StringFunctionParser/invalidsyntax",
+				"Invalid function expression syntax: '{0}'", operand));
 
 		var funcNameLower = funcMatch.Groups["name"].Value.ToLower().TrimEx();
 		var sourceString = funcMatch.Groups["val"].Value;
@@ -95,9 +95,8 @@ internal static partial class StringFunctionParser {
 				CheckArgCountLocal("0");
 			{
 				sourceString = sourceString.TrimEx();
-                        if (!reHex8.IsMatch(sourceString))
-                        {
-                            throw InvalidValueError(funcNameLower, I18n.Translate("internal/StringFunctionParser/functionvalue", "function value"), sourceString);
+				if (!reHex8.IsMatch(sourceString)) {
+					throw InvalidValueError(funcNameLower, I18n.Translate("internal/StringFunctionParser/functionvalue", "function value"), sourceString);
 				}
 				return MathParser.ParseDamage(sourceString).ToString(InvClt);
 			}
@@ -443,8 +442,8 @@ internal static partial class StringFunctionParser {
 				return dt.ToString(format);
 			}
 			default:
-                    throw new Exception(I18n.Translate("internal/StringFunctionParser/unknownfunction",
-                        "Unknown string function '{0}'.", funcNameLower));
+				throw new Exception(I18n.Translate("internal/StringFunctionParser/unknownfunction",
+					"Unknown string function '{0}'.", funcNameLower));
 		}
 	}
 

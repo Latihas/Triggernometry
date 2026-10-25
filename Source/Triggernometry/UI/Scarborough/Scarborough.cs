@@ -23,7 +23,7 @@ public class Scarborough : IDisposable {
 	private DateTime prevTick = DateTime.Now;
 	private RenderCollection rc = new();
 	private readonly Lock stateLock = new();
-	private List<ScarboroughItem> drawItems = [];
+	private readonly List<ScarboroughItem> drawItems = [];
 	private readonly List<string> imageItemsToRemove = [];
 	private readonly List<string> textItemsToRemove = [];
 	private readonly List<DeferredMessage> deferredMessages = [];
@@ -110,7 +110,7 @@ public class Scarborough : IDisposable {
 						toRem.AddRange(from sx in imageitems where rex.IsMatch(sx.Key) select sx.Key);
 						foreach (var rem in toRem) {
 							var si = imageitems[rem];
-							lock (imageitems)imageitems.Remove(rem);
+							lock (imageitems) imageitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
 							}
@@ -121,7 +121,7 @@ public class Scarborough : IDisposable {
 						toRem.AddRange(from sx in textitems where rex.IsMatch(sx.Key) select sx.Key);
 						foreach (var rem in toRem) {
 							var si = textitems[rem];
-							lock (textitems)textitems.Remove(rem);
+							lock (textitems) textitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
 							}
@@ -139,7 +139,7 @@ public class Scarborough : IDisposable {
 						foreach (var rem in toRem) {
 							ScarboroughImage si = null;
 							si = imageitems[rem];
-							lock (imageitems)imageitems.Remove(rem);
+							lock (imageitems) imageitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
 							}
@@ -151,7 +151,7 @@ public class Scarborough : IDisposable {
 						foreach (var rem in toRem) {
 							ScarboroughText si = null;
 							si = textitems[rem];
-							lock (textitems)textitems.Remove(rem);
+							lock (textitems) textitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
 							}
@@ -195,7 +195,7 @@ public class Scarborough : IDisposable {
 						foreach (var si in imageitems) {
 							toRem.Add(si.Value);
 						}
-						lock (imageitems)imageitems.Clear();
+						lock (imageitems) imageitems.Clear();
 						foreach (var si in toRem) {
 							si.Dispose();
 						}
@@ -206,7 +206,7 @@ public class Scarborough : IDisposable {
 						foreach (var si in textitems) {
 							toRem.Add(si.Value);
 						}
-						lock (textitems)textitems.Clear();
+						lock (textitems) textitems.Clear();
 						foreach (var si in toRem) {
 							si.Dispose();
 						}
@@ -285,7 +285,7 @@ public class Scarborough : IDisposable {
 			si.Width = si.EvaluateNumericExpression(si.ctx, si.InitWExpression);
 			si.Height = si.EvaluateNumericExpression(si.ctx, si.InitHExpression);
 			si.Opacity = string.IsNullOrWhiteSpace(si.InitOExpression) ? 100 : si.EvaluateNumericExpression(si.ctx, si.InitOExpression);
-                lock (imageitems) imageitems[id] = si;
+			lock (imageitems) imageitems[id] = si;
 		}
 	}
 
@@ -326,7 +326,7 @@ public class Scarborough : IDisposable {
 			si.Opacity = string.IsNullOrWhiteSpace(si.InitOExpression) ? 100 : si.EvaluateNumericExpression(si.ctx, si.InitOExpression);
 			si.Text = si.EvaluateStringExpression(si.ctx, si.TextExpression);
 			si.NeedFont = true;
-                lock (textitems) textitems[id] = si;
+			lock (textitems) textitems[id] = si;
 		}
 	}
 
@@ -415,7 +415,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-                    lock (imageitems) imageitems.Remove(si);
+				lock (imageitems) imageitems.Remove(si);
 				sit.Dispose();
 			}
 		}
@@ -478,7 +478,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-                    lock (textitems) textitems.Remove(si);
+				lock (textitems) textitems.Remove(si);
 				sit.Dispose();
 			}
 		}
@@ -544,15 +544,13 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-                    if (si is ScarboroughImage)
-                    {
-                        var myKey = imageitems.FirstOrDefault(x => x.Value == si).Key;
-                        lock (imageitems) imageitems.Remove(myKey);
+				if (si is ScarboroughImage) {
+					var myKey = imageitems.FirstOrDefault(x => x.Value == si).Key;
+					lock (imageitems) imageitems.Remove(myKey);
 				}
-                    if (si is ScarboroughText)
-                    {
-                        var myKey = textitems.FirstOrDefault(x => x.Value == si).Key;
-                        lock (textitems) textitems.Remove(myKey);
+				if (si is ScarboroughText) {
+					var myKey = textitems.FirstOrDefault(x => x.Value == si).Key;
+					lock (textitems) textitems.Remove(myKey);
 				}
 				si.Dispose();
 				rc.items.Remove(si);

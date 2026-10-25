@@ -81,50 +81,50 @@ internal static class ModuleCombatants {
 		Ready = true;
 	}
 
-        // private static void BuidCombatantMemoryOffsets()
-        // {
-        //     var versionMemoryType = _currentCombatantMemory.GetType();
-        //
-        //     // OverlayPlugin: private unsafe struct CombatantMemory
-        //     var rawMemoryType = versionMemoryType.GetNestedType("CombatantMemory", BindingFlags.Public | BindingFlags.NonPublic) 
-        //         ?? throw new ReflectionNotFoundException(versionMemoryType.FullName + ".CombatantMemory");
-        //
-        //     var offsets = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        //
-        //     foreach (var field in rawMemoryType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-        //     {
-        //         var offset = field.GetCustomAttribute<FieldOffsetAttribute>();
-        //
-        //         if (offset != null)
-        //             offsets[field.Name] = offset.Value;
-        //     }
-        //
-        //     _combatantOffsets = offsets;
-        // }
-        //
-        // internal static int? GetCombatantMemoryFieldOffset(string fieldName)
-        // { 
-        //     if (_combatantOffsets.TryGetValue(fieldName, out int offset))
-        //         return offset;
-        //     else
-        //         return null;
-        // }
-        //
-        // // use the original method from OverlayPlugin
-        // /*
-        // public static IEnumerable<FFXIV.Entity> InternalGetEntities()
-        // {
-        //     if (!Ready)
-        //     { 
-        //         RealPlugin.plug.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/BridgeOverlay/notready", "OverlayPlugin is not ready."));
-        //         return new List<FFXIV.Entity>();
-        //     }
-        //     IList combatantList = _getCombatantListMethod.Invoke(_combatantMemoryManager, null) as IList; // List<Combatant> defined by OverlayPlugin
-        //     return combatantList.Cast<object>().Select(c => (FFXIV.Entity)new OpEntity(c, IntPtr.Zero));
-        // }
-        // */
-        //
-        // const int ptrSize = 8;  // Int64 pointer size
+	// private static void BuidCombatantMemoryOffsets()
+	// {
+	//     var versionMemoryType = _currentCombatantMemory.GetType();
+	//
+	//     // OverlayPlugin: private unsafe struct CombatantMemory
+	//     var rawMemoryType = versionMemoryType.GetNestedType("CombatantMemory", BindingFlags.Public | BindingFlags.NonPublic) 
+	//         ?? throw new ReflectionNotFoundException(versionMemoryType.FullName + ".CombatantMemory");
+	//
+	//     var offsets = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+	//
+	//     foreach (var field in rawMemoryType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+	//     {
+	//         var offset = field.GetCustomAttribute<FieldOffsetAttribute>();
+	//
+	//         if (offset != null)
+	//             offsets[field.Name] = offset.Value;
+	//     }
+	//
+	//     _combatantOffsets = offsets;
+	// }
+	//
+	// internal static int? GetCombatantMemoryFieldOffset(string fieldName)
+	// { 
+	//     if (_combatantOffsets.TryGetValue(fieldName, out int offset))
+	//         return offset;
+	//     else
+	//         return null;
+	// }
+	//
+	// // use the original method from OverlayPlugin
+	// /*
+	// public static IEnumerable<FFXIV.Entity> InternalGetEntities()
+	// {
+	//     if (!Ready)
+	//     { 
+	//         RealPlugin.plug.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/BridgeOverlay/notready", "OverlayPlugin is not ready."));
+	//         return new List<FFXIV.Entity>();
+	//     }
+	//     IList combatantList = _getCombatantListMethod.Invoke(_combatantMemoryManager, null) as IList; // List<Combatant> defined by OverlayPlugin
+	//     return combatantList.Cast<object>().Select(c => (FFXIV.Entity)new OpEntity(c, IntPtr.Zero));
+	// }
+	// */
+	//
+	// const int ptrSize = 8;  // Int64 pointer size
 
 	/// <returns>Empty if Overlay is not ready.</returns>
 	internal static IEnumerable<Entity> InternalGetEntities() {
@@ -241,7 +241,7 @@ internal static class ModuleCombatants {
 				// Overlay 现在有 bug！（修了？）
 				// if (_entity.Effects is IEnumerable<EffectEntry> opEffects)
 				// if (_entity.Effects is IEnumerable<EffectEntry> opEffects)
-				return _entity.Effects.Select(Status (e) => new OpStatus(e, this)).ToList();
+				return [.. _entity.Effects.Select(Status (e) => new OpStatus(e, this))];
 			}
 		}
 		public override bool IsCasting => (_entity.IsCasting1 & 1) == 1;

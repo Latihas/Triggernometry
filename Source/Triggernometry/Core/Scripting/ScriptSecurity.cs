@@ -37,11 +37,13 @@ internal static class ScriptSecurity {
 	internal static string[] GetRestrictedApisFromConfig(Context ctx) {
 		var isRemote = ctx.Trigger?.Repo != null;
 		var isAdmin = ctx.Plugin.isRunningAsAdmin;
-		return ctx.Plugin.cfg.GetAPIUsages().Where(a =>
-			isAdmin && !a.AllowAdmin ||
-			!isRemote && !a.AllowLocal ||
-			isRemote && !a.AllowRemote
-		).Select(a => a.Name).ToArray();
+		return [
+			.. ctx.Plugin.cfg.GetAPIUsages().Where(a =>
+				isAdmin && !a.AllowAdmin ||
+				!isRemote && !a.AllowLocal ||
+				isRemote && !a.AllowRemote
+			).Select(a => a.Name)
+		];
 	}
 
 	/// <summary>

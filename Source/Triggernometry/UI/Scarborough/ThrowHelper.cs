@@ -3,12 +3,8 @@ using Triggernometry.Localization;
 
 namespace Scarborough;
 
-    internal static class ThrowHelper
-    {
-        public static InvalidOperationException DeviceNotInitialized()
-        {
-            return new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
-        }
+internal static class ThrowHelper {
+	public static InvalidOperationException DeviceNotInitialized() => new(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 	public static InvalidOperationException UseBeginScene() => new(I18n.Translate("internal/ThrowHelper/beginscenerequired", "Call BeginScene before drawing."));
 }

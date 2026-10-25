@@ -23,7 +23,7 @@ public sealed class VariableDictionary : Variable {
 	[XmlArray("Items")] [XmlArrayItem("Item")]
 	public KeyValue[] KeyValuePairs {
 		get {
-			return Values.Select(pair => new KeyValue { Key = pair.Key, Value = pair.Value }).ToArray();
+			return [.. Values.Select(pair => new KeyValue { Key = pair.Key, Value = pair.Value })];
 		}
 		set {
 			Values.Clear();

@@ -48,12 +48,12 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 		ctx.soundhook(ctx, a);
 	}
 
-	public static string EvaluateStringExpression(string expr, Context ctx = null) {
+	public static string EvaluateStringExpression(string expr, Context? ctx = null) {
 		ctx = ctx ?? Context.Unbound;
 		return ctx.EvaluateStringExpression(null, ctx, expr);
 	}
 
-	public static double EvaluateNumericExpression(string expr, Context ctx = null) {
+	public static double EvaluateNumericExpression(string expr, Context? ctx = null) {
 		ctx = ctx ?? Context.Unbound;
 		return ctx.EvaluateNumericExpression(null, ctx, expr);
 	}
@@ -100,7 +100,7 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 		}
 	}
 
-	public static void SetListVariable(bool isPersistent, string varname, VariableList data) {
+	public static void SetListVariable(bool isPersistent, string varname, VariableList? data) {
 		var vs = RealPlugin.Instance.GetVariableStore(isPersistent);
 		lock (vs.List) {
 			if (data == null)
@@ -110,7 +110,7 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 		}
 	}
 
-	public static void SetTableVariable(bool isPersistent, string varname, VariableTable data) {
+	public static void SetTableVariable(bool isPersistent, string varname, VariableTable? data) {
 		var vs = RealPlugin.Instance.GetVariableStore(isPersistent);
 		lock (vs.Table) {
 			if (data == null)
@@ -120,7 +120,7 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 		}
 	}
 
-	public static void SetDictVariable(bool isPersistent, string varname, VariableDictionary data) {
+	public static void SetDictVariable(bool isPersistent, string varname, VariableDictionary? data) {
 		var vs = RealPlugin.Instance.GetVariableStore(isPersistent);
 		lock (vs.Dict) {
 			if (data == null)
@@ -140,20 +140,20 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 	public static void RegisterXivProcessUpdatedAction(string key, Action action)
 		=> Memory.RegisterXivProcUpdatedAction(key, action);
 
-	public static void QueueLogACT(string log, bool addToACTEncounter = false, string zoneName = null)
+	public static void QueueLogACT(string log, bool addToACTEncounter = false, string? zoneName = null)
 		=> QueueLogLine(LogEvent.SourceEnum.Log, log, addToACTEncounter, zoneName);
 
-	public static void QueueLogNetwork(string log, bool addToACTEncounter = false, string zoneName = null)
+	public static void QueueLogNetwork(string log, bool addToACTEncounter = false, string? zoneName = null)
 		=> QueueLogLine(LogEvent.SourceEnum.NetworkFFXIV, log, addToACTEncounter, zoneName);
 
-	public static void QueueLogEndpoint(string log, bool addToACTEncounter = false, string zoneName = null)
+	public static void QueueLogEndpoint(string log, bool addToACTEncounter = false, string? zoneName = null)
 		=> QueueLogLine(LogEvent.SourceEnum.Endpoint, log, addToACTEncounter, zoneName);
 
-	public static void QueueLogACTEvent(string log, bool addToACTEncounter = false, string zoneName = null)
+	public static void QueueLogACTEvent(string log, bool addToACTEncounter = false, string? zoneName = null)
 		=> QueueLogLine(LogEvent.SourceEnum.ACT, log, addToACTEncounter, zoneName);
 
-	private static void QueueLogLine(LogEvent.SourceEnum target, string log, bool addToACTEncounter, string zoneName) {
-		zoneName = zoneName ?? RealPlugin.Instance.currentZone ?? "";
+	private static void QueueLogLine(LogEvent.SourceEnum target, string log, bool addToACTEncounter, string? zoneName) {
+		zoneName ??= RealPlugin.Instance.currentZone ?? "";
 		RealPlugin.Instance.LogLineQueuer(log, zoneName, target);
 		if (addToACTEncounter) {
 			RealPlugin.Instance.ACTEncounterLogHook(log);

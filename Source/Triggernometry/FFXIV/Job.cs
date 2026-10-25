@@ -69,7 +69,7 @@ public partial class Job {
 	/// <exception cref="ArgumentException">Thrown if the job ID is out of the valid range.</exception>
 	public static Job GetJob(int jobID) => jobID >= 0 && jobID < _jobs.Count
 		? _jobs[jobID]
-            : throw new ArgumentException(I18n.Translate("internal/Job/UnknownJobId", "The job ID ({0}) is out of range.", jobID));
+		: throw new ArgumentException(I18n.Translate("internal/Job/UnknownJobId", "The job ID ({0}) is out of range.", jobID));
 
 	/// <summary>Retrieve a Job object by its name, abbreviation or JobID index in any language.</summary>
 	/// <param name="name">The name, abbreviation or JobID index of the job.</param>
@@ -77,7 +77,7 @@ public partial class Job {
 	/// <exception cref="ArgumentException">Thrown if the job name is not known.</exception>
 	public static Job GetJob(string name) => _jobByNames.TryGetValue(name, out var job)
 		? job
-            : throw new ArgumentException(I18n.Translate("internal/Job/UnknownJobName", "The job name ({0}) is not a known job.", name));
+		: throw new ArgumentException(I18n.Translate("internal/Job/UnknownJobName", "The job name ({0}) is not a known job.", name));
 
 	/// <summary>Try to retrieve a Job object using a JobEnum identifier.</summary>
 	/// <param name="job">The job enum value.</param>

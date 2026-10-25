@@ -237,7 +237,7 @@ public static class Memory {
 						bytes.Add(null);
 						break;
 					case "*":
-                            if (Jump) throw new Exception(I18n.Translate("internal/Memory/toomanyjumps", "Too many '*' characters in pattern {0}.", patternStr));
+						if (Jump) throw new Exception(I18n.Translate("internal/Memory/toomanyjumps", "Too many '*' characters in pattern {0}.", patternStr));
 						Offset = i;
 						Jump = true;
 						regexStr += "(?<jump>.{4})";
@@ -254,7 +254,7 @@ public static class Memory {
 				}
 			}
 			PatternRegex = new Regex(regexStr, RegexOptions.Compiled | RegexOptions.Singleline);
-			Bytes = bytes.ToArray();
+			Bytes = [.. bytes];
 			Length = Bytes.Length;
 		}
 	}

@@ -24,12 +24,12 @@ public partial class RealPlugin {
 		return (RepositoryManifest)serializer.Deserialize(reader);
 	}
 
-	private static readonly List<string> _legalRepoPrefixes = new() {
+	private static readonly List<string> _legalRepoPrefixes = [
 		"https://github.com/paissaheavyindustries/Triggernometry/",
 		"https://vip.123pan.cn/1824544011/",
 		"https://1824544011.v.123pan.cn/",
 		"https://1824544011.cdn.123clouddisk.com/"
-	};
+	];
 
 	private bool DetectLegalAddress(string address) {
 		var isLegal = _legalRepoPrefixes.Any(prefix =>
@@ -198,10 +198,8 @@ public partial class RealPlugin {
 			repoManifest.Remove.ForEach(partialUrl => RemoveRepo(partialUrl));
 			repoManifest.Add.ForEach(item => AddRepositoryManifestItem(item, shouldUpdate));
 			CheckDuplicateRepoAddresses();
-            }
-            catch (Exception ex)
-            {
-                FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/defaultrepositoryfailed", "Failed to add the default remote repository: {0}", ex.Message));
+		} catch (Exception ex) {
+			FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/defaultrepositoryfailed", "Failed to add the default remote repository: {0}", ex.Message));
 		}
 	}
 
@@ -217,7 +215,7 @@ public partial class RealPlugin {
 		[XmlArray("Replace")]
 		[XmlArrayItem("Item")]
 		public List<RepositoryManifestReplaceItem> Replace { get; set; }
-			= new();
+			= [];
 
 		public class RepositoryManifestReplaceItem {
 			[XmlAttribute]

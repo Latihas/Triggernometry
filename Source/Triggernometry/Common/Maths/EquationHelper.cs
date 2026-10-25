@@ -7,11 +7,9 @@ namespace Triggernometry.Common.Maths;
 
 public static class EquationHelper {
 	/// <summary> 求解 Ax² + Bx + C = 0，递增顺序返回两个根或 null </summary>
-        public static (double, double)? SolveQuadratic(double A, double B, double C, double eps = 1e-8)
-        {
-            if (Abs(A) <= eps)
-            {
-                throw new ArgumentException(I18n.Translate("internal/EquationHelper/zerocoefficient", "A must not be zero"));
+	public static (double, double)? SolveQuadratic(double A, double B, double C, double eps = 1e-8) {
+		if (Abs(A) <= eps) {
+			throw new ArgumentException(I18n.Translate("internal/EquationHelper/zerocoefficient", "A must not be zero"));
 		}
 		var Δ = B * B - 4 * A * C;
 
@@ -35,7 +33,7 @@ public static class EquationHelper {
 	public static (Vector2, Vector2)? CircleLineIntersections(
 		double x0, double y0, double r,
 		double a, double b, double c,
-		Func<Vector2, double> sorter = null) {
+		Func<Vector2, double>? sorter = null) {
 		if (Abs(a) > Abs(b)) {
 			// 直线偏向竖直方向，交换 x 和 y 复用代码
 			var result = CircleLineIntersections(y0, x0, r, b, a, c);
@@ -77,7 +75,7 @@ public static class EquationHelper {
 	public static (Vector2, Vector2)? CircleLineIntersections(
 		double x0, double y0, double r,
 		double x1, double y1, double x2, double y2,
-		Func<Vector2, double> sorter = null) {
+		Func<Vector2, double>? sorter = null) {
 		// ax + by + c = 0
 		var dx = x2 - x1;
 		var dy = y2 - y1;
@@ -92,6 +90,6 @@ public static class EquationHelper {
 	/// </summary>
 	public static (Vector2, Vector2)? CircleLineIntersections(
 		double x0, double y0, double r, Vector2 point1, Vector2 point2,
-		Func<Vector2, double> sorter = null)
+		Func<Vector2, double>? sorter = null)
 		=> CircleLineIntersections(x0, y0, r, point1.X, point1.Y, point2.X, point2.Y, sorter);
 }

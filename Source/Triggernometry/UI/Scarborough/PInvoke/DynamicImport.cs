@@ -26,7 +26,7 @@ internal static class DynamicImport {
 		}
 
 		if (hModule == IntPtr.Zero) {
-			throw new DynamicImportException(I18n.Translate("internal/DynamicImport/libraryfailed", "DynamicImport failed to import library '{0}'.",libraryName));
+			throw new DynamicImportException(I18n.Translate("internal/DynamicImport/libraryfailed", "DynamicImport failed to import library '{0}'.", libraryName));
 		}
 		return hModule;
 	}
@@ -40,7 +40,7 @@ internal static class DynamicImport {
 		var procAddress = GetProcAddress(moduleHandle, methodName);
 
 		if (procAddress == IntPtr.Zero) {
-			throw new DynamicImportException(I18n.Translate("internal/DynamicImport/methodfailed", "DynamicImport failed to find method '{0}' in module 0x{1}.",  methodName ,moduleHandle.ToString("X")));
+			throw new DynamicImportException(I18n.Translate("internal/DynamicImport/methodfailed", "DynamicImport failed to find method '{0}' in module 0x{1}.", methodName, moduleHandle.ToString("X")));
 		}
 		return procAddress;
 	}

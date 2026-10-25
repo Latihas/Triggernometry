@@ -82,7 +82,10 @@ public partial class RealPlugin {
 
 	public delegate void ACTEncounterLogDelegate(string message);
 
-	private readonly ConcurrentQueue<LogEvent> EventQueue = [];
+	private readonly ConcurrentQueue<LogEvent> TextLines = [];
+	private readonly ConcurrentQueue<LogEvent> FFXIVNetworkLines = [];
+	private readonly ConcurrentQueue<LogEvent> ACTLines = [];
+	private readonly ConcurrentQueue<LogEvent> EndpointLines = [];
 	public UserInterface ui = UserInterface.Instance;
 	[Obsolete("Use ConfigPath")] public string path => ConfigPath;
 	public string ConfigPath { get; set; }
@@ -151,7 +154,7 @@ public partial class RealPlugin {
 	}
 
 	/// <summary>
-	/// Registers a folder variable and warns when replacing a different value.
+	///     Registers a folder variable and warns when replacing a different value.
 	/// </summary>
 	internal void RegisterVariable(string folderLogName, RegisteredVariable definition) {
 		if (!definition.Enabled || definition.IsComment)
@@ -435,51 +438,46 @@ public partial class RealPlugin {
 	}
 
 	public void LogLineQueuer(string text, string zone, LogEvent.SourceEnum src) {
-		EventQueue.Enqueue(new LogEvent {
+		var logEvent = new LogEvent {
 			Text = text,
 			ZoneName = zone,
 			Source = src,
 			Timestamp = DateTime.Now
-		});
+		};
+		switch (src) {
+			case LogEvent.SourceEnum.Log:
+				TextLines.Enqueue(logEvent);
+				break;
+			case LogEvent.SourceEnum.NetworkFFXIV:
+				FFXIVNetworkLines.Enqueue(logEvent);
+				break;
+			case LogEvent.SourceEnum.ACT:
+				ACTLines.Enqueue(logEvent);
+				break;
+			case LogEvent.SourceEnum.Endpoint:
+				EndpointLines.Enqueue(logEvent);
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(src), src, "Unknown log event source");
+		}
 	}
-
-	private readonly Queue<LogEvent> TextLines = [];
-	private readonly Queue<LogEvent> FFXIVNetworkLines = [];
-	private readonly Queue<LogEvent> ACTLines = [];
-	private readonly Queue<LogEvent> EndpointLines = [];
 
 	private void LogLineProcessorAsync(IFramework _) {
-		while (EventQueue.TryDequeue(out var le)) {
-			switch (le.Source) {
-				case LogEvent.SourceEnum.Log:
-					TextLines.Enqueue(le);
-					break;
-				case LogEvent.SourceEnum.NetworkFFXIV:
-					FFXIVNetworkLines.Enqueue(le);
-					break;
-				case LogEvent.SourceEnum.ACT:
-					ACTLines.Enqueue(le);
-					break;
-				case LogEvent.SourceEnum.Endpoint:
-					EndpointLines.Enqueue(le);
-					break;
-				default: throw new ArgumentOutOfRangeException();
-			}
-		}
-		ProcessLines(TextLines, ActiveTextTriggers);
-		ProcessLines(FFXIVNetworkLines, ActiveFFXIVNetworkTriggers);
-		ProcessLines(ACTLines, ActiveACTTriggers);
-		ProcessLines(EndpointLines, ActiveEndpointTriggers);
+		ProcessLines(TextLines, ActiveTextTriggers, TextLines.Count);
+		ProcessLines(FFXIVNetworkLines, ActiveFFXIVNetworkTriggers, FFXIVNetworkLines.Count);
+		ProcessLines(ACTLines, ActiveACTTriggers, ACTLines.Count);
+		ProcessLines(EndpointLines, ActiveEndpointTriggers, EndpointLines.Count);
 	}
 
-	private void ProcessLines(Queue<LogEvent> lines, List<Trigger> activeTriggers) {
+	private void ProcessLines(ConcurrentQueue<LogEvent> lines, List<Trigger> activeTriggers, int pendingCount) {
+		if (pendingCount == 0) return;
 		Trigger[] fullTriggers;
 		Trigger[] xtriggers;
 		lock (activeTriggers) {
 			fullTriggers = [.. activeTriggers];
 			xtriggers = [.. activeTriggers.Where(t => !t.ZoneBlocked)];
 		}
-		while (lines.TryDequeue(out var le)) {
+		for (var i = 0; i < pendingCount && lines.TryDequeue(out var le); i++) {
 			var triggers = le.TestMode ? fullTriggers : xtriggers;
 			foreach (var t in triggers) TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
 		}

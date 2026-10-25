@@ -19,8 +19,8 @@ internal static class XivEntityEvaluator {
 
 	internal static Func<Entity, string[]> BuildEvaluator(IndexMemberExpression expr) {
 		if (!expr.Member.HasValue)
-                throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/memberrequired",
-                    "Entity expression '{0}' does not include a property.", expr.RawExpression), nameof(expr.Member));
+			throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/memberrequired",
+				"Entity expression '{0}' does not include a property.", expr.RawExpression), nameof(expr.Member));
 
 		// raw: "X, Y, DistanceTo(0, 0)"
 		var raw = expr.Member.RawExpression;
@@ -28,26 +28,26 @@ internal static class XivEntityEvaluator {
 		// memberExpressions: [ "X", "Y", "DistanceTo(0, 0)" ]
 		var memberExpressions = SplitMemberExpressions(raw);
 
-		return BuildEvaluator(memberExpressions.ToArray(), expr.RawExpression);
+		return BuildEvaluator([.. memberExpressions], expr.RawExpression);
 	}
 
-	private static Func<Entity, string[]> BuildEvaluator(string[] memberExpressions, string rawExprForErrorOverride = null) {
+	private static Func<Entity, string[]> BuildEvaluator(string[] memberExpressions, string? rawExprForErrorOverride = null) {
 		var rawExpr = rawExprForErrorOverride ?? $"Entity.{string.Join(", ", memberExpressions)}";
 		var accessors = memberExpressions
 			.Select(raw => new MemberExpression(raw))
-			.Select(member => GetSingleAccessor(member)); // GetSingleAccessor would throw error if not found
+			.Select(GetSingleAccessor); // GetSingleAccessor would throw error if not found
 
-		return entity => accessors.Select(accessor => {
-			try {
-				return accessor(entity).ToDataString();
-                }
-                catch (Exception ex)
-                {
-                    throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/evaluationerror",
-					"Failed to evaluate entity property/method expression '{0}': {1}",
-					rawExpr, ex.Message), ex);
-			}
-		}).ToArray();
+		return entity => [
+			.. accessors.Select(accessor => {
+				try {
+					return accessor(entity).ToDataString();
+				} catch (Exception ex) {
+					throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/evaluationerror",
+						"Failed to evaluate entity property/method expression '{0}': {1}",
+						rawExpr, ex.Message), ex);
+				}
+			})
+		];
 	}
 
 	private static string[] SplitMemberExpressions(string raw) {
@@ -77,14 +77,14 @@ internal static class XivEntityEvaluator {
 		if (tail.Length > 0)
 			memberExpressions.Add(tail);
 
-		return memberExpressions.ToArray();
+		return [.. memberExpressions];
 	}
 
 	internal static Func<Entity, object> GetSingleAccessor(MemberExpression expr)
-            => TryGetSingleAccessor(expr) ?? throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/invalidmember",
-                "Invalid entity property/method name: {0}", expr.Name), nameof(expr));
+		=> TryGetSingleAccessor(expr) ?? throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/invalidmember",
+			"Invalid entity property/method name: {0}", expr.Name), nameof(expr));
 
-	internal static Func<Entity, object> TryGetSingleAccessor(MemberExpression expr) {
+	internal static Func<Entity, object>? TryGetSingleAccessor(MemberExpression expr) {
 		var accessor = TryGetSingleMethodAccessor(expr.Name, expr.Args)
 		               ?? TryGetSinglePropAccessor(expr.Name);
 		if (accessor != null)
@@ -97,14 +97,14 @@ internal static class XivEntityEvaluator {
 		return null;
 	}
 
-	private static Func<Entity, object> TryGetSinglePropAccessor(string propName) {
+	private static Func<Entity, object>? TryGetSinglePropAccessor(string propName) {
 		if (Entity._propAccessors.TryGetValue(propName, out var propAccessor)) {
 			return entity => propAccessor(entity);
 		}
 		return null;
 	}
 
-	private static Func<Entity, object> TryGetSingleMethodAccessor(string methodName, string[] args) {
+	private static Func<Entity, object>? TryGetSingleMethodAccessor(string methodName, string[] args) {
 		if (Entity._methodAccessors.TryGetValue(methodName, out var methodAccessor)) {
 			return entity => methodAccessor(entity, args);
 		}

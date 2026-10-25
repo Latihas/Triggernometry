@@ -21,7 +21,7 @@ public partial class RealPlugin {
 	private void AutofixConfiguration() {
 		// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 		if (cfg == null) return;
-		
+
 		if (!cfg._ShowWelcomeHasBeenSet && (cfg.Root.Folders.Count > 0 || cfg.Root.Triggers.Count > 0)) {
 			cfg.ShowWelcome = false;
 		}

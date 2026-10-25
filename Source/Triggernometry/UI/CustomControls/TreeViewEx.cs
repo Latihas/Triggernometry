@@ -11,7 +11,8 @@ public partial class TreeViewEx : TreeView {
 	private const int TVM_SETEXTENDEDSTYLE = 0x1100 + 44;
 	private const int TVM_GETEXTENDEDSTYLE = 0x1100 + 45;
 	private const int TVS_EX_DOUBLEBUFFER = 0x0004;
-        private const int TVM_SETINSERTMARK = 0x1100 + 26;
+	private const int TVM_SETINSERTMARK = 0x1100 + 26;
+
 	[DllImport("user32.dll")]
 	private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
 
@@ -27,10 +28,11 @@ public partial class TreeViewEx : TreeView {
 	}
 
 	/// <summary> Shows a drag insertion mark before or after a node; null clears it. </summary>
-        internal void SetInsertionMark(TreeNode node, bool after)
-        {
-            SendMessage(Handle, TVM_SETINSERTMARK, after ? 1 : IntPtr.Zero, node?.Handle ?? IntPtr.Zero);
-        }protected override void WndProc(ref Message m) {
+	internal void SetInsertionMark(TreeNode node, bool after) {
+		SendMessage(Handle, TVM_SETINSERTMARK, after ? 1 : IntPtr.Zero, node?.Handle ?? IntPtr.Zero);
+	}
+
+	protected override void WndProc(ref Message m) {
 		if (m.Msg == 0x203) // identified double click
 		{
 			var localPos = PointToClient(Cursor.Position);

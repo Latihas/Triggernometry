@@ -145,7 +145,7 @@ public class PartyListPanel : TableLayoutPanel {
 		if (!RealPlugin.Instance.GetVariableStore(false).List.TryGetValue(PlayerIdsLvarName, out var savedList) || savedList.Size != PlayerCount)
 			return;
 
-		List<string> storedPlayerIDs = savedList.Values.Select(var => var.ToString()).ToList();
+		List<string> storedPlayerIDs = [.. savedList.Values.Select(var => var.ToString())];
 
 		var indices = new List<int>();
 		foreach (var playerLabel in _players) {
@@ -165,7 +165,7 @@ public class PartyListPanel : TableLayoutPanel {
 	public void SaveToConfig() {
 		if (_players.Count <= 1) return;
 
-		_players = _players.OrderBy(p => p.Order).ToList();
+		_players = [.. _players.OrderBy(p => p.Order)];
 
 		var hexIDList = new VariableList();
 		var nameList = new VariableList();

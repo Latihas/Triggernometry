@@ -7,26 +7,20 @@ using static System.Math;
 
 namespace Triggernometry.Utilities.Maths;
 
-public class CartesianCoord : XIVCoord {
-	public double X;
-	public double Y;
-	public double Z;
+public class CartesianCoord(double x, double y, double z) : XIVCoord {
+	public double X = x;
+	public double Y = y;
+	public double Z = z;
 
 	public string X_3 => X.ToString("0.###", CultureInfo.InvariantCulture);
 	public string Y_3 => Y.ToString("0.###", CultureInfo.InvariantCulture);
 	public string Z_3 => Z.ToString("0.###", CultureInfo.InvariantCulture);
 
-	public CartesianCoord(double x, double y, double z) {
-		X = x;
-		Y = y;
-		Z = z;
-	}
-
 	public override XIVCoord Duplicate() => new CartesianCoord(X, Y, Z);
 
-	public override XIVCoord RotateTo(double θ) {
-		var sin = Sin(θ);
-		var cos = Cos(θ);
+	public override XIVCoord RotateTo(double theta) {
+		var sin = Sin(theta);
+		var cos = Cos(theta);
 		(X, Y) = (-X * cos - Y * sin, X * sin - Y * cos);
 		return this;
 	}
@@ -66,11 +60,11 @@ public class CartesianCoord : XIVCoord {
 			case 3:
 				return ParseCoordsString(coords[0], coords[1], coords[2]);
 			default:
-                    throw ErrorHelper.ArgumentCountError(I18n.Translate("internal/CartesianCoord/constructor", "CartesianCoord constructor"), "2-3", coords.Length, "[" + string.Join("], [", coords) + "]");
+				throw ErrorHelper.ArgumentCountError(I18n.Translate("internal/CartesianCoord/constructor", "CartesianCoord constructor"), "2-3", coords.Length, "[" + string.Join("], [", coords) + "]");
 		}
 	}
 
-	private static CartesianCoord ParseCoordsString(string rawX, string rawY, string rawZ = null) {
+	private static CartesianCoord ParseCoordsString(string rawX, string rawY, string? rawZ = null) {
 		try {
 			return new CartesianCoord(
 				MathParser.Parse(rawX),

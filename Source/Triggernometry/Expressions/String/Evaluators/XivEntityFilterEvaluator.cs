@@ -73,7 +73,7 @@ internal static class XivEntityFilterEvaluator // to-do: sortings
 						}
 
 						// token: "HasStatus", methodArgs: ["min(0x32,0x33)", "0x34"]
-						var methodExpr = new MemberExpression(token, methodArgs.ToArray());
+						var methodExpr = new MemberExpression(token, [.. methodArgs]);
 						var accessor = XivEntityEvaluator.GetSingleAccessor(methodExpr);
 						funcTokens.Add(e => accessor(e).ToDataString().Replace(" ", "")); // to-do: spaces in MathParser
 						i = j;

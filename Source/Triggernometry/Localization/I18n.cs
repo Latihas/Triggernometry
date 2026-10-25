@@ -15,18 +15,13 @@ public static class I18n {
 
 	internal static object DoNotTranslate = new();
 
-	internal static string ThingToString(int d) {
+	internal static string ThingToString(int d) =>
 		// minus signs could be different: "-" or "−"
-		return d.ToString(CultureInfo.InvariantCulture);
-	}
+		d.ToString(CultureInfo.InvariantCulture);
 
-	internal static string ThingToString(float d) {
-		return ((decimal)d).ToString(CultureInfo.InvariantCulture);
-	}
+	internal static string ThingToString(float d) => ((decimal)d).ToString(CultureInfo.InvariantCulture);
 
-	internal static string ThingToString(double d) {
-		return ((decimal)d).ToString(CultureInfo.InvariantCulture);
-	}
+	internal static string ThingToString(double d) => ((decimal)d).ToString(CultureInfo.InvariantCulture);
 
 	internal static void AddLanguage(Language ld) {
 		if (ld.IsDefault) {
@@ -47,11 +42,9 @@ public static class I18n {
 		CurrentLanguage ??= ld;
 	}
 
-	internal static string Lookup(string key, string defValue) {
-		return CurrentLanguage?.Lookup(key) ?? defValue;
-	}
+	internal static string Lookup(string key, string defValue) => CurrentLanguage?.Lookup(key) ?? defValue;
 
-	public static string Translate(string key, string text, params object[] args) {
+	public static string Translate(string key, string text, params object?[] args) {
 		BuiltInLanguage?.TranslationsLookup.TryAdd(key, text);
 		if (CurrentLanguage != null) {
 			try {
@@ -85,9 +78,7 @@ public static class I18n {
 		}
 	}
 
-	internal static string GetLocalizationFor(string path, string current) {
-		return Translate(path, current);
-	}
+	internal static string GetLocalizationFor(string path, string current) => Translate(path, current);
 
 	internal static bool ChangeLanguage(string? langname) {
 		if (langname == null) {
@@ -194,45 +185,31 @@ public static class I18n {
 			"The key {0} is not in I18n._wordsToTranslate. Please report the bug if you see this error.", key));
 	}
 
-	internal static string TrlVarPersist(bool isPersist) {
-		return isPersist
-			? Translate("internal/I18n/descpersistent", "persistent ")
-			: "";
-	}
+	internal static string TrlVarPersist(bool isPersist) => isPersist
+		? Translate("internal/I18n/descpersistent", "persistent ")
+		: "";
 
-	internal static string TrlExprType(bool isStringExpr) {
-		return isStringExpr
-			? Translate("internal/I18n/descexprtypestring", "string")
-			: Translate("internal/I18n/descexprtypenumeric", "numeric");
-	}
+	internal static string TrlExprType(bool isStringExpr) => isStringExpr
+		? Translate("internal/I18n/descexprtypestring", "string")
+		: Translate("internal/I18n/descexprtypenumeric", "numeric");
 
-	internal static string TrlTableColOrRow(bool isCol) {
-		return isCol
-			? Translate("internal/I18n/desctablelineopcol", "column")
-			: Translate("internal/I18n/desctablelineoprow", "row");
-	}
+	internal static string TrlTableColOrRow(bool isCol) => isCol
+		? Translate("internal/I18n/desctablelineopcol", "column")
+		: Translate("internal/I18n/desctablelineoprow", "row");
 
-	internal static string TrlCacheFile(bool cache) {
-		return cache ? Translate("internal/I18n/desccachefile", ", caching the file on disk") : "";
-	}
+	internal static string TrlCacheFile(bool cache) => cache ? Translate("internal/I18n/desccachefile", ", caching the file on disk") : "";
 
-	internal static string TrlSortAscOrDesc(bool isAsc) {
-		return isAsc
-			? Translate("internal/I18n/descsortasc", "ascending")
-			: Translate("internal/I18n/descsortdesc", "descending");
-	}
+	internal static string TrlSortAscOrDesc(bool isAsc) => isAsc
+		? Translate("internal/I18n/descsortasc", "ascending")
+		: Translate("internal/I18n/descsortdesc", "descending");
 
-	internal static string TrlAsync(bool isAsync) {
-		return isAsync
-			? Translate("internal/I18n/descasynctrue", "")
-			: Translate("internal/I18n/descasyncfalse", "[Sync] ");
-	}
+	internal static string TrlAsync(bool isAsync) => isAsync
+		? Translate("internal/I18n/descasynctrue", "")
+		: Translate("internal/I18n/descasyncfalse", "[Sync] ");
 
-	internal static string TranslateEnable(bool enable) {
-		return enable
-			? Translate("internal/I18n/descenabletrue", "enable")
-			: Translate("internal/I18n/descenablefalse", "disable");
-	}
+	internal static string TranslateEnable(bool enable) => enable
+		? Translate("internal/I18n/descenabletrue", "enable")
+		: Translate("internal/I18n/descenablefalse", "disable");
 
 	public static string TrlTriggerDescTime(double ms) {
 		ms = Math.Round(ms);

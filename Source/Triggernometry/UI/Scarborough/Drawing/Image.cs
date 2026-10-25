@@ -82,7 +82,7 @@ public class Image : IDisposable {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Image and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Image image) {
 			return image.Bitmap.NativePointer == Bitmap.NativePointer;
 		}

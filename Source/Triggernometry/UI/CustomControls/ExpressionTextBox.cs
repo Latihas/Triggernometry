@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Media;
-using System.Net.Mime;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -15,7 +14,6 @@ using Triggernometry.Expressions.Maths;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.FFXIV;
 using Triggernometry.Localization;
-using Triggernometry.UI.CustomControls;
 using Triggernometry.UI.Forms;
 
 namespace Triggernometry.UI.CustomControls;
@@ -298,7 +296,7 @@ public partial class ExpressionTextBox : UserControl {
 	public static readonly List<string> imageAuraProps = ["x", "y", "w", "h", "opacity"];
 
 	// Name, X, Job, Role, etc.
-	public static readonly List<string> XivEntityProps = new List<string> {
+	public static readonly List<string> XivEntityProps = [
 		"HasStatus(statusId)",
 		"HasAnyStatus(statusIds...)",
 		"HasAllStatus(statusIds...)",
@@ -313,11 +311,11 @@ public partial class ExpressionTextBox : UserControl {
 		"DirTo(x, y, ±segments, digits=0)",
 		"LocalDirTo(x, y, ±segments, digits=0)",
 		"LocalToWorld(dx, dy)", "LocalToWorld(dx, dy, dz)",
-		"WorldToLocal(dx, dy)", "WorldToLocal(dx, dy, dz)"
-	}.Concat(Entity.ValidEntityPropNames).Concat(Job.LegalJobPropNames).ToList();
+		"WorldToLocal(dx, dy)", "WorldToLocal(dx, dy, dz)", .. Entity.ValidEntityPropNames, .. Job.LegalJobPropNames
+	];
 
 	// Job, Role, etc.
-	public static readonly List<string> XivJobProps = Job.LegalJobPropNames.ToList();
+	public static readonly List<string> XivJobProps = [.. Job.LegalJobPropNames];
 
 	public static readonly List<string> configurations = [
 		"DebugLevel", "UseACTForSound", "UseACTForTTS", "FfxivLogNetwork", "UseOsClipboard", "DeveloperMode", "Autosave", "Language",
@@ -506,13 +504,15 @@ public partial class ExpressionTextBox : UserControl {
 				List<string> groups;
 				try {
 					var regex = new Regex(_currentTriggerRegexStr);
-					groups = regex.GetGroupNames().ToList();
-					groups.AddRange(prefixes);
+					groups = [
+						.. regex.GetGroupNames(),
+						.. prefixes
+					];
 				} catch {
 					_currentTriggerRegexStr = "";
 					groups = prefixes;
 				}
-				_currentRegexGroupsAndPrefixes = new HashSet<string>(groups);
+				_currentRegexGroupsAndPrefixes = [.. groups];
 			}
 			return _currentRegexGroupsAndPrefixes;
 		}
@@ -713,7 +713,7 @@ public partial class ExpressionTextBox : UserControl {
 	}
 
 	/// <summary>
-	/// Completes variable and environment names using the same matching and popup behavior.
+	///     Completes variable and environment names using the same matching and popup behavior.
 	/// </summary>
 	private void AutocompleteNames(IEnumerable<string> names, string name, string completionSuffix) {
 		var matches = GetAutocompleteSuggestions(names, name).ToList();
@@ -1043,9 +1043,9 @@ public partial class ExpressionTextBox : UserControl {
 		if (m.Success) {
 			List<string> keys = null;
 			switch (m.Groups["struct"].Value) {
-				case "const": keys = RealPlugin.Instance.cfg.Constants.Keys.ToList(); break;
+				case "const": keys = [.. RealPlugin.Instance.cfg.Constants.Keys]; break;
 				case "textaura": {
-					keys = RealPlugin.Instance.sc != null ? RealPlugin.Instance.sc.textitems.Keys.ToList() : RealPlugin.Instance.textauras.Keys.ToList();
+					keys = RealPlugin.Instance.sc != null ? [.. RealPlugin.Instance.sc.textitems.Keys] : [.. RealPlugin.Instance.textauras.Keys];
 					keys.AddRange(tmpTextNames);
 					break;
 				}
@@ -1056,7 +1056,7 @@ public partial class ExpressionTextBox : UserControl {
 				//         break;
 				//     }
 				case "config": keys = configurations; break;
-				case "storage": keys = RealPlugin.Instance.scriptingStorage.Keys.ToList(); break;
+				case "storage": keys = [.. RealPlugin.Instance.scriptingStorage.Keys]; break;
 			}
 			matchedStrings = GetAutocompleteSuggestions(keys, m.Groups["key"].Value);
 			if (matchedStrings.Count() > 0) {
@@ -1202,7 +1202,7 @@ public partial class ExpressionTextBox : UserControl {
 			return;
 		}
 
-		if (ExpressionType == ExpressionTextBox.SupportedExpressionTypeEnum.Numeric) {
+		if (ExpressionType == SupportedExpressionTypeEnum.Numeric) {
 			m = rexMath.Match(currentExpr);
 			if (m.Success) {
 				matchedStrings = GetAutocompleteSuggestions(math, m.Value);
@@ -1345,7 +1345,7 @@ public partial class ExpressionTextBox : UserControl {
 
 	#region Store Variable Names Dynamically
 
-	private static List<string> registeredNames = new List<string>();
+	private static readonly List<string> registeredNames = [];
 	private static readonly List<string> tmpScalarNames = [];
 	private static readonly List<string> tmpListNames = [];
 	private static readonly List<string> tmpTableNames = [];
@@ -1424,14 +1424,14 @@ public partial class ExpressionTextBox : UserControl {
 	}
 
 	/// <summary>
-	/// Copies current names under the dictionary's synchronization lock.
+	///     Copies current names under the dictionary's synchronization lock.
 	/// </summary>
 	private static List<string> GetKeysWithLock<T>(Dictionary<string, T> variables, object? lockObject = null) {
-		lock (lockObject ?? variables) return variables.Keys.ToList();
+		lock (lockObject ?? variables) return [.. variables.Keys];
 	}
 
 	private void RegisterAutofillNames() {
-		if (ExpressionType == ExpressionTextBox.SupportedExpressionTypeEnum.Regex)
+		if (ExpressionType == SupportedExpressionTypeEnum.Regex)
 			return;
 
 		// search for all expressions like ${var:xxx}, ${l:xxx.prop}, ${pd:xxx[key]},
@@ -1572,7 +1572,7 @@ public partial class ExpressionTextBox : UserControl {
 				return;
 			}
 
-			if (type == ExpressionTextBox.SupportedExpressionTypeEnum.Numeric) {
+			if (type == SupportedExpressionTypeEnum.Numeric) {
 				// select the adjacent alphanumeric chars
 				if (!MathParser.OperatorChar.Contains(currentChar)) {
 					SelectAdjacentChars(index, c => !MathParser.OperatorChar.Contains(c) && !char.IsWhiteSpace(c) && c != '}');
@@ -1615,10 +1615,10 @@ public partial class ExpressionTextBox : UserControl {
 				}
 				// if it is a single-char op
 				Select(index, 1);
-			} else if (type is ExpressionTextBox.SupportedExpressionTypeEnum.String or ExpressionTextBox.SupportedExpressionTypeEnum.Color or ExpressionTextBox.SupportedExpressionTypeEnum.Regex) // To do: better logic for regexes
+			} else if (type is SupportedExpressionTypeEnum.String or SupportedExpressionTypeEnum.Color or SupportedExpressionTypeEnum.Regex) // To do: better logic for regexes
 			{
 				var separators = new HashSet<char>($"^$¤{{}}[]()<>,.:;=|/\\'\"，。？！、：；（）《》「」『』【】“”‘’…{ParserCommon.LINEBREAK}");
-				if (type == ExpressionTextBox.SupportedExpressionTypeEnum.Regex)
+				if (type == SupportedExpressionTypeEnum.Regex)
 					separators.ExceptWith(".");
 				if (!separators.Contains(currentChar)) {
 					SelectAdjacentChars(index, c => !separators.Contains(c) && !char.IsWhiteSpace(c));
@@ -1641,12 +1641,12 @@ public partial class ExpressionTextBox : UserControl {
 			Select(start, end - start + 1);
 		}
 
-		private ExpressionTextBox.SupportedExpressionTypeEnum GetExpressionEnvironmentAt(int position) {
-			if (ExpTextBox?._ExpressionType == ExpressionTextBox.SupportedExpressionTypeEnum.Regex)
-				return ExpressionTextBox.SupportedExpressionTypeEnum.Regex;
+		private SupportedExpressionTypeEnum GetExpressionEnvironmentAt(int position) {
+			if (ExpTextBox?._ExpressionType == SupportedExpressionTypeEnum.Regex)
+				return SupportedExpressionTypeEnum.Regex;
 
 			if (position > Text.Length)
-				return ExpressionTextBox.SupportedExpressionTypeEnum.String;
+				return SupportedExpressionTypeEnum.String;
 
 			var prevText = Text[..position];
 			var lBracketCount = 0;
@@ -1664,11 +1664,11 @@ public partial class ExpressionTextBox : UserControl {
 			}
 
 			if (lBracketCount != 1) // not in {...}
-				return ExpTextBox?._ExpressionType ?? ExpressionTextBox.SupportedExpressionTypeEnum.String;
+				return ExpTextBox?._ExpressionType ?? SupportedExpressionTypeEnum.String;
 
 			if (afterLBracket.StartsWith("n:") || afterLBracket.StartsWith("numeric:"))
-				return ExpressionTextBox.SupportedExpressionTypeEnum.Numeric;
-			return ExpressionTextBox.SupportedExpressionTypeEnum.String;
+				return SupportedExpressionTypeEnum.Numeric;
+			return SupportedExpressionTypeEnum.String;
 		}
 
 		private static readonly Dictionary<char, char> _leftBracketChars = new() {
@@ -1823,7 +1823,7 @@ public partial class ExpressionTextBox : UserControl {
 						break;
 					// Ctrl + Shift + C (in regex textboxes): named capture group (?<name>xxx)
 					case Keys.C:
-						if (ExpTextBox?.ExpressionType == ExpressionTextBox.SupportedExpressionTypeEnum.Regex) {
+						if (ExpTextBox?.ExpressionType == SupportedExpressionTypeEnum.Regex) {
 							if (shouldWrap)
 								InsertStringOnBothSides("(?<", $">{SelectedText})");
 							else

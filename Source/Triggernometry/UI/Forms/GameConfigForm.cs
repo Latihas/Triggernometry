@@ -148,13 +148,13 @@ public partial class GameConfigForm : Form {
 	}
 
 
-	public OptionLbl AddLabelItem(string desc, TableLayoutPanel table, string hint = null) {
+	public OptionLbl AddLabelItem(string desc, TableLayoutPanel table, string? hint = null) {
 		var item = new OptionLbl(desc, hint);
 		item.AppendToTable(table);
 		return item;
 	}
 
-	public Label AddLabel(string desc, TableLayoutPanel table, string hint = null)
+	public Label AddLabel(string desc, TableLayoutPanel table, string? hint = null)
 		=> AddLabelItem(desc, table, hint).Label;
 
 	public Control AddControl(Control ctrl, TableLayoutPanel table) {
@@ -289,10 +289,10 @@ public partial class GameConfigForm : Form {
 
 /// <summary> 可以从值检索键的双射字典结构，可以用于将 ComboBox 选项和触发器内存储的键相互映射。</summary>
 public class BijectDictionary<TKey, TValue> {
-	private Dictionary<TKey, TValue> _dict = new();
-	private Dictionary<TValue, TKey> _revDict = new();
-	private List<TKey> _keys = new();
-	private List<TValue> _values = new();
+	private readonly Dictionary<TKey, TValue> _dict = new();
+	private readonly Dictionary<TValue, TKey> _revDict = new();
+	private readonly List<TKey> _keys = [];
+	private readonly List<TValue> _values = [];
 
 	public ReadOnlyCollection<TKey> Keys => _keys.AsReadOnly();
 	public ReadOnlyCollection<TValue> Values => _values.AsReadOnly();
@@ -306,7 +306,7 @@ public class BijectDictionary<TKey, TValue> {
 		=> _revDict.ContainsKey(value);
 
 	public BijectDictionary()
-		: this(new (TKey, TValue)[0]) {
+		: this([]) {
 	}
 
 	public BijectDictionary(params (TKey, TValue)[] items) {

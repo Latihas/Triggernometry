@@ -80,7 +80,7 @@ public class WindowsUtils {
 	private static extern int GetSystemMetrics(int smIndex);
 
 	[DllImport("user32.dll")]
-	private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+	private static extern IntPtr FindWindow(string? lpClassName, string lpWindowName);
 
 	[DllImport("user32.dll")]
 	private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
@@ -148,10 +148,12 @@ public class WindowsUtils {
 		{
 			return wins.Count > 0 ? [wins[0]] : [];
 		}
-		return wins.Where(win => {
-			GetWindowThreadProcessId(win, out var windowProcId);
-			return windowProcId == procid;
-		}).ToList();
+		return [
+			.. wins.Where(win => {
+				GetWindowThreadProcessId(win, out var windowProcId);
+				return windowProcId == procid;
+			})
+		];
 	}
 
 	public static void SendKeycode(int procid, string titleRegex, int keycode) {
@@ -170,7 +172,7 @@ public class WindowsUtils {
 
 		keycodes.Add((int)(key & Keys.KeyCode));
 
-		SendKeycodes(procid, titleRegex, keycodes.ToArray());
+		SendKeycodes(procid, titleRegex, [.. keycodes]);
 	}
 
 	public static void SendKeycodes(int procid, string titleRegex, params int[] keycodes) {

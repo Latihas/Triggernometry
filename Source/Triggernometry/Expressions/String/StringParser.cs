@@ -54,14 +54,14 @@ public static class StringParser {
 				newExpr = TemplateParser.ReplaceTemplates(newExpr, templates, ctx, isTestModeNumeric);
 			} catch (Exception ex) {
 				throw new Exception(I18n.Translate("internal/StringParser/expressionerror",
-                        "Error parsing string expression: {0}\nFull expression: {1}", ex.Message, expr), ex);
+					"Error parsing string expression: {0}\nFull expression: {1}", ex.Message, expr), ex);
 				//\n触发器：{ctx?.Trigger?.LogName ?? (null)}
 			}
 		}
 
 		if (depth == MAX_DEPTH) {
 			throw new InvalidOperationException(I18n.Translate("internal/StringParser/infiniteloop",
-                    "Parsing expression '{0}' appears to be in an infinite loop.", expr));
+				"Parsing expression '{0}' appears to be in an infinite loop.", expr));
 		}
 
 		// ¤1 ¤{...} => $1 ${...}

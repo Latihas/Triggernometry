@@ -69,7 +69,7 @@ public struct Circle {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Circle and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Circle value) {
 			return value.Location.Equals(Location)
 			       && value.Radius == Radius;
@@ -203,7 +203,7 @@ public struct Ellipse {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Ellipse and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Ellipse value) {
 			return value.Location.Equals(Location)
 			       && value.RadiusX == RadiusX
@@ -319,7 +319,7 @@ public struct Line {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Line and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Line value) {
 			return value.Start.Equals(Start)
 			       && value.End.Equals(End);
@@ -412,7 +412,7 @@ public struct Point {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Point and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Point value) {
 			return value.X == X
 			       && value.Y == Y;
@@ -565,7 +565,7 @@ public struct Rectangle {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Rectangle and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Rectangle value) {
 			return value.Left == Left
 			       && value.Top == Top
@@ -707,7 +707,7 @@ public struct RoundedRectangle {
 	///     <see langword="true" /> if <paramref name="obj" /> is a RoundedRectangle and equal to this instance;
 	///     otherwise, <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is RoundedRectangle value) {
 			return value.Rectangle.Equals(Rectangle)
 			       && value.RadiusX == RadiusX
@@ -864,7 +864,7 @@ public struct Triangle {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Triangle and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Triangle value) {
 			return value.A.Equals(A)
 			       && value.B.Equals(B)

@@ -6,21 +6,15 @@ using static System.Math;
 
 namespace Triggernometry.Utilities.Maths;
 
-public class PolarCoord : XIVCoord {
-	public double R;
-	public double θ;
-	public double Z;
-
-	public PolarCoord(double r, double θ, double z) {
-		R = r;
-		this.θ = θ;
-		Z = z;
-	}
+public class PolarCoord(double r, double θ, double z) : XIVCoord {
+	public double R = r;
+	public double θ = θ;
+	public double Z = z;
 
 	public override XIVCoord Duplicate() => new PolarCoord(R, θ, Z);
 
-	public override XIVCoord RotateTo(double θ) {
-		this.θ += θ + PI;
+	public override XIVCoord RotateTo(double theta) {
+		θ += theta + PI;
 		return this;
 	}
 
@@ -57,18 +51,18 @@ public class PolarCoord : XIVCoord {
 			case 3:
 				return ParsePolarCoordsString(coords[0], coords[1], coords[2]);
 			default:
-                    throw ErrorHelper.ArgumentCountError(I18n.Translate("internal/PolarCoord/constructor", "PolarCoord constructor"), "2-3", coords.Length, "[" + string.Join("], [", coords) + "]");
+				throw ErrorHelper.ArgumentCountError(I18n.Translate("internal/PolarCoord/constructor", "PolarCoord constructor"), "2-3", coords.Length, "[" + string.Join("], [", coords) + "]");
 		}
 	}
 
-	private static PolarCoord ParsePolarCoordsString(string rawR, string rawθ, string rawZ = null) {
+	private static PolarCoord ParsePolarCoordsString(string rawR, string rawtheta, string? rawZ = null) {
 		try {
 			return new PolarCoord(
 				MathParser.Parse(rawR),
-				MathParser.Parse(rawθ),
+				MathParser.Parse(rawtheta),
 				rawZ == null ? 0 : MathParser.Parse(rawZ));
 		} catch (Exception ex) {
-			throw new ArgumentException(I18n.Translate("internal/PolarCoord/parseerror", "Failed to parse polar coordinates: {0}\n\nRaw data:\nr = ({1}),\nθ = ({2}),\nz = ({3})", ex.Message, rawR, rawθ, rawZ));
+			throw new ArgumentException(I18n.Translate("internal/PolarCoord/parseerror", "Failed to parse polar coordinates: {0}\n\nRaw data:\nr = ({1}),\nθ = ({2}),\nz = ({3})", ex.Message, rawR, rawtheta, rawZ));
 		}
 	}
 }

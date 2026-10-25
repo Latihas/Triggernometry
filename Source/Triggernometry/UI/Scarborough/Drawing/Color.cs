@@ -141,7 +141,7 @@ public struct Color {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Color and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Color clr) {
 			return clr.R == R
 			       && clr.G == G

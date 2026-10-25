@@ -103,7 +103,7 @@ public class CsvManager {
 				);
 			}
 		}
-            throw new KeyNotFoundException(I18n.Translate("internal/CsvManager/typedtablenotloaded", "Table '{0}.csv' was not loaded.", typeof(T)));
+		throw new KeyNotFoundException(I18n.Translate("internal/CsvManager/typedtablenotloaded", "Table '{0}.csv' was not loaded.", typeof(T)));
 	}
 
 	/// <summary>
@@ -118,7 +118,7 @@ public class CsvManager {
 	/// <exception cref="DirectoryNotFoundException">
 	///     Thrown when the resolved folder does not exist.
 	/// </exception>
-	private string GetFolderPath(string folder = null) {
+	private string GetFolderPath(string? folder = null) {
 		if (folder == null &&
 		    (!RealPlugin.Instance.cfg.Constants.TryGetValue("XivExtractedCsvPath", out var v) ||
 		     string.IsNullOrEmpty(folder = v.Value.Trim()))) {
@@ -126,7 +126,7 @@ public class CsvManager {
 		}
 
 		if (!Directory.Exists(folder))
-                throw new DirectoryNotFoundException(I18n.Translate("internal/CsvManager/missingfolder", "Folder does not exist: {0}", folder));
+			throw new DirectoryNotFoundException(I18n.Translate("internal/CsvManager/missingfolder", "Folder does not exist: {0}", folder));
 
 		return folder;
 	}
@@ -200,7 +200,7 @@ public class CsvManager {
 			LoadTable(filePath);
 		} catch (Exception ex) {
 			// TODO: replace with proper logging and error reporting if needed.
-                throw new Exception(I18n.Translate("internal/CsvManager/loadfailed", "Failed to load CSV file '{0}': {1}", filePath, ex.Message), ex);
+			throw new Exception(I18n.Translate("internal/CsvManager/loadfailed", "Failed to load CSV file '{0}': {1}", filePath, ex.Message), ex);
 		}
 	}
 
@@ -213,7 +213,7 @@ public class CsvManager {
 	/// <param name="multiThread">
 	///     If true, tables are loaded in parallel; otherwise loaded sequentially.
 	/// </param>
-	public void LoadAllTables(string folder = null, bool multiThread = true) {
+	public void LoadAllTables(string? folder = null, bool multiThread = true) {
 		var files = Directory.GetFiles(
 			GetFolderPath(folder),
 			"*.csv",
@@ -248,7 +248,7 @@ public class CsvManager {
 	/// </summary>
 	private static readonly MethodInfo _createTypedDictMethod =
 		typeof(CsvManager).GetMethod("CreateTypedDict", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?? throw new InvalidOperationException(I18n.Translate("internal/CsvManager/missingfactory", "Cannot find method CreateTypedDict in CsvManager."));
+		?? throw new InvalidOperationException(I18n.Translate("internal/CsvManager/missingfactory", "Cannot find method CreateTypedDict in CsvManager."));
 
 	/// <summary>
 	///     Creates a strongly-typed dictionary for a given CsvTable and row type.

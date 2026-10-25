@@ -87,7 +87,7 @@ public readonly struct IndexMemberExpression {
 			// fall back to treating the entire expression as Name
 			if (indexList.Count == 0) return;
 
-			_indexes = indexList.ToArray();
+			_indexes = [.. indexList];
 		}
 
 		Name = rawPossibleName.TrimEx();
@@ -121,8 +121,8 @@ public readonly struct IndexMemberExpression {
 	public string GetIndex(int indexOfIndex) => TryGetIndex(indexOfIndex)
 	                                            ?? throw new ArgumentOutOfRangeException(
 		                                            nameof(indexOfIndex),
-                I18n.Translate("internal/IndexMemberExpression/indexoutofrange",
-                    "Expression {0} has only {1} index(es).", RawExpression, Indexes.Length));
+		                                            I18n.Translate("internal/IndexMemberExpression/indexoutofrange",
+			                                            "Expression {0} has only {1} index(es).", RawExpression, Indexes.Length));
 
 	/// <summary>
 	///     Attempt to get the index value at the specified position.

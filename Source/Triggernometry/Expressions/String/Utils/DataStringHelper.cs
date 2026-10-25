@@ -29,7 +29,7 @@ public static partial class DataStringHelper {
 					return f.ToStringInvariant();
 				} catch (Exception) {
 					RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/DataStringHelper/decimalconversionwarning",
-                            "Failed to convert {0} ({1}) to decimal.", "float", f));
+						"Failed to convert {0} ({1}) to decimal.", "float", f));
 					return f.ToString();
 				}
 			case double d:
@@ -37,7 +37,7 @@ public static partial class DataStringHelper {
 					return d.ToStringInvariant();
 				} catch (Exception) {
 					RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/DataStringHelper/decimalconversionwarning",
-                            "Failed to convert {0} ({1}) to decimal.", "double", d));
+						"Failed to convert {0} ({1}) to decimal.", "double", d));
 					return d.ToString();
 				}
 			case IFormattable formattable:
@@ -57,8 +57,8 @@ public static partial class DataStringHelper {
 		if (TryParseData(input, targetType, out var value))
 			return value;
 
-            throw new ArgumentException(I18n.Translate("internal/DataStringHelper/conversionerror",
-                "Cannot convert string '{0}' to type {1}.", input, targetType.Name));
+		throw new ArgumentException(I18n.Translate("internal/DataStringHelper/conversionerror",
+			"Cannot convert string '{0}' to type {1}.", input, targetType.Name));
 	}
 
 	public static bool TryParseData<T>(this string input, out T result) {
@@ -168,10 +168,10 @@ public static partial class DataStringHelper {
 	public static object RawInvoke(this Delegate _delegate, params string[] rawArgs) {
 		var paramsInfo = _delegate.Method.GetParameters();
 
-		rawArgs = rawArgs ?? new string[0];
+		rawArgs = rawArgs ?? [];
 		if (rawArgs.Length > paramsInfo.Length)
-                throw new ArgumentException(I18n.Translate("internal/DataStringHelper/toomanyarguments",
-                    "Too many arguments: expected at most {0}, but got {1}.", paramsInfo.Length, rawArgs.Length));
+			throw new ArgumentException(I18n.Translate("internal/DataStringHelper/toomanyarguments",
+				"Too many arguments: expected at most {0}, but got {1}.", paramsInfo.Length, rawArgs.Length));
 
 		var parameters = new object[paramsInfo.Length];
 
@@ -182,14 +182,14 @@ public static partial class DataStringHelper {
 					parameters[i] = rawArgs[i].ParseData(paramType);
 				} catch (Exception ex) {
 					throw new ArgumentException(I18n.Translate("internal/DataStringHelper/argumentconversionerror",
-                            "Argument {0} ({1}) cannot be converted to type {2}.", i, paramsInfo[i].Name, paramType), ex);
+						"Argument {0} ({1}) cannot be converted to type {2}.", i, paramsInfo[i].Name, paramType), ex);
 				}
 			} else {
 				if (paramsInfo[i].HasDefaultValue)
 					parameters[i] = paramsInfo[i].DefaultValue;
 				else
-                        throw new ArgumentException(I18n.Translate("internal/DataStringHelper/missingargument",
-                            "Argument {0} ({1}) has no value or default value.", i, paramsInfo[i].Name));
+					throw new ArgumentException(I18n.Translate("internal/DataStringHelper/missingargument",
+						"Argument {0} ({1}) has no value or default value.", i, paramsInfo[i].Name));
 			}
 		}
 
@@ -205,14 +205,17 @@ public static partial class DataStringHelper {
 		public readonly uint Value;
 		public const uint Default = 0xE0000000;
 
-            private static readonly Regex HexRegex = new Regex(@"^(?:[14]0[0-9A-F]{6}|E0000000)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            public HexOrDecId(uint value) => Value = value;
-            public HexOrDecId(string input)
-            {
+		private static readonly Regex HexRegex = new(@"^(?:[14]0[0-9A-F]{6}|E0000000)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+		public HexOrDecId(uint value) {
+			Value = value;
+		}
+
+		public HexOrDecId(string input) {
 			input = input.Trim();
 			if (string.IsNullOrWhiteSpace(input))
 				Value = Default;
-                // "10123456" "40ABCDEF" "E0000000"
+			// "10123456" "40ABCDEF" "E0000000"
 			else if (HexRegex.IsMatch(input))
 				Value = Convert.ToUInt32(input, 16);
 			else

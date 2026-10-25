@@ -27,7 +27,7 @@ public class Geometry : IDisposable {
 	/// <param name="device"></param>
 	public Geometry(Graphics device) {
 		if (device == null) throw new ArgumentNullException(nameof(device));
-            if (!device.IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Geometry/uninitializedtarget", "The render target needs to be initialized first."));
+		if (!device.IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Geometry/uninitializedtarget", "The render target needs to be initialized first."));
 
 		_geometry = new PathGeometry(device.GetFactory());
 		_sink = _geometry.Open();
@@ -151,7 +151,7 @@ public class Geometry : IDisposable {
 	///     <see langword="true" /> if <paramref name="obj" /> is a Geometry and equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public override bool Equals(object obj) {
+	public override bool Equals(object? obj) {
 		if (obj is Geometry geometry) {
 			return geometry.IsOpen == IsOpen
 			       && geometry._geometry.NativePointer == _geometry.NativePointer;

@@ -13,8 +13,8 @@ internal static class ListEvaluator {
 	internal static Func<VariableList, string> BuildEvaluator(IndexMemberExpression expr) {
 		// invalid (only name)
 		if (expr.Indexes.Length == 0 && !expr.Member.HasValue)
-                throw new Exception(I18n.Translate("internal/ListEvaluator/indexorpropertyrequired",
-                    "List variable must include an index or property in expression '{0}'.", expr.RawExpression));
+			throw new Exception(I18n.Translate("internal/ListEvaluator/indexorpropertyrequired",
+				"List variable must include an index or property in expression '{0}'.", expr.RawExpression));
 
 		// lvar:Name[Index]
 		if (expr.Indexes.Length > 0) {
@@ -41,8 +41,8 @@ internal static class ListEvaluator {
 				var defaultValue = GetArgument(args, 1);
 
 				return vl => vl.Peek(idx, defaultValue)?.ToString()
-                            ?? throw new Exception(I18n.Translate("internal/ListEvaluator/indexnotfound",
-                                "Index '{0}' not found in list variable '{1}'.", idx, expr.Name));
+				             ?? throw new Exception(I18n.Translate("internal/ListEvaluator/indexnotfound",
+					             "Index '{0}' not found in list variable '{1}'.", idx, expr.Name));
 			}
 			case "indexof":
 			case "i":
@@ -100,7 +100,7 @@ internal static class ListEvaluator {
 					var indices = GetSliceIndices(slicesStr, vl.Size, expr.RawExpression, 1);
 
 					if (methodName == "randjoin")
-						indices = indices.OrderBy(_ => rng.Next()).ToList();
+						indices = [.. indices.OrderBy(_ => rng.Next())];
 
 					return vl.Join(joiner, indices);
 				};
@@ -136,8 +136,8 @@ internal static class ListEvaluator {
 				return vl => vl.Values.Any(v => v.ToString() == target) ? trueStr : falseStr;
 			}
 			default:
-                    throw new Exception(I18n.Translate("internal/ListEvaluator/unknownmethod",
-                        "Unknown list method '{0}' in expression '{1}'.", methodName, expr.RawExpression));
+				throw new Exception(I18n.Translate("internal/ListEvaluator/unknownmethod",
+					"Unknown list method '{0}' in expression '{1}'.", methodName, expr.RawExpression));
 		}
 	}
 }

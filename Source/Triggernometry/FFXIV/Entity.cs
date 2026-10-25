@@ -67,7 +67,7 @@ public class Entity {
 			{ "IsFriend", e => e.IsFriend },
 			{ "WeaponID", e => e.WeaponID },
 			{ "TargetID", e => e.TargetHexID },
-            { "IsTargetingSelf",e => e.TargetID == GetMyself().ID },
+			{ "IsTargetingSelf", e => e.TargetID == GetMyself().ID },
 			{ "BNpcNameID", e => e.BNpcNameID },
 			{ "CurrentWorldID", e => e.CurrentWorldID },
 			{ "WorldID", e => e.WorldID },
@@ -292,7 +292,7 @@ public class Entity {
 		var percentage = max == 0 ? 0f : 100f * current / max;
 		var round = args.Length == 0 ? -1 : (int)MathParser.Parse(args[0]);
 		return round < 0
-                ? percentage.ToStringInvariant()
+			? percentage.ToStringInvariant()
 			: percentage.ToString("F" + round, CultureInfo.InvariantCulture);
 	}
 
@@ -408,7 +408,7 @@ public class Entity {
 		BNpcNameID = BNpcNameID,
 		CurrentWorldID = CurrentWorldID,
 		WorldID = WorldID,
-		Statuses = Statuses.Select(s => s.Snapshot()).ToList(),
+		Statuses = [.. Statuses.Select(s => s.Snapshot())],
 		IsCasting = IsCasting,
 		CastType = CastType,
 		CastID = CastID,
@@ -440,7 +440,7 @@ public class Entity {
 	public static IEnumerable<Entity> GetEntities() {
 		var result = ModuleCombatants.InternalGetEntities().ToList();
 		if (result.Count == 0)
-			result = BridgeFFXIV.InternalGetEntities().ToList();
+			result = [.. BridgeFFXIV.InternalGetEntities()];
 		return result;
 	}
 

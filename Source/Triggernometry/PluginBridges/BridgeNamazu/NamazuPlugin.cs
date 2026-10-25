@@ -61,7 +61,7 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 	/// <summary>
 	///     Force an action to be executed, bypassing the user config checks.
 	/// </summary>
-	public void DoActionForce(string command, string payload, string moduleName = null) {
+	public void DoActionForce(string command, string payload, string? moduleName = null) {
 		if (moduleName == null && !_commandToModuleNames.TryGetValue(command, out moduleName)) {
 			throw new ArgumentException($"Command '{command}' does not map to a module name.", nameof(command));
 		}
@@ -126,14 +126,14 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 			private readonly Type ReturnType = returnType;
 			private readonly Type[] ParamTypes = paramTypes;
 
-			public bool Equals(Signature other) {
+			public bool Equals(Signature? other) {
 				if (other == null) return false;
 				if (ReturnType != other.ReturnType || ParamTypes.Length != other.ParamTypes.Length)
 					return false;
 				return !ParamTypes.Where((t, i) => t != other.ParamTypes[i]).Any();
 			}
 
-			public override bool Equals(object obj) => Equals(obj as Signature);
+			public override bool Equals(object? obj) => Equals(obj as Signature);
 
 			public override int GetHashCode() {
 				unchecked {
