@@ -101,7 +101,7 @@ internal static class ModuleCombatants {
 		foreach (var x in list) {
 			Entity? entity;
 			unsafe {
-				var combatant = GetMobFromByteArray(x.Value, 0);
+				var combatant = GetMobFromByteArray((BattleChara*)x.Value, 0);
 				if (combatant == null || seen.Contains(combatant.ID)) continue;
 				entity = new OpEntity(combatant, (IntPtr)x.Value);
 			}
@@ -111,7 +111,7 @@ internal static class ModuleCombatants {
 	}
 
 	/// <returns>Null if not found.</returns>
-	private static unsafe Combatant? GetMobFromByteArray(GameObject* source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
+	private static unsafe Combatant? GetMobFromByteArray(BattleChara* source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
 
 	/// <returns>OpEntity.NullEntity() if not found.</returns>
 	internal static Entity InternalGetEntityByID(uint id) {
