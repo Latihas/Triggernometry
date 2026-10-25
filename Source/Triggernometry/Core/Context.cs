@@ -16,7 +16,7 @@ namespace Triggernometry.Core;
 public class Context {
 	internal Guid id = Guid.NewGuid();
 	internal bool testByPlaceholder;
-	internal RealPlugin Plugin => field ?? Instance;
+	internal RealPlugin Plugin => field ??= Instance;
 	public readonly Trigger? Trigger;
 	internal ActionOld.TriggerForceTypeEnum forceType;
 
@@ -101,7 +101,7 @@ public class Context {
 		}
 	}
 
-	internal void RecordCaptureGroups(Trigger trigger, Match match) {
+	internal void RecordCaptureGroups(Trigger trigger, Match? match) {
 		_numRegexGroups = [];
 		foreach (var idx in trigger.regexCache.GetGroupNumbers()) {
 			var capturedValue = match?.Groups[idx].Value ?? "";
@@ -110,7 +110,7 @@ public class Context {
 				"Trigger '{0}' numbered group {1}: {2}", trigger.LogName, idx, capturedValue));
 		}
 
-		_namedRegexGroups = new Dictionary<string, string>();
+		_namedRegexGroups = [];
 		foreach (var name in trigger.regexCache.GetGroupNames()) {
 			var capturedValue = match?.Groups[name].Value ?? "";
 			_namedRegexGroups[name] = capturedValue;

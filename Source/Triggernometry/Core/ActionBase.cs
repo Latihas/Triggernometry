@@ -566,23 +566,13 @@ public abstract class ActionBase {
 			}
 		}
 		if (Asynchronous) {
-			Task t;
-			if (ctx.Plugin != null) {
-				var ct = ctx.Plugin.GetCancellationToken();
-				t = new Task(() => {
-					ct.ThrowIfCancellationRequested();
-					AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
-					ExecuteImplementation(ai);
-					ai?.ActionFinished();
-				});
-			} else {
-				t = new Task(() => {
-					AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
-					ExecuteImplementation(ai);
-					ai?.ActionFinished();
-				});
-			}
-			t.Start();
+			var ct = ctx.Plugin.GetCancellationToken();
+			_ =  Task.Run(() => {
+				ct.ThrowIfCancellationRequested();
+				AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
+				ExecuteImplementation(ai);
+				ai?.ActionFinished();
+			}, ct);
 		} else {
 			AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
 			ExecuteImplementation(ai);

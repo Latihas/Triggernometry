@@ -13,7 +13,9 @@ namespace Triggernometry.Core;
 public partial class RealPlugin {
 	public readonly List<QueuedAction> ActionQueue = [];
 	private long curOrdinal;
+
 	public delegate void ActionExecutionHook(Context ctx, ActionOld a);
+
 	internal HashSet<QueuedAction> ExecutingActions = [];
 
 	private void InitActionQueue() {
@@ -88,16 +90,13 @@ public partial class RealPlugin {
 			return ex != 0 ? ex : ordinal.CompareTo(b.ordinal);
 		}
 
-            public void ActionFinished()
-            {
-                lock (ctx.Plugin.ActionQueue)
-                {
-                    ctx.Plugin.ExecutingActions.Remove(this);
-                    if (mutex != null && releaseMutex)
-                    {
-				mutex.Release(ctx);
-                        mutex = null;
-                    }
+		public void ActionFinished() {
+			lock (ctx.Plugin.ActionQueue) {
+				ctx.Plugin.ExecutingActions.Remove(this);
+				if (mutex != null && releaseMutex) {
+					mutex.Release(ctx);
+					mutex = null;
+				}
 			}
 		}
 	}
@@ -112,27 +111,22 @@ public partial class RealPlugin {
 	///     If <c>null</c>, all actions will be removed.
 	/// </param>
 	/// <returns>The number of queued actions removed from the queue.</returns>
+	internal int CancelQueuedActions(Func<QueuedAction, bool> filter = null) {
+		var removedCount = 0;
+		lock (ActionQueue) {
+			var toRemove = ActionQueue.Where(qa => filter == null || filter(qa)).ToList();
+			removedCount = toRemove.Count;
+			foreach (var qa in toRemove)
+				ActionQueue.Remove(qa);
 
-        internal int CancelQueuedActions(Func<QueuedAction, bool> filter = null)
-        { var removedCount = 0;
-	        lock (ActionQueue)
-            {
-                var toRemove = ActionQueue.Where(qa => filter == null || filter(qa)).ToList();
-                removedCount = toRemove.Count;
-                foreach (var qa in toRemove)
-	                ActionQueue.Remove(qa);
-
-                foreach (var group in toRemove.Where(qa => qa.mutex != null)
-                    .GroupBy(qa => new { qa.mutex, qa.ctx.id }))
-                {
-                    // Transfer the release to a surviving action, or finish the canceled chain.
-                    var last = ExecutingActions.Concat(ActionQueue).LastOrDefault(qa => qa.mutex == group.Key.mutex && qa.ctx.id == group.Key.id);
-                    if (last != null)
-                    {
-                        if (group.Any(qa => qa.releaseMutex)) last.releaseMutex = true;
-				}
-                    else if (group.Any(qa => qa.releaseMutex || qa.ctx.Trigger.Sequential))
-                        group.Key.mutex.Release(group.First().ctx);
+			foreach (var group in toRemove.Where(qa => qa.mutex != null)
+				         .GroupBy(qa => new { qa.mutex, qa.ctx.id })) {
+				// Transfer the release to a surviving action, or finish the canceled chain.
+				var last = ExecutingActions.Concat(ActionQueue).LastOrDefault(qa => qa.mutex == group.Key.mutex && qa.ctx.id == group.Key.id);
+				if (last != null) {
+					if (group.Any(qa => qa.releaseMutex)) last.releaseMutex = true;
+				} else if (group.Any(qa => qa.releaseMutex || qa.ctx.Trigger.Sequential))
+					group.Key.mutex.Release(group.First().ctx);
 			}
 		}
 		return removedCount;
@@ -223,6 +217,7 @@ public partial class RealPlugin {
 				if (tp.when > now) break;
 				ActionQueue.RemoveAt(0);
 				ExecutingActions.Add(tp);
+				tp.act.Execute(tp, tp.ctx);
 			}
 		}
 	}

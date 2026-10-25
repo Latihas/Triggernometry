@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -81,7 +82,7 @@ public partial class RealPlugin {
 
 	public delegate void ACTEncounterLogDelegate(string message);
 
-	private readonly Queue<LogEvent> EventQueue = [];
+	private readonly ConcurrentQueue<LogEvent> EventQueue = [];
 	public UserInterface ui = UserInterface.Instance;
 	[Obsolete("Use ConfigPath")] public string path => ConfigPath;
 	public string ConfigPath { get; set; }
@@ -93,7 +94,6 @@ public partial class RealPlugin {
 	public string pluginName { get; set; }
 	public string pluginPath { get; set; }
 	internal Endpoint? _ep;
-	private bool firstevent = true;
 	internal bool isRunningAsAdmin;
 	internal string? currentZone;
 	internal DateTime LastDelayWarning = DateTime.Now;
@@ -341,16 +341,12 @@ public partial class RealPlugin {
 			LogTranscriber.Reset(true);
 			InitActionQueue();
 			var cancellationToken = GetCancellationToken();
-			lock (EventQueue) EventQueue.Clear();
+			BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
 			ProxyPlugin.Framework.Update += LogLineProcessorAsync;
-			// EventQueueTask = Task.Run(() => LogLineProcessorAsync(cancellationToken), cancellationToken);
-			// InitAura();
 			_obs = new ObsController();
 			_livesplit = new LiveSplitController();
 			exwhere = I18n.Translate("internal/Plugin/iniendpoint", "starting endpoint");
-			if (cfg.StartEndpointOnLaunch) {
-				_ep.Start();
-			}
+			if (cfg.StartEndpointOnLaunch) _ep?.Start();
 			RegisterDefaultNamedCallbacks();
 			// pluginStatusText.Text = I18n.Translate("internal/Plugin/iniready", "Ready");
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/inited", "Initialized"));
@@ -439,25 +435,18 @@ public partial class RealPlugin {
 	}
 
 	public void LogLineQueuer(string text, string zone, LogEvent.SourceEnum src) {
-		var le = new LogEvent {
+		EventQueue.Enqueue(new LogEvent {
 			Text = text,
 			ZoneName = zone,
 			Source = src,
 			Timestamp = DateTime.Now
-		};
-		lock (EventQueue) EventQueue.Enqueue(le);
+		});
 	}
 
 	private readonly Queue<LogEvent> lxx = [];
 
 	private void LogLineProcessorAsync(IFramework _) {
-		lock (EventQueue)
-			while (EventQueue.TryDequeue(out var line))
-				lxx.Enqueue(line);
-		if (lxx.Count > 0 && firstevent) {
-			BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
-			firstevent = false;
-		}
+		while (EventQueue.TryDequeue(out var line)) lxx.Enqueue(line);
 		while (lxx.TryDequeue(out var line)) LogLineProcessor(line);
 	}
 

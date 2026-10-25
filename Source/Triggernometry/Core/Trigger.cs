@@ -386,18 +386,16 @@ public class Trigger {
 	///     <br />
 	///     · <see langword="false" /> if blocked (repository/condition/refire rules) or an exception occurs.
 	/// </summary>
-        public bool Fire(Context ctx, RealPlugin.MutexInformation? mtx = null)
-		{
-            try
-            {
+	public bool Fire(Context ctx, RealPlugin.MutexInformation? mtx = null) {
+		try {
 			if (TryScheduleDeferredFireWithMutexCapture(ctx, mtx))
 				return true;
 
 			if (TryBlockByCondition(ctx))
 				return false;
 
-                if (TryBlockByRepository())
-                    return false;
+			if (TryBlockByRepository())
+				return false;
 
 			var prevLastFired = UpdateFireTiming(ctx);
 			var scheduleBaseTime = ComputeScheduleBaseTime(ctx, prevLastFired);
@@ -593,8 +591,8 @@ public class Trigger {
 
 	public void QueueActions(Context ctx, DateTime curtime, RealPlugin.MutexInformation mtx) {
 		//System.Diagnostics.Debug.WriteLine("### queuing actions for " + ctx.ToString());
-            if (RealPlugin.Instance.QueueActions(ctx, curtime, Actions, Sequential, mtx, TriggerContextLogger) == null)
-                mtx?.Release(ctx);
+		if (RealPlugin.Instance.QueueActions(ctx, curtime, Actions, Sequential, mtx, TriggerContextLogger) == null)
+			mtx?.Release(ctx);
 	}
 
 	#endregion Firing Pipeline
@@ -641,10 +639,9 @@ public class Trigger {
 		t.IsReadme = IsReadme;
 	}
 
-        internal void SetActionsParent()
-        {
-            if (Condition != null) ConditionGroup.RebuildParentage(Condition);
-            ActionOld.RebuildParentage(Actions, this);
+	internal void SetActionsParent() {
+		if (Condition != null) ConditionGroup.RebuildParentage(Condition);
+		ActionOld.RebuildParentage(Actions, this);
 	}
 
 	#endregion Utils

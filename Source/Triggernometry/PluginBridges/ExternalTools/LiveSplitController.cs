@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Pipes;
+using System.Threading;
 
 namespace Triggernometry.PluginBridges.ExternalTools;
 
@@ -15,9 +16,9 @@ internal class LiveSplitController : IDisposable {
 		}
 	}
 
-	private NamedPipeClientStream client;
-	private StreamWriter clientWriter;
-	private readonly object lockobj = new();
+	private NamedPipeClientStream? client;
+	private StreamWriter? clientWriter;
+	private readonly Lock lockobj = new();
 
 	public void Dispose() {
 		clientWriter?.Dispose();

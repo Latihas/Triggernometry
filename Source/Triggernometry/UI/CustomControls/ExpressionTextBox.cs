@@ -659,14 +659,12 @@ public partial class ExpressionTextBox : UserControl {
 	private void HideAutocomplete() {
 		acfDebounceTimer.Stop();
 		lock (this) {
-			if (acf != null) {
-				acf.Dispose();
-				acf = null;
-				if (ParentForm != null) {
-					ParentForm.AcceptButton = AcceptButton;
-					ParentForm.CancelButton = CancelButton;
-				}
-			}
+			if (acf == null) return;
+			acf.Dispose();
+			acf = null;
+			if (ParentForm == null) return;
+			ParentForm.AcceptButton = AcceptButton;
+			ParentForm.CancelButton = CancelButton;
 		}
 	}
 

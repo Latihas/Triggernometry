@@ -284,10 +284,9 @@ public partial class ActionOld {
 			} else if (NextAction != null) {
 				var dt = DateTime.Now.AddMilliseconds(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, NextAction.ExecutionDelayExpression));
 				Instance.QueueAction(ctx, ctx.Trigger, qa?.mutex, NextAction, dt, false);
-                }
-                // Non-sequential actions release through the final queued action's ActionFinished.
-                else if (qa?.mutex != null && ctx.Trigger.Sequential)
-                {
+			}
+			// Non-sequential actions release through the final queued action's ActionFinished.
+			else if (qa?.mutex != null && ctx.Trigger.Sequential) {
 				qa.mutex.Release(ctx);
 				qa.mutex = null;
 			}
@@ -363,21 +362,17 @@ public partial class ActionOld {
 	}
 
 	internal void Execute(QueuedAction? qa, Context ctx) {
-		if (qa != null)
-		{
+		if (qa != null) {
 			lock (ctx.Plugin.ActionQueue) ctx.Plugin.ExecutingActions.Add(qa);
 		}
 		if (Asynchronous) {
-			var ct = ctx.Plugin?.GetCancellationToken();
+			var ct = ctx.Plugin.GetCancellationToken();
 			Task.Run(() => {
-				try
-				{
-					ct?.ThrowIfCancellationRequested();
+				try {
+					ct.ThrowIfCancellationRequested();
 					ExecutionImplementation(qa, ctx);
-				}
-				finally 
-				{ 
-					qa?.ActionFinished(); 
+				} finally {
+					qa?.ActionFinished();
 				}
 			});
 		} else {
@@ -505,7 +500,7 @@ public partial class ActionOld {
 		a._DiskFileOp = _DiskFileOp;
 		a._DiskFileOpVar = _DiskFileOpVar;
 		a._DiskFileOpName = _DiskFileOpName;
-            a._DiskFileCache = _DiskFileCache;
+		a._DiskFileCache = _DiskFileCache;
 		a._TableVariableExpression = _TableVariableExpression;
 		a._TableVariableExpressionType = _TableVariableExpressionType;
 		a._TableVariableName = _TableVariableName;
@@ -581,32 +576,26 @@ public partial class ActionOld {
 				enumName, enumValue)
 		);
 
-        /// <summary> Enumerates actions and their loop children in tree order. </summary>
-        internal static IEnumerable<ActionOld> RecursiveGetActions(IEnumerable<ActionOld> actions)
-        {
-            foreach (var action in actions)
-            {
-                yield return action;
-                foreach (var child in RecursiveGetActions(action.LoopActions))
-                {
-                    yield return child;
-                }
-            }
-        }
+	/// <summary> Enumerates actions and their loop children in tree order. </summary>
+	internal static IEnumerable<ActionOld> RecursiveGetActions(IEnumerable<ActionOld> actions) {
+		foreach (var action in actions) {
+			yield return action;
+			foreach (var child in RecursiveGetActions(action.LoopActions)) {
+				yield return child;
+			}
+		}
+	}
 
-        /// <summary> Restores owning triggers and condition parent links for an action subtree. </summary>
-        internal static void RebuildParentage(IEnumerable<ActionOld> actions, Trigger trigger)
-        {
-            foreach (var action in RecursiveGetActions(actions))
-            {
-                action.ParentTrigger = trigger;
-                if (action.Condition != null) ConditionGroup.RebuildParentage(action.Condition);
-                if (action.LoopCondition != null) ConditionGroup.RebuildParentage(action.LoopCondition);
-            }
-        }
+	/// <summary> Restores owning triggers and condition parent links for an action subtree. </summary>
+	internal static void RebuildParentage(IEnumerable<ActionOld> actions, Trigger trigger) {
+		foreach (var action in RecursiveGetActions(actions)) {
+			action.ParentTrigger = trigger;
+			if (action.Condition != null) ConditionGroup.RebuildParentage(action.Condition);
+			if (action.LoopCondition != null) ConditionGroup.RebuildParentage(action.LoopCondition);
+		}
+	}
 
-        public ActionOld Copy()
-        {
+	public ActionOld Copy() {
 		var a = new ActionOld();
 		CopySettingsTo(a);
 		return a;
@@ -695,7 +684,7 @@ public partial class ActionOld {
 				return (ActionWindowMessage)this;
 
 			default:
-                    throw new NotSupportedException(I18n.Translate("internal/Action/unknowntype", "Unknown ActionType: {0}", ActionType));
+				throw new NotSupportedException(I18n.Translate("internal/Action/unknowntype", "Unknown ActionType: {0}", ActionType));
 		}
 	}
 }

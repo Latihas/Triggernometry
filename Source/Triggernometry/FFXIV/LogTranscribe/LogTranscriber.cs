@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Triggernometry.Core;
 using Triggernometry.Expressions.String.Utils;
@@ -9,7 +10,7 @@ using Triggernometry.Expressions.String.Utils;
 namespace Triggernometry.FFXIV.LogTranscribe;
 
 internal static class LogTranscriber {
-	private static readonly object StateLock = new();
+	private static readonly Lock StateLock = new();
 	private static int _generation;
 
 	internal static void Reset(bool clearTerritoryRecord) {
@@ -58,7 +59,7 @@ internal static class LogTranscriber {
 	}
 
 	/// <summary> e.g. "1B" "10F"; null if failed </summary>
-	private static string GetLogNumber(string logLine) {
+	private static string? GetLogNumber(string logLine) {
 		// [00:00:00.000] TargetIcon 1B:...
 		if (logLine.Length <= 15)
 			return null;

@@ -66,9 +66,7 @@ internal class Manager : IDisposable {
 				try {
 					var ia = ItemActions.Dequeue();
 					ExecuteItemAction(ia);
-					if (ia.Completed != null) {
-						ia.Completed.Set();
-					}
+					if (ia.Completed != null) ia.Completed.Set();
 				} catch (Exception) {
 				}
 			}
