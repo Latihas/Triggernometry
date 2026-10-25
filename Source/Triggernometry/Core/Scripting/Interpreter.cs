@@ -11,9 +11,6 @@ namespace Triggernometry.Core.Scripting;
 public class Interpreter {
 	internal bool Ready = true;
 
-	internal Interpreter() {
-	}
-
 	public void Evaluate(string rawScript, string? extraAssembliesInput, Context? ctx) {
 		if (!CSharpScriptCompiler.CompileScript(rawScript, true)) return;
 		var fn = "";

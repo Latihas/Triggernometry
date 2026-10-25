@@ -110,7 +110,7 @@ public partial class RealPlugin {
 	public static string UState = "就绪";
 
 	private RealPlugin() {
-		ThreadPool.SetMinThreads(10, 10);
+		// ThreadPool.SetMinThreads(10, 10);
 		BridgeFFXIV.OnLogEvent += BridgeFFXIV_OnLogEvent;
 		_ep = new Endpoint();
 		_ep.OnStatusChange += _ep_OnStatusChange;
@@ -244,6 +244,8 @@ public partial class RealPlugin {
 
 	public void InitPlugin(Action<string> logTick) {
 		InitLanguage();
+		LoadLanguages();
+		ChangeLanguage("简体中文 (zh-CN)");
 		var exwhere = I18n.Translate("internal/Plugin/initseek", "seeking plugin instance");
 		try {
 			logTick("Start InitPlugin");
@@ -254,21 +256,12 @@ public partial class RealPlugin {
 			FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/filenameis", "Plugin filename is '{0}' at '{1}'", pluginName, pluginPath));
 
 			exwhere = I18n.Translate("internal/Plugin/inilanguages", "loading languages");
-			LoadLanguages();
+
 			exwhere = I18n.Translate("internal/Plugin/inicfg", "loading configuration");
 			cfg = LoadConfigFromFile(Path.Combine(ConfigPath, pluginName + ".config.xml"), logTick);
 			SetupDefaultSecurity();
 			AutofixConfiguration();
 			ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-			// start
-			/*
-			if (cfg.Language != null)
-			{
-			    ChangeLanguage(cfg.Language);
-			}
-			*/
-			ChangeLanguage("简体中文 (zh-CN)");
-			// end
 			HandleVersionUpdate();
 			FixDuplicateFolderReferences(null, cfg, null);
 			BridgeFFXIV.cfg = cfg;
@@ -354,7 +347,6 @@ public partial class RealPlugin {
 			// InitAura();
 			_obs = new ObsController();
 			_livesplit = new LiveSplitController();
-			InitScripting();
 			exwhere = I18n.Translate("internal/Plugin/iniendpoint", "starting endpoint");
 			if (cfg.StartEndpointOnLaunch) {
 				_ep.Start();
@@ -453,10 +445,7 @@ public partial class RealPlugin {
 			Source = src,
 			Timestamp = DateTime.Now
 		};
-		lock (EventQueue) {
-			EventQueue.Enqueue(le);
-			// QueueWakeupEvent.Set();
-		}
+		lock (EventQueue) EventQueue.Enqueue(le);
 	}
 
 	private readonly Queue<LogEvent> lxx = [];
@@ -465,14 +454,14 @@ public partial class RealPlugin {
 		lock (EventQueue)
 			while (EventQueue.TryDequeue(out var line))
 				lxx.Enqueue(line);
+		if (lxx.Count > 0 && firstevent) {
+			BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
+			firstevent = false;
+		}
 		while (lxx.TryDequeue(out var line)) LogLineProcessor(line);
 	}
 
 	internal void LogLineProcessor(LogEvent le) {
-		if (firstevent) {
-			BridgeFFXIV.ZoneChanged += ZoneChangeDelegate;
-			firstevent = false;
-		}
 		switch (le.Source) {
 			case LogEvent.SourceEnum.Log:
 				lock (ActiveTextTriggers)
@@ -495,13 +484,6 @@ public partial class RealPlugin {
 						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
 				break;
 			default: throw new ArgumentOutOfRangeException();
-		}
-		var del = (DateTime.Now - le.Timestamp).TotalMilliseconds;
-		if (del > 100.0) {
-			if ((DateTime.Now - LastDelayWarning).TotalSeconds > 10.0) {
-				FilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/Plugin/warnprocdelay", "Line ({0}) took {1} ms to process, may be falling behind", le.Text, del));
-				LastDelayWarning = DateTime.Now;
-			}
 		}
 	}
 

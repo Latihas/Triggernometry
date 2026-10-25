@@ -26,13 +26,8 @@ public partial class RealPlugin {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchangeok", "Language is now '{0}'",
 				I18n.CurrentLanguage != null ? I18n.CurrentLanguage.LanguageName : "(not set)"
 			));
-			if (cfg != null && I18n.CurrentLanguage != null) {
-				if (langname == null) {
-					cfg.Language = null;
-				} else {
-					cfg.Language = I18n.CurrentLanguage.LanguageName;
-				}
-			}
+			if (cfg != null && I18n.CurrentLanguage != null) 
+				cfg.Language = langname == null ? null : I18n.CurrentLanguage.LanguageName;
 		} else {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/langchangefail", "Couldn't change language from '{0}' to '{1}'",
 				I18n.CurrentLanguage != null ? I18n.CurrentLanguage.LanguageName : "(not set)",
@@ -65,81 +60,12 @@ public partial class RealPlugin {
 		return null;
 	}
 
-	private void SaveDefaultLanguage(string filename) {
-		var l = I18n.DefaultLanguage;
-		l.BuildList();
-		var ns = new XmlSerializerNamespaces();
-		ns.Add("", "");
-		var xs = new XmlSerializer(typeof(Language));
-		var test = "";
-		using (var ms = new MemoryStream()) {
-			xs.Serialize(ms, l, ns);
-			ms.Position = 0;
-			using (var sr = new StreamReader(ms)) {
-				test = sr.ReadToEnd();
-				test = SerializeInvalidXmlCharacters(test);
-			}
-		}
-		using (var fs = File.Open(filename, FileMode.Create, FileAccess.Write)) {
-			using (var sw = new StreamWriter(fs)) {
-				sw.Write(test);
-				sw.Flush();
-			}
-		}
-	}
-
 	private void LoadLanguages() {
-		/*{
-		    string[] files = Directory.GetFiles(path, "*.triglations.xml", SearchOption.TopDirectoryOnly);
-		    foreach (string file in files)
-		    {
-		        Language l = LoadLanguage(file);
-		        if (l != null)
-		        {
-		            I18n.AddLanguage(l);
-		        }
-		    }
-		}*/
-		//if (path != pluginPath)
-		//{
-		var files = Directory.GetFiles(ProxyPlugin.PluginInterface.AssemblyLocation.Directory!.ToString(), "*.triglations.xml", SearchOption.TopDirectoryOnly);
-		foreach (var file in files) {
+		foreach (var file in Directory.GetFiles(ProxyPlugin.PluginInterface.AssemblyLocation.Directory!.ToString(), "*.triglations.xml", SearchOption.TopDirectoryOnly)) {
 			var l = LoadLanguage(file);
-			if (l != null) {
-				I18n.AddLanguage(l);
-			}
+			if (l != null) I18n.AddLanguage(l);
 		}
-		//}
 	}
-
-	/*private void CombobulateTranslations()
-	{
-	    string[] ex = File.ReadAllLines(@"F:\Work\Programming\Net\Triggernometry\Triggernometry\newtranslations.txt");
-	    XmlDocument doc = new XmlDocument();
-	    XmlNode n = doc.CreateElement("bla");
-	    doc.AppendChild(n);
-	    string tag = "", trans = "";
-	    for (int i = 0; i < ex.Length; i++)
-	    {
-	        if ((i % 3) == 0)
-	        {
-	            tag = ex[i];
-	        }
-	        if ((i % 3) == 1)
-	        {
-	            trans = ex[i];
-	            XmlNode sn = doc.CreateElement("TranslationEntry");
-	            XmlAttribute a1 = doc.CreateAttribute("Key");
-	            a1.Value = tag;
-	            XmlAttribute a2 = doc.CreateAttribute("Translation");
-	            a2.Value = trans;
-	            sn.Attributes.Append(a1);
-	            sn.Attributes.Append(a2);
-	            n.AppendChild(sn);
-	        }
-	    }
-	    string docx = doc.InnerXml;
-	}*/
 
 	public string Translate(string key, string text, params object[] args) => I18n.Translate(key, text, args);
 }

@@ -13,15 +13,15 @@ using Triggernometry.UI.Forms;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	public Configuration? cfg { get; private set; }
+	public Configuration cfg { get; private set; }
 
 	public bool configBroken;
 	// internal DateTime lastConfigSave = DateTime.Now;
 
 	private void AutofixConfiguration() {
-		if (cfg == null) {
-			return;
-		}
+		// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+		if (cfg == null) return;
+		
 		if (!cfg._ShowWelcomeHasBeenSet && (cfg.Root.Folders.Count > 0 || cfg.Root.Triggers.Count > 0)) {
 			cfg.ShowWelcome = false;
 		}

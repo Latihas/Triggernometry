@@ -459,7 +459,7 @@ public class Configuration {
 
 	[XmlAttribute] public UpdateNotificationsEnum DefaultRepository { get; set; } = UpdateNotificationsEnum.Undefined;
 
-	[XmlAttribute] public string Language { get; set; }
+	[XmlAttribute] public string? Language { get; set; }
 
 	#endregion
 

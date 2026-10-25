@@ -9,8 +9,7 @@ using Triggernometry.Localization;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	public Interpreter scripting;
-	internal bool scriptingInited = true;
+	public readonly Interpreter scripting= new();
 	internal readonly Dictionary<string, object> scriptingStorage = new(StringComparer.OrdinalIgnoreCase);
 	private readonly List<Configuration.APIUsage> DefaultAPIUsages = ScriptSecurity.SecurityAPIs.Select(name => new Configuration.APIUsage {
 		Name = name,
@@ -18,15 +17,6 @@ public partial class RealPlugin {
 		AllowRemote = false,
 		AllowAdmin = false
 	}).ToList();
-
-	private void InitScripting() {
-		try {
-			scripting = new Interpreter();
-		} catch (Exception ex) {
-			FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/iniscripterror",
-				"Error when initializing scripting - try changing plugin load order: {0}", ex.FullMessage()));
-		}
-	}
 
 	internal List<Configuration.APIUsage> GetDefaultAPIUsages() {
 		var l = new List<Configuration.APIUsage>();
