@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Triggernometry.Localization;
+using System;
 using System.Numerics;
 using static System.Math;
 
@@ -6,9 +7,11 @@ namespace Triggernometry.Common.Maths;
 
 public static class EquationHelper {
 	/// <summary> 求解 Ax² + Bx + C = 0，递增顺序返回两个根或 null </summary>
-	public static (double, double)? SolveQuadratic(double A, double B, double C, double eps = 1e-8) {
-		if (Abs(A) <= eps) {
-			throw new ArgumentException("A must not be zero");
+        public static (double, double)? SolveQuadratic(double A, double B, double C, double eps = 1e-8)
+        {
+            if (Abs(A) <= eps)
+            {
+                throw new ArgumentException(I18n.Translate("internal/EquationHelper/zerocoefficient", "A must not be zero"));
 		}
 		var Δ = B * B - 4 * A * C;
 

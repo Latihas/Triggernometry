@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Triggernometry.Localization;
+using System;
 using System.Diagnostics;
 using Scarborough.PInvoke;
 using SharpDX;
@@ -140,10 +141,10 @@ public class Graphics : IDisposable {
 	///     Sets up and finishes the initialization of this Graphics surface by using this objects properties.
 	/// </summary>
 	public void Setup() {
-		if (IsInitialized) throw new InvalidOperationException("Graphics device is already initialized");
-		if (Width <= 0 || Height <= 0) throw new ArgumentOutOfRangeException("Width or Height is not valid");
-		if (WindowHandle == IntPtr.Zero) throw new ArgumentOutOfRangeException("WindowHandle is zero");
-		if (!User32.IsWindow(WindowHandle)) throw new ArgumentOutOfRangeException("WindowHandle is not valid");
+		if (IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/alreadyinitialized", "Graphics device is already initialized."));
+		if (Width <= 0 || Height <= 0) throw new ArgumentOutOfRangeException(I18n.Translate("internal/Graphics/invalidsize", "Width or Height is not valid."));
+		if (WindowHandle == IntPtr.Zero) throw new ArgumentOutOfRangeException(I18n.Translate("internal/Graphics/nullwindowhandle", "WindowHandle is zero."));
+		if (!User32.IsWindow(WindowHandle)) throw new ArgumentOutOfRangeException(I18n.Translate("internal/Graphics/invalidwindowhandle", "WindowHandle is not valid."));
 
 		_factory = new Factory(UseMultiThreadedFactories ? FactoryType.MultiThreaded : FactoryType.SingleThreaded);
 		_fontFactory = new FontFactory();
@@ -199,7 +200,7 @@ public class Graphics : IDisposable {
 	///     Destroys an already initialized Graphics surface and frees its resources.
 	/// </summary>
 	public void Destroy() {
-		if (!IsInitialized) throw new InvalidOperationException("D2DDevice needs to be initialized first");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializedd2ddevice", "D2DDevice needs to be initialized first."));
 
 		try {
 			_strokeStyle.Dispose();
@@ -295,7 +296,7 @@ public class Graphics : IDisposable {
 	///     Ends the current Scene (Frame).
 	/// </summary>
 	public void EndScene() {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 		if (!IsDrawing) return;
 
 		long exa, exb;
@@ -336,7 +337,7 @@ public class Graphics : IDisposable {
 	/// <param name="a">The alpha component value of this color.</param>
 	/// <returns>The SolidBrush this method creates.</returns>
 	public SolidBrush CreateSolidBrush(float r, float g, float b, float a = 1.0f) {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return new SolidBrush(_device, new Color(r, g, b, a));
 	}
@@ -350,7 +351,7 @@ public class Graphics : IDisposable {
 	/// <param name="a">The alpha component value of this color.</param>
 	/// <returns>The SolidBrush this method creates.</returns>
 	public SolidBrush CreateSolidBrush(int r, int g, int b, int a = 255) {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return new SolidBrush(_device, new Color(r, g, b, a));
 	}
@@ -361,7 +362,7 @@ public class Graphics : IDisposable {
 	/// <param name="color">A value representing the ARGB components used to create a SolidBrush.</param>
 	/// <returns>The SolidBrush this method creates.</returns>
 	public SolidBrush CreateSolidBrush(Color color) {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return new SolidBrush(_device, color);
 	}
@@ -376,7 +377,7 @@ public class Graphics : IDisposable {
 	/// <param name="wordWrapping">A Boolean determining whether this font uses word wrapping.</param>
 	/// <returns></returns>
 	public Font CreateFont(string fontFamilyName, float size, bool bold = false, bool italic = false, bool wordWrapping = false) {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return new Font(_fontFactory, fontFamilyName, size, bold, italic, wordWrapping);
 	}
@@ -387,7 +388,7 @@ public class Graphics : IDisposable {
 	/// <param name="bytes">An image loaded into a byte array.</param>
 	/// <returns>The Image this method creates.</returns>
 	public Image CreateImage(byte[] bytes) {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return new Image(_device, bytes);
 	}
@@ -398,7 +399,7 @@ public class Graphics : IDisposable {
 	/// <param name="path">The path to an image file.</param>
 	/// <returns>The Image this method creates.</returns>
 	public Image CreateImage(string path) {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return new Image(_device, path);
 	}
@@ -1910,7 +1911,7 @@ public class Graphics : IDisposable {
 	/// </summary>
 	/// <returns>The RenderTarget of this Graphics surface.</returns>
 	public RenderTarget GetRenderTarget() {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return _device;
 	}
@@ -1920,7 +1921,7 @@ public class Graphics : IDisposable {
 	/// </summary>
 	/// <returns>The Factory of this Graphics surface.</returns>
 	public Factory GetFactory() {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return _factory;
 	}
@@ -1930,7 +1931,7 @@ public class Graphics : IDisposable {
 	/// </summary>
 	/// <returns>The FontFactory of this Graphics surface.</returns>
 	public FontFactory GetFontFactory() {
-		if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+		if (!IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Graphics/uninitializeddevice", "The DirectX device is not initialized."));
 
 		return _fontFactory;
 	}

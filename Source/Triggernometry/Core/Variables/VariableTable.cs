@@ -34,8 +34,10 @@ public class VariableTable : Variable {
 		if (o is VariableDictionary) {
 			return 1;
 		}
-		if (o is VariableTable vt) {
-			if (Height < vt.Height) {
+            if (o is VariableTable vt)
+            {
+                if (Height < vt.Height)
+                {
 				return -1;
 			}
 			if (Height > vt.Height) {
@@ -48,8 +50,10 @@ public class VariableTable : Variable {
 				return 1;
 			}
 			int res;
-			for (var y = 0; y < Height; y++) {
-				for (var x = 0; x < Width; x++) {
+                for (int y = 1; y <= Height; y++)
+                {
+                    for (int x = 1; x <= Width; x++)
+                    {
 					res = Peek(x, y).CompareTo(vt.Peek(x, y));
 					if (res != 0) {
 						return res;

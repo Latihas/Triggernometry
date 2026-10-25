@@ -36,6 +36,6 @@ public partial class RealPlugin {
 		serializer.Serialize(writer, entries);
 		var serializedEntries = writer.ToString();
 		ActionOld.ClipboardSetText(serializedEntries);
-		MessageBox.Show("Missing translations copied to clipboard.");
+                MessageBox.Show(I18n.Translate("internal/Plugin/missingtranslationscopied", "Missing translations copied to clipboard."));
 	}
 }

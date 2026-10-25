@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -100,8 +99,31 @@ public partial class RealPlugin {
 		SaveConfigToFile(cfg, Path.Combine(ConfigPath, pluginName + ".config.xml"), true);
 	}
 
-	private Configuration LoadConfigFromFile(string filename, Action<string> logTick) {
-		try {
+        /// <summary> Checks the closing tag from the end without reading the whole configuration. </summary>
+        private static bool HasConfigurationEndTag(string filename)
+        {
+            const string endTag = "</" + nameof(Configuration) + ">";
+            using (StreamReader reader = new StreamReader(filename))
+            {
+                reader.Peek(); // Detect a possible BOM before seeking past it.
+                long position = reader.BaseStream.Length;
+                string tail;
+                do
+                {
+                    position = Math.Max(0, position - 4096);
+                    reader.DiscardBufferedData();
+                    reader.BaseStream.Position = position;
+                    tail = reader.ReadToEnd().TrimEnd();
+                }
+                while (position > 0 && tail.Length < endTag.Length);
+                return tail.EndsWith(endTag, StringComparison.Ordinal);
+            }
+        }
+
+        private Configuration LoadConfigFromFile(string filename, Action<string> logTick)
+        {
+            try
+            {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgload", "Loading configuration from '{0}'", filename));
 			var fi = new FileInfo(filename);
 			var origfilename = filename;
@@ -127,8 +149,9 @@ public partial class RealPlugin {
 				} catch {
 					//
 				}
-			}
-			if (lastLine == null || lastLine.Trim() != "</Configuration>") {
+                bool corruptFallback = false;
+                if (!HasConfigurationEndTag(filename))
+                {
 				// configuration has been corrupted, try loading previous config file instead
 				var newfilename = filename + ".previous";
 				fi = new FileInfo(newfilename);
@@ -202,8 +225,8 @@ public partial class RealPlugin {
 						sw.Flush();
 					}
 				}
-				var lastLine = File.ReadLines(filename + ".temp").LastOrDefault();
-				if (lastLine == null || lastLine.Trim() != "</Configuration>") {
+                if (!HasConfigurationEndTag(filename + ".temp"))
+                {
 					throw new Exception(I18n.Translate("internal/Plugin/cfgsaveincomplete", "The saving process was interrupted.") + "\n");
 				}
 				if (switchprevious) {

@@ -142,11 +142,14 @@ public class AuraContainerForm {
 			}
 		} catch (Exception ex) {
 			if (ctx.Trigger != null)
-				ctx.Trigger.AddToLog(RealPlugin.DebugLevelEnum.Error,
-					I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{AuraName}' from trigger '{ctx.Trigger.LogName}' due to update exception: {ex.Message}"));
+                {
+                    ctx.Trigger.AddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", AuraName, ctx.Trigger.LogName, ex.Message));
+                }
 			else
-				plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{AuraName}' due to update exception: {ex.Message}"));
-			AuraDeactivate();
+                {
+                    plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", AuraName, ex.Message));
+                }
+                AuraDeactivateForm();
 			return false;
 		}
 		if (chLeft) _position.X = NextLeft;

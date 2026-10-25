@@ -13,12 +13,16 @@ internal static class TableEvaluator {
 	internal static Func<VariableTable, string> BuildEvaluator(IndexMemberExpression expr) {
 		// invalid (only name)
 		if (expr.Indexes.Length == 0 && !expr.Member.HasValue)
-			throw new Exception($"Table variable must include an index or property in expression '{expr.RawExpression}'.");
+                throw new Exception(I18n.Translate("internal/TableEvaluator/indexorpropertyrequired",
+                    "Table variable must include an index or property in expression '{0}'.", expr.RawExpression));
 
 		// tvar:Name[Col][Row]
-		if (expr.Indexes.Length > 0) {
-			if (expr.Indexes.Length != 2) {
-				throw new Exception($"Table index must have 2 components [col][row] in expression '{expr.RawExpression}'.");
+            if (expr.Indexes.Length > 0)
+            {
+                if (expr.Indexes.Length != 2)
+                {
+                    throw new Exception(I18n.Translate("internal/TableEvaluator/twoindicesrequired",
+                        "Table index must have 2 components [col][row] in expression '{0}'.", expr.RawExpression));
 			}
 
 			var col = expr.Col.Equals("last", StringComparison.OrdinalIgnoreCase) ? -1 : (int)MathParser.Parse(expr.Col);
@@ -187,7 +191,8 @@ internal static class TableEvaluator {
 			}
 
 			default:
-				throw new Exception($"Unknown table method '{methodName}' in expression '{expr.RawExpression}'.");
+                    throw new Exception(I18n.Translate("internal/TableEvaluator/unknownmethod",
+                        "Unknown table method '{0}' in expression '{1}'.", methodName, expr.RawExpression));
 		}
 	}
 }

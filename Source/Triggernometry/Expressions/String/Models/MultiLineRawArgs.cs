@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Triggernometry.Expressions.String.Utils;
+using Triggernometry.Localization;
 
 namespace Triggernometry.Expressions.String.Models;
 
@@ -21,7 +22,11 @@ public class MultiLineRawArgs {
 			var parts = line.Split([':'], 2);
 			var k = parts[0].Trim();
 			var v = parts[1].Trim();
-			if (!_data.TryAdd(k, v)) throw new ArgumentException($"Duplicate key '{k}' found in the rawLines input.");
+                if (!_data.ContainsKey(k))
+                    _data[k] = v;
+                else
+                    throw new ArgumentException(I18n.Translate("internal/MultiLineRawArgs/duplicatekey",
+                        "Duplicate key '{0}' found in the rawLines input.", k));
 		}
 	}
 
@@ -57,13 +62,15 @@ public class MultiLineRawArgs {
 	/// <exception cref="KeyNotFoundException">键不存在。</exception>
 	public string Get(string key) => TryGet(key, out var value)
 		? value
-		: throw new KeyNotFoundException($"Key '{key}' was not found.");
+            : throw new KeyNotFoundException(I18n.Translate("internal/MultiLineRawArgs/keynotfound",
+                "Key '{0}' was not found.", key));
 
 	/// <summary> 依次查找多个 key 别名对应的值，大小写不敏感。 </summary>
 	/// <exception cref="KeyNotFoundException">键不存在。</exception>
 	public string Get(params string[] keys) => TryGet(out var value, keys)
 		? value
-		: throw new KeyNotFoundException($"None of the keys '{string.Join("', '", keys)}' were found.");
+            : throw new KeyNotFoundException(I18n.Translate("internal/MultiLineRawArgs/keysnotfound",
+                "None of the keys '{0}' were found.", string.Join("', '", keys)));
 
 	public void Set(string key, object value) {
 		_data[key] = value.ToDataString();

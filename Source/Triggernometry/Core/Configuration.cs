@@ -552,8 +552,10 @@ public class Configuration {
 			var newId = Guid.NewGuid();
 			File.WriteAllText(file, newId.ToString());
 			return newId;
-		} catch (Exception ex) {
-			MessageBox.Show(ex.ToString(), "Triggernometry config", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), I18n.Translate("internal/Configuration/configtitle", "Triggernometry configuration"), MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return Guid.Empty;
 		}
 	}

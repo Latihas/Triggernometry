@@ -29,7 +29,7 @@ internal static class ExtremumEvaluator {
 				return source => SafeGetExtremum(source, ParseHex, isMin, I18n.TranslateWord("hex"), expr);
 			case 's':
 				return source => SafeGetExtremum(source, s => s, isMin, I18n.TranslateWord("string"), expr);
-			default: throw InvalidValueError(expr.Member.Name, "type", valueType, expr.RawExpression);
+                default: throw InvalidValueError(expr.Member.Name, I18n.TranslateWord("type"), valueType, expr.RawExpression);
 		}
 	}
 

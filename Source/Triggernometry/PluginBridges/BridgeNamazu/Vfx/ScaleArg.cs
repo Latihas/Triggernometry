@@ -46,19 +46,22 @@ internal sealed partial class ScaleArg {
 			ScaleTerm.Parse(z ?? x));
 	}
 
-	public Vector3 Resolve(double distance) => new(
-		(float)X.Resolve(distance),
-		(float)Y.Resolve(distance),
-		(float)Z.Resolve(distance));
+	public Vector3 Resolve(double distance2D, double distance3D) => new(
+		(float)X.Resolve(distance2D, distance3D),
+		(float)Y.Resolve(distance2D, distance3D),
+		(float)Z.Resolve(distance2D, distance3D));
 
 	public ScaleArg Duplicate() => new(X.Duplicate(), Y.Duplicate(), Z.Duplicate());
 
-	private sealed partial class ScaleTerm {
-		private static readonly Regex DistanceTokenRegex = MyDistanceTokenRegex();
+        private sealed class ScaleTerm
+        {
+            // _d 表示二维距离，_d3 表示三维距离；要求匹配完整标记。
+            private static readonly Regex DistanceTokenRegex =
+                new Regex(@"\b_d3?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
 		private readonly double _value;
 		private readonly string _expression;
-		private readonly Func<double, string> _replaceDistance;
+            private readonly Func<double, double, string> _replaceDistance;
 
 		public bool HasDistanceToken { get; }
 
@@ -73,7 +76,11 @@ internal sealed partial class ScaleArg {
 
 			HasDistanceToken = true;
 			_expression = expression.Trim();
-			_replaceDistance = distance => DistanceTokenRegex.Replace(_expression, distance.ToDataString());
+                _replaceDistance = (distance2D, distance3D) =>
+                    DistanceTokenRegex.Replace(_expression, match =>
+                        match.Value.Equals("_d3", StringComparison.OrdinalIgnoreCase)
+                            ? distance3D.ToDataString()
+                            : distance2D.ToDataString());
 		}
 
 		public static ScaleTerm Parse(string raw) {
@@ -83,8 +90,8 @@ internal sealed partial class ScaleArg {
 			return !DistanceTokenRegex.IsMatch(raw) ? new ScaleTerm(raw.ParseData<double>()) : new ScaleTerm(raw);
 		}
 
-		public double Resolve(double distance) => HasDistanceToken
-			? _replaceDistance(distance).ParseData<double>()
+		public double Resolve(double distance2D, double distance3D) => HasDistanceToken
+			? _replaceDistance(distance2D, distance3D).ParseData<double>()
 			: _value;
 
 		public ScaleTerm Duplicate() => HasDistanceToken

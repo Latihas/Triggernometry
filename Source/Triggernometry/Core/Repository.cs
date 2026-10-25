@@ -113,9 +113,18 @@ public class Repository {
 
 	internal Folder Root { get; set; } = new();
 
-	private ConcurrentQueue<string> UpdateLog { get; set; } = [];
+        private bool isContentLoaded;
 
-	public string[] UpdateLogSnapshot() => UpdateLog.ToArray();
+        private readonly object _logLock = new object();
+        private ConcurrentQueue<string> UpdateLog { get; set; } = [];
+        public string[] UpdateLogSnapshot()
+        {
+            lock (_logLock)
+            {
+                return UpdateLog.ToArray();
+            }
+        }
+
 
 	/// <summary>
 	///     Add a message to the repository's log. <br />
@@ -138,8 +147,10 @@ public class Repository {
 	///     - Clear UI tree node <br />
 	///     Ensures the repository starts with a clean state for the next import.
 	/// </summary>
-	public void ClearContent() {
-		Instance.RemoveTriggersFromFolder(Root);
+        public void ClearContent()
+        {
+            isContentLoaded = false;
+            Instance.RemoveFolderRuntimeContent(Root);
 		Root.Folders.Clear();
 		Root.Triggers.Clear();
 		ReadmeTriggers.Clear();
@@ -270,16 +281,20 @@ public class Repository {
 		}
 
 		// Apply audio routing policy
-		switch (AudioOutput) {
-			case AudioOutputEnum.AlwaysOverride: {
-				foreach (var a in t.Actions) {
-					a._SoundRouting = Configuration.AudioRoutingMethodEnum.Triggernometry;
-					a._TTSRouting = Configuration.AudioRoutingMethodEnum.Triggernometry;
-				}
-			}
-				break;
-			case AudioOutputEnum.NeverOverride: {
-				// ?
+            switch (AudioOutput)
+            {
+                case AudioOutputEnum.AlwaysOverride:
+                case AudioOutputEnum.NeverOverride:
+                    {
+                        // None restores the configured global route instead of the action's override.
+                        var routing = AudioOutput == AudioOutputEnum.AlwaysOverride
+                            ? Configuration.AudioRoutingMethodEnum.Triggernometry
+                            : Configuration.AudioRoutingMethodEnum.None;
+                        foreach (ActionOld a in ActionOld.RecursiveGetActions(t.Actions))
+                        {
+                            a._SoundRouting = routing;
+                            a._TTSRouting = routing;
+                        }
 			}
 				break;
 		}
@@ -304,6 +319,9 @@ public class Repository {
 		if (exp.ExportedFolder != null) {
 			restrictions |= ApplySettingsOnFolder(exp.ExportedFolder);
 			Root.Folders.Add(exp.ExportedFolder);
+			exp.ExportedFolder.Parent = Root;
+			Instance.RegisterFolderVariables(exp.ExportedFolder);
+			Instance.UpdateActiveFolderVariables(Instance.currentZone);
 			RegisterFolder(exp.ExportedFolder, Enabled);
 		}
 
@@ -326,6 +344,7 @@ public class Repository {
 		}
 
 		// Instance.ui.BuildTreeForRepository(exp, this);
+		isContentLoaded = true;
 	}
 
 	internal void RegisterFolder(Folder f, bool parentEnabled) {
@@ -387,9 +406,13 @@ public class Repository {
 
 		// --- Step 3: cache expiry check ---
 		DateTime cacheLimit;
-		try {
-			cacheLimit = LocalLastModified.AddMinutes(Instance.cfg.CacheRepoExpiry);
-		} catch {
+            try
+            {
+                // Cache age starts at the local download, not the remote file's modification.
+                cacheLimit = File.GetLastWriteTime(GetBackupFileName()).AddMinutes(Instance.cfg.CacheRepoExpiry);
+            }
+            catch
+            {
 			cacheLimit = DateTime.MinValue;
 		}
 		var cacheExpired = cacheLimit < DateTime.Now;
@@ -484,7 +507,7 @@ public class Repository {
 		// this function should not throw any uncaught exceptions
 
 		UpdateLastChecked = DateTime.Now;
-		ClearContent();
+
 		AddToLog(null, new string('=', 50)); // separator before each update attempt
 
 		// Whether we should check the remote metadata at all (depends on startup mode and update policy).
@@ -506,9 +529,11 @@ public class Repository {
 			shouldUpdate = ShouldUpdate(remoteLength, remoteLastModified);
 		}
 
-		// if an update is not needed, try to load local backup
-		if (!shouldUpdate && KeepLocalBackup) {
-			if (!TryLoadLocalBackup()) {
+            // Backups initialize an unloaded repository; unchanged live content stays in place.
+            if (!shouldUpdate && KeepLocalBackup && !isContentLoaded)
+            {
+                if (TryLoadLocalBackup() == false)
+                {
 				// but if the local backup fails to load, still need to update
 				shouldUpdate = true;
 			}
@@ -523,8 +548,9 @@ public class Repository {
 				LocalLastModified = remoteLastModified;
 			}
 
-			// if update failed, try to load local backup
-			if (!updated && KeepLocalBackup && !triedLoadBackup) {
+                // A failed download must not replace working content with a backup either.
+                if (!updated && KeepLocalBackup && !triedLoadBackup && !isContentLoaded)
+                {
 				_ = TryLoadLocalBackup();
 			}
 		}
@@ -552,7 +578,7 @@ public class Repository {
 
 	/// <summary>
 	///     Attempt to load the repository from its local backup file. <br />
-	///     Make sure <see cref="ClearContent()" /> is used before this function.
+        /// Existing content is replaced only after the backup has been parsed successfully.
 	/// </summary>
 	private bool TryLoadLocalBackup() {
 		try {

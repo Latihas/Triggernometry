@@ -33,9 +33,13 @@ internal class ObsController : IDisposable {
 			}
 		}
 
-		private string GenerateHash(string data) {
-			using var h = SHA256.Create();
-			var b = Encoding.ASCII.GetBytes(data);
+            private string GenerateHash(string data)
+            {
+                using (SHA256 h = SHA256.Create())
+                {
+                    // Match obs-websocket's UTF-8 hash input: secretAndChallenge.toUtf8().
+                    // https://github.com/obsproject/obs-websocket/blob/master/src/utils/Crypto.cpp
+                    byte[] b = Encoding.UTF8.GetBytes(data);
 			return Convert.ToBase64String(h.ComputeHash(b));
 		}
 	}

@@ -206,7 +206,7 @@ public sealed class ConditionSingle : ConditionComponent {
 			case ExprTypeEnum.String:
 				return ctx.EvaluateStringExpression(logger, o, expr);
 			default:
-				throw new Exception($"Invalid expression type: {exprType}");
+                    throw new Exception(I18n.Translate("internal/ConditionSingle/invalidexpressiontype", "Invalid expression type: {0}", exprType));
 		}
 	}
 

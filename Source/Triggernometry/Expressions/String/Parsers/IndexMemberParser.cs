@@ -55,7 +55,7 @@ internal static class IndexMemberParser {
 			case "_targetmarker2id":
 			case "_tm2id":
 				return Memory.EntityIdByTargetMarker(expr.Index)?.ToString("X8")
-				       ?? throw ErrorHelper.ParseTypeError(I18n.TranslateWord("string"), expr.Index, "targetmarker");
+                        ?? throw ErrorHelper.ParseTypeError(I18n.TranslateWord("string"), expr.Index, I18n.TranslateWord("targetmarker"));
 
 			case "_waymark":
 			case "_wm":
@@ -123,6 +123,8 @@ internal static class IndexMemberParser {
 				foreach (var nodeName in jsonPath.Split("/".ToCharArray())) {
 					node = node[nodeName];
 				}
+                    if (node is double d) return d.ToDataString();
+                    if (node is float f) return f.ToDataString();
 				return node?.ToString() ?? "";
 
 			case "_actionhistory":

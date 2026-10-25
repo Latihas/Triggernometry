@@ -69,9 +69,21 @@ internal static class ColonParser {
 			//         ? ContainsKeyResultWithLock(plug?.sc?.imageitems, body) // new
 			//         : ContainsKeyResultWithLock(plug?.imageauras, body);    // old
 			case "ecallback":
-				return ContainsKeyResultWithLock(plug?.callbacksByName, body);
+                    return ContainsKeyResultWithLock(plug?.callbacksByName, body, plug?.callbacksById);
 			case "estorage":
 				return ContainsKeyResultWithLock(plug?.scriptingStorage, body);
+
+                case "ereg":
+                    return ContainsKeyResultWithLock(plug?.RegisteredVariables, body);
+                case "reg": 
+                case "!reg":
+                    if (plug == null) return "";
+                    lock (plug.RegisteredVariables)
+                    {
+                        return plug.RegisteredVariables.TryGetValue(body, out VariableScalar registered) ? registered.Value
+                            : prefixLower == "!reg" ? throw new Exception(I18n.Translate("internal/ColonParser/variablenotfound",
+                                "Variable '{0}' does not exist.", body)) : "";
+                    }
 
 			case "env": // folder environment variables
 				var f = ctx.Trigger?.Parent;
@@ -215,8 +227,10 @@ internal static class ColonParser {
 			case "!ptvarrl":
 			case "!ptrl": {
 				// tvarrl:TableName[Header][ColIndex]
-				if (expr.Indexes.Length != 2) {
-					throw new Exception($"Row-based table lookup expects exactly two indices [Header][ColIndex]: '{template}'");
+                        if (expr.Indexes.Length != 2)
+                        {
+                            throw new Exception(I18n.Translate("internal/ColonParser/rowlookupindices",
+                                "Row-based table lookup expects exactly two indices [Header][ColIndex]: '{0}'", template));
 				}
 
 				var headerExpr = expr.Index1;
@@ -245,8 +259,10 @@ internal static class ColonParser {
 			case "!ptvarcl":
 			case "!ptcl": {
 				// tvarcl:TableName[Header][RowIndex]
-				if (expr.Indexes.Length != 2) {
-					throw new Exception($"Column-based table lookup expects exactly two indices [Header][RowIndex]: '{template}'");
+                        if (expr.Indexes.Length != 2)
+                        {
+                            throw new Exception(I18n.Translate("internal/ColonParser/columnlookupindices",
+                                "Column-based table lookup expects exactly two indices [Header][RowIndex]: '{0}'", template));
 				}
 
 				var headerExpr = expr.Index1;
@@ -275,8 +291,10 @@ internal static class ColonParser {
 			case "!ptvardl":
 			case "!ptdl": {
 				// tvardl:TableName[ColHeader][RowHeader]
-				if (expr.Indexes.Length != 2) {
-					throw new Exception($"Double-based table lookup expects exactly two indices [ColHeader][RowHeader]: '{template}'");
+                        if (expr.Indexes.Length != 2)
+                        {
+                            throw new Exception(I18n.Translate("internal/ColonParser/doublelookupindices",
+                                "Double-based table lookup expects exactly two indices [ColHeader][RowHeader]: '{0}'", template));
 				}
 
 				var colHeader = expr.Index1;
@@ -299,11 +317,14 @@ internal static class ColonParser {
 		return null;
 	}
 
-	private static string ContainsKeyResultWithLock<TValue>(IDictionary<string, TValue> dict, string key) {
-		if (dict == null) {
+        private static string ContainsKeyResultWithLock<TValue>(IDictionary<string, TValue> dict, string key, object lockObject = null)
+        {
+            if (dict == null)
+            {
 			return "0";
 		}
-		lock (dict) {
+            lock (lockObject ?? dict)
+            {
 			return dict.ContainsKey(key) ? "1" : "0";
 		}
 	}
@@ -320,5 +341,6 @@ internal static class ColonParser {
 		where T : class, new() =>
 		!mustExist
 			? store.GetVariable(variables, varName, false)
-			: store.GetVariable(variables, varName) ?? throw new Exception($"Variable '{varName}' does not exist.");
+                : store.GetVariable(variables, varName) ?? throw new Exception(I18n.Translate("internal/ColonParser/variablenotfound",
+                    "Variable '{0}' does not exist.", varName));
 }

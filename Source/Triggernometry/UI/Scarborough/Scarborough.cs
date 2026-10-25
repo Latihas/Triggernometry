@@ -110,7 +110,7 @@ public class Scarborough : IDisposable {
 						toRem.AddRange(from sx in imageitems where rex.IsMatch(sx.Key) select sx.Key);
 						foreach (var rem in toRem) {
 							var si = imageitems[rem];
-							imageitems.Remove(rem);
+							lock (imageitems)imageitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
 							}
@@ -121,7 +121,7 @@ public class Scarborough : IDisposable {
 						toRem.AddRange(from sx in textitems where rex.IsMatch(sx.Key) select sx.Key);
 						foreach (var rem in toRem) {
 							var si = textitems[rem];
-							textitems.Remove(rem);
+							lock (textitems)textitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
 							}
@@ -139,7 +139,7 @@ public class Scarborough : IDisposable {
 						foreach (var rem in toRem) {
 							ScarboroughImage si = null;
 							si = imageitems[rem];
-							imageitems.Remove(rem);
+							lock (imageitems)imageitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
 							}
@@ -151,7 +151,7 @@ public class Scarborough : IDisposable {
 						foreach (var rem in toRem) {
 							ScarboroughText si = null;
 							si = textitems[rem];
-							textitems.Remove(rem);
+							lock (textitems)textitems.Remove(rem);
 							if (si != null) {
 								si.Dispose();
 							}
@@ -167,7 +167,7 @@ public class Scarborough : IDisposable {
 						ScarboroughImage si = null;
 						if (imageitems.TryGetValue(ia.Id, out var value)) {
 							si = value;
-							imageitems.Remove(ia.Id);
+							lock (imageitems) imageitems.Remove(ia.Id);
 						}
 						if (si != null) {
 							si.Dispose();
@@ -178,7 +178,7 @@ public class Scarborough : IDisposable {
 						ScarboroughText si = null;
 						if (textitems.TryGetValue(ia.Id, out var value)) {
 							si = value;
-							textitems.Remove(ia.Id);
+							lock (textitems) textitems.Remove(ia.Id);
 						}
 						if (si != null) {
 							si.Dispose();
@@ -195,7 +195,7 @@ public class Scarborough : IDisposable {
 						foreach (var si in imageitems) {
 							toRem.Add(si.Value);
 						}
-						imageitems.Clear();
+						lock (imageitems)imageitems.Clear();
 						foreach (var si in toRem) {
 							si.Dispose();
 						}
@@ -206,7 +206,7 @@ public class Scarborough : IDisposable {
 						foreach (var si in textitems) {
 							toRem.Add(si.Value);
 						}
-						textitems.Clear();
+						lock (textitems)textitems.Clear();
 						foreach (var si in toRem) {
 							si.Dispose();
 						}
@@ -285,7 +285,7 @@ public class Scarborough : IDisposable {
 			si.Width = si.EvaluateNumericExpression(si.ctx, si.InitWExpression);
 			si.Height = si.EvaluateNumericExpression(si.ctx, si.InitHExpression);
 			si.Opacity = string.IsNullOrWhiteSpace(si.InitOExpression) ? 100 : si.EvaluateNumericExpression(si.ctx, si.InitOExpression);
-			imageitems[id] = si;
+                lock (imageitems) imageitems[id] = si;
 		}
 	}
 
@@ -326,7 +326,7 @@ public class Scarborough : IDisposable {
 			si.Opacity = string.IsNullOrWhiteSpace(si.InitOExpression) ? 100 : si.EvaluateNumericExpression(si.ctx, si.InitOExpression);
 			si.Text = si.EvaluateStringExpression(si.ctx, si.TextExpression);
 			si.NeedFont = true;
-			textitems[id] = si;
+                lock (textitems) textitems[id] = si;
 		}
 	}
 
@@ -378,16 +378,16 @@ public class Scarborough : IDisposable {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = si.Value.ctx,
 							plug = plug,
-							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Key}' from trigger '{si.Value.ctx.Trigger.LogName}' due to update exception: {ex.Message}")
+                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
+                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message)
 						}
 					);
 				} else {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
-							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Key}' due to update exception: {ex.Message}")
+                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
+                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message)
 						}
 					);
 				}
@@ -415,7 +415,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-				imageitems.Remove(si);
+                    lock (imageitems) imageitems.Remove(si);
 				sit.Dispose();
 			}
 		}
@@ -441,16 +441,16 @@ public class Scarborough : IDisposable {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = si.Value.ctx,
 							plug = plug,
-							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Key}' from trigger '{si.Value.ctx.Trigger.LogName}' due to update exception: {ex.Message}")
+                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
+                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message)
 						}
 					);
 				} else {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
-							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Key}' due to update exception: {ex.Message}")
+                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
+                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message)
 						}
 					);
 				}
@@ -478,7 +478,7 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-				textitems.Remove(si);
+                    lock (textitems) textitems.Remove(si);
 				sit.Dispose();
 			}
 		}
@@ -508,16 +508,16 @@ public class Scarborough : IDisposable {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = si.ctx,
 							plug = plug,
-							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Name}' from trigger '{si.ctx.Trigger.LogName}' due to update exception: {ex.Message}")
+                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
+                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Name, si.ctx.Trigger.LogName, ex.Message)
 						}
 					);
 				} else {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
-							level = RealPlugin.DebugLevelEnum.Error,
-							Message = I18n.Translate("internal/AuraContainer/updateerror", $"Deactivating aura '{si.Name}' due to update exception: {ex.Message}")
+                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
+                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Name, ex.Message)
 						}
 					);
 				}
@@ -544,13 +544,15 @@ public class Scarborough : IDisposable {
 						}
 					);
 				}
-				if (si is ScarboroughImage) {
-					var pair = imageitems.FirstOrDefault(x => x.Value == si);
-					if (pair.Key != null) imageitems.Remove(pair.Key);
+                    if (si is ScarboroughImage)
+                    {
+                        var myKey = imageitems.FirstOrDefault(x => x.Value == si).Key;
+                        lock (imageitems) imageitems.Remove(myKey);
 				}
-				if (si is ScarboroughText) {
-					var pair = textitems.FirstOrDefault(x => x.Value == si);
-					if (pair.Key != null) textitems.Remove(pair.Key);
+                    if (si is ScarboroughText)
+                    {
+                        var myKey = textitems.FirstOrDefault(x => x.Value == si).Key;
+                        lock (textitems) textitems.Remove(myKey);
 				}
 				si.Dispose();
 				rc.items.Remove(si);

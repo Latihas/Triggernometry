@@ -187,8 +187,10 @@ internal static class KeywordParser {
 		// ${1} ${2}
 		if (int.TryParse(rawExpr, out var groupIdx)) {
 			var numResult = ctx.GetNumGroup(groupIdx);
-			if (numResult == null && ctx?.Trigger != null) {
-				var msg = $"正则捕获组索引 ${{{rawExpr}}} 超出范围。\n触发器：{ctx.Trigger?.LogName ?? "(null)"}";
+                if (numResult == null && ctx?.Trigger != null)
+                {
+                    var msg = I18n.Translate("internal/TemplateParser/capturegroupoutofrange",
+                        "Regex capture group index {0} is out of range.\nTrigger: {1}", $"${{{rawExpr}}}", ctx.Trigger?.LogName ?? "(null)");
 				ctx.Plugin?.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, msg, ctx.Trigger);
 			}
 			return numResult ?? "";

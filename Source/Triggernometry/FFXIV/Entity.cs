@@ -67,7 +67,7 @@ public class Entity {
 			{ "IsFriend", e => e.IsFriend },
 			{ "WeaponID", e => e.WeaponID },
 			{ "TargetID", e => e.TargetHexID },
-			{ "IsTargetingSelf", e => e.TargetID == GetMyself().TargetID },
+            { "IsTargetingSelf",e => e.TargetID == GetMyself().ID },
 			{ "BNpcNameID", e => e.BNpcNameID },
 			{ "CurrentWorldID", e => e.CurrentWorldID },
 			{ "WorldID", e => e.WorldID },
@@ -292,7 +292,7 @@ public class Entity {
 		var percentage = max == 0 ? 0f : 100f * current / max;
 		var round = args.Length == 0 ? -1 : (int)MathParser.Parse(args[0]);
 		return round < 0
-			? percentage.ToString(CultureInfo.InvariantCulture)
+                ? percentage.ToStringInvariant()
 			: percentage.ToString("F" + round, CultureInfo.InvariantCulture);
 	}
 

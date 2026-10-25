@@ -159,7 +159,7 @@ public partial class ExpressionTextBox : UserControl {
 		"eimage:",
 		"ecallback:",
 		"estorage:",
-		"env:",
+		"env:", "reg:", "ereg:", "!reg:",
 
 		// special variables
 		"_incombat",
@@ -538,11 +538,11 @@ public partial class ExpressionTextBox : UserControl {
 	public IButtonControl AcceptButton;
 	public IButtonControl CancelButton;
 
-	public static readonly Regex rexPrefix = new(@"[$¤]\{(?<prefix>[^[$}:.]*)$", RegexOptions.Compiled);
-	public static readonly Regex rexFunc = new(@"[$¤]\{f(?:unc)?:(?<funcid>[^(:]*)$", RegexOptions.Compiled);
-	public static readonly Regex rexStorageFunc = new(@"[$¤]\{sfunc:(?<funcid>[^(}]*)$", RegexOptions.Compiled);
-	public static readonly Regex rexEnvironment = new(@"[$¤]\{env:(?<key>[^}]*)$", RegexOptions.Compiled);
-	public static readonly Regex rexVarName = new(@"[$¤]\{(?<e>e?)!?(?<persist>p?)(?<type>[vltd]|text|image|callback|storage)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexPrefix = new(@"[$¤]\{(?<prefix>[^$¤{}\[:.]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexFunc = new(@"[$¤]\{f(?:unc)?:(?<funcid>[^$¤{}(:]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexStorageFunc = new(@"[$¤]\{sfunc:(?<funcid>[^$¤{}(:]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexEnvironment = new(@"[$¤]\{env:(?<key>[^$¤{}]*)$", RegexOptions.Compiled);
+	public static readonly Regex rexVarName = new(@"[$¤]\{(?<e>e?)!?(?:(?<type>reg):(?<name>[^$¤{}]*)|(?<persist>p?)(?<type>[vltd]|text|image|callback|storage)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[{}]*))$", RegexOptions.Compiled);
 	public static readonly Regex rexColHeader = new(@"[$¤]\{!?(?<persist>p?)t(?:var)?[cd]l:(?<name>[^$¤[]+)\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
 	public static readonly Regex rexRowHeader = new(@"[$¤]\{!?(?<persist>p?)t(?:var)?(?:rl:(?<name1>[^$¤[]+)|dl:(?<name2>[^$¤[]+)\[.*\])\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
 	public static readonly Regex rexDictKey = new(@"[$¤]\{!?(?<persist>p?)d(?:var)?:(?<name>[^$¤[]+)\[(?<key>[^$¤\]]*)$", RegexOptions.Compiled);
@@ -554,10 +554,11 @@ public partial class ExpressionTextBox : UserControl {
 	public static readonly Regex rexMath = new(@"(?<![[$¤.])\b[\p{L}\w]+$", RegexOptions.Compiled);
 
 	private static readonly Regex rexDynamicNames // capture the names in the expressions and store into lists for autofill
-		= new(@"[$¤]\{e?!?(?<persist>p?)(?<type>[vltd]|text|image)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[{}\n]*)[^\${}]*\}", RegexOptions.Compiled);
+		= new(@"[$¤]\{e?!?(?:(?<type>reg):(?<name>[^$¤{}\n]*)|(?<persist>p?)(?<type>[vltd]|text|image)(?:v?ar)?(?:[cdr]l)?:(?<name>[^$¤.[{}\n]*)[^\${}]*)\}", RegexOptions.Compiled);
 
 	private string CurrentMatch;
-	private readonly Timer acfDebounceTimer = new();
+	private bool isNameAutocomplete;
+        private readonly Timer acfDebounceTimer = new();
 
 	public AutoCompleteForm acf;
 
@@ -725,8 +726,30 @@ public partial class ExpressionTextBox : UserControl {
 			.OrderBy(a => a);
 	}
 
-	private void TextBox1_KeyPress(object sender, KeyPressEventArgs e) {
-		if (e.KeyChar == Convert.ToChar(Keys.Enter)) {
+        /// <summary>
+        /// Completes variable and environment names using the same matching and popup behavior.
+        /// </summary>
+        private void AutocompleteNames(IEnumerable<string> names, string name, string completionSuffix)
+        {
+            var matches = GetAutocompleteSuggestions(names, name).ToList();
+            if (matches.Count > 0)
+            {
+                CurrentMatch = name;
+                suffix = completionSuffix;
+                isNameAutocomplete = true;
+                ShowAutocomplete(matches);
+            }
+            else
+            {
+                HideAutocomplete();
+            }
+        }
+
+        private void TextBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (textBox1.ReadOnly) return;
+            if (e.KeyChar == Convert.ToChar(Keys.Enter))
+            {
 			e.Handled = true;
 			if (AutocompleteActive()) {
 				ApplyAutoComplete();
@@ -774,10 +797,16 @@ public partial class ExpressionTextBox : UserControl {
 
 		// when the autofilled string contains '(' or '[', e.g. method(arg1, arg2)
 		// remove the parameters, and trigger the TextChanged event with the correct cursor position
-		var pIndex = ac.IndexOf('(');
-		var bIndex = ac.IndexOf('[');
-		if (pIndex >= 0) {
-			textBox1.Paste(ac[..pIndex] + ")");
+            if (isNameAutocomplete)
+            {
+                textBox1.Paste(ac);
+                return;
+            }
+            int pIndex = ac.IndexOf('(');
+            int bIndex = ac.IndexOf("[");
+            if (pIndex >= 0)
+            {
+                textBox1.Paste(ac.Substring(0, pIndex) + ")");
 			textBox1.SelectionStart--;
 			textBox1.Paste("(");
 		} else if (bIndex >= 0) {
@@ -882,12 +911,17 @@ public partial class ExpressionTextBox : UserControl {
 
 	private void ProcessAutocomplete() {
 		acfDebounceTimer.Stop();
-
+            if (textBox1.ReadOnly)
+            {
+                HideAutocomplete();
+                return;
+            }
 		if (!textBox1.Focused) return;
 
 		var temp = textBox1.Text[..textBox1.SelectionStart];
 		IEnumerable<string> matchedStrings = null;
 		suffix = "";
+            isNameAutocomplete = false;
 
 		// string after "${" : match prefixes (e.g. "${func:...}") and regex capture groups
 		var m = rexPrefix.Match(temp);
@@ -940,16 +974,9 @@ public partial class ExpressionTextBox : UserControl {
 			var varNames = new HashSet<string>(GetExistingAutofillNameList(type, isPersist));
 			varNames.UnionWith(GetDynamicAutofillNameList(type, isPersist) ?? Enumerable.Empty<string>());
 
-			matchedStrings = GetAutocompleteSuggestions(varNames, m.Groups["name"].Value);
-			if (matchedStrings.Count() > 0) {
-				CurrentMatch = m.Groups["name"].Value;
-				if (m.Groups["type"].Value == "v" || m.Groups["e"].Value == "e") {
-					suffix = "}";
-				}
-				ShowAutocomplete(matchedStrings);
-			} else {
-				HideAutocomplete();
-			}
+			bool closesExpression = type == AutofillTypeEnum.Scalar || type == AutofillTypeEnum.Registered || m.Groups["e"].Value == "e";
+                AutocompleteNames(varNames, m.Groups["name"].Value, closesExpression ? "
+			}" : "");
 			return;
 		}
 
@@ -1082,14 +1109,8 @@ public partial class ExpressionTextBox : UserControl {
 			// }
 
 			var envKeys = trig?.Parent?.RecursiveGetEnvironmentVariables()?.Keys?.ToList() ?? [];
-			matchedStrings = GetAutocompleteSuggestions(envKeys, key);
-			if (matchedStrings.Count() > 0) {
-				CurrentMatch = key;
-				suffix = "}";
-				ShowAutocomplete(matchedStrings);
-			} else {
-				HideAutocomplete();
-			}
+			AutocompleteNames(envKeys, key, "}");
+			
 			return;
 		}
 
@@ -1201,13 +1222,8 @@ public partial class ExpressionTextBox : UserControl {
 			var names = new HashSet<string>(GetExistingAutofillNameList(AutofillType, IsPersistent));
 			names.UnionWith(GetDynamicAutofillNameList(AutofillType, IsPersistent) ?? Enumerable.Empty<string>());
 
-			matchedStrings = GetAutocompleteSuggestions(names, temp);
-			if (matchedStrings != null && matchedStrings.Count() > 0) {
-				CurrentMatch = temp;
-				ShowAutocomplete(matchedStrings);
-			} else {
-				HideAutocomplete();
-			}
+			AutocompleteNames(names, temp, "");
+			
 			return;
 		}
 
@@ -1235,29 +1251,31 @@ public partial class ExpressionTextBox : UserControl {
 		ToggleExpand();
 	}
 
-	private void ToggleExpand() {
+	internal void ToggleExpand() {
 		if (textBox1.Multiline) {
 			textBox1.Multiline = false;
 			textBox1.MinimumSize = new Size(textBox1.MinimumSize.Width, 0);
 			textBox1.ScrollBars = ScrollBars.None;
-			var tmp = panel1.BackgroundImage;
-			panel1.BackgroundImage = panel2.BackgroundImage;
-			panel2.BackgroundImage = tmp;
-		} else {
+                (panel2.BackgroundImage, panel1.BackgroundImage) = (panel1.BackgroundImage, panel2.BackgroundImage);
+            }
+            else
+            {
 			textBox1.Multiline = true;
 			textBox1.MinimumSize = new Size(textBox1.MinimumSize.Width, 80);
-			textBox1.MaximumSize = new Size(textBox1.MaximumSize.Width, 300);
+                textBox1.MaximumSize = new Size(textBox1.MaximumSize.Width, textBox1.Dock == DockStyle.Fill ? 0 : 400);
 			textBox1.ScrollBars = ScrollBars.Both;
 			MultiLineAdjustHeight();
-			var tmp = panel1.BackgroundImage;
-			panel1.BackgroundImage = panel2.BackgroundImage;
-			panel2.BackgroundImage = tmp;
+                (panel2.BackgroundImage, panel1.BackgroundImage) = (panel1.BackgroundImage, panel2.BackgroundImage);
 		}
 	}
 
-	private void MultiLineAdjustHeight() {
-		using var g = textBox1.CreateGraphics();
-		var size = g.MeasureString(textBox1.Text + "\n\n1", textBox1.Font); // add 2 more lines
+        private void MultiLineAdjustHeight()
+        {
+            // A docked editor follows its window size rather than its text height.
+            if (textBox1.Dock == DockStyle.Fill) return;
+            using (Graphics g = textBox1.CreateGraphics())
+            {
+                SizeF size = g.MeasureString(textBox1.Text + "\n\n1", textBox1.Font); // add 2 more lines
 		textBox1.Height = (int)size.Height;
 	}
 
@@ -1354,7 +1372,8 @@ public partial class ExpressionTextBox : UserControl {
 
 	#region Store Variable Names Dynamically
 
-	private static readonly List<string> tmpScalarNames = [];
+	private static List<string> registeredNames = new List<string>();
+        private static readonly List<string> tmpScalarNames = [];
 	private static readonly List<string> tmpListNames = [];
 	private static readonly List<string> tmpTableNames = [];
 	private static readonly List<string> tmpDictNames = [];
@@ -1376,11 +1395,12 @@ public partial class ExpressionTextBox : UserControl {
 		Text,
 		Callback,
 		Storage
-	}
+	, Registered }
 
 	public static Dictionary<string, AutofillTypeEnum> StringToAutofillEnum = new() {
 		["v"] = AutofillTypeEnum.Scalar,
-		["l"] = AutofillTypeEnum.List,
+		["reg", AutofillTypeEnum.Registered },
+            { "l"] = AutofillTypeEnum.List,
 		["t"] = AutofillTypeEnum.Table,
 		["d"] = AutofillTypeEnum.Dict,
 		["image"] = AutofillTypeEnum.Image,
@@ -1398,6 +1418,7 @@ public partial class ExpressionTextBox : UserControl {
 	/// </summary>
 	private static List<string> GetDynamicAutofillNameList(AutofillTypeEnum type, bool isPersistent) {
 		switch (type) {
+                case AutofillTypeEnum.Registered: return registeredNames;
 			case AutofillTypeEnum.Scalar: return isPersistent ? prsScalarNames : tmpScalarNames;
 			case AutofillTypeEnum.List: return isPersistent ? prsListNames : tmpListNames;
 			case AutofillTypeEnum.Table: return isPersistent ? prsTableNames : tmpTableNames;
@@ -1414,19 +1435,27 @@ public partial class ExpressionTextBox : UserControl {
 	private static List<string> GetExistingAutofillNameList(AutofillTypeEnum type, bool isPersistent) {
 		var vs = RealPlugin.Instance.GetVariableStore(isPersistent);
 		switch (type) {
-			case AutofillTypeEnum.Scalar: return vs.Scalar.Keys.ToList();
-			case AutofillTypeEnum.List: return vs.List.Keys.ToList();
-			case AutofillTypeEnum.Table: return vs.Table.Keys.ToList();
-			case AutofillTypeEnum.Dict: return vs.Dict.Keys.ToList();
-			case AutofillTypeEnum.Text: return RealPlugin.Instance.sc != null ? RealPlugin.Instance.sc.textitems.Keys.ToList() : RealPlugin.Instance.textauras.Keys.ToList();
-			// case AutofillTypeEnum.Image: return (RealPlugin.Instance.sc != null) ? RealPlugin.Instance.sc.imageitems.Keys.ToList() : RealPlugin.Instance.imageauras.Keys.ToList();
-			case AutofillTypeEnum.Callback: return RealPlugin.Instance.callbacksByName.Keys.ToList();
-			case AutofillTypeEnum.Storage: return RealPlugin.Instance.scriptingStorage.Keys.ToList();
+			case AutofillTypeEnum.Registered: return GetKeysWithLock(RealPlugin.Instance.RegisteredVariables);
+                case AutofillTypeEnum.Scalar: return GetKeysWithLock(vs.Scalar);
+			case AutofillTypeEnum.List: return GetKeysWithLock(vs.List);
+			case AutofillTypeEnum.Table: return GetKeysWithLock(vs.Table);
+			case AutofillTypeEnum.Dict: return GetKeysWithLock(vs.Dict);
+			case AutofillTypeEnum.Text: return RealPlugin.Instance.sc != null ? GetKeysWithLock(RealPlugin.Instance.sc.textitems) : GetKeysWithLock(RealPlugin.Instance.textauras);
+			// case AutofillTypeEnum.Image: return (RealPlugin.Instance.sc != null) ? GetKeysWithLock(RealPlugin.Instance.sc.imageitems) : GetKeysWithLock(RealPlugin.Instance.imageauras);
+                // Callback names are modified under the ID dictionary's lock.
+			case AutofillTypeEnum.Callback: return GetKeysWithLock(RealPlugin.Instance.callbacksByName, RealPlugin.Instance.callbacksById);
+			case AutofillTypeEnum.Storage: return GetKeysWithLock(RealPlugin.Instance.scriptingStorage);
 			default: return [];
 		}
 	}
 
-	private void RegisterAutofillNames() {
+	/// <summary>
+        /// Copies current names under the dictionary's synchronization lock.
+        /// </summary>
+        private static List<string> GetKeysWithLock<T>(Dictionary<string, T> variables, object lockObject = null)
+        {
+            lock (lockObject ?? variables) return variables.Keys.ToList();
+        }private void RegisterAutofillNames() {
 		if (ExpressionType == SupportedExpressionTypeEnum.Regex)
 			return;
 
@@ -1476,6 +1505,16 @@ public partial class ExpressionTextBox : UserControl {
 	#endregion
 
 	public class TextBox : System.Windows.Forms.TextBox {
+
+            protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+            {
+                if (ReadOnly && ShortcutsEnabled && keyData == (Keys.Control | Keys.A))
+                {
+                    SelectAll();
+                    return true;
+                }
+                return base.ProcessCmdKey(ref msg, keyData);
+            }
 		#region Enhanced Double-Click Selection
 
 		private int clickCount;
@@ -1532,7 +1571,7 @@ public partial class ExpressionTextBox : UserControl {
 					return;
 				}
 			}
-			if (m.Msg == WM_PASTE) {
+			if (m.Msg == WM_PASTE && !ReadOnly) {
 				var clipboardText = Clipboard.GetText();
 				if (!Multiline && clipboardText.Contains('\n')) {
 					ExpTextBox?.ToggleExpand();
@@ -1733,12 +1772,20 @@ public partial class ExpressionTextBox : UserControl {
 			base.OnKeyUp(e);
 		}
 
-		protected override void OnKeyDown(KeyEventArgs e) {
-			if (e is { Control: true, Shift: true, Alt: false } && RealPlugin.Instance.cfg.EnableShortcutTemplates) {
-				var handled = true;
-				var shouldWrap = SelectionLength != 0 && RealPlugin.Instance.cfg.WrapTextWhenSelected;
-				var useAbbrev = RealPlugin.Instance.cfg.UseAbbrevInTemplates;
-				switch (e.KeyCode) {
+            protected override void OnKeyDown(KeyEventArgs e)
+            {
+                if (e.Control && e.Shift && !e.Alt && RealPlugin.Instance.cfg.EnableShortcutTemplates)
+                {
+                    if (ReadOnly && e.KeyCode != Keys.A)
+                    {
+                        base.OnKeyDown(e);
+                        return;
+                    }
+                    bool handled = true;
+                    bool shouldWrap = SelectionLength != 0 && RealPlugin.Instance.cfg.WrapTextWhenSelected;
+                    bool useAbbrev = RealPlugin.Instance.cfg.UseAbbrevInTemplates;
+                    switch (e.KeyCode)
+                    {
 					// Ctrl + Shift + 4: ${}
 					case Keys.D4:
 						if (shouldWrap)

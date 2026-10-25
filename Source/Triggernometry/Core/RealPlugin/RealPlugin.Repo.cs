@@ -198,8 +198,10 @@ public partial class RealPlugin {
 			repoManifest.Remove.ForEach(partialUrl => RemoveRepo(partialUrl));
 			repoManifest.Add.ForEach(item => AddRepositoryManifestItem(item, shouldUpdate));
 			CheckDuplicateRepoAddresses();
-		} catch (Exception ex) {
-			FilteredAddToLog(DebugLevelEnum.Error, "无法添加默认远程仓库：" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                FilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Plugin/defaultrepositoryfailed", "Failed to add the default remote repository: {0}", ex.Message));
 		}
 	}
 

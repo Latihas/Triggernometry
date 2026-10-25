@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Triggernometry.Localization;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -110,7 +111,7 @@ public static partial class OpcodeSideloader {
 	/// </summary>
 	public static Dictionary<string, ushort> GetSideloadOpcodes(string rawOpcodes) {
 		if (string.IsNullOrWhiteSpace(rawOpcodes))
-			throw new Exception("No opcode data provided to OpcodeSideloader callback.");
+                throw new Exception(I18n.Translate("internal/OpcodeSideloader/nodata", "No opcode data provided to OpcodeSideloader callback."));
 
 		var dict = new Dictionary<string, ushort>(StringComparer.OrdinalIgnoreCase);
 		var lines = rawOpcodes
@@ -121,16 +122,16 @@ public static partial class OpcodeSideloader {
 		foreach (var line in lines) {
 			var parts = line.Split('|');
 			if (parts.Length != 2)
-				throw new Exception("Invalid line format: " + line);
+                    throw new Exception(I18n.Translate("internal/OpcodeSideloader/invalidline", "Invalid line format: {0}", line));
 
 			var key = parts[0].Trim();
 			var valStr = parts[1].Trim();
 
 			if (key.Length == 0 || valStr.Length == 0)
-				throw new Exception("Invalid line (empty key or value): " + line);
+                    throw new Exception(I18n.Translate("internal/OpcodeSideloader/emptykeyorvalue", "Invalid line (empty key or value): {0}", line));
 
 			if (!ushort.TryParse(valStr, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var value))
-				throw new Exception("Unable to parse hex value: " + valStr);
+				throw new Exception(I18n.Translate("internal/OpcodeSideloader/invalidhex", "Unable to parse hexadecimal value: {0}", valStr));
 
 			dict[key] = value;
 		}
@@ -179,7 +180,7 @@ public static partial class OpcodeSideloader {
 		try {
 			return Enum.Parse<GameRegion>(regionName);
 		} catch (Exception ex) {
-			throw new Exception($"[OpcodeSideloader] Unsupported Machina GameRegion: {regionName}", ex);
+			throw new Exception(I18n.Translate("internal/OpcodeSideloader/unsupportedregion", "[OpcodeSideloader] Unsupported Machina GameRegion: {0}", regionName), ex);
 		}
 	}
 

@@ -117,9 +117,34 @@ public partial class RealPlugin {
 		Log = log;
 	}
 
-	internal static Font CreateFontFromDefinition(string name, float size, ActionOld.TextAuraEffectEnum effect) {
-		var fs = FontStyle.Regular;
-		if ((effect & ActionOld.TextAuraEffectEnum.Bold) == ActionOld.TextAuraEffectEnum.Bold) {
+        /// <summary>
+        /// Registers a folder variable and warns when replacing a different value.
+        /// </summary>
+        internal void RegisterVariable(string folderLogName, RegisteredVariable definition)
+        {
+            if (!definition.Enabled || definition.IsComment) 
+                return;
+            lock (RegisteredVariables)
+            {
+                if (RegisteredVariables.TryGetValue(definition.Name, out VariableScalar previous) && previous.Value != definition.Value)
+                {
+                    UnfilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/RealPlugin/registeredvariableoverwrite",
+                        "Registered variable key conflict '{0}':\nnew value: '{1}'\nfrom: Folder {2}\nold value: '{3}'\nfrom: Folder {4}",
+                        definition.Name, definition.Value, folderLogName, previous.Value, previous.LastChanger));
+                }
+                RegisteredVariables[definition.Name] = new VariableScalar(definition.Value)
+                {
+                    LastChanged = DateTime.Now,
+                    LastChanger = folderLogName
+                };
+            }
+        }
+
+        internal static Font CreateFontFromDefinition(string name, float size, ActionOld.TextAuraEffectEnum effect)
+        {
+            FontStyle fs = FontStyle.Regular;
+            if ((effect & ActionOld.TextAuraEffectEnum.Bold) == ActionOld.TextAuraEffectEnum.Bold)
+            {
 			fs |= FontStyle.Bold;
 		}
 		if ((effect & ActionOld.TextAuraEffectEnum.Italic) == ActionOld.TextAuraEffectEnum.Italic) {
@@ -144,8 +169,9 @@ public partial class RealPlugin {
 		// D
 	}
 
-	private void _ep_OnStatusChange(Endpoint.StatusEnum newStatus, string statusDesc) {
-		FilteredAddToLog(DebugLevelEnum.Verbose, $"Endpoint ({newStatus}) {statusDesc}");
+        private void _ep_OnStatusChange(Endpoint.StatusEnum newStatus, string statusDesc)
+        {
+            FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/endpointstatus", "Endpoint ({0}) {1}", newStatus, statusDesc));
 	}
 
 	private void BridgeFFXIV_OnLogEvent(DebugLevelEnum level, string text) {
@@ -270,6 +296,7 @@ public partial class RealPlugin {
 			// ui.SetupLanguageMenu();
 			isRunningAsAdmin = CheckIfAdministrator(cfg.WarnAdmin);
 			exwhere = I18n.Translate("internal/Plugin/initree", "building internal data");
+			currentZone = CurrentZoneHook?.Invoke();
 			// ui.BuildFullTreeFromConfiguration();
 			// int PrimaryX = 0, PrimaryY = 0;
 			// foreach (var s in Screen.AllScreens) {
@@ -455,6 +482,8 @@ public partial class RealPlugin {
 	internal void ZoneChanged(string? zone) {
 		int allowed = 0, restricted = 0;
 		lock (Triggers) {
+			// Prepare scoped values before unblocking triggers or queuing the region log.
+			UpdateActiveFolderVariables(zone);
 			foreach (var t in Triggers) {
 				var block = !t.PassesZoneRestriction(zone);
 				t.ZoneBlocked = block;

@@ -61,10 +61,16 @@ public partial class RealPlugin {
 		}
 	}
 
-	internal void RemoveTriggersFromFolder(Folder f) {
-		foreach (var trigger in f.RecursiveGetTriggers()) {
+        /// <summary>
+        /// Removes runtime triggers and registered variables for a folder and its descendants.
+        /// </summary>
+        internal void RemoveFolderRuntimeContent(Folder f)
+        {
+            foreach (var trigger in f.RecursiveGetTriggers())
+            {
 			RemoveTrigger(trigger);
 		}
+            UnregisterFolderVariables(f);
 	}
 
 	internal void RemoveTrigger(Trigger t) {

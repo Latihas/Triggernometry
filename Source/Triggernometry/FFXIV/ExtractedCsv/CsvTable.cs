@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Triggernometry.Localization;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -43,9 +44,9 @@ public class CsvTable {
 		// 读取整个 CSV 文件
 		var lines = Common.CsvHelper.ReadCsv(filePath);
 		if (lines.Count < 3)
-			throw new InvalidDataException($"CSV 文件 {filePath} 行数 ({lines.Count}) 不足，无法解析数据。");
+                throw new InvalidDataException(I18n.Translate("internal/CsvTable/toofewrows", "CSV file {0} has too few rows ({1}) to parse.", filePath, lines.Count));
 		if (lines[0].Length < 1)
-			throw new InvalidDataException($"CSV 文件 {filePath} 列数 ({lines[0].Length}) 不足，无法解析数据。");
+                throw new InvalidDataException(I18n.Translate("internal/CsvTable/toofewcolumns", "CSV file {0} has too few columns ({1}) to parse.", filePath, lines[0].Length));
 
 		// 如果首行是 key,0,1,2,... 的索引行，则跳过
 		var headerLine = 0;
@@ -73,18 +74,18 @@ public class CsvTable {
 				continue;
 
 			if (!HeaderIndex.TryAdd(name, i))
-				throw new InvalidDataException($"CSV 文件 {filePath} 存在重复列名: {name}");
+				throw new InvalidDataException(I18n.Translate("internal/CsvTable/duplicatecolumn", "CSV file {0} contains a duplicate column name: {1}", filePath, name));
 		}
 
 		// 第四行起为数据行
 		for (var rowIdx = headerLine + 2; rowIdx < lines.Count; rowIdx++) {
 			var row = lines[rowIdx];
 			if (row.Length == 0)
-				throw new InvalidDataException($"CSV 文件 {filePath} 第 {rowIdx + 1} 行为空，无法解析数据。");
+                    throw new InvalidDataException(I18n.Translate("internal/CsvTable/emptyrow", "CSV file {0}, row {1} is empty and cannot be parsed.", filePath, rowIdx + 1));
 
 			var key = RowIndexKey.Parse(row[0]); // "1" or "1.0"
 			if (tempTable.ContainsKey(key))
-				throw new InvalidDataException($"CSV {filePath} 存在重复 key: {key}");
+                    throw new InvalidDataException(I18n.Translate("internal/CsvTable/duplicatekey", "CSV file {0} contains a duplicate key: {1}", filePath, key));
 
 			var rowInstance = new CsvRow(this, key, row);
 			tempTable[key] = rowInstance;

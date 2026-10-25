@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Triggernometry.Localization;
+using System;
 using Triggernometry.Expressions.Maths;
 using Triggernometry.Expressions.String.Utils;
 using static System.Math;
@@ -56,7 +57,7 @@ public class PolarCoord : XIVCoord {
 			case 3:
 				return ParsePolarCoordsString(coords[0], coords[1], coords[2]);
 			default:
-				throw ErrorHelper.ArgumentCountError("极坐标构造函数", "2-3", coords.Length, "[" + string.Join("], [", coords) + "]");
+                    throw ErrorHelper.ArgumentCountError(I18n.Translate("internal/PolarCoord/constructor", "PolarCoord constructor"), "2-3", coords.Length, "[" + string.Join("], [", coords) + "]");
 		}
 	}
 
@@ -67,8 +68,7 @@ public class PolarCoord : XIVCoord {
 				MathParser.Parse(rawθ),
 				rawZ == null ? 0 : MathParser.Parse(rawZ));
 		} catch (Exception ex) {
-			throw new ArgumentException($"极坐标解析错误：{ex.Message}\n\n" +
-			                            $"原始数据：\nr = ({rawR}), \nθ = ({rawθ}), \nz = ({rawZ})");
+			throw new ArgumentException(I18n.Translate("internal/PolarCoord/parseerror", "Failed to parse polar coordinates: {0}\n\nRaw data:\nr = ({1}),\nθ = ({2}),\nz = ({3})", ex.Message, rawR, rawθ, rawZ));
 		}
 	}
 }

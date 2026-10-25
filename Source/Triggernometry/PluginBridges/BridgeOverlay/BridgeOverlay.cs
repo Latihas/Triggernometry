@@ -16,7 +16,7 @@ public static class BridgeOverlay {
 	public static void Initialize() {
 		PluginMain op = ProxyPlugin.DalamudPlugin.OverlayPlugin;
 		if (op == null) {
-			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not found");
+			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/BridgeOverlay/notfound", "OverlayPlugin was not found."));
 			Ready = false;
 			return;
 		}

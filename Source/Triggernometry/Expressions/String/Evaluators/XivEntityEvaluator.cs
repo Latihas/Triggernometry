@@ -19,7 +19,8 @@ internal static class XivEntityEvaluator {
 
 	internal static Func<Entity, string[]> BuildEvaluator(IndexMemberExpression expr) {
 		if (!expr.Member.HasValue)
-			throw new ArgumentException($"实体表达式 {expr.RawExpression} 未包含属性", nameof(expr.Member));
+                throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/memberrequired",
+                    "Entity expression '{0}' does not include a property.", expr.RawExpression), nameof(expr.Member));
 
 		// raw: "X, Y, DistanceTo(0, 0)"
 		var raw = expr.Member.RawExpression;
@@ -39,8 +40,10 @@ internal static class XivEntityEvaluator {
 		return entity => accessors.Select(accessor => {
 			try {
 				return accessor(entity).ToDataString();
-			} catch (Exception ex) {
-				throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/？？？？？？？？",
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/evaluationerror",
 					"Failed to evaluate entity property/method expression '{0}': {1}",
 					rawExpr, ex.Message), ex);
 			}
@@ -78,7 +81,8 @@ internal static class XivEntityEvaluator {
 	}
 
 	internal static Func<Entity, object> GetSingleAccessor(MemberExpression expr)
-		=> TryGetSingleAccessor(expr) ?? throw new ArgumentException("Invalid entity property/method name: " + expr.Name, nameof(expr));
+            => TryGetSingleAccessor(expr) ?? throw new ArgumentException(I18n.Translate("internal/FFXIV/Entity/invalidmember",
+                "Invalid entity property/method name: {0}", expr.Name), nameof(expr));
 
 	internal static Func<Entity, object> TryGetSingleAccessor(MemberExpression expr) {
 		var accessor = TryGetSingleMethodAccessor(expr.Name, expr.Args)

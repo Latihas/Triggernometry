@@ -193,7 +193,7 @@ public static class Memory {
 		var size = Marshal.SizeOf<T>();
 		var valueBytes = new byte[size];
 		if (!ReadProcessMemory(procHandle, address, valueBytes, (uint)size, out var bytesRead) || bytesRead != size) {
-			Instance.UnfilteredAddToLog(DebugLevelEnum.Error, "Failed to read memory or read incorrect number of bytes.");
+			Instance.UnfilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Memory/readfailed", "Failed to read memory or read an incorrect number of bytes."));
 			return default;
 		}
 		return BytesToStructure<T>(valueBytes);
@@ -202,7 +202,7 @@ public static class Memory {
 	public static void Write<T>(IntPtr procHandle, IntPtr address, T newValue) where T : struct {
 		var valueBytes = StructureToBytes(newValue);
 		if (!WriteProcessMemory(procHandle, address, valueBytes, (uint)valueBytes.Length, out var bytesWritten) || bytesWritten != valueBytes.Length) {
-			Instance.UnfilteredAddToLog(DebugLevelEnum.Error, "Failed to write all bytes to memory.");
+			Instance.UnfilteredAddToLog(DebugLevelEnum.Error, I18n.Translate("internal/Memory/writefailed", "Failed to write all bytes to memory."));
 		}
 	}
 
@@ -237,7 +237,7 @@ public static class Memory {
 						bytes.Add(null);
 						break;
 					case "*":
-						if (Jump) throw new Exception($"Too much * in pattern {patternStr}");
+                            if (Jump) throw new Exception(I18n.Translate("internal/Memory/toomanyjumps", "Too many '*' characters in pattern {0}.", patternStr));
 						Offset = i;
 						Jump = true;
 						regexStr += "(?<jump>.{4})";
@@ -250,7 +250,7 @@ public static class Memory {
 							bytes.Add(result);
 							break;
 						}
-						throw new Exception($"Invalid byte {splittedRawPattern[i]} in pattern {patternStr}");
+						throw new Exception(I18n.Translate("internal/Memory/invalidpatternbyte", "Invalid byte {0} in pattern {1}.", splittedRawPattern[i], patternStr));
 				}
 			}
 			PatternRegex = new Regex(regexStr, RegexOptions.Compiled | RegexOptions.Singleline);
@@ -267,10 +267,10 @@ public static class Memory {
 
 		var match = pattern.PatternRegex.Match(dataStr);
 		if (match.Success) {
-			Instance.UnfilteredAddToLog(DebugLevelEnum.Verbose, $"Found address \"{pattern.RawPattern}\" in module data");
+			Instance.UnfilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Memory/patternfound", "Found address '{0}' in module data.", pattern.RawPattern));
 			address = match.Index + pattern.Offset;
 		} else {
-			Instance.UnfilteredAddToLog(showWarning ? DebugLevelEnum.Warning : DebugLevelEnum.Verbose, $"Failed to find \"{pattern.RawPattern}\" in module data");
+			Instance.UnfilteredAddToLog(showWarning ? DebugLevelEnum.Warning : DebugLevelEnum.Verbose, I18n.Translate("internal/Memory/patternnotfound", "Failed to find '{0}' in module data.", pattern.RawPattern));
 			return null;
 		}
 		if (pattern.Jump) {

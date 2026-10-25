@@ -40,7 +40,7 @@ internal partial class TraySliderForm : Form {
 
 	internal TraySliderForm(int buttonCount, int durationMs, bool forceShow) {
 		if (buttonCount is > 3 or < 0)
-			throw new ArgumentOutOfRangeException(nameof(buttonCount), "Button count must be 0-3.");
+			throw new ArgumentOutOfRangeException(nameof(buttonCount), I18n.Translate("internal/TraySlider/invalidbuttoncount", "Button count must be between 0 and 3."));
 
 		InitializeComponent();
 
@@ -80,7 +80,7 @@ internal partial class TraySliderForm : Form {
 
 	private void ConfigureButtons(int buttonCount) {
 		if (buttonCount is > 3 or < 0)
-			throw new ArgumentOutOfRangeException(nameof(buttonCount), "Button count must be 0-3.");
+			throw new ArgumentOutOfRangeException(nameof(buttonCount), I18n.Translate("internal/TraySlider/invalidbuttoncount", "Button count must be between 0 and 3."));
 
 		var buttons = new[] { Button1, Button2, Button3 };
 
@@ -359,7 +359,7 @@ public class TraySlider {
 			.FirstOrDefault();
 
 		if (mainForm == null) {
-			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, $"No main form found to show tray slider: [{Title}] {Message}");
+			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/TraySlider/nomainform", "No main form found to show tray notification: [{0}] {1}", Title, Message));
 			return;
 		}
 

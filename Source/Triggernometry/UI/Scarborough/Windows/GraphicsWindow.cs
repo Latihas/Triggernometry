@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Triggernometry.Localization;
+using System;
 using System.Diagnostics;
 using System.Threading;
 using Scarborough.Drawing;
@@ -101,7 +102,7 @@ public class GraphicsWindow : OverlayWindow {
 	///     Runs a timer thread which invokes the DrawGraphics event and measures frames per second.
 	/// </summary>
 	public void StartThread() {
-		if (_isRunning) throw new InvalidOperationException("Graphics window is already running");
+		if (_isRunning) throw new InvalidOperationException(I18n.Translate("internal/GraphicsWindow/alreadyrunning", "Graphics window is already running."));
 
 		_isRunning = true;
 		_isPaused = !IsVisible;
@@ -130,7 +131,7 @@ public class GraphicsWindow : OverlayWindow {
 	///     Stops the timer thread and does not wait for it to finish execution.
 	/// </summary>
 	public void StopThreadAsync() {
-		if (!_isRunning) throw new InvalidOperationException("Graphics window is not running");
+		if (!_isRunning) throw new InvalidOperationException(I18n.Translate("internal/GraphicsWindow/notrunning", "Graphics window is not running."));
 
 		_isRunning = false;
 		_isPaused = false;
@@ -140,7 +141,7 @@ public class GraphicsWindow : OverlayWindow {
 	///     Pauses the timer thread.
 	/// </summary>
 	public void Pause() {
-		if (!_isRunning) throw new InvalidOperationException("Graphics window is not running");
+		if (!_isRunning) throw new InvalidOperationException(I18n.Translate("internal/GraphicsWindow/notrunning", "Graphics window is not running."));
 
 		_isPaused = true;
 	}
@@ -149,7 +150,7 @@ public class GraphicsWindow : OverlayWindow {
 	///     Resumes the timer thread.
 	/// </summary>
 	public void Unpause() {
-		if (!_isRunning) throw new InvalidOperationException("Graphics window is not running");
+		if (!_isRunning) throw new InvalidOperationException(I18n.Translate("internal/GraphicsWindow/notrunning", "Graphics window is not running."));
 
 		_isPaused = false;
 	}
@@ -158,7 +159,7 @@ public class GraphicsWindow : OverlayWindow {
 	///     Waits until the Thread used by this instance has exited.
 	/// </summary>
 	public void JoinGraphicsThread() {
-		if (!_isRunning) throw new InvalidOperationException("Graphics window is not running");
+		if (!_isRunning) throw new InvalidOperationException(I18n.Translate("internal/GraphicsWindow/notrunning", "Graphics window is not running."));
 
 		try {
 			_thread.Join();

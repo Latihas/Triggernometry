@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Triggernometry.Localization;
+using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Triggernometry.Core;
@@ -10,7 +11,7 @@ public partial class TreeViewEx : TreeView {
 	private const int TVM_SETEXTENDEDSTYLE = 0x1100 + 44;
 	private const int TVM_GETEXTENDEDSTYLE = 0x1100 + 45;
 	private const int TVS_EX_DOUBLEBUFFER = 0x0004;
-
+        private const int TVM_SETINSERTMARK = 0x1100 + 26;
 	[DllImport("user32.dll")]
 	private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
 
@@ -25,7 +26,11 @@ public partial class TreeViewEx : TreeView {
 		BeforeCheck += TreeViewEx_BeforeCheck;
 	}
 
-	protected override void WndProc(ref Message m) {
+	/// <summary> Shows a drag insertion mark before or after a node; null clears it. </summary>
+        internal void SetInsertionMark(TreeNode node, bool after)
+        {
+            SendMessage(Handle, TVM_SETINSERTMARK, after ? (IntPtr)1 : IntPtr.Zero, node?.Handle ?? IntPtr.Zero);
+        }protected override void WndProc(ref Message m) {
 		if (m.Msg == 0x203) // identified double click
 		{
 			var localPos = PointToClient(Cursor.Position);
@@ -41,14 +46,14 @@ public partial class TreeViewEx : TreeView {
 
 	private void TreeViewEx_BeforeExpand(object sender, TreeViewCancelEventArgs e) {
 		if (e.Node.Tag is Folder { Repo: not null, DisableRemoteExpand: true }) {
-			MessageBox.Show("你无需浏览此分组。", "远程触发器", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			MessageBox.Show(I18n.Translate("internal/TreeViewEx/nobrowserequired", "You do not need to browse this folder."), I18n.Translate("internal/TreeViewEx/remotetriggers", "Remote triggers"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			e.Cancel = true;
 		}
 	}
 
 	private void TreeViewEx_BeforeCheck(object sender, TreeViewCancelEventArgs e) {
 		if (e.Node.Tag is Folder { Repo: not null, DisableRemoteToggle: true }) {
-			MessageBox.Show("你无需修改此分组。", "远程触发器", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			MessageBox.Show(I18n.Translate("internal/TreeViewEx/noeditrequired", "You do not need to modify this folder."), I18n.Translate("internal/TreeViewEx/remotetriggers", "Remote triggers"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			e.Cancel = true;
 		}
 	}

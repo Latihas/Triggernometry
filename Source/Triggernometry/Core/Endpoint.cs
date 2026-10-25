@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Triggernometry.Localization;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -113,7 +114,7 @@ internal class Endpoint : IDisposable {
 					try {
 						var req = hctx.Request;
 						if (req.HttpMethod != "POST") {
-							throw new InvalidOperationException("Received request was not HTTP POST");
+							throw new InvalidOperationException(I18n.Translate("internal/Endpoint/notpost", "Received request was not HTTP POST."));
 						}
 						string body;
 						using (var sr = new StreamReader(req.InputStream, req.ContentEncoding)) {

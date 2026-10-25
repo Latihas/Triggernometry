@@ -10,31 +10,26 @@ namespace Triggernometry.Core.Variables;
 
 [XmlRoot(ElementName = "VariableList")]
 public class VariableList : Variable {
-	public VariableList() {
-	}
+	[XmlArrayItem(ElementName = "VariableScalar", Type = typeof(VariableScalar))]
+	[XmlArrayItem(ElementName = "VariableList", Type = typeof(VariableList))]
+	[XmlArrayItem(ElementName = "VariableTable", Type = typeof(VariableTable))]
+	public List<Variable> Values { get; set; } = new List<Variable>();
 
-	public VariableList(IEnumerable<string> values) {
-		Values = values.Select(Variable (v) => new VariableScalar(v)).ToList();
-	}
+        public VariableList() { }
+        public VariableList(IEnumerable<string> values) { Values = values.Select(v => (Variable)new VariableScalar(v)).ToList(); }
+        public VariableList(IEnumerable<double> values) : this(values.Select(v => v.ToStringInvariant())) { }
+     
 
-	public VariableList(IEnumerable<double> values) : this(values.Select(v => v.ToString(CultureInfo.InvariantCulture))) {
-	}
-
-	public VariableList(IEnumerable<int> values) : this(values.Select(v => v.ToString(CultureInfo.InvariantCulture))) {
-	}
-
-	public VariableList(IEnumerable<object> objs) {
-		foreach (var obj in objs) {
-			Values.Add(new VariableScalar {
-				Value = obj.ToString()
-			});
+        public VariableList(IEnumerable<object> objs)
+        {
+            foreach (object obj in objs)
+            {
+                Values.Add(new VariableScalar() { Value = obj is double || obj is float ? obj.ToDataString() : obj.ToString() });
 		}
 	}
 
-	[XmlArrayItem(ElementName = "VariableScalar", Type = typeof(VariableScalar))] [XmlArrayItem(ElementName = "VariableList", Type = typeof(VariableList))] [XmlArrayItem(ElementName = "VariableTable", Type = typeof(VariableTable))]
-	public List<Variable> Values { get; set; } = [];
-
 	public int Size => Values.Count;
+	public VariableList(IEnumerable<int> values) : this(values.Select(v => v.ToString(CultureInfo.InvariantCulture))) { }
 
 	public override string ToString() => string.Join(",", Values);
 
@@ -120,23 +115,22 @@ public class VariableList : Variable {
 		}, changer);
 	}
 
-	public void InsertList(int rawIndex, VariableList srcList, string changer) {
-		var idx = ProcessRawIndex(rawIndex);
-		if (idx < 0) {
-			return;
-		}
-		if (idx >= Values.Count) {
-			var needcre = idx - Values.Count;
-			while (needcre > 0) {
-				Push(new VariableScalar {
-					Value = ""
-				}, changer);
+        public void InsertList(int rawIndex, VariableList srcList, string changer)
+        {
+            int idx = ProcessRawIndex(rawIndex);
+            if (idx < 0) { return; }
+            // Copy before modifying the target, since the source may be this list.
+            var values = srcList.Values.Select(value => value.Duplicate()).ToArray();
+            if (idx >= Values.Count)
+            {
+                int needcre = idx - Values.Count;
+                while (needcre > 0)
+                {
+                    Push(new VariableScalar() { Value = "" }, changer);
 				needcre--;
 			}
 		}
-		for (var i = srcList.Size - 1; i >= 0; i--) {
-			Values.Insert(idx, srcList.Values[i].Duplicate());
-		}
+            Values.InsertRange(idx, values);
 		LastChanged = DateTime.Now;
 		LastChanger = changer;
 	}
@@ -252,14 +246,23 @@ public class VariableList : Variable {
 		LastChanger = changer;
 	}
 
-	public void SortNumericAsc(string changer) {
-		Values.Sort((a, b) => decimal.Parse(a.ToString()).CompareTo(decimal.Parse(b.ToString())));
+        private static int CompareNumeric(Variable a, Variable b)
+        {
+            decimal left = decimal.Parse(a.ToString(), CultureInfo.InvariantCulture);
+            decimal right = decimal.Parse(b.ToString(), CultureInfo.InvariantCulture);
+            return left.CompareTo(right);
+        }
+
+        public void SortNumericAsc(string changer)
+        {
+            Values.Sort(CompareNumeric);
 		LastChanged = DateTime.Now;
 		LastChanger = changer;
 	}
 
-	public void SortNumericDesc(string changer) {
-		Values.Sort((a, b) => decimal.Parse(a.ToString()).CompareTo(decimal.Parse(b.ToString())) * -1);
+        public void SortNumericDesc(string changer)
+        {
+            Values.Sort((a, b) => CompareNumeric(b, a));
 		LastChanged = DateTime.Now;
 		LastChanger = changer;
 	}

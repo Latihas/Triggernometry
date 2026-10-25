@@ -172,12 +172,17 @@ public class ActionDiskOperation : ActionBase {
 						data.Add(x);
 					}
 				}
-				var vt = vs.GetTableVariable(varname, true);
-				if (data.Count > 0 && datawidth > 0) {
 					string vtchanger;
-					vtchanger = ctx.Trigger != null
-						? I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe())
-						: I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
+                        if (ctx.Trigger != null)
+                        {
+                            vtchanger = I18n.Translate("internal/Action/changetagtrigaction", "Trigger '{0}' action '{1}'", ctx.Trigger.LogName, Describe());
+                        }
+                        else
+                        {
+                            vtchanger = I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
+                        }
+                        // Build a replacement so missing CSV cells cannot retain old values.
+                        VariableTable vt = new VariableTable();
 					vt.Resize(datawidth, data.Count);
 					var y = 1;
 					foreach (var row in data) {
@@ -186,6 +191,11 @@ public class ActionDiskOperation : ActionBase {
 						}
 						y++;
 					}
+                        vt.LastChanged = DateTime.Now;
+                        vt.LastChanger = vtchanger;
+                        lock (vs.Table)
+                        {
+                            vs.Table[varname] = vt;
 				}
 				AddToLog(ctx, RealPlugin.DebugLevelEnum.Verbose, I18n.Translate("internal/Action/filetableset",
 					"{2}Table variable ({0}) value read from CSV file ({1})", varname, filename, persist));

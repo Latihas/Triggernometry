@@ -10,9 +10,11 @@ internal static class ModuleAlliance {
 	public static readonly bool Ready;
 	private static readonly IPartyMemory _partyMemoryManager;
 
-	static ModuleAlliance() {
-		try {
-			_partyMemoryManager = BridgeOverlay.Container.Resolve<IPartyMemory>();
+        static ModuleAlliance()
+        {
+            try
+            {
+	            _partyMemoryManager = BridgeOverlay.Container.Resolve<IPartyMemory>();
 			Ready = true;
 		} catch (Exception ex) {
 			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Error,
@@ -26,7 +28,7 @@ internal static class ModuleAlliance {
 
 	public static object GetPartyLists() {
 		if (!Ready) {
-			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, "OverlayPlugin not ready");
+			RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/BridgeOverlay/notready", "OverlayPlugin is not ready."));
 			return new object();
 		}
 		var o = _partyMemoryManager.GetPartyLists();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Triggernometry.Expressions.String.Utils;
+using Triggernometry.Localization;
 
 namespace Triggernometry.Expressions.String.Models;
 
@@ -120,7 +121,8 @@ public readonly struct IndexMemberExpression {
 	public string GetIndex(int indexOfIndex) => TryGetIndex(indexOfIndex)
 	                                            ?? throw new ArgumentOutOfRangeException(
 		                                            nameof(indexOfIndex),
-		                                            $"Expression {RawExpression} has only {Indexes.Length} index(es).");
+                I18n.Translate("internal/IndexMemberExpression/indexoutofrange",
+                    "Expression {0} has only {1} index(es).", RawExpression, Indexes.Length));
 
 	/// <summary>
 	///     Attempt to get the index value at the specified position.

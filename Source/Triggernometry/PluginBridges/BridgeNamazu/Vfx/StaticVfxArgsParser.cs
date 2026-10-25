@@ -159,9 +159,9 @@ internal static partial class StaticVfxArgsParser {
 			}
 
 			// 如 θ: 120, 100, 0（相对 O 指向的坐标）
-			try {
-				var coord = XIVCoord.ParseRawData(rawNorth);
-				args.TransformNorthTarget = DynamicCoordArg.FromCoord(coord);
+                try
+                {
+                    args.TransformNorthTarget = DynamicCoordArg.Parse(rawNorth);
 				return;
 			} catch (Exception ex) {
 				throw new ArgumentException($"[PictoACT] θ/Theta 必须是角度表达式、坐标或实体 ID：{rawNorth}", ex);
@@ -207,7 +207,7 @@ internal static partial class StaticVfxArgsParser {
 	private static void Validate(StaticVfxArgs args) {
 		if (args.Action == StaticVfxAction.Create) {
 			if (args.Scale?.HasDistanceToken == true && args.Target == null)
-				throw new ArgumentException("[PictoACT] 创建 VFX 时若在 Scale 中使用 _d，必须指定 Target。");
+                    throw new ArgumentException("[PictoACT] 创建 VFX 时若在 Scale 中使用 _d 或 _d3，必须指定 Target。");
 
 			if (args is { TransformNorthTarget: not null, TransformCenter: null })
 				throw new ArgumentException("[PictoACT] θ 指定为坐标或实体 id 时，必须同时指定 O/Center。");
