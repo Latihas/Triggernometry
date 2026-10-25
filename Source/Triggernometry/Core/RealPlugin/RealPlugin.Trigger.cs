@@ -118,7 +118,7 @@ public partial class RealPlugin {
 
 	internal void TestTrigger(Trigger trigger, LogEvent logEvent, ActionOld.TriggerForceTypeEnum forceType) {
 		lock (trigger) {
-			Match match = null;
+			Match? match = null;
 			if ((forceType & ActionOld.TriggerForceTypeEnum.SkipRegexp) == 0) {
 				match = trigger.CheckMatch(logEvent.Text);
 				if (match == null) return;

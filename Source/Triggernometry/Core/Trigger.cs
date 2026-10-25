@@ -109,7 +109,7 @@ public class Trigger {
 	/// <summary>
 	///     The condition group that determines whether this trigger should execute.
 	/// </summary>
-	[XmlIgnore] public ConditionGroup Condition { get; set; } = new() {
+	[XmlIgnore] public ConditionGroup? Condition { get; set; } = new() {
 		Enabled = false
 	};
 
@@ -386,7 +386,7 @@ public class Trigger {
 	///     <br />
 	///     · <see langword="false" /> if blocked (repository/condition/refire rules) or an exception occurs.
 	/// </summary>
-        public bool Fire(Context ctx, RealPlugin.MutexInformation mtx = null)
+        public bool Fire(Context ctx, RealPlugin.MutexInformation? mtx = null)
 		{
             try
             {
@@ -435,7 +435,7 @@ public class Trigger {
 	///     · <see langword="false" /> if mutex capture is not applicable (mtx already present or no MutexToCapture
 	///     configured).
 	/// </summary>
-	private bool TryScheduleDeferredFireWithMutexCapture(Context ctx, RealPlugin.MutexInformation mtx) {
+	private bool TryScheduleDeferredFireWithMutexCapture(Context ctx, RealPlugin.MutexInformation? mtx) {
 		if (mtx != null)
 			return false;
 

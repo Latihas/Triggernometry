@@ -204,7 +204,7 @@ public partial class ActionOld {
 	}
 
 
-	[XmlIgnore] public ConditionGroup Condition = new() {
+	[XmlIgnore] public ConditionGroup? Condition = new() {
 		Enabled = false
 	};
 
