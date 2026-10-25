@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Triggernometry.Localization;
 using static Triggernometry.Expressions.String.Utils.ParserCommon;
 
@@ -12,7 +13,7 @@ namespace Triggernometry.Expressions.String.Utils;
 ///     Helper functions for argument parsing and validation from user-input strings.
 /// </summary>
 public static class ArgHelper {
-	private static readonly object _lockValidators = new();
+	private static readonly Lock _lockValidators = new();
 
 	private static readonly Dictionary<string, Func<int, bool>> _validators = new(StringComparer.OrdinalIgnoreCase);
 

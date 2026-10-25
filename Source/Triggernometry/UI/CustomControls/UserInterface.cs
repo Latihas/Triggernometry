@@ -865,7 +865,7 @@ public class UserInterface {
 		}
 	}
 
-	private static readonly Dictionary<object, bool> _nodeExpandedStates = new();
+	// private static readonly Dictionary<object, bool> _nodeExpandedStates = new();
 	private static readonly Dictionary<object, bool> _nodeCheckedStates = new();
 	private static readonly Vector4 ColorGrey = new(0.5f, 0.5f, 0.5f, 1.0f);
 
@@ -943,7 +943,7 @@ public class UserInterface {
 			if (ser.ExportedFolder != null) {
 				ser.ExportedFolder.Parent = df;
 				df.Folders.Add(ser.ExportedFolder);
-				_nodeExpandedStates[ser.ExportedFolder] = true;
+				// _nodeExpandedStates[ser.ExportedFolder] = true;
 			}
 			int fdjs = 0, tdjs = 0;
 			foreach (Trigger nt in importedTriggers) {
@@ -960,7 +960,7 @@ public class UserInterface {
 				if (ser.ExportedTrigger != null) {
 					ser.ExportedTrigger.Parent = df;
 					df.Triggers.Add(ser.ExportedTrigger);
-					_nodeExpandedStates[ser.ExportedTrigger] = true;
+					// _nodeExpandedStates[ser.ExportedTrigger] = true;
 				}
 				foreach (var newTrig in importedTriggers) {
 					RealPlugin.Instance.AddTrigger(newTrig, newTrig.Parent == null ? true : newTrig.Parent.ParentsEnabled());
@@ -999,7 +999,7 @@ public class UserInterface {
 
 	private static void RenderTreeNode(string text, object tag, bool isDisabled, Action? renderChildren) {
 		try {
-			_nodeExpandedStates.TryAdd(tag, false);
+			// _nodeExpandedStates.TryAdd(tag, false);
 			_nodeCheckedStates[tag] = tag switch {
 				Folder folder => folder.Enabled,
 				Trigger trigger => trigger.Enabled,
@@ -1147,7 +1147,7 @@ public class UserInterface {
 						break;
 				}
 			}
-			_nodeExpandedStates[tag] = isExpanded;
+			// _nodeExpandedStates[tag] = isExpanded;
 			if (isExpanded && renderChildren != null) {
 				ImGui.Indent();
 				renderChildren();

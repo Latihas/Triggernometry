@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Localization;
 
@@ -85,7 +86,7 @@ public class CsvRow {
 	}
 
 	private static readonly Dictionary<Type, Func<CsvRow, CsvRow>> _factoryCache = new();
-	private static readonly object _factoryLock = new();
+	private static readonly Lock _factoryLock = new();
 
 	internal static Func<CsvRow, CsvRow> GetOrCreateFactory(Type type) {
 		lock (_factoryLock) {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
@@ -115,7 +116,7 @@ public class Repository {
 
         private bool isContentLoaded;
 
-        private readonly object _logLock = new object();
+        private readonly Lock _logLock = new();
         private ConcurrentQueue<string> UpdateLog { get; set; } = [];
         public string[] UpdateLogSnapshot()
         {

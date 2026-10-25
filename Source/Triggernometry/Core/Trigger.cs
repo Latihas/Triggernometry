@@ -86,9 +86,7 @@ public class Trigger {
 	/// </returns>
 	public Match? CheckMatch(string? input) {
 		var regex = regexCache; // snapshot
-		if (regex == null || input == null)
-			return null;
-
+		if (regex == null || input == null) return null;
 		var m = regex.Match(input);
 		return m.Success ? m : null;
 	}

@@ -11,7 +11,7 @@ namespace Scarborough.Windows;
 public class OverlayWindow : IDisposable {
 	private const WindowMessage CustomDestroyWindowMessage = (WindowMessage)0x1337;
 
-	private readonly object _lock;
+	private readonly Lock _lock;
 
 	private Thread _windowThread;
 
@@ -193,7 +193,7 @@ public class OverlayWindow : IDisposable {
 	///     Initializes a new OverlayWindow.
 	/// </summary>
 	public OverlayWindow() {
-		_lock = new object();
+		_lock = new();
 
 		Title = string.Empty;
 		//ClassName = string.Empty;

@@ -102,7 +102,7 @@ public partial class RealPlugin {
 	internal ObsController? _obs;
 	internal LiveSplitController? _livesplit;
 	internal CancellationTokenSource? cts;
-	internal object ctslock = new();
+	internal Lock ctslock = new();
 	// public Form mainform { get; set; }
 	internal int MinX = int.MaxValue, MinY = int.MaxValue, MaxX = int.MinValue, MaxY = int.MinValue;
 
@@ -443,36 +443,45 @@ public partial class RealPlugin {
 		});
 	}
 
-	private readonly Queue<LogEvent> lxx = [];
+	private readonly Queue<LogEvent> TextLines = [];
+	private readonly Queue<LogEvent> FFXIVNetworkLines = [];
+	private readonly Queue<LogEvent> ACTLines = [];
+	private readonly Queue<LogEvent> EndpointLines = [];
 
 	private void LogLineProcessorAsync(IFramework _) {
-		while (EventQueue.TryDequeue(out var line)) lxx.Enqueue(line);
-		while (lxx.TryDequeue(out var line)) LogLineProcessor(line);
+		while (EventQueue.TryDequeue(out var le)) {
+			switch (le.Source) {
+				case LogEvent.SourceEnum.Log:
+					TextLines.Enqueue(le);
+					break;
+				case LogEvent.SourceEnum.NetworkFFXIV:
+					FFXIVNetworkLines.Enqueue(le);
+					break;
+				case LogEvent.SourceEnum.ACT:
+					ACTLines.Enqueue(le);
+					break;
+				case LogEvent.SourceEnum.Endpoint:
+					EndpointLines.Enqueue(le);
+					break;
+				default: throw new ArgumentOutOfRangeException();
+			}
+		}
+		ProcessLines(TextLines, ActiveTextTriggers);
+		ProcessLines(FFXIVNetworkLines, ActiveFFXIVNetworkTriggers);
+		ProcessLines(ACTLines, ActiveACTTriggers);
+		ProcessLines(EndpointLines, ActiveEndpointTriggers);
 	}
 
-	internal void LogLineProcessor(LogEvent le) {
-		switch (le.Source) {
-			case LogEvent.SourceEnum.Log:
-				lock (ActiveTextTriggers)
-					foreach (var t in ActiveTextTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
-						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-				break;
-			case LogEvent.SourceEnum.NetworkFFXIV:
-				lock (ActiveFFXIVNetworkTriggers)
-					foreach (var t in ActiveFFXIVNetworkTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
-						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-				break;
-			case LogEvent.SourceEnum.ACT:
-				lock (ActiveACTTriggers)
-					foreach (var t in ActiveACTTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
-						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-				break;
-			case LogEvent.SourceEnum.Endpoint:
-				lock (ActiveEndpointTriggers)
-					foreach (var t in ActiveEndpointTriggers.Where(t => !t.ZoneBlocked || le.TestMode))
-						TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
-				break;
-			default: throw new ArgumentOutOfRangeException();
+	private void ProcessLines(Queue<LogEvent> lines, List<Trigger> activeTriggers) {
+		Trigger[] fullTriggers;
+		Trigger[] xtriggers;
+		lock (activeTriggers) {
+			fullTriggers = [.. activeTriggers];
+			xtriggers = [.. activeTriggers.Where(t => !t.ZoneBlocked)];
+		}
+		while (lines.TryDequeue(out var le)) {
+			var triggers = le.TestMode ? fullTriggers : xtriggers;
+			foreach (var t in triggers) TestTrigger(t, le, ActionOld.TriggerForceTypeEnum.NoSkip);
 		}
 	}
 

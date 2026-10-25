@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Scarborough.PInvoke;
 
 namespace Scarborough.Windows;
@@ -12,7 +13,7 @@ public static class WindowHelper {
 	private const int MaxRandomStringLen = 16;
 
 	private static readonly Random _random = new();
-	private static readonly object _blacklistLock = new();
+	private static readonly Lock _blacklistLock = new();
 
 	private static readonly List<string> _windowClassesBlacklist = [];
 

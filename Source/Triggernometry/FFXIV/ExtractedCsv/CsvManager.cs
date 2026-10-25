@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Triggernometry.Core;
 using Triggernometry.Localization;
@@ -23,13 +24,13 @@ public class CsvManager {
 	///     Global cache of raw tables (table name → CsvTable).
 	/// </summary>
 	private readonly Dictionary<string, CsvTable> _tables = new(StringComparer.OrdinalIgnoreCase);
-	private readonly object _lockTables = new();
+	private readonly Lock _lockTables = new();
 
 	/// <summary>
 	///     Global cache of typed tables (row type → IReadOnlyDictionary&lt;RowIndexKey, TRow&gt; where TRow : TypedCsvRow).
 	/// </summary>
 	private readonly Dictionary<Type, object> _typedTables = new();
-	private readonly object _lockTypedTables = new();
+	private readonly Lock _lockTypedTables = new();
 
 	/// <summary>
 	///     Cached mapping from row type name (without suffix) to the corresponding TypedCsvRow type.

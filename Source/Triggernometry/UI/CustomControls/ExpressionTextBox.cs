@@ -1426,7 +1426,7 @@ public partial class ExpressionTextBox : UserControl {
 	/// <summary>
 	/// Copies current names under the dictionary's synchronization lock.
 	/// </summary>
-	private static List<string> GetKeysWithLock<T>(Dictionary<string, T> variables, object lockObject = null) {
+	private static List<string> GetKeysWithLock<T>(Dictionary<string, T> variables, object? lockObject = null) {
 		lock (lockObject ?? variables) return variables.Keys.ToList();
 	}
 
