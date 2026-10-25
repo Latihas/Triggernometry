@@ -22,9 +22,9 @@ public class VariableList : Variable {
 
         public VariableList(IEnumerable<object> objs)
         {
-            foreach (object obj in objs)
+            foreach (var obj in objs)
             {
-                Values.Add(new VariableScalar() { Value = obj is double || obj is float ? obj.ToDataString() : obj.ToString() });
+                Values.Add(new VariableScalar { Value = obj is double || obj is float ? obj.ToDataString() : obj.ToString() });
 		}
 	}
 
@@ -117,16 +117,16 @@ public class VariableList : Variable {
 
         public void InsertList(int rawIndex, VariableList srcList, string changer)
         {
-            int idx = ProcessRawIndex(rawIndex);
+            var idx = ProcessRawIndex(rawIndex);
             if (idx < 0) { return; }
             // Copy before modifying the target, since the source may be this list.
             var values = srcList.Values.Select(value => value.Duplicate()).ToArray();
             if (idx >= Values.Count)
             {
-                int needcre = idx - Values.Count;
+                var needcre = idx - Values.Count;
                 while (needcre > 0)
                 {
-                    Push(new VariableScalar() { Value = "" }, changer);
+                    Push(new VariableScalar { Value = "" }, changer);
 				needcre--;
 			}
 		}
@@ -248,8 +248,8 @@ public class VariableList : Variable {
 
         private static int CompareNumeric(Variable a, Variable b)
         {
-            decimal left = decimal.Parse(a.ToString(), CultureInfo.InvariantCulture);
-            decimal right = decimal.Parse(b.ToString(), CultureInfo.InvariantCulture);
+            var left = decimal.Parse(a.ToString(), CultureInfo.InvariantCulture);
+            var right = decimal.Parse(b.ToString(), CultureInfo.InvariantCulture);
             return left.CompareTo(right);
         }
 

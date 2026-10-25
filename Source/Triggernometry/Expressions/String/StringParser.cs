@@ -1,8 +1,8 @@
 ﻿using System;
 using Triggernometry.Core;
 using Triggernometry.Expressions.String.Parsers;
-using static Triggernometry.Expressions.String.Utils.ParserCommon;
 using Triggernometry.Localization;
+using static Triggernometry.Expressions.String.Utils.ParserCommon;
 
 namespace Triggernometry.Expressions.String;
 

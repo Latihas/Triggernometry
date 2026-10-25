@@ -11,15 +11,10 @@ using TriggernometryProxy;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	// internal Thread ActionQueueThread;
 	public readonly List<QueuedAction> ActionQueue = [];
-	// internal AutoResetEvent ActionUpdateEvent;
 	private long curOrdinal;
-	// internal object QueueProcessingLock = new();
-	// internal bool QueueProcessing = true;
-
 	public delegate void ActionExecutionHook(Context ctx, ActionOld a);
-	internal HashSet<QueuedAction> ExecutingActions = new HashSet<QueuedAction>();
+	internal HashSet<QueuedAction> ExecutingActions = [];
 
 	private void InitActionQueue() {
 		if (cfg.StartupTriggerId != Guid.Empty) {
@@ -98,7 +93,7 @@ public partial class RealPlugin {
                 lock (ctx.Plugin.ActionQueue)
                 {
                     ctx.Plugin.ExecutingActions.Remove(this);
-                    if (mutex != null && releaseMutex == true)
+                    if (mutex != null && releaseMutex)
                     {
 				mutex.Release(ctx);
                         mutex = null;
@@ -119,15 +114,13 @@ public partial class RealPlugin {
 	/// <returns>The number of queued actions removed from the queue.</returns>
 
         internal int CancelQueuedActions(Func<QueuedAction, bool> filter = null)
-        {
-            int removedCount = 0;
-            lock (ActionQueue)
+        { var removedCount = 0;
+	        lock (ActionQueue)
             {
                 var toRemove = ActionQueue.Where(qa => filter == null || filter(qa)).ToList();
-				removedCount = toRemove.Count;
-				if (removedCount > 0) {
-					foreach (var qa in toRemove)
-						ActionQueue.Remove(qa);
+                removedCount = toRemove.Count;
+                foreach (var qa in toRemove)
+	                ActionQueue.Remove(qa);
 
                 foreach (var group in toRemove.Where(qa => qa.mutex != null)
                     .GroupBy(qa => new { qa.mutex, qa.ctx.id }))
@@ -146,9 +139,9 @@ public partial class RealPlugin {
 	}
 
 	internal ActionOld QueueActions(Context ctx, DateTime startingFrom, IEnumerable<ActionOld> actions, bool sequential, MutexInformation mtx, Context.LoggerDelegate logger) {
-		ActionOld lastAction = null;
+		ActionOld? lastAction = null;
 		var sortedActions = actions.OrderBy(a => a.OrderNumber);
-		var finalAction = sortedActions.LastOrDefault(a => a.Enabled); // _Enabled?
+		var finalAction = sortedActions.LastOrDefault(a => a.Enabled);
 		if (!sequential) {
 			foreach (var action in sortedActions) {
 				if (action.Enabled) {
@@ -158,8 +151,8 @@ public partial class RealPlugin {
 				}
 			}
 		} else {
-			ActionOld prev = null;
-			ActionOld first = null;
+			ActionOld? prev = null;
+			ActionOld? first = null;
 			foreach (var action in sortedActions) {
 				if (!action.Enabled) {
 					continue;
@@ -229,12 +222,7 @@ public partial class RealPlugin {
 				var tp = ActionQueue[0];
 				if (tp.when > now) break;
 				ActionQueue.RemoveAt(0);
-                                    ExecutingActions.Add(tp);
-                                }
-                            }
-                            if (tp != null)
-                            {
-				tp.act.Execute(tp, tp.ctx);
+				ExecutingActions.Add(tp);
 			}
 		}
 	}

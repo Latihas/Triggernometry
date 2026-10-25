@@ -1,5 +1,5 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
+using Triggernometry.Localization;
 
 namespace Scarborough;
 

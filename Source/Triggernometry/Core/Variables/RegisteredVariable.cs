@@ -16,7 +16,7 @@ namespace Triggernometry.Core.Variables
 
         [XmlAttribute]
         [DefaultValue(false)]
-        public bool IsComment { get; set; } = false;
+        public bool IsComment { get; set; }
 
         [XmlAttribute]
         public string Name { get; set; } = "";
@@ -26,7 +26,7 @@ namespace Triggernometry.Core.Variables
 
         [XmlAttribute]
         [DefaultValue(false)]
-        public bool LoadWhenActive { get; set; } = false;
+        public bool LoadWhenActive { get; set; }
 
         /// <summary>
         /// Copies a definition without sharing edits between forms or pasted rows.

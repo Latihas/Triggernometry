@@ -216,7 +216,7 @@ public static class VfxManager {
 			return false;
 
 		var changed = false;
-            changed |= RefreshPoseAndTransform(vfx, entities, out double? distance2D, out double? distance3D);
+            changed |= RefreshPoseAndTransform(vfx, entities, out var distance2D, out var distance3D);
             changed |= RefreshScale(vfx, distance2D, distance3D);
 
 		return changed;
@@ -275,7 +275,7 @@ public static class VfxManager {
 				return null;
 
 			var theta = AngleFromTo(resolvedPos, target);
-			distance2D = Distance2D(pos, target);
+			distance2D = Distance2D(resolvedPos, target);
                 distance3D = Distance3D(resolvedPos, target);
 			return new Vector3(theta, 0, 0);
 		}
@@ -441,7 +441,7 @@ public static class VfxManager {
             if (id == 0 || id == 0xE0000000)
                 return null;
 
-            if (entities?.TryGetValue(id, out Entity entity) != true)
+            if (entities?.TryGetValue(id, out var entity) != true)
                 entity = Entity.GetEntityByID(id);
 
             return entity != null && entity.Exist ? entity : null;
@@ -451,7 +451,7 @@ public static class VfxManager {
             double refX, double refY, uint? excludedId, DynamicCoordArg arg)
         {
             // 复用工作循环构建的实体缓存，避免额外读取实体列表。
-            IEnumerable<Entity> candidates = entities?.Values ?? Entity.GetEntities();
+            var candidates = entities?.Values ?? Entity.GetEntities();
             var eligible = candidates
                 .Where(e => e != null && e.Exist &&
                     (!excludedId.HasValue || e.ID != excludedId.Value) &&
@@ -459,8 +459,8 @@ public static class VfxManager {
                 .Select(e => new
                 {
                     e.ID,
-                    DistanceSquared = ((double)e.PosX - refX) * ((double)e.PosX - refX)
-                                    + ((double)e.PosY - refY) * ((double)e.PosY - refY)
+                    DistanceSquared = (e.PosX - refX) * (e.PosX - refX)
+                                    + (e.PosY - refY) * (e.PosY - refY)
                 });
 
             var ordered = arg.SelectMode == EntitySelectMode.Near

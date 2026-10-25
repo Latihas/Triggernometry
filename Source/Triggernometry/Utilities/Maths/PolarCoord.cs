@@ -1,7 +1,7 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using Triggernometry.Expressions.Maths;
 using Triggernometry.Expressions.String.Utils;
+using Triggernometry.Localization;
 using static System.Math;
 
 namespace Triggernometry.Utilities.Maths;

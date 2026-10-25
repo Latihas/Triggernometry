@@ -50,9 +50,9 @@ public class VariableTable : Variable {
 				return 1;
 			}
 			int res;
-                for (int y = 1; y <= Height; y++)
+                for (var y = 1; y <= Height; y++)
                 {
-                    for (int x = 1; x <= Width; x++)
+                    for (var x = 1; x <= Width; x++)
                     {
 					res = Peek(x, y).CompareTo(vt.Peek(x, y));
 					if (res != 0) {

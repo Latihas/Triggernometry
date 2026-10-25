@@ -1,8 +1,8 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Triggernometry.Core;
+using Triggernometry.Localization;
 
 namespace Triggernometry.UI.CustomControls;
 
@@ -29,7 +29,7 @@ public partial class TreeViewEx : TreeView {
 	/// <summary> Shows a drag insertion mark before or after a node; null clears it. </summary>
         internal void SetInsertionMark(TreeNode node, bool after)
         {
-            SendMessage(Handle, TVM_SETINSERTMARK, after ? (IntPtr)1 : IntPtr.Zero, node?.Handle ?? IntPtr.Zero);
+            SendMessage(Handle, TVM_SETINSERTMARK, after ? 1 : IntPtr.Zero, node?.Handle ?? IntPtr.Zero);
         }protected override void WndProc(ref Message m) {
 		if (m.Msg == 0x203) // identified double click
 		{

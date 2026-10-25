@@ -160,23 +160,23 @@ public class ActionJsonRequest : ActionBase {
 		if (headers.Length > 0) {
 			headerslist.AddRange(headers.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
 		}
-            if (UseCache == true)
+            if (UseCache)
             {
-                string endpointh = RealPlugin.GenerateHash(endpoint);
-                string payloadh = RealPlugin.GenerateHash(payload);
-                string headersh = RealPlugin.GenerateHash(headers);
-                string fh = RealPlugin.GenerateHash(Method + endpointh + payloadh + headersh);
-                string fn = Path.Combine(plug.ConfigPath, "TriggernometryJsonCache");
-                if (Directory.Exists(fn) == false)
+                var endpointh = RealPlugin.GenerateHash(endpoint);
+                var payloadh = RealPlugin.GenerateHash(payload);
+                var headersh = RealPlugin.GenerateHash(headers);
+                var fh = RealPlugin.GenerateHash(Method + endpointh + payloadh + headersh);
+                var fn = Path.Combine(plug.ConfigPath, "TriggernometryJsonCache");
+                if (!Directory.Exists(fn))
                 {
 				Directory.CreateDirectory(fn);
 			}
 			fn = Path.Combine(fn, fh + ".json");
-                bool fromcache = false;
-                if (File.Exists(fn) == true)
+                var fromcache = false;
+                if (File.Exists(fn))
                 {
-                    FileInfo fi = new FileInfo(fn);
-                    DateTime dt = DateTime.Now.AddMinutes(0 - plug.cfg.CacheJsonExpiry);
+                    var fi = new FileInfo(fn);
+                    var dt = DateTime.Now.AddMinutes(0 - plug.cfg.CacheJsonExpiry);
                     if (fi.LastWriteTime > dt && fi.Length > 0)
                     {
 					responseCode = (int)HttpStatusCode.OK;
@@ -197,7 +197,7 @@ public class ActionJsonRequest : ActionBase {
             }
             else
             {
-                Tuple<int, string> resp = SendJson(ctx, Method, endpoint, payload, headerslist, false); // todo
+                var resp = SendJson(ctx, Method, endpoint, payload, headerslist, false); // todo
 			responseCode = resp.Item1;
 			response = resp.Item2;
 		}
@@ -227,7 +227,7 @@ public class ActionJsonRequest : ActionBase {
             ctx.isContextJsonParsed = false;
             if (FiringExpression != null && FiringExpression.Trim().Length > 0)
             {
-                string firing = ctx.EvaluateStringExpression(ActionContextLogger, ctx, FiringExpression);
+                var firing = ctx.EvaluateStringExpression(ActionContextLogger, ctx, FiringExpression);
                 if (firing.Length > 0)
                 {
 				plug.LogLineQueuer(firing, "", LogEvent.SourceEnum.Log);

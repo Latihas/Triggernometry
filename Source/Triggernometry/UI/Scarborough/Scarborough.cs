@@ -378,16 +378,16 @@ public class Scarborough : IDisposable {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = si.Value.ctx,
 							plug = plug,
-                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
-                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message)
+							level = RealPlugin.DebugLevelEnum.Error,
+							Message = I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message)
 						}
 					);
 				} else {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
-                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
-                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message)
+							level = RealPlugin.DebugLevelEnum.Error,
+							Message = I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message)
 						}
 					);
 				}
@@ -441,16 +441,16 @@ public class Scarborough : IDisposable {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = si.Value.ctx,
 							plug = plug,
-                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
-                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message)
+							level = RealPlugin.DebugLevelEnum.Error,
+							Message = I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Key, si.Value.ctx.Trigger.LogName, ex.Message)
 						}
 					);
 				} else {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
-                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
-                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message)
+							level = RealPlugin.DebugLevelEnum.Error,
+							Message = I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Key, ex.Message)
 						}
 					);
 				}
@@ -508,16 +508,16 @@ public class Scarborough : IDisposable {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = si.ctx,
 							plug = plug,
-                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
-                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Name, si.ctx.Trigger.LogName, ex.Message)
+							level = RealPlugin.DebugLevelEnum.Error,
+							Message = I18n.Translate("internal/AuraContainer/updateerrortrigger", "Deactivating aura '{0}' from trigger '{1}' due to update exception: {2}", si.Name, si.ctx.Trigger.LogName, ex.Message)
 						}
 					);
 				} else {
 					deferredMessages.Add(new DeferredMessage {
 							ctx = null,
 							plug = plug,
-                            level = Triggernometry.Core.RealPlugin.DebugLevelEnum.Error,
-                            Message = Triggernometry.Localization.I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Name, ex.Message)
+							level = RealPlugin.DebugLevelEnum.Error,
+							Message = I18n.Translate("internal/AuraContainer/updateerror", "Deactivating aura '{0}' due to update exception: {1}", si.Name, ex.Message)
 						}
 					);
 				}

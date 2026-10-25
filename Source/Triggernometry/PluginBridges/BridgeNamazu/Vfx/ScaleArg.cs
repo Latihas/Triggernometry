@@ -5,7 +5,7 @@ using Triggernometry.Expressions.String.Utils;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 
-internal sealed partial class ScaleArg {
+internal sealed class ScaleArg {
 	private readonly ScaleTerm X;
 	private readonly ScaleTerm Y;
 	private readonly ScaleTerm Z;
@@ -53,20 +53,19 @@ internal sealed partial class ScaleArg {
 
 	public ScaleArg Duplicate() => new(X.Duplicate(), Y.Duplicate(), Z.Duplicate());
 
-        private sealed class ScaleTerm
-        {
-            // _d 表示二维距离，_d3 表示三维距离；要求匹配完整标记。
-            private static readonly Regex DistanceTokenRegex =
-                new Regex(@"\b_d3?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+	private sealed class ScaleTerm {
+		// _d 表示二维距离，_d3 表示三维距离；要求匹配完整标记。
+		private static readonly Regex DistanceTokenRegex = new(@"\b_d3?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
+		private readonly bool _hasDistanceToken;
 		private readonly double _value;
 		private readonly string _expression;
-            private readonly Func<double, double, string> _replaceDistance;
+		private readonly Func<double, double, string> _replaceDistance;
 
-		public bool HasDistanceToken { get; }
+		public bool HasDistanceToken => _hasDistanceToken;
 
 		internal ScaleTerm(double value) {
-			HasDistanceToken = false;
+			_hasDistanceToken = false;
 			_value = value;
 		}
 
@@ -74,31 +73,33 @@ internal sealed partial class ScaleArg {
 			if (string.IsNullOrWhiteSpace(expression))
 				throw new ArgumentException("Dynamic scale expression cannot be empty.", nameof(expression));
 
-			HasDistanceToken = true;
+			_hasDistanceToken = true;
 			_expression = expression.Trim();
-                _replaceDistance = (distance2D, distance3D) =>
-                    DistanceTokenRegex.Replace(_expression, match =>
-                        match.Value.Equals("_d3", StringComparison.OrdinalIgnoreCase)
-                            ? distance3D.ToDataString()
-                            : distance2D.ToDataString());
+			_replaceDistance = (distance2D, distance3D) =>
+				DistanceTokenRegex.Replace(_expression, match =>
+					match.Value.Equals("_d3", StringComparison.OrdinalIgnoreCase)
+						? distance3D.ToDataString()
+						: distance2D.ToDataString());
 		}
 
 		public static ScaleTerm Parse(string raw) {
 			if (string.IsNullOrWhiteSpace(raw))
 				return new ScaleTerm(1.0);
+
 			raw = raw.Trim();
-			return !DistanceTokenRegex.IsMatch(raw) ? new ScaleTerm(raw.ParseData<double>()) : new ScaleTerm(raw);
+
+			if (!DistanceTokenRegex.IsMatch(raw))
+				return new ScaleTerm(raw.ParseData<double>());
+
+			return new ScaleTerm(raw);
 		}
 
-		public double Resolve(double distance2D, double distance3D) => HasDistanceToken
+		public double Resolve(double distance2D, double distance3D) => _hasDistanceToken
 			? _replaceDistance(distance2D, distance3D).ParseData<double>()
 			: _value;
 
-		public ScaleTerm Duplicate() => HasDistanceToken
+		public ScaleTerm Duplicate() => _hasDistanceToken
 			? new ScaleTerm(_expression)
 			: new ScaleTerm(_value);
-
-		[GeneratedRegex(@"\b_d\b", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
-		private static partial Regex MyDistanceTokenRegex();
 	}
 }

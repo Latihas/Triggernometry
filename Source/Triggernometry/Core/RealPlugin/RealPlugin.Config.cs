@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -7,13 +8,12 @@ using System.Xml.Serialization;
 using Triggernometry.Core.Variables;
 using Triggernometry.Localization;
 using Triggernometry.UI.Forms;
-using TriggernometryProxy;
 
 // ReSharper disable once CheckNamespace
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	public Configuration cfg { get; private set; }
+	public Configuration? cfg { get; private set; }
 
 	public bool configBroken;
 	// internal DateTime lastConfigSave = DateTime.Now;
@@ -99,31 +99,24 @@ public partial class RealPlugin {
 		SaveConfigToFile(cfg, Path.Combine(ConfigPath, pluginName + ".config.xml"), true);
 	}
 
-        /// <summary> Checks the closing tag from the end without reading the whole configuration. </summary>
-        private static bool HasConfigurationEndTag(string filename)
-        {
-            const string endTag = "</" + nameof(Configuration) + ">";
-            using (StreamReader reader = new StreamReader(filename))
-            {
-                reader.Peek(); // Detect a possible BOM before seeking past it.
-                long position = reader.BaseStream.Length;
-                string tail;
-                do
-                {
-                    position = Math.Max(0, position - 4096);
-                    reader.DiscardBufferedData();
-                    reader.BaseStream.Position = position;
-                    tail = reader.ReadToEnd().TrimEnd();
-                }
-                while (position > 0 && tail.Length < endTag.Length);
-                return tail.EndsWith(endTag, StringComparison.Ordinal);
-            }
-        }
+	/// <summary> Checks the closing tag from the end without reading the whole configuration. </summary>
+	private static bool HasConfigurationEndTag(string filename) {
+		const string endTag = "</" + nameof(Configuration) + ">";
+		using var reader = new StreamReader(filename);
+		reader.Peek(); // Detect a possible BOM before seeking past it.
+		var position = reader.BaseStream.Length;
+		string tail;
+		do {
+			position = Math.Max(0, position - 4096);
+			reader.DiscardBufferedData();
+			reader.BaseStream.Position = position;
+			tail = reader.ReadToEnd().TrimEnd();
+		} while (position > 0 && tail.Length < endTag.Length);
+		return tail.EndsWith(endTag, StringComparison.Ordinal);
+	}
 
-        private Configuration LoadConfigFromFile(string filename, Action<string> logTick)
-        {
-            try
-            {
+	private Configuration LoadConfigFromFile(string filename, Action<string> logTick) {
+		try {
 			FilteredAddToLog(DebugLevelEnum.Info, I18n.Translate("internal/Plugin/cfgload", "Loading configuration from '{0}'", filename));
 			var fi = new FileInfo(filename);
 			var origfilename = filename;
@@ -135,23 +128,7 @@ public partial class RealPlugin {
 				};
 			}
 			var corruptFallback = false;
-			string? lastLine = null;
-			try {
-				ProxyPlugin.Framework.RunOnFrameworkThread(() => {
-					lastLine = File.ReadAllLines(origfilename).LastOrDefault();
-				}).Wait();
-			} catch {
-				Thread.Sleep(100);
-				try {
-					ProxyPlugin.Framework.RunOnFrameworkThread(() => {
-						lastLine = File.ReadAllLines(origfilename).LastOrDefault();
-					}).Wait();
-				} catch {
-					//
-				}
-                bool corruptFallback = false;
-                if (!HasConfigurationEndTag(filename))
-                {
+			if (!HasConfigurationEndTag(filename)) {
 				// configuration has been corrupted, try loading previous config file instead
 				var newfilename = filename + ".previous";
 				fi = new FileInfo(newfilename);
@@ -225,8 +202,7 @@ public partial class RealPlugin {
 						sw.Flush();
 					}
 				}
-                if (!HasConfigurationEndTag(filename + ".temp"))
-                {
+				if (!HasConfigurationEndTag(filename + ".temp")) {
 					throw new Exception(I18n.Translate("internal/Plugin/cfgsaveincomplete", "The saving process was interrupted.") + "\n");
 				}
 				if (switchprevious) {

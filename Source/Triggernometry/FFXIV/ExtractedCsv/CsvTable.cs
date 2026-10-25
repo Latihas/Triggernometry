@@ -1,8 +1,8 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Triggernometry.Localization;
 
 namespace Triggernometry.FFXIV.ExtractedCsv;
 

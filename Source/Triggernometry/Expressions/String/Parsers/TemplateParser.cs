@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Triggernometry.Core;
-using Triggernometry.Localization;
 using Triggernometry.Expressions.String.Utils;
+using Triggernometry.Localization;
 
 namespace Triggernometry.Expressions.String.Parsers;
 

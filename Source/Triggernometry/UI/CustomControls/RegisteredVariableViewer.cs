@@ -18,7 +18,9 @@ namespace Triggernometry.UI.CustomControls
         private bool isReadOnly;
         private enum RowMove { Up, Down, Top, Bottom }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         internal Folder Folder { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         internal RealPlugin Plugin { get; set; }
         private RealPlugin CurrentPlugin => Plugin ?? RealPlugin.Instance;
 
@@ -45,9 +47,9 @@ namespace Triggernometry.UI.CustomControls
         private void SetInitialColumnWidths()
         {
             colEnabled.Width = colEnabled.GetPreferredWidth(DataGridViewAutoSizeColumnMode.AllCells, true);
-            int available = dgvVariables.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - colEnabled.Width - 2;
-            int valueWidth = Math.Max(colValue.MinimumWidth, available / 2);
-            int policyWidth = colLoadWhenActive.GetPreferredWidth(DataGridViewAutoSizeColumnMode.AllCells, true);
+            var available = dgvVariables.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - colEnabled.Width - 2;
+            var valueWidth = Math.Max(colValue.MinimumWidth, available / 2);
+            var policyWidth = colLoadWhenActive.GetPreferredWidth(DataGridViewAutoSizeColumnMode.AllCells, true);
             foreach (var option in (KeyValuePair<bool, string>[])colLoadWhenActive.DataSource)
             {
                 policyWidth = Math.Max(policyWidth, TextRenderer.MeasureText(option.Value, dgvVariables.Font).Width
@@ -64,7 +66,7 @@ namespace Triggernometry.UI.CustomControls
         internal void SetVariables(IEnumerable<RegisteredVariable> variables)
         {
             dgvVariables.Rows.Clear();
-            foreach (RegisteredVariable variable in variables ?? Enumerable.Empty<RegisteredVariable>())
+            foreach (var variable in variables ?? Enumerable.Empty<RegisteredVariable>())
             {
                 InsertRow(dgvVariables.Rows.Count, variable, true);
             }
@@ -98,7 +100,7 @@ namespace Triggernometry.UI.CustomControls
 
         private RegisteredVariable ReadRow(DataGridViewRow row)
         {
-            bool isComment = ((RegisteredVariable)row.Tag).IsComment;
+	        var isComment = ((RegisteredVariable)row.Tag).IsComment;
             return new RegisteredVariable
             {
                 Enabled = row.Cells[colEnabled.Index].Value is bool enabled && enabled,
@@ -120,9 +122,9 @@ namespace Triggernometry.UI.CustomControls
         private bool TryReadRows(IEnumerable<DataGridViewRow> rows, out List<RegisteredVariable> variables)
         {
             variables = new List<RegisteredVariable>();
-            foreach (DataGridViewRow row in rows)
+            foreach (var row in rows)
             {
-                RegisteredVariable variable = ReadRow(row);
+	            var variable = ReadRow(row);
                 if (variable.Enabled && !variable.IsComment && string.IsNullOrWhiteSpace(variable.Name))
                 {
                     if (Parent is TabPage tab && tab.Parent is TabControl tabs) tabs.SelectedTab = tab;
@@ -141,7 +143,7 @@ namespace Triggernometry.UI.CustomControls
         private void UpdateRowStyle(DataGridViewRow row)
         {
             if (!(row.Tag is RegisteredVariable definition)) return;
-            RegisteredVariable variable = ReadRow(row);
+            var variable = ReadRow(row);
             row.DefaultCellStyle.BackColor = variable.IsComment ? SystemColors.InactiveCaption
                 : variable.LoadWhenActive ? Color.FromArgb(255, 225, 255) : Color.White;
             row.DefaultCellStyle.ForeColor = !variable.Enabled ? SystemColors.GrayText
@@ -159,7 +161,7 @@ namespace Triggernometry.UI.CustomControls
         private void UpdateButtons()
         {
             var selected = SelectedRows();
-            bool canMutate = !isReadOnly && selected.Count > 0;
+            var canMutate = !isReadOnly && selected.Count > 0;
             btnAddVariable.Enabled = btnAddComment.Enabled = !isReadOnly;
             ctxAddVariable.Enabled = !isReadOnly;
             ctxAddComment.Enabled = !isReadOnly;
@@ -184,7 +186,7 @@ namespace Triggernometry.UI.CustomControls
         private void AddRow(bool isComment)
         {
             if (isReadOnly || !dgvVariables.EndEdit()) return;
-            int index = SelectedRows().Select(row => row.Index).DefaultIfEmpty(dgvVariables.RowCount - 1).Max() + 1;
+            var index = SelectedRows().Select(row => row.Index).DefaultIfEmpty(dgvVariables.RowCount - 1).Max() + 1;
             InsertRow(index, new RegisteredVariable { IsComment = isComment }, false);
             dgvVariables.ClearSelection();
             dgvVariables.Rows[index].Selected = true;
@@ -201,15 +203,15 @@ namespace Triggernometry.UI.CustomControls
             if (!dgvVariables.EndEdit()) return;
             var selected = SelectedRows();
             if (selected.Count != 1) return;
-            DataGridViewRow row = selected[0];
-            RegisteredVariable variable = ReadRow(row);
-            string title = variable.IsComment
+            var row = selected[0];
+            var variable = ReadRow(row);
+            var title = variable.IsComment
                 ? I18n.Translate("internal/RegisteredVariableViewer/editcomment", "Expand comment")
                 : I18n.Translate("internal/RegisteredVariableViewer/editvalue", "Expand value: {0}", variable.Name);
             using (var form = new SimpleInputForm(title, ExpressionTextBox.SupportedExpressionTypeEnum.String, variable.Value, multiline: true))
             {
                 form.ReadOnly = isReadOnly;
-                string value = form.GetInput(FindForm());
+                var value = form.GetInput(FindForm());
                 if (value == null || isReadOnly) return;
                 row.Cells[colValue.Index].Value = value;
                 UpdateRowStyle(row);
@@ -223,10 +225,10 @@ namespace Triggernometry.UI.CustomControls
         {
             if (!dgvVariables.EndEdit()) return;
             var rows = all ? dgvVariables.Rows.Cast<DataGridViewRow>().ToList() : SelectedRows();
-            if (!TryReadRows(rows, out List<RegisteredVariable> variables)) return;
-            for (int i = 0; i < rows.Count; i++)
+            if (!TryReadRows(rows, out var variables)) return;
+            for (var i = 0; i < rows.Count; i++)
             {
-                RegisteredVariable variable = variables[i];
+	            var variable = variables[i];
                 if (!variable.Enabled || variable.IsComment) continue;
                 CurrentPlugin.RegisterVariable(Folder.LogName, variable);
                 var original = (RegisteredVariable)rows[i].Tag;
@@ -242,13 +244,13 @@ namespace Triggernometry.UI.CustomControls
         {
             foreach (DataGridViewRow row in dgvVariables.Rows)
             {
-                RegisteredVariable variable = ReadRow(row);
-                string oldName = ((RegisteredVariable)row.Tag).Name;
+	            var variable = ReadRow(row);
+	            var oldName = ((RegisteredVariable)row.Tag).Name;
                 if (!variable.Enabled || variable.IsComment || string.IsNullOrEmpty(oldName) || oldName == variable.Name) continue;
                 string oldValue;
                 lock (CurrentPlugin.RegisteredVariables)
                 {
-                    if (!CurrentPlugin.RegisteredVariables.TryGetValue(oldName, out VariableScalar previous)) continue;
+	                if (!CurrentPlugin.RegisteredVariables.TryGetValue(oldName, out var previous)) continue;
                     oldValue = previous.Value;
                 }
                 if (MessageBox.Show(this,
@@ -282,7 +284,7 @@ namespace Triggernometry.UI.CustomControls
             dgvVariables.Rows.AddRange(remaining.ToArray());
             dgvVariables.CurrentCell = selected[0].Cells[colValue.Index];
             dgvVariables.ClearSelection();
-            foreach (DataGridViewRow row in selected) row.Selected = true;
+            foreach (var row in selected) row.Selected = true;
             UpdateButtons();
         }
 
@@ -300,7 +302,7 @@ namespace Triggernometry.UI.CustomControls
                 I18n.Translate("internal/RegisteredVariableViewer/confirmremove", "Remove the selected rows?"),
                 I18n.Translate("internal/RegisteredVariableViewer/removal", "Confirm removal"),
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
-            foreach (DataGridViewRow row in selected) dgvVariables.Rows.Remove(row);
+            foreach (var row in selected) dgvVariables.Rows.Remove(row);
             UpdateButtons();
         }
 
@@ -332,10 +334,10 @@ namespace Triggernometry.UI.CustomControls
                 {
                     variables = (List<RegisteredVariable>)serializer.Deserialize(reader);
                 }
-                int index = SelectedRows().Select(row => row.Index).DefaultIfEmpty(-1).Max() + 1;
+                var index = SelectedRows().Select(row => row.Index).DefaultIfEmpty(-1).Max() + 1;
                 dgvVariables.ClearSelection();
-                foreach (RegisteredVariable variable in variables) InsertRow(index++, variable, false);
-                for (int i = index - variables.Count; i < index; i++) dgvVariables.Rows[i].Selected = true;
+                foreach (var variable in variables) InsertRow(index++, variable, false);
+                for (var i = index - variables.Count; i < index; i++) dgvVariables.Rows[i].Selected = true;
                 UpdateButtons();
             }
             catch (Exception ex) { ShowClipboardError(ex); }
@@ -386,12 +388,12 @@ namespace Triggernometry.UI.CustomControls
             Rectangle bounds = dgvVariables.GetRowDisplayRectangle(e.RowIndex, false);
             bounds.Width = dgvVariables.Columns.GetColumnsWidth(DataGridViewElementStates.Visible);
             bounds.Height--;
-            DataGridViewCellStyle style = row.DefaultCellStyle;
-            Color background = row.Selected ? dgvVariables.DefaultCellStyle.SelectionBackColor : style.BackColor;
-            Color foreground = row.Selected ? style.SelectionForeColor : style.ForeColor;
+            var style = row.DefaultCellStyle;
+            var background = row.Selected ? dgvVariables.DefaultCellStyle.SelectionBackColor : style.BackColor;
+            var foreground = row.Selected ? style.SelectionForeColor : style.ForeColor;
             using (var brush = new SolidBrush(background)) e.Graphics.FillRectangle(brush, bounds);
             bounds.Inflate(-4, 0);
-            string text = row.Cells[colValue.Index].Value?.ToString() ?? "";
+            var text = row.Cells[colValue.Index].Value?.ToString() ?? "";
             text = text.Replace("\r\n", " ⏎ ").Replace("\r", " ⏎ ").Replace("\n", " ⏎ ");
             TextRenderer.DrawText(e.Graphics, text, dgvVariables.Font, bounds, foreground,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine

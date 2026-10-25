@@ -1,8 +1,8 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
+using Triggernometry.Localization;
 
 namespace Scarborough.Drawing;
 

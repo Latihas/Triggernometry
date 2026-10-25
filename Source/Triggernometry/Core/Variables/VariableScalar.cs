@@ -11,7 +11,8 @@ public class VariableScalar : Variable {
 	public VariableScalar() {
 	}
 
-        public VariableScalar(double value) { Value = value.ToStringInvariant(); }
+	public VariableScalar(string value) { Value = value; }
+	public VariableScalar(double value) { Value = value.ToStringInvariant(); }
 
 	public override string ToString() => Value;
 

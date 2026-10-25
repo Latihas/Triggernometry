@@ -290,7 +290,7 @@ public class Repository {
                         var routing = AudioOutput == AudioOutputEnum.AlwaysOverride
                             ? Configuration.AudioRoutingMethodEnum.Triggernometry
                             : Configuration.AudioRoutingMethodEnum.None;
-                        foreach (ActionOld a in ActionOld.RecursiveGetActions(t.Actions))
+                        foreach (var a in ActionOld.RecursiveGetActions(t.Actions))
                         {
                             a._SoundRouting = routing;
                             a._TTSRouting = routing;
@@ -532,7 +532,7 @@ public class Repository {
             // Backups initialize an unloaded repository; unchanged live content stays in place.
             if (!shouldUpdate && KeepLocalBackup && !isContentLoaded)
             {
-                if (TryLoadLocalBackup() == false)
+                if (!TryLoadLocalBackup())
                 {
 				// but if the local backup fails to load, still need to update
 				shouldUpdate = true;

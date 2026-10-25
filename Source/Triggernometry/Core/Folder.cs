@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
+using Triggernometry.Core.Variables;
 using Triggernometry.Expressions.String.Utils;
 using Triggernometry.Localization;
 using Triggernometry.PluginBridges;

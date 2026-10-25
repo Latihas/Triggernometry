@@ -1,6 +1,6 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Numerics;
+using Triggernometry.Localization;
 using static System.Math;
 
 namespace Triggernometry.Common.Maths;

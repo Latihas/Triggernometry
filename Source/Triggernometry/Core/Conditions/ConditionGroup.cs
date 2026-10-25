@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Xml.Serialization;
 using Triggernometry.Localization;
 
@@ -87,15 +88,15 @@ public sealed class ConditionGroup : ConditionComponent {
             {
                 case CndGroupingEnum.And:
                     {
-                        bool actives = false;
-                        foreach (ConditionComponent cc in Children)
+                        var actives = false;
+                        foreach (var cc in Children)
                         {
                             if (cc is ConditionComment) continue;
-                            if (cc.Enabled == false)
+                            if (!cc.Enabled)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("AND: Condition '" + cc.ToString() + "' not enabled");
+                                    Debug.WriteLine("AND: Condition '" + cc + "' not enabled");
 						}
 						continue;
 					}
@@ -117,14 +118,14 @@ public sealed class ConditionGroup : ConditionComponent {
 				break;
                 case CndGroupingEnum.Or:
                     {
-                        foreach (ConditionComponent cc in Children)
+                        foreach (var cc in Children)
                         {
                             if (cc is ConditionComment) continue;
-                            if (cc.Enabled == false)
+                            if (!cc.Enabled)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("OR: Condition '" + cc.ToString() + "' not enabled");
+                                    Debug.WriteLine("OR: Condition '" + cc + "' not enabled");
 						}
 						continue;
 					}
@@ -139,15 +140,15 @@ public sealed class ConditionGroup : ConditionComponent {
 				break;
                 case CndGroupingEnum.Xor:
                     {
-                        bool truefound = false;
-                        foreach (ConditionComponent cc in Children)
+                        var truefound = false;
+                        foreach (var cc in Children)
                         {
                             if (cc is ConditionComment) continue;
-                            if (cc.Enabled == false)
+                            if (!cc.Enabled)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("XOR: Condition '" + cc.ToString() + "' not enabled");
+                                    Debug.WriteLine("XOR: Condition '" + cc + "' not enabled");
 						}
 						continue;
 					}
@@ -171,14 +172,14 @@ public sealed class ConditionGroup : ConditionComponent {
 			}
                 case CndGroupingEnum.Not:
                     {
-                        foreach (ConditionComponent cc in Children)
+                        foreach (var cc in Children)
                         {
                             if (cc is ConditionComment) continue;
-                            if (cc.Enabled == false)
+                            if (!cc.Enabled)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached == true)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("NOT: Condition '" + cc.ToString() + "' not enabled");
+                                    Debug.WriteLine("NOT: Condition '" + cc + "' not enabled");
 						}
 						continue;
 					}

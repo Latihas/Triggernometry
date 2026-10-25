@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Triggernometry.Core.Variables;
 
 namespace Triggernometry.Core
 {
@@ -11,11 +10,11 @@ namespace Triggernometry.Core
         /// </summary>
         internal void RegisterFolderVariables(Folder folder)
         {
-            foreach (RegisteredVariable variable in folder.RegisteredVariables.Where(value => !value.LoadWhenActive))
+	        foreach (var variable in folder.RegisteredVariables.Where(value => !value.LoadWhenActive))
             {
                 RegisterVariable(folder.LogName, variable);
             }
-            foreach (Folder child in folder.Folders)
+	        foreach (var child in folder.Folders)
             {
                 RegisterFolderVariables(child);
             }
@@ -28,12 +27,12 @@ namespace Triggernometry.Core
         {
             lock (RegisteredVariables)
             {
-                foreach (RegisteredVariable variable in folder.RegisteredVariables.Where(value => value.Enabled && !value.IsComment))
+	            foreach (var variable in folder.RegisteredVariables.Where(value => value.Enabled && !value.IsComment))
                 {
                     RegisteredVariables.Remove(variable.Name);
                 }
                 folder.isRegisteredVariableScopeActive = false;
-                foreach (Folder child in folder.Folders)
+                foreach (var child in folder.Folders)
                 {
                     UnregisterFolderVariables(child);
                 }
@@ -51,7 +50,7 @@ namespace Triggernometry.Core
                 (isActive ? enabled : disabled).Add(folder);
                 folder.isRegisteredVariableScopeActive = isActive;
             }
-            foreach (Folder child in folder.Folders)
+            foreach (var child in folder.Folders)
             {
                 CollectFolderVariableChanges(child, isActive, zone, disabled, enabled);
             }
@@ -67,21 +66,21 @@ namespace Triggernometry.Core
                 var disabled = new List<Folder>();
                 var enabled = new List<Folder>();
                 CollectFolderVariableChanges(cfg.Root, true, zone, disabled, enabled);
-                foreach (Repository repo in cfg.RepositoryRoot.Repositories)
+                foreach (var repo in cfg.RepositoryRoot.Repositories)
                 {
                     CollectFolderVariableChanges(repo.Root, cfg.RepositoryRoot.Enabled && repo.Enabled, zone, disabled, enabled);
                 }
                 // Finish removals first so a departing folder cannot delete a newly loaded value.
-                foreach (Folder folder in disabled)
+                foreach (var folder in disabled)
                 {
-                    foreach (RegisteredVariable variable in folder.RegisteredVariables.Where(value => value.Enabled && !value.IsComment && value.LoadWhenActive))
+	                foreach (var variable in folder.RegisteredVariables.Where(value => value.Enabled && !value.IsComment && value.LoadWhenActive))
                     {
                         RegisteredVariables.Remove(variable.Name);
                     }
                 }
-                foreach (Folder folder in enabled)
+                foreach (var folder in enabled)
                 {
-                    foreach (RegisteredVariable variable in folder.RegisteredVariables.Where(value => value.LoadWhenActive))
+	                foreach (var variable in folder.RegisteredVariables.Where(value => value.LoadWhenActive))
                     {
                         RegisterVariable(folder.LogName, variable);
                     }

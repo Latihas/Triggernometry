@@ -1,5 +1,4 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Diagnostics;
 using Scarborough.PInvoke;
 using SharpDX;
@@ -7,6 +6,7 @@ using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
+using Triggernometry.Localization;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode;
 using FactoryType = SharpDX.Direct2D1.FactoryType;

@@ -1,9 +1,9 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Text;
 using Triggernometry.Core;
+using Triggernometry.Localization;
 
 namespace Triggernometry.Utilities;
 

@@ -80,7 +80,7 @@ internal static class ColonParser {
                     if (plug == null) return "";
                     lock (plug.RegisteredVariables)
                     {
-                        return plug.RegisteredVariables.TryGetValue(body, out VariableScalar registered) ? registered.Value
+                        return plug.RegisteredVariables.TryGetValue(body, out var registered) ? registered.Value
                             : prefixLower == "!reg" ? throw new Exception(I18n.Translate("internal/ColonParser/variablenotfound",
                                 "Variable '{0}' does not exist.", body)) : "";
                     }

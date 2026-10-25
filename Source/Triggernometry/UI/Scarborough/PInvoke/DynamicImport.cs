@@ -1,7 +1,7 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using Triggernometry.Localization;
 
 namespace Scarborough.PInvoke;
 

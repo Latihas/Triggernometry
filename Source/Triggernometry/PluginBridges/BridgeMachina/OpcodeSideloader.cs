@@ -1,5 +1,4 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,6 +10,7 @@ using Machina.FFXIV;
 using Machina.FFXIV.Headers;
 using Machina.FFXIV.Headers.Opcodes;
 using Triggernometry.Core;
+using Triggernometry.Localization;
 
 namespace Triggernometry.PluginBridges.BridgeMachina;
 

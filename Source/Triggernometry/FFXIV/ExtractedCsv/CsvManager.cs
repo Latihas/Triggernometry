@@ -1,5 +1,4 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Triggernometry.Core;
+using Triggernometry.Localization;
 
 namespace Triggernometry.FFXIV.ExtractedCsv;
 
@@ -159,7 +159,7 @@ public class CsvManager {
 	/// <exception cref="ArgumentException">
 	///     Thrown if the provided type is not a subclass of TypedCsvRow.
 	/// </exception>
-	public void LoadTable(string path, Type type = null) {
+	public void LoadTable(string path, Type? type = null) {
 		var table = new CsvTable(this, path);
 		var typeName = Path.GetFileNameWithoutExtension(path);
 

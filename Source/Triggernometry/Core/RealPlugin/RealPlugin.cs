@@ -26,51 +26,88 @@ using Font = System.Drawing.Font;
 namespace Triggernometry.Core;
 
 public partial class RealPlugin {
-	public delegate void ACTEncounterLogDelegate(string message);
+	public class CustomTriggerProxy {
+		public bool Active { get; set; }
+		public string ShortRegexString { get; set; }
+		public string SoundData { get; set; }
+		public int SoundType { get; set; }
+		public string TimerName { get; set; }
+		public bool Tabbed { get; set; }
+		public bool Timer { get; set; }
+	}
 
-	public delegate void BoolDelegate(bool boolParam);
+	public class CustomTriggerCategoryProxy {
+		public string Category { get; set; }
+		public bool RestrictToCategoryZone { get; set; }
+		public List<CustomTriggerProxy> Items = [];
+	}
 
-	public delegate List<CustomTriggerCategoryProxy> CustomTriggerDelegate();
+	public class PluginWrapper {
+		public object? pluginObj { get; set; }
+		// public Panel PnlInfo { get; set; }
+		// public TabPage TabPage { get; set; }
+		// public FileInfo  PluginFile { get; set; }
+		// public Label LblTitle { get; set; }
+		// public Label LblStatus { get; set; }
+		// public Button BtnX { get; set; }
+		// public CheckBox CbxEnabled { get; set; }
+		public string FileVersion { get; set; } = "99.99.99.99";
+		// public string PluginType { get; set; }
+	}
 
-	public delegate PluginWrapper InstanceDelegate(string ActPluginName, string ActPluginType);
+	public IntPtr XivProcHandle => Memory.XivProcHandle;
+
+	private delegate void LogLineProcDelegate(LogEvent le);
 
 	public delegate bool SimpleBoolDelegate();
+
+	public delegate void SimpleVoidDelegate();
 
 	public delegate double SimpleDoubleDelegate();
 
 	public delegate string SimpleStringDelegate();
 
-	public delegate void SimpleVoidDelegate();
-
-	public delegate void SoundDelegate(string filename, int volume);
+	public delegate void BoolDelegate(bool boolParam);
 
 	public delegate void TabPageDelegate(TabPage tp);
 
 	public delegate void TtsDelegate(string text);
 
-	private static RealPlugin? _instance;
+	public delegate void SoundDelegate(string filename, int volume);
 
-	private static IPluginLog Log;
+	public delegate List<CustomTriggerCategoryProxy> CustomTriggerDelegate();
+
+	public delegate PluginWrapper InstanceDelegate(string ActPluginName, string ActPluginType);
+
+	public delegate void ACTEncounterLogDelegate(string message);
+
+	private readonly Queue<LogEvent> EventQueue = [];
+	public UserInterface ui = UserInterface.Instance;
+	[Obsolete("Use ConfigPath")] public string path => ConfigPath;
+	public string ConfigPath { get; set; }
+	private bool isInitialized { get; set; }
+	// internal Thread EventQueueThread = null;
+	// private ManualResetEvent ExitEvent = null;
+	// private TabPage mytp;
+	// private bool complainAboutReload = false;
+	public string pluginName { get; set; }
+	public string pluginPath { get; set; }
+	internal Endpoint? _ep;
+	private bool firstevent = true;
+	internal bool isRunningAsAdmin;
+	internal string? currentZone;
+	internal DateTime LastDelayWarning = DateTime.Now;
+	public VariableStore sessionvars = new();
+	internal Dictionary<string, VariableScalar> RegisteredVariables = [];
+	internal ObsController? _obs;
+	internal LiveSplitController? _livesplit;
+	internal CancellationTokenSource? cts;
+	internal object ctslock = new();
+	// public Form mainform { get; set; }
+	internal int MinX = int.MaxValue, MinY = int.MaxValue, MaxX = int.MinValue, MaxY = int.MinValue;
 
 	public static int UProgress = 100;
 	public static string UState = "就绪";
-
-	private readonly Queue<LogEvent> EventQueue = [];
-	internal Endpoint? _ep;
-	internal LiveSplitController? _livesplit;
-	internal ObsController? _obs;
-	internal CancellationTokenSource? cts;
-	internal object ctslock = new();
-	internal string? currentZone;
-	// internal Task EventQueueTask;
-	private bool firstevent = true;
-	internal bool isRunningAsAdmin;
-	internal DateTime LastDelayWarning = DateTime.Now;
-	// public Form mainform { get; set; }
-	internal int MinX = int.MaxValue, MinY = int.MaxValue, MaxX = int.MinValue, MaxY = int.MinValue;
-	// private ManualResetEvent QueueWakeupEvent;
-	public VariableStore sessionvars = new();
-	public UserInterface ui = UserInterface.Instance;
 
 	private RealPlugin() {
 		ThreadPool.SetMinThreads(10, 10);
@@ -79,14 +116,6 @@ public partial class RealPlugin {
 		_ep.OnStatusChange += _ep_OnStatusChange;
 	}
 
-	public IntPtr XivProcHandle => Memory.XivProcHandle;
-	[Obsolete("Use ConfigPath")] public string path => ConfigPath;
-	public string ConfigPath { get; set; }
-	private bool isInitialized { get; set; }
-	// private TabPage mytp;
-	// private bool complainAboutReload;
-	public string pluginName { get; set; }
-	public string pluginPath { get; set; }
 
 	public SimpleBoolDelegate InCombatHook { get; set; }
 	public SimpleBoolDelegate CustomTriggerCheckHook { get; set; }
@@ -105,6 +134,10 @@ public partial class RealPlugin {
 	public SimpleVoidDelegate CheckUpdateHook { get; set; }
 	public SimpleBoolDelegate ActInitedHook { get; set; }
 	public ACTEncounterLogDelegate ACTEncounterLogHook { get; set; }
+	private static IPluginLog Log = null!;
+
+	private static RealPlugin? _instance;
+
 	public static RealPlugin Instance {
 		get {
 			_instance ??= new RealPlugin();
@@ -112,39 +145,33 @@ public partial class RealPlugin {
 		}
 	}
 
-	public static void ResetPlugin(IPluginLog log) {
+	public static void ResetPlugin(IPluginLog _log) {
 		_instance = new RealPlugin();
-		Log = log;
+		Log = _log;
 	}
 
-        /// <summary>
-        /// Registers a folder variable and warns when replacing a different value.
-        /// </summary>
-        internal void RegisterVariable(string folderLogName, RegisteredVariable definition)
-        {
-            if (!definition.Enabled || definition.IsComment) 
-                return;
-            lock (RegisteredVariables)
-            {
-                if (RegisteredVariables.TryGetValue(definition.Name, out VariableScalar previous) && previous.Value != definition.Value)
-                {
-                    UnfilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/RealPlugin/registeredvariableoverwrite",
-                        "Registered variable key conflict '{0}':\nnew value: '{1}'\nfrom: Folder {2}\nold value: '{3}'\nfrom: Folder {4}",
-                        definition.Name, definition.Value, folderLogName, previous.Value, previous.LastChanger));
-                }
-                RegisteredVariables[definition.Name] = new VariableScalar(definition.Value)
-                {
-                    LastChanged = DateTime.Now,
-                    LastChanger = folderLogName
-                };
-            }
-        }
+	/// <summary>
+	/// Registers a folder variable and warns when replacing a different value.
+	/// </summary>
+	internal void RegisterVariable(string folderLogName, RegisteredVariable definition) {
+		if (!definition.Enabled || definition.IsComment)
+			return;
+		lock (RegisteredVariables) {
+			if (RegisteredVariables.TryGetValue(definition.Name, out var previous) && previous.Value != definition.Value) {
+				UnfilteredAddToLog(DebugLevelEnum.Warning, I18n.Translate("internal/RealPlugin/registeredvariableoverwrite",
+					"Registered variable key conflict '{0}':\nnew value: '{1}'\nfrom: Folder {2}\nold value: '{3}'\nfrom: Folder {4}",
+					definition.Name, definition.Value, folderLogName, previous.Value, previous.LastChanger));
+			}
+			RegisteredVariables[definition.Name] = new VariableScalar(definition.Value) {
+				LastChanged = DateTime.Now,
+				LastChanger = folderLogName
+			};
+		}
+	}
 
-        internal static Font CreateFontFromDefinition(string name, float size, ActionOld.TextAuraEffectEnum effect)
-        {
-            FontStyle fs = FontStyle.Regular;
-            if ((effect & ActionOld.TextAuraEffectEnum.Bold) == ActionOld.TextAuraEffectEnum.Bold)
-            {
+	internal static Font CreateFontFromDefinition(string name, float size, ActionOld.TextAuraEffectEnum effect) {
+		var fs = FontStyle.Regular;
+		if ((effect & ActionOld.TextAuraEffectEnum.Bold) == ActionOld.TextAuraEffectEnum.Bold) {
 			fs |= FontStyle.Bold;
 		}
 		if ((effect & ActionOld.TextAuraEffectEnum.Italic) == ActionOld.TextAuraEffectEnum.Italic) {
@@ -169,9 +196,8 @@ public partial class RealPlugin {
 		// D
 	}
 
-        private void _ep_OnStatusChange(Endpoint.StatusEnum newStatus, string statusDesc)
-        {
-            FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/endpointstatus", "Endpoint ({0}) {1}", newStatus, statusDesc));
+	private void _ep_OnStatusChange(Endpoint.StatusEnum newStatus, string statusDesc) {
+		FilteredAddToLog(DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/endpointstatus", "Endpoint ({0}) {1}", newStatus, statusDesc));
 	}
 
 	private void BridgeFFXIV_OnLogEvent(DebugLevelEnum level, string text) {
@@ -633,35 +659,4 @@ public partial class RealPlugin {
 
 	public VariableStore GetVariableStore(bool isPersistent)
 		=> isPersistent ? cfg.PersistentVariables : sessionvars;
-
-	public class CustomTriggerProxy {
-		public bool Active { get; set; }
-		public string ShortRegexString { get; set; }
-		public string SoundData { get; set; }
-		public int SoundType { get; set; }
-		public string TimerName { get; set; }
-		public bool Tabbed { get; set; }
-		public bool Timer { get; set; }
-	}
-
-	public class CustomTriggerCategoryProxy {
-		public List<CustomTriggerProxy> Items = [];
-		public string Category { get; set; }
-		public bool RestrictToCategoryZone { get; set; }
-	}
-
-	public class PluginWrapper {
-		public object? pluginObj { get; set; }
-		// public Panel PnlInfo { get; set; }
-		// public TabPage TabPage { get; set; }
-		// public FileInfo  PluginFile { get; set; }
-		// public Label LblTitle { get; set; }
-		// public Label LblStatus { get; set; }
-		// public Button BtnX { get; set; }
-		// public CheckBox CbxEnabled { get; set; }
-		public string FileVersion { get; set; } = "99.99.99.99";
-		// public string PluginType { get; set; }
-	}
-
-	private delegate void LogLineProcDelegate(LogEvent le);
 }

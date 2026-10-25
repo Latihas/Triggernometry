@@ -1,7 +1,7 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Threading;
 using Scarborough.PInvoke;
+using Triggernometry.Localization;
 
 namespace Scarborough.Windows;
 

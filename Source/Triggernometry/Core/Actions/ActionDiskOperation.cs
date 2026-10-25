@@ -182,7 +182,7 @@ public class ActionDiskOperation : ActionBase {
                             vtchanger = I18n.Translate("internal/Action/changetagtestmode", "Action '{0}' test mode", Describe());
                         }
                         // Build a replacement so missing CSV cells cannot retain old values.
-                        VariableTable vt = new VariableTable();
+                        var vt = new VariableTable();
 					vt.Resize(datawidth, data.Count);
 					var y = 1;
 					foreach (var row in data) {

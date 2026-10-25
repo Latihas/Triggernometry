@@ -1,6 +1,6 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Numerics;
+using Triggernometry.Localization;
 
 namespace Triggernometry.Common.Maths;
 
@@ -44,7 +44,7 @@ public static class MinimumMatchHelper {
 		if (costSelector == null) throw new ArgumentNullException(nameof(costSelector));
             if (src.Length != tgt.Length) throw new ArgumentException(I18n.Translate("internal/MinimumMatchHelper/lengthmismatch", "src and tgt must have the same length."));
 
-            int n = src.Length;
+            var n = src.Length;
             if (n == 0) return (new int[0], 0);
             if (n > 30) throw new ArgumentOutOfRangeException(nameof(src), I18n.Translate("internal/MinimumMatchHelper/toomanyelements", "Too many elements; at most 30 are supported."));
 

@@ -584,10 +584,10 @@ public partial class ActionOld {
         /// <summary> Enumerates actions and their loop children in tree order. </summary>
         internal static IEnumerable<ActionOld> RecursiveGetActions(IEnumerable<ActionOld> actions)
         {
-            foreach (ActionOld action in actions)
+            foreach (var action in actions)
             {
                 yield return action;
-                foreach (ActionOld child in RecursiveGetActions(action.LoopActions))
+                foreach (var child in RecursiveGetActions(action.LoopActions))
                 {
                     yield return child;
                 }
@@ -597,7 +597,7 @@ public partial class ActionOld {
         /// <summary> Restores owning triggers and condition parent links for an action subtree. </summary>
         internal static void RebuildParentage(IEnumerable<ActionOld> actions, Trigger trigger)
         {
-            foreach (ActionOld action in RecursiveGetActions(actions))
+            foreach (var action in RecursiveGetActions(actions))
             {
                 action.ParentTrigger = trigger;
                 if (action.Condition != null) ConditionGroup.RebuildParentage(action.Condition);

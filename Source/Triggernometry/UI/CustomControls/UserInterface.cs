@@ -38,17 +38,17 @@ public class UserInterface {
 	// internal Random r = new Random();
 	// internal Font _OriginalFont = null;
 	// internal Font _FontOverride = null;
-	//
+
 	// internal Queue<Toast> Toasts = new Queue<Toast>();
-	//
+
 	// internal object formmgmt = new object();
 	// internal Forms.LogForm formlog { get; set; } = null;
 	// internal Forms.SearchForm formsearch { get; set; } = null;
 	// internal string[] testInputHistoryLines = null;
 	// internal string testInputHistoryZone = "";
-	//
+
 	// private Color disabledNodeColor;
-	//
+
 	// public delegate string TempDelegate(object sender);
 	// private delegate void ProgressDelegate(int progress, string state);
 	// internal delegate void VoidDelegate(object sender, EventArgs e);
@@ -123,11 +123,11 @@ public class UserInterface {
 	// {
 	//    // Del
 	// }
-	//
+
 	// private void HideToast(Toast t, bool result)
 	//    // Del
 	// }
-	//
+
 	// internal void QueueToast(Toast t)
 	//    // Del
 	// }
@@ -462,366 +462,111 @@ public class UserInterface {
 	//
 	// internal void ClearErrorCount()
 	// {
-	//     if (this.IsDisposed) return;
-	//     if (this.InvokeRequired)
-	//     {
-	//         this.Invoke(new System.Action(ClearErrorCount));
-	//     }
-	//     else
-	//     {
-	//         NewErrorCount = 0;
-	//     }
+	//    // Del
 	// }
 	//
 	// internal void IncrementErrorCount()
 	// {
-	//     if (this.IsDisposed) return;
-	//     if (this.InvokeRequired)
-	//     {
-	//         this.Invoke(new System.Action(IncrementErrorCount));
-	//     }
-	//     else
-	//     {
-	//         NewErrorCount += 1;
-	//     }
+	//    // Del
 	// }
 	//
 	// internal void PasteSelected()
 	// {
-	//     string data = null;
-	//     try
-	//     {                
-	//         data = System.Windows.Forms.Clipboard.GetText(TextDataFormat.UnicodeText);
-	//         if (data != null && data.Length > 0)
-	//         {
-	//             TriggernometryExport exp = TriggernometryExport.Unserialize(data);
-	//             using (Forms.ImportForm ifo = new Forms.ImportForm(plug))
-	//             {
-	//                 ifo.BuildTreeFromExport(exp, null, null, false);
-	//                 ImportResultsFromForm(ifo);
-	//             }
-	//         }
-	//     }
-	//     catch (Exception ex)
-	//     {
-	//         plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, I18n.Translate("internal/UserInterface/pastefail", "Tree paste failed due to exception: {0}", ex.Message));
-	//     }
+	//    // Del
 	// }
 	//
 	// private void treeView1_KeyDown(object sender, KeyEventArgs e)
 	// {
-	//     if (e.KeyCode == Keys.C && e.Modifiers == Keys.Control)
-	//     {
-	//         CopySelected();
-	//     }
-	//     else if (e.KeyCode == Keys.V && e.Modifiers == Keys.Control)
-	//     {
-	//         if (btnAdd.Enabled == true && btnAddTrigger.Enabled == true)
-	//         {
-	//             PasteSelected();
-	//         }
-	//     }
-	//     else if (e.KeyCode == Keys.Delete)
-	//     {
-	//         if (btnRemoveTrigger.Enabled == true)
-	//         {
-	//             btnRemoveTrigger_Click(this, null);
-	//         }
-	//     }
+	//    // Del
 	// }
 	//
 	// private void copyToolStripMenuItem_Click(object sender, EventArgs e)
 	// {
-	//     CopySelected();
+	//    // Del
 	// }
 	//
 	// private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
 	// {
-	//     if (btnAdd.Enabled == true && btnAddTrigger.Enabled == true)
-	//     {
-	//         PasteSelected();
-	//     }
+	//    // Del
 	// }
 	//
 	// internal void ClearAllVariables()
 	// {
-	//     var result = MessageBox.Show(I18n.Translate("internal/UserInterface/clearvar", "Are you sure you want to clear the session variables?"), "", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-	//
-	//     if (result != DialogResult.Yes) return;
-	//
-	//     lock (plug.sessionvars.Scalar)
-	//     {
-	//         plug.sessionvars.Scalar.Clear();
-	//     }
-	//     lock (plug.sessionvars.List)
-	//     {
-	//         plug.sessionvars.List.Clear();
-	//     }
-	//     lock (plug.sessionvars.Table)
-	//     {
-	//         plug.sessionvars.Table.Clear();
-	//     }
-	//     lock (plug.sessionvars.Dict)
-	//     {
-	//         plug.sessionvars.Dict.Clear();
-	//     }
+	//    // Del
 	// }
 	//
 	// private void clearAllVariablesToolStripMenuItem_Click(object sender, EventArgs e)
 	// {
-	//     ClearAllVariables();
+	//    // Del
 	// }
 	//
 	// private void saveConfigurationManuallyToolStripMenuItem_Click(object sender, EventArgs e)
 	// {
-	//     if (plug.configBroken == false)
-	//     {
-	//         plug.SaveCurrentConfig();
-	//     }
-	//     else
-	//     {
-	//         string exx = I18n.Translate("internal/UserInterface/warnbeforemanualsave", "Errors were encountered when loading configuration on startup. Saving configuration in this state may lead to it being corrupted beyond repair. Are you sure you want to save configuration anyway?");
-	//         if (MessageBox.Show(this, exx, I18n.Translate("internal/UserInterface/saveconfigmanually", "Save configuration manually"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-	//         {
-	//             plug.SaveCurrentConfig();
-	//             plug.configBroken = false;
-	//         }
-	//     }
+	//    // Del
 	// }
 	//
 	// private void btnCloseWelcome_Click(object sender, EventArgs e)
 	// {
-	//     cfg.ShowWelcome = chkWelcome.Checked;
-	//     btnOptions.Enabled = true;
-	//     pnlUi.Visible = true;
-	//     pnlWelcome.Visible = false;
-	//     toolStrip1.SendToBack();
-	//     treeView1.SelectedNode = treeView1.Nodes[0];
-	//     treeView1.Focus();
+	//    // Del
 	// }
 	//
 	// private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 	// {
-	//     System.Diagnostics.Process.Start(linkLabel1.Text);
+	//    // Del
 	// }
 	//
 	// private void goToConfigurationFolderToolStripMenuItem_Click(object sender, EventArgs e)
 	// {
-	//     string pth = plug.path;
-	//     Process.Start(pth);
+	//    // Del
 	// }
 	//
 	// private void remoteTriggerRepositoryToolStripMenuItem_Click(object sender, EventArgs e)
 	// {
-	//     using (Forms.RepositoryForm rf = new Forms.RepositoryForm())
-	//     {
-	//         rf.plug = plug;
-	//         rf.SettingsFromRepository(null);
-	//         rf.Text = I18n.Translate("internal/UserInterface/addrepo", "Add new repository");
-	//         rf.btnOk.Text = I18n.Translate("internal/UserInterface/add", "Add");
-	//         if (rf.ShowDialog() == DialogResult.OK)
-	//         {
-	//             Repository r = new Repository();
-	//             r.Enabled = true;
-	//             rf.SettingsToRepository(r);
-	//             TreeNode tn = new TreeNode();
-	//             tn.Text = r.Name;
-	//             tn.Tag = r;
-	//             tn.Checked = r.Enabled;
-	//             tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
-	//             tn.SelectedImageIndex = tn.ImageIndex;
-	//             RepositoryFolder rfo = (RepositoryFolder)treeView1.SelectedNode.Tag;
-	//             rfo.Repositories.Add(r);
-	//             r.Parent = rfo;
-	//             treeView1.SelectedNode.Nodes.Add(tn);
-	//             treeView1.SelectedNode.Expand();
-	//             treeView1.Sort();
-	//             treeView1.SelectedNode = tn;
-	//             RecolorStartingFromNode(tn.Parent, tn.Parent.Checked, true);
-	//             btnUpdate_Click(sender, e);
-	//         }
-	//     }
+	//    // Del
 	// }
 	//
 	// private void repositoryToolStripMenuItem_Click(object sender, EventArgs e)
 	// {
-	//     remoteTriggerRepositoryToolStripMenuItem_Click(sender, e);
+	//    // Del
 	// }
 	//
 	// internal void SetupLanguageMenu()
 	// {
-	//     if (I18n.RegisteredLanguages.Count > 0)
-	//     {
-	//         foreach (KeyValuePair<string, Language> kp in I18n.RegisteredLanguages)
-	//         {
-	//             if (kp.Value.IsDefault == true)
-	//             {
-	//                 continue;
-	//             }
-	//             if (toolStripSeparator10.Visible == false)
-	//             {
-	//                 toolStripSeparator10.Visible = true;
-	//             }
-	//             ToolStripMenuItem tsi = new ToolStripMenuItem();
-	//             tsi.Text = kp.Value.LanguageName;
-	//             if (I18n.CurrentLanguage != null)
-	//             {
-	//                 if (I18n.CurrentLanguage.LanguageName == tsi.Text)
-	//                 {
-	//                     if (btnDefaultLanguage.Checked == true)
-	//                     {
-	//                         btnDefaultLanguage.Checked = false;
-	//                         btnDefaultLanguage.Enabled = true;
-	//                     }
-	//                     tsi.Checked = true;
-	//                     tsi.Enabled = false;
-	//                 }
-	//             }
-	//             tsi.CheckOnClick = true;
-	//             tsi.CheckedChanged += Tsi_CheckedChanged;
-	//             btnLanguages.DropDownItems.Add(tsi);
-	//         }
-	//     }
-	//     btnDefaultLanguage.CheckedChanged += Tsi_CheckedChanged;
-	//     foreach (ToolStripItem tsi in btnLanguages.DropDownItems)
-	//     {
-	//         tsi.Tag = I18n.DoNotTranslate;
-	//     }
+	//    // Del
 	// }
 	//
 	// private void Tsi_CheckedChanged(object sender, EventArgs e)
 	// {
-	//     ToolStripMenuItem tsi = (ToolStripMenuItem)sender;
-	//     if (tsi.Checked == true)
-	//     {
-	//         tsi.Enabled = false;
-	//         foreach (ToolStripItem tsim in btnLanguages.DropDownItems)
-	//         {
-	//             if (tsim == tsi)
-	//             {
-	//                 continue;
-	//             }
-	//             if (tsim is ToolStripMenuItem)
-	//             {
-	//                 ToolStripMenuItem tsimm = (ToolStripMenuItem)tsim;
-	//                 tsimm.Checked = false;
-	//             }
-	//         }
-	//         if (tsi == btnDefaultLanguage)
-	//         {
-	//             plug.ChangeLanguage(null);
-	//             RetranslateTreeRoots();
-	//             I18n.TranslateControl("Plugin", this);
-	//         }
-	//         else
-	//         {
-	//             plug.ChangeLanguage(sender.ToString());
-	//             RetranslateTreeRoots();
-	//             I18n.TranslateControl("Plugin", this);
-	//         }
-	//     }
-	//     else
-	//     {
-	//         tsi.Enabled = true;
-	//     }
+	//    // Del
 	// }
 	//
 	// internal void ShowProgress(int progress, string state)
 	// {
-	//     if (statusStrip1.InvokeRequired == true)
-	//     {
-	//         statusStrip1.Invoke(new ProgressDelegate(ShowProgress), progress, state);
-	//         return;
-	//     }
-	//     if (progress == 0 && state == "" && statusStrip1.Visible == true)
-	//     {
-	//         statusStrip1.Visible = false;
-	//         return;
-	//     }
-	//     if (progress == -1)
-	//     {
-	//         prgStatus.Style = ProgressBarStyle.Marquee;
-	//     }
-	//     else
-	//     {
-	//         prgStatus.Style = ProgressBarStyle.Continuous;
-	//         if (progress < prgStatus.Minimum)
-	//         {
-	//             progress = prgStatus.Minimum;
-	//         }
-	//         if (progress > prgStatus.Maximum)
-	//         {
-	//             progress = prgStatus.Maximum;
-	//         }
-	//         prgStatus.Value = progress;
-	//     }
-	//     tlsStatus.Text = state;
-	//     if (progress != 0 && statusStrip1.Visible == false)
-	//     {
-	//         statusStrip1.Visible = true;
-	//     }
+	//    // Del
 	// }
 	//
 	// private delegate void RepoTreeBuilderDelegate(TriggernometryExport exp, Repository r);
 	//
 	// internal void BuildTreeForRepository(TriggernometryExport exp, Repository r)
 	// {
-	//     if (treeView1.InvokeRequired == true)
-	//     {
-	//         treeView1.Invoke(new RepoTreeBuilderDelegate(BuildTreeForRepository), exp, r);
-	//         return;
-	//     }
-	//     using (Forms.ImportForm ifo = new Forms.ImportForm(plug))
-	//     {
-	//         foreach (TreeNode tn in treeView1.Nodes[1].Nodes)
-	//         {
-	//             if (tn.Tag == r)
-	//             {
-	//                 ifo.BuildTreeFromExport(exp, tn, r.Root, true);
-	//                 tn.ImageIndex = (int)ImageIndices.RemoteRepo;
-	//                 tn.SelectedImageIndex = tn.ImageIndex;
-	//                 if (r.ReadmeTriggers.Count > 0)
-	//                 {
-	//                     foreach (Trigger t in r.ReadmeTriggers)
-	//                     {
-	//                         TreeNode tx = plug.LocateNodeHostingTrigger(tn, t);
-	//                         if (tx != null)
-	//                         {
-	//                             TreeNode rn = new TreeNode();
-	//                             rn.Text = tx.Text;
-	//                             rn.Checked = tx.Checked;
-	//                             rn.Tag = tx.Tag;
-	//                             rn.ImageIndex = (int)ImageIndices.Readme;
-	//                             rn.SelectedImageIndex = (int)ImageIndices.Readme;                                    
-	//                             tn.Nodes.Add(rn);
-	//                             rn.EnsureVisible();
-	//                         }
-	//                     }
-	//                 }
-	//                 RecolorStartingFromNode(tn, r.Enabled, false);
-	//                 return;
-	//             }
-	//         }
-	//     }
+	//    // Del
 	// }
 	//
 
-	public static void ForceUpdateRepository(object tnupdate) {
-		if (tnupdate == null) {
-			return;
-		}
-		if (tnupdate is RepositoryFolder folder) {
-			// foreach (TreeNode tn in tnupdate.Nodes)
-			// {
-			//     tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
-			//     tn.SelectedImageIndex = tn.ImageIndex;
-			// }
-			_ = RealPlugin.Instance.UpdateAllRepositoriesAsync(false);
-		}
-		if (tnupdate is Repository rfo) {
-			// tnupdate.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
-			// tnupdate.SelectedImageIndex = tnupdate.ImageIndex;
-			_ = RealPlugin.Instance.UpdateRepositoriesAsync([rfo], false);
+	public static void ForceUpdateRepository(object? tnupdate) {
+		switch (tnupdate) {
+			case null: return;
+			case RepositoryFolder folder:
+				// foreach (TreeNode tn in tnupdate.Nodes)
+				// {
+				//     tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
+				//     tn.SelectedImageIndex = tn.ImageIndex;
+				// }
+				_ = RealPlugin.Instance.UpdateAllRepositoriesAsync(false); break;
+			case Repository rfo:
+				// tnupdate.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
+				// tnupdate.SelectedImageIndex = tnupdate.ImageIndex;
+				_ = RealPlugin.Instance.UpdateRepositoriesAsync([rfo], false); break;
 		}
 	}
 
@@ -898,89 +643,37 @@ public class UserInterface {
 	//
 	// private void btnUpdate_Click(object sender, EventArgs e)
 	// {
-	//     ForceUpdateRepository(treeView1.SelectedNode);
+	//    // Del
 	// }
 	//
 	// private void ctxUpdate_Click(object sender, EventArgs e)
 	// {
-	//     btnUpdate_Click(sender, e);
+	//    // Del
 	// }
 	//
 	// private void btnAddRepoList_Click(object sender, EventArgs e)
 	// {
-	//     using (Forms.RepositoryListForm rlf = new Forms.RepositoryListForm())
-	//     {
-	//         rlf.plug = plug;
-	//         rlf.Text = I18n.Translate("internal/UserInterface/addrepolist", "Add new repository from list");
-	//         if (rlf.ShowDialog() == DialogResult.OK)
-	//         {
-	//             foreach (RepositoryList.Repository rta in rlf.ReposToAdd)
-	//             {
-	//                 Repository r = new Repository();
-	//                 r.Enabled = true;
-	//                 r.Address = rta.Address;
-	//                 r.AllowProcessLaunch = false;
-	//                 r.AllowWindowMessages = false;
-	//                 r.AllowScriptExecution = false;
-	//                 r.AllowObsControl = false;
-	//                 r.AllowDiskOperations = false;
-	//                 r.KeepLocalBackup = true;
-	//                 r.Name = rta.Name;
-	//                 r.NewBehavior = Repository.NewBehaviorEnum.AsDefined;
-	//                 r.UpdatePolicy = Repository.UpdatePolicyEnum.Startup;
-	//                 r.AudioOutput = Repository.AudioOutputEnum.NeverOverride;
-	//                 TreeNode tn = new TreeNode();
-	//                 tn.Text = r.Name;
-	//                 tn.Tag = r;
-	//                 tn.Checked = r.Enabled;
-	//                 tn.ImageIndex = (int)ImageIndices.RemoteRepoUnavailable;
-	//                 tn.SelectedImageIndex = tn.ImageIndex;
-	//                 RepositoryFolder rfo = (RepositoryFolder)treeView1.Nodes[1].Tag;
-	//                 rfo.Repositories.Add(r);
-	//                 r.Parent = rfo;
-	//                 treeView1.Nodes[1].Nodes.Add(tn);
-	//                 treeView1.Nodes[1].Expand();
-	//                 RecolorStartingFromNode(tn.Parent, tn.Parent.Checked, true);
-	//                 treeView1.Sort();
-	//                 ForceUpdateRepository(tn);
-	//             }
-	//         }
-	//     }
+	//    // Del
 	// }
 	//
 	// private void ctxAddRepoList_Click(object sender, EventArgs e)
 	// {
-	//     btnAddRepoList_Click(sender, e);
+	//    // Del
 	// }
 	//
 	// private void errThing1_Click(object sender, EventArgs e)
 	// {
-	//     OpenLogForm(true);
-	//     NewErrorCount = 0;
+	//    // Del
 	// }
 	//
 	// private void ctxCollapse_Click(object sender, EventArgs e)
 	// {
-	//     if (treeView1.SelectedNode != null)
-	//     {
-	//         treeView1.SelectedNode.Collapse(false);
-	//     }
-	//     else
-	//     {
-	//         treeView1.CollapseAll();
-	//     }
+	//    // Del
 	// }
 	//
 	// private void ctxExpand_Click(object sender, EventArgs e)
 	// {
-	//     if (treeView1.SelectedNode != null)
-	//     {
-	//         treeView1.SelectedNode.ExpandAll();
-	//     }
-	//     else
-	//     {
-	//         treeView1.ExpandAll();
-	//     }
+	//    // Del
 	// }
 	//
 	// private static readonly List<string> _legalRepoPrefixes = new List<string> {
@@ -1224,9 +917,7 @@ public class UserInterface {
 								"Reassigning new id ({0}) for trigger ({1}) due to already assigned id ({2})",
 								importedTrigger.Id, importedTrigger.Name, oldId));
 					}
-                df.Folders.Add(f);
-                f.Parent = df;
-                plug.RegisterFolderVariables(f);
+					RealPlugin.Instance.RegisterFolderVariables(df);
 				}
 			}
 			var updatedActionTriggerRefs = 0;
@@ -1254,41 +945,39 @@ public class UserInterface {
 				df.Folders.Add(ser.ExportedFolder);
 				_nodeExpandedStates[ser.ExportedFolder] = true;
 			}
-            int fdjs = 0, tdjs = 0;
-            foreach (Trigger nt in newTrigs)
-            {
-                foreach (Core.ActionOld a inCore.ActionOld.RecursiveGetActions( nt.Actions))))
-                {
-	                if (renamedTriggers.ContainsKey(a._TriggerId) == true) {
-		                a._TriggerId = renamedTriggers[a._TriggerId];
-		                tdjs++;
-	                }
-	                if (renamedFolders.ContainsKey(a._FolderId) == true) {
-		                a._FolderId = renamedFolders[a._FolderId];
-		                fdjs++;
-	                }
-                }
-                if (ser.ExportedTrigger != null) {
-				ser.ExportedTrigger.Parent = df;
-				df.Triggers.Add(ser.ExportedTrigger);
-				_nodeExpandedStates[ser.ExportedTrigger] = true;
-			}
-			foreach (var trigger in importedTriggers) {
-				RealPlugin.Instance.AddTrigger(trigger, trigger.Parent == null ? true : trigger.Parent.ParentsEnabled());
-				if (trigger.Condition != null)
-					ConditionGroup.RebuildParentage(trigger.Condition);
-				foreach (var action in trigger.Actions)
-					if (action.Condition != null)
-						ConditionGroup.RebuildParentage(action.Condition);
+			int fdjs = 0, tdjs = 0;
+			foreach (Trigger nt in importedTriggers) {
+				foreach (var a in RecursiveGetActions(nt.Actions)) {
+					if (renamedTriggers.TryGetValue(a._TriggerId, out var trigger)) {
+						a._TriggerId = trigger;
+						tdjs++;
+					}
+					if (renamedFolders.TryGetValue(a._FolderId, out var folder)) {
+						a._FolderId = folder;
+						fdjs++;
+					}
+				}
+				if (ser.ExportedTrigger != null) {
+					ser.ExportedTrigger.Parent = df;
+					df.Triggers.Add(ser.ExportedTrigger);
+					_nodeExpandedStates[ser.ExportedTrigger] = true;
+				}
+				foreach (var newTrig in importedTriggers) {
+					RealPlugin.Instance.AddTrigger(newTrig, newTrig.Parent == null ? true : newTrig.Parent.ParentsEnabled());
+					if (newTrig.Condition != null)
+						ConditionGroup.RebuildParentage(newTrig.Condition);
+					foreach (var action in newTrig.Actions)
+						if (action.Condition != null)
+							ConditionGroup.RebuildParentage(action.Condition);
+					newTrig.SetActionsParent();
+					RealPlugin.Instance.AddTrigger(newTrig, newTrig.Parent.ParentsEnabled());
+				}
+				if (fdjs > 0 || tdjs > 0) {
+					RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/UserInterface/idreassigncount", "Adjusted {0} trigger and {1} folder references on actions due to collisions", tdjs, fdjs));
+				}
 			}
 		} catch (Exception ex) {
 			RealPlugin.Instance.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error, ex.ToString());
-                newTrig.SetActionsParent();
-                plug.AddTrigger(newTrig, newTrig.Parent.ParentsEnabled());
-            }
-            if (fdjs > 0 || tdjs > 0)
-            {
-                plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, I18n.Translate("internal/UserInterface/idreassigncount", "Adjusted {0} trigger and {1} folder references on actions due to collisions", tdjs, fdjs));
 		}
 	}
 

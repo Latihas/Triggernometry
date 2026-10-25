@@ -1,8 +1,8 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
 using Scarborough.Drawing;
+using Triggernometry.Localization;
 
 namespace Scarborough.Windows;
 

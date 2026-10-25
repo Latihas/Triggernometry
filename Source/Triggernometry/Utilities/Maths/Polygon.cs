@@ -1,9 +1,9 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Triggernometry.Expressions.String.Utils;
+using Triggernometry.Localization;
 using static System.Math;
 
 namespace Triggernometry.Utilities.Maths;
@@ -91,18 +91,18 @@ public class Polygon {
 				.Select((_, i) => (idx: i, angle: GetAngle(vertices, i)))
 				.Where(tuple => tuple.angle >= 0) // 过滤掉凹顶点
                     .OrderBy(tuple => tuple.angle); // 优先选最小的有向角度
-                bool clipped = false;
+			var clipped = false;
                 foreach (var candidate in candidates)
                 {
-                    int prev = (candidate.idx - 1 + n) % n;
-                    int next = (candidate.idx + 1) % n;
+	                var prev = (candidate.idx - 1 + n) % n;
+	                var next = (candidate.idx + 1) % n;
                     var v1 = vertices[prev];
                     var v2 = vertices[candidate.idx];
                     var v3 = vertices[next];
                     // Remove degenerate vertices so the same short edge cannot stall the loop.
-                    bool degenerate = Vector2.DistanceSquared(v1, v2) <= err ||
-                        Vector2.DistanceSquared(v2, v3) <= err || Vector2.DistanceSquared(v3, v1) <= err ||
-                        Cross(v1 - v2, v3 - v2) == 0;
+                    var degenerate = Vector2.DistanceSquared(v1, v2) <= err ||
+                                     Vector2.DistanceSquared(v2, v3) <= err || Vector2.DistanceSquared(v3, v1) <= err ||
+                                     Cross(v1 - v2, v3 - v2) == 0;
                     if (!degenerate)
                     {
                         // A convex vertex is an ear only if no other vertex lies in its triangle.

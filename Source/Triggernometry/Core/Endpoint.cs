@@ -1,11 +1,11 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Triggernometry.Core.Variables;
+using Triggernometry.Localization;
 
 namespace Triggernometry.Core;
 

@@ -1,16 +1,16 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using Triggernometry.Expressions.Maths;
+using Triggernometry.Localization;
 using static System.Math;
 
 namespace Triggernometry.Utilities.Maths;
 
-public abstract partial class XIVCoord {
+public abstract class XIVCoord {
 	public abstract XIVCoord Duplicate();
 
 	/// <summary>
@@ -78,25 +78,24 @@ public abstract partial class XIVCoord {
 		return new Vector3((float)cart.X, (float)cart.Y, (float)cart.Z);
 	}
 
-        private static readonly Regex rexOpKeywords = new Regex(
-            @"\b(plus|minus|polar|minuspolar|polardirN?\d+)\b",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+	private static readonly Regex rexOpKeywords = new(
+		@"\b(plus|minus|polar|minuspolar|polardirN?\d+)\b",
+		RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
-        private static readonly Regex rexDirKeyword = new Regex(
-            @"^polardir(?<isNegative>N)?(?<segments>\d+)$",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+	private static readonly Regex rexDirKeyword = new(
+		@"^polardir(?<isNegative>N)?(?<segments>\d+)$",
+		RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
 	/// <summary>
-        /// 将直角坐标、极坐标及离散方向坐标解析并叠加。<br/><br/>
-        /// 例如：<br/>
-        /// 10, -10, 0<br/>
-        /// polar 20, -45°, 0<br/>
-        /// 100, 100, 0 polardirN4 10, 2（从给定点向右下偏移 10）<br/>
-        /// polardir8 10, 1（按八方向中的第 1 个方向偏移 10）<br/><br/>
-        /// 各组坐标可使用 plus、minus、polar、minuspolar、polardirN? 等关键字连接。
-        /// polardirN? 与 polardir? 的方向规则一致，但序号增加 0.5，序号以 0 为起点。
+	/// 将直角坐标、极坐标及离散方向坐标解析并叠加。<br/><br/>
+	/// 例如：<br/>
+	/// 10, -10, 0<br/>
+	/// polar 20, -45°, 0<br/>
+	/// 100, 100, 0 polardirN4 10, 2（从给定点向右下偏移 10）<br/>
+	/// polardir8 10, 1（按八方向中的第 1 个方向偏移 10）<br/><br/>
+	/// 各组坐标可使用 plus、minus、polar、minuspolar、polardirN? 等关键字连接。
+	/// polardirN? 与 polardir? 的方向规则一致，但序号增加 0.5，序号以 0 为起点。
 	/// </summary>
-	
 	public static XIVCoord ParseRawData(string rawCoords) {
 		// 例：x, y, z plus x2, y2 minus x3, y3, z3 polar r, θ polardirN4 r2, index2
 
@@ -123,57 +122,50 @@ public abstract partial class XIVCoord {
 			throw new Exception(I18n.Translate("internal/XIVCoord/unmatchedparentheses", "Coordinate expression contains {0} unmatched parentheses ({1}). Expression: {2}", Abs(depth), depth > 0 ? "(" : ")", rawCoords));
 		}
 
-            List<XIVCoord> coords = new List<XIVCoord>();
-            bool isCurrentPolar = false;
-            bool isCurrentPlus = true;
-            int currentDirSegments = 0;
-            bool currentDirNegative = false;
-            List<string> currentParams = new List<string>();
+		var coords = new List<XIVCoord>();
+		var isCurrentPolar = false;
+		var isCurrentPlus = true;
+		var currentDirSegments = 0;
+		var currentDirNegative = false;
+		var currentParams = new List<string>();
 
 		foreach (var part in parts) {
 			var splitParts = rexOpKeywords.Split(part);
 
-                if (splitParts.Length == 3)
-			{
+			if (splitParts.Length == 3) {
 				var beforeOp = splitParts[0].Trim();
 				var operation = splitParts[1].Trim();
 				var afterOp = splitParts[2].Trim();
 
-                    // 先完成前一组坐标的解析，再切换到新的坐标类型。
-                    if (currentParams.Count != 0 || !string.IsNullOrEmpty(beforeOp))
-				{
+				// 先完成前一组坐标的解析，再切换到新的坐标类型。
+				if (currentParams.Count != 0 || !string.IsNullOrEmpty(beforeOp)) {
 					currentParams.Add(beforeOp);
 					var coord = ParseCoordPart(currentParams, isCurrentPolar, currentDirSegments, currentDirNegative);
 					coords.Add(isCurrentPlus ? coord : -coord);
 					currentParams.Clear();
 				}
 
-                    var dirMatch = rexDirKeyword.Match(operation);
-                    if (dirMatch.Success)
-                    {
-                        // polardirN4 r, 2 等价于 polar r, π/4；负向分段的序号偏移 0.5。
-                        if (!int.TryParse(dirMatch.Groups["segments"].Value, out currentDirSegments) || currentDirSegments <= 0)
-                            throw new ArgumentException(I18n.Translate("internal/XIVCoord/invalidsegments", "Coordinate direction segment count must be a positive integer: {0}", operation));
+				var dirMatch = rexDirKeyword.Match(operation);
+				if (dirMatch.Success) {
+					// polardirN4 r, 2 等价于 polar r, π/4；负向分段的序号偏移 0.5。
+					if (!int.TryParse(dirMatch.Groups["segments"].Value, out currentDirSegments) || currentDirSegments <= 0)
+						throw new ArgumentException(I18n.Translate("internal/XIVCoord/invalidsegments", "Coordinate direction segment count must be a positive integer: {0}", operation));
 
-                        currentDirNegative = dirMatch.Groups["isNegative"].Success;
-                        isCurrentPolar = true;
-                        isCurrentPlus = true;
-                    }
-                    else
-                    {
-                        currentDirSegments = 0;
-                        currentDirNegative = false;
-                        isCurrentPlus = !operation.StartsWith("minus", StringComparison.OrdinalIgnoreCase);
-                        isCurrentPolar = operation.EndsWith("polar", StringComparison.OrdinalIgnoreCase);
-                    }
+					currentDirNegative = dirMatch.Groups["isNegative"].Success;
+					isCurrentPolar = true;
+					isCurrentPlus = true;
+				} else {
+					currentDirSegments = 0;
+					currentDirNegative = false;
+					isCurrentPlus = !operation.StartsWith("minus", StringComparison.OrdinalIgnoreCase);
+					isCurrentPolar = operation.EndsWith("polar", StringComparison.OrdinalIgnoreCase);
+				}
 
 				currentParams.Add(afterOp);
-			} else if (splitParts.Length == 1)
-			{
+			} else if (splitParts.Length == 1) {
 				currentParams.Add(splitParts[0].Trim());
-			} else
-			{
-                    throw new Exception(I18n.Translate("internal/XIVCoord/missingarguments", "Not enough arguments between coordinate keywords.\nExpression: {0};\nLocation: {1}", rawCoords, part));
+			} else {
+				throw new Exception(I18n.Translate("internal/XIVCoord/missingarguments", "Not enough arguments between coordinate keywords.\nExpression: {0};\nLocation: {1}", rawCoords, part));
 			}
 		}
 		var finalCoord = ParseCoordPart(currentParams, isCurrentPolar, currentDirSegments, currentDirNegative);
@@ -182,21 +174,18 @@ public abstract partial class XIVCoord {
 		return coords.Aggregate((c1, c2) => c1 + c2);
 	}
 
-        private static XIVCoord ParseCoordPart(List<string> parameters, bool isPolar, int dirSegments, bool dirNegative)
-        {
-            string[] args = parameters.ToArray();
-            if (dirSegments > 0 && (args.Length == 2 || args.Length == 3))
-            {
-                double index = MathParser.Parse(args[1]);
-                if (dirNegative)
-                    index += 0.5;
+	private static XIVCoord ParseCoordPart(List<string> parameters, bool isPolar, int dirSegments, bool dirNegative) {
+		var args = parameters.ToArray();
+		if (dirSegments > 0 && args.Length is 2 or 3) {
+			var index = MathParser.Parse(args[1]);
+			if (dirNegative)
+				index += 0.5;
 
-                index = (index % dirSegments + dirSegments) % dirSegments;
-                double θ = index / dirSegments * 2 * PI - PI;
-                args[1] = θ.ToString("R", CultureInfo.InvariantCulture);
-}
+			index = (index % dirSegments + dirSegments) % dirSegments;
+			var θ = index / dirSegments * 2 * PI - PI;
+			args[1] = θ.ToString("R", CultureInfo.InvariantCulture);
+		}
 
-            return isPolar ? PolarCoord.Parse(args) : (XIVCoord)CartesianCoord.Parse(args);
-        }
-    }
+		return isPolar ? PolarCoord.Parse(args) : CartesianCoord.Parse(args);
+	}
 }

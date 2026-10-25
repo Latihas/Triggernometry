@@ -1,9 +1,8 @@
-﻿using Triggernometry.Localization;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Triggernometry.Core;
+using Triggernometry.Localization;
 
 namespace Triggernometry.PluginBridges;
 

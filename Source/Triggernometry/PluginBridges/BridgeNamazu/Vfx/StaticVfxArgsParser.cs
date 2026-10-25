@@ -5,7 +5,6 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using Triggernometry.Expressions.String.Models;
 using Triggernometry.Expressions.String.Utils;
-using Triggernometry.Utilities.Maths;
 
 namespace Triggernometry.PluginBridges.BridgeNamazu.Vfx;
 

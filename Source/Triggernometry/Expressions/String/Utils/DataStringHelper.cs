@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using Triggernometry.Core;
 using Triggernometry.Expressions.Maths;
+using Triggernometry.Localization;
 
 namespace Triggernometry.Expressions.String.Utils;
 

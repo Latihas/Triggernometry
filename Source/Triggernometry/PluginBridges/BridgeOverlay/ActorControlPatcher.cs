@@ -1,5 +1,4 @@
-﻿using Triggernometry.Localization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RainbowMage.OverlayPlugin.NetworkProcessors;
@@ -14,21 +13,8 @@ public static class ActorControlPatcher {
 		RegisterCategories(newCategories);
 	}
 
-        public static void RegisterCategories(ushort[] newCategories)
-        {
-            var asm = AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(a => a.GetName().Name == "OverlayPlugin.Core")
-                ?? throw new Exception(I18n.Translate("internal/BridgeOverlay/objectnotfound", "Object '{0}' was not found.", "OverlayPlugin.Core"));
-
-            var targetType = asm.GetType("RainbowMage.OverlayPlugin.NetworkProcessors.LineActorControlExtra")
-                ?? throw new Exception(I18n.Translate("internal/BridgeOverlay/objectnotfound", "Object '{0}' was not found.", "LineActorControlExtra"));
-
-            var field = targetType.GetField("AllowedActorControlCategories", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                ?? throw new Exception(I18n.Translate("internal/BridgeOverlay/objectnotfound", "Object '{0}' was not found.", "AllowedActorControlCategories"));
-
-            var enumType = asm.GetType("RainbowMage.OverlayPlugin.NetworkProcessors.Server_ActorControlCategory")
-                ?? throw new Exception(I18n.Translate("internal/BridgeOverlay/objectnotfound", "Object '{0}' was not found.", "Server_ActorControlCategory"));
-
+	public static void RegisterCategories(ushort[] newCategories) {
+		var enumType = typeof(Server_ActorControlCategory);
 		// original categories
 		var original = LineActorControlExtra.AllowedActorControlCategories;
 		var originalObjects = original.Cast<object>().ToList();

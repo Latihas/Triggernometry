@@ -1,6 +1,7 @@
 ﻿using System;
 using RainbowMage.OverlayPlugin;
 using Triggernometry.Core;
+using Triggernometry.Localization;
 using TriggernometryProxy;
 
 namespace Triggernometry.PluginBridges;
