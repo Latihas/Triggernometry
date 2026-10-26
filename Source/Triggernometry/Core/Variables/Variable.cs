@@ -13,7 +13,7 @@ public abstract class Variable : IComparable {
 	[XmlAttribute(AttributeName = "LastChanged")]
 	public DateTime LastChanged { get; set; } = DateTime.Now;
 
-	public abstract int CompareTo(object o);
+	public abstract int CompareTo(object? o);
 
 	public abstract Variable Duplicate();
 }

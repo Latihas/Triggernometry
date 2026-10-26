@@ -49,10 +49,8 @@ public class Font : IDisposable {
 	/// </summary>
 	/// <param name="textFormat"></param>
 	public Font(TextFormat textFormat) {
-		if (textFormat == null) {
-			throw new ArgumentNullException(nameof(textFormat));
-		}
-		TextFormat = textFormat;
+        ArgumentNullException.ThrowIfNull(textFormat);
+        TextFormat = textFormat;
 	}
 
 	/// <summary>
@@ -65,8 +63,8 @@ public class Font : IDisposable {
 	/// <param name="italic">A Boolean value indicating whether this Font is italic.</param>
 	/// <param name="wordWrapping">A Boolean value indicating whether this Font uses word wrapping.</param>
 	public Font(FontFactory factory, string fontFamilyName, float size, bool bold = false, bool italic = false, bool wordWrapping = false) {
-		if (factory == null) throw new ArgumentNullException(nameof(factory));
-		if (string.IsNullOrEmpty(fontFamilyName)) throw new ArgumentNullException(nameof(fontFamilyName));
+        ArgumentNullException.ThrowIfNull(factory);
+        if (string.IsNullOrEmpty(fontFamilyName)) throw new ArgumentNullException(nameof(fontFamilyName));
 
 		TextFormat = new TextFormat(factory, fontFamilyName, bold ? FontWeight.Bold : FontWeight.Normal, italic ? FontStyle.Italic : FontStyle.Normal, size) {
 			WordWrapping = wordWrapping ? WordWrapping.Wrap : WordWrapping.NoWrap
@@ -172,9 +170,9 @@ public class Font : IDisposable {
 	/// </summary>
 	/// <param name="font"></param>
 	public static implicit operator TextFormat(Font font) {
-		if (font == null) throw new ArgumentNullException(nameof(font));
+        ArgumentNullException.ThrowIfNull(font);
 
-		return font.TextFormat;
+        return font.TextFormat;
 	}
 
 	/// <summary>

@@ -16,8 +16,8 @@ internal static class DynamicImport {
 	private static extern IntPtr GetModuleHandle(string modulename);
 
 	public static IntPtr ImportLibrary(string libraryName) {
-		if (libraryName == null) throw new ArgumentNullException(nameof(libraryName));
-		if (libraryName.Length == 0) throw new ArgumentOutOfRangeException(nameof(libraryName));
+        ArgumentNullException.ThrowIfNull(libraryName);
+        if (libraryName.Length == 0) throw new ArgumentOutOfRangeException(nameof(libraryName));
 
 		var hModule = GetModuleHandle(libraryName);
 
@@ -34,8 +34,8 @@ internal static class DynamicImport {
 	public static IntPtr ImportMethod(IntPtr moduleHandle, string methodName) {
 		if (moduleHandle == IntPtr.Zero) throw new ArgumentOutOfRangeException(nameof(moduleHandle));
 
-		if (methodName == null) throw new ArgumentNullException(nameof(methodName));
-		if (methodName.Length == 0) throw new ArgumentOutOfRangeException(nameof(methodName));
+        ArgumentNullException.ThrowIfNull(methodName);
+        if (methodName.Length == 0) throw new ArgumentOutOfRangeException(nameof(methodName));
 
 		var procAddress = GetProcAddress(moduleHandle, methodName);
 

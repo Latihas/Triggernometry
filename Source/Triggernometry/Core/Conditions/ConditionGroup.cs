@@ -14,16 +14,15 @@ public sealed class ConditionGroup : ConditionComponent {
 		Not = 4
 	}
 
-	[XmlIgnore] private CndGroupingEnum _Grouping = CndGroupingEnum.Or;
-	[XmlAttribute] public CndGroupingEnum Grouping {
-		get => _Grouping;
+	[XmlAttribute] [field: XmlIgnore] public CndGroupingEnum Grouping {
+		get;
 		set {
-			if (value != _Grouping) {
-				_Grouping = value;
+			if (value != field) {
+				field = value;
 				TriggerOnPropertyChange();
 			}
 		}
-	}
+	} = CndGroupingEnum.Or;
 
 	[XmlElement(typeof(ConditionGroup))]
 	[XmlElement(typeof(ConditionSingle))]

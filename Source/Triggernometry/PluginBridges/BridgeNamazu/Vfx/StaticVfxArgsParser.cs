@@ -15,10 +15,9 @@ internal enum VfxType {
 
 internal static partial class StaticVfxArgsParser {
 	public static StaticVfxArgs Parse(MultiLineRawArgs data) {
-		if (data == null)
-			throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
 
-		var args = new StaticVfxArgs {
+        var args = new StaticVfxArgs {
 			Action = ParseAction(data)
 		};
 

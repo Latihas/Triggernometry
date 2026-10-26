@@ -8,14 +8,14 @@ namespace Scarborough.Drawing;
 ///     Represents a SolidBrush which is used for drawing on a Graphics surface.
 /// </summary>
 public class SolidBrush : IDisposable, IBrush {
-	private SolidColorBrush _brush;
+	private SolidColorBrush? _brush;
 
 	/// <summary>
 	///     Gets or sets the underlying Brush.
 	/// </summary>
-	public Brush Brush {
+	public Brush? Brush {
 		get => _brush;
-		set => _brush = (SolidColorBrush)value;
+		set => _brush = (SolidColorBrush?)value;
 	}
 
 	/// <summary>
@@ -34,11 +34,9 @@ public class SolidBrush : IDisposable, IBrush {
 	/// </summary>
 	/// <param name="renderTarget">A Graphics device.</param>
 	public SolidBrush(RenderTarget renderTarget) {
-		if (renderTarget == null) {
-			throw new ArgumentNullException(nameof(renderTarget));
-		}
+        ArgumentNullException.ThrowIfNull(renderTarget);
 
-		_brush = new SolidColorBrush(renderTarget, new RawColor4());
+        _brush = new SolidColorBrush(renderTarget, new RawColor4());
 	}
 
 	/// <summary>
@@ -47,9 +45,9 @@ public class SolidBrush : IDisposable, IBrush {
 	/// <param name="renderTarget">A Graphics device.</param>
 	/// <param name="color">A Color structure including the color components for this SolidBrush.</param>
 	public SolidBrush(RenderTarget renderTarget, Color color) {
-		if (renderTarget == null) throw new ArgumentNullException(nameof(renderTarget));
+        ArgumentNullException.ThrowIfNull(renderTarget);
 
-		_brush = new SolidColorBrush(renderTarget, color);
+        _brush = new SolidColorBrush(renderTarget, color);
 	}
 
 	/// <summary>
@@ -84,7 +82,7 @@ public class SolidBrush : IDisposable, IBrush {
 	///     <see langword="true" /> if <paramref name="value" /> is equal to this instance; otherwise,
 	///     <see langword="false" />.
 	/// </returns>
-	public bool Equals(SolidBrush value) =>
+	public bool Equals(SolidBrush? value) =>
 		value != null
 		&& value._brush.NativePointer == _brush.NativePointer;
 

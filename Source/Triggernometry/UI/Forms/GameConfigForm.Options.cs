@@ -219,6 +219,7 @@ public partial class GameConfigForm {
 		/// <param name="maximum">允许的最大值</param>
 		/// <param name="decimalPlaces">显示和输入的小数位数</param>
 		/// <param name="increment">每次增减的步长</param>
+		/// <param name="hint"></param>
 		public OptionNud(
 			string desc,
 			string configKey,
@@ -227,7 +228,7 @@ public partial class GameConfigForm {
 			decimal maximum = 100m,
 			int decimalPlaces = 0,
 			decimal increment = 1m,
-			string hint = null) {
+			string? hint = null) {
 			Lbl = new MyLabel { Text = desc };
 			Ctrl = new MyNumericUpDown {
 				Minimum = minimum,

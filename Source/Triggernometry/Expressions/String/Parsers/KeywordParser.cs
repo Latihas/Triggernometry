@@ -10,7 +10,7 @@ namespace Triggernometry.Expressions.String.Parsers;
 
 internal static class KeywordParser {
 	internal static string? TryParse(string rawExpr, Context? ctx, bool isTestModeNumeric) {
-		ctx = ctx ?? Context.Unbound;
+		ctx ??= Context.Unbound;
 		var plug = ctx.Plugin; // can be null
 
 		// cases related with the triggered event (allowed to get actual values when testing by placeholder)

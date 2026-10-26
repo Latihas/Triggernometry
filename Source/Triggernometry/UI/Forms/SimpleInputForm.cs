@@ -54,16 +54,16 @@ public partial class SimpleInputForm : Form {
 		if (multiline) AcceptButton = null;
 	}
 
-	private void SimpleInputForm_Shown(object sender, EventArgs e) {
+	private void SimpleInputForm_Shown(object? sender, EventArgs e) {
 		expEditedValue.textBox1.Focus();
 		Activate();
 	}
 
-	private void SimpleInputForm_Disposed(object sender, EventArgs e) {
+	private void SimpleInputForm_Disposed(object? sender, EventArgs e) {
 		fontOverride?.Dispose();
 	}
 
-	private void SimpleInputForm_KeyDown(object sender, KeyEventArgs e) {
+	private void SimpleInputForm_KeyDown(object? sender, KeyEventArgs e) {
 		if (e.KeyData != (Keys.Control | Keys.Enter)) return;
 		e.Handled = true;
 		e.SuppressKeyPress = true;
@@ -71,5 +71,5 @@ public partial class SimpleInputForm : Form {
 		Close();
 	}
 
-	public string GetInput(IWin32Window owner = null) => ShowDialog(owner) == DialogResult.OK ? expEditedValue.Text : null;
+	public string? GetInput(IWin32Window? owner = null) => ShowDialog(owner) == DialogResult.OK ? expEditedValue.Text : null;
 }

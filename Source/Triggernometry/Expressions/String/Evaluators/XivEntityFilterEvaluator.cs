@@ -10,7 +10,7 @@ namespace Triggernometry.Expressions.String.Evaluators;
 
 internal static class XivEntityFilterEvaluator // to-do: sortings
 {
-	internal static Func<Entity, bool> CreateFilter(string rawFilterExpression) {
+	internal static Func<Entity?, bool> CreateFilter(string rawFilterExpression) {
 		var funcTokens = BuildEntityTokenPipeline(rawFilterExpression);
 		return entity => {
 			var tokens = funcTokens.Select(func => func(entity)).ToList();

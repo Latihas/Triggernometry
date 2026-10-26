@@ -569,14 +569,7 @@ public class Trigger {
 	}
 
 	private int RemoveSelfQueuedActions(Context ctx) {
-		var removedCount = 0;
-		lock (ctx.Plugin.ActionQueue) {
-			foreach (var qa in GetSelfQueuedActions(ctx)) {
-				ctx.Plugin.ActionQueue.Remove(qa);
-				removedCount++;
-			}
-		}
-		return removedCount;
+		return ctx.Plugin.CancelQueuedActions(qa => qa.ctx.Trigger?.Id == Id);
 	}
 
 	private int CountSelfQueuedActions(Context ctx) {
@@ -585,7 +578,7 @@ public class Trigger {
 	}
 
 	private List<RealPlugin.QueuedAction> GetSelfQueuedActions(Context ctx)
-		=> [.. ctx.Plugin.ActionQueue.Where(qa => qa.ctx.Trigger.Id == Id)];
+		=> [.. ctx.Plugin.ActionQueue.Where(qa => qa.ctx.Trigger?.Id == Id)];
 
 	public void QueueActions(Context ctx, DateTime curtime, RealPlugin.MutexInformation? mtx) {
 		//System.Diagnostics.Debug.WriteLine("### queuing actions for " + ctx.ToString());

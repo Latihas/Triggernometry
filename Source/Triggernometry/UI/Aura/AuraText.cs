@@ -6,79 +6,72 @@ namespace Triggernometry.UI.Aura;
 internal sealed class AuraText : Aura {
 	internal string TextExpression { get; set; }
 
-	private string _Text;
 	internal string Text {
-		get => _Text;
+		get;
 		set {
-			if (value != _Text) {
+			if (value != field) {
 				Changed = true;
-				_Text = value;
+				field = value;
 			}
 		}
 	}
 
-	private ActionOld.TextAuraAlignmentEnum _TextAlignment;
 	internal ActionOld.TextAuraAlignmentEnum TextAlignment {
-		get => _TextAlignment;
+		get;
 		set {
-			if (value != _TextAlignment) {
+			if (value != field) {
 				Changed = true;
-				_TextAlignment = value;
+				field = value;
 			}
 		}
 	}
 
-	private bool _UseOutline;
 	internal bool UseOutline {
-		get => _UseOutline;
+		get;
 		set {
-			if (value != _UseOutline) {
+			if (value != field) {
 				Changed = true;
-				_UseOutline = value;
+				field = value;
 			}
 		}
 	}
 
-	private float _FontSize;
 	internal float FontSize {
-		get => _FontSize;
+		get;
 		set {
-			if (value != _FontSize) {
+			if (value != field) {
 				Changed = true;
-				_FontSize = value;
+				field = value;
 			}
 		}
 	}
 
-	private Color _TextColor;
 	internal Color TextColor {
-		get => _TextColor;
+		get;
 		set {
-			if (value != _TextColor) {
+			if (value != field) {
 				Changed = true;
-				_TextColor = value;
+				field = value;
 			}
 		}
 	}
 
-	private Color _OutlineColor;
 	internal Color OutlineColor {
-		get => _OutlineColor;
+		get;
 		set {
-			if (value != _OutlineColor) {
+			if (value != field) {
 				Changed = true;
-				_OutlineColor = value;
+				field = value;
 			}
 		}
 	}
 
-	private Color _BackgroundColor;
 	internal Color BackgroundColor {
-		get => _BackgroundColor;
+		get;
 		set {
-			if (value != _BackgroundColor) {
+			if (value != field) {
 				Changed = true;
-				_BackgroundColor = value;
+				field = value;
 				/* tododoo
 				if (_BackgroundColor != System.Drawing.Color.Transparent)
 				{
@@ -94,13 +87,12 @@ internal sealed class AuraText : Aura {
 		}
 	}
 
-	private FontStyle _FontStyle;
 	internal FontStyle FontStyle {
-		get => _FontStyle;
+		get;
 		set {
-			if (value != _FontStyle) {
+			if (value != field) {
 				Changed = true;
-				_FontStyle = value;
+				field = value;
 			}
 		}
 	}

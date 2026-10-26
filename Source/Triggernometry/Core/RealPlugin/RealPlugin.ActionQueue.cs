@@ -57,6 +57,7 @@ public partial class RealPlugin {
 		internal ActionOld act { get; set; }
 		internal Context ctx { get; set; }
 		internal bool releaseMutex { get; set; }
+		internal int _finished;
 
 		/// <summary>
 		///     The effective tag text used by the action,
@@ -67,7 +68,7 @@ public partial class RealPlugin {
 		/// </summary>
 		internal string ParsedTag { get; set; } = "";
 
-		public QueuedAction(DateTime when, long ordinal, MutexInformation mtx, ActionOld act, Context ctx, bool releaseMutex) {
+		public QueuedAction(DateTime when, long ordinal, MutexInformation? mtx, ActionOld act, Context ctx, bool releaseMutex) {
 			this.when = when;
 			this.ordinal = ordinal;
 			mutex = mtx;
@@ -78,7 +79,7 @@ public partial class RealPlugin {
 			if (!string.IsNullOrWhiteSpace(actionTag)) {
 				ParsedTag = actionTag;
 			} else {
-				var triggerTag = ctx.EvaluateStringExpression(null, ctx, ctx?.Trigger?.Tag);
+				var triggerTag = ctx.EvaluateStringExpression(null, ctx, ctx.Trigger?.Tag);
 				if (!string.IsNullOrWhiteSpace(triggerTag))
 					ParsedTag = triggerTag;
 			}
@@ -91,13 +92,25 @@ public partial class RealPlugin {
 		}
 
 		public void ActionFinished() {
+			if (Volatile.Read(ref _finished) != 0) return;
+			MutexInformation? mutexToRelease = null;
+			var context = ctx;
 			lock (ctx.Plugin.ActionQueue) {
+				if (Interlocked.CompareExchange(ref _finished, 1, 0) != 0) return;
 				ctx.Plugin.ExecutingActions.Remove(this);
-				if (mutex != null && releaseMutex) {
-					mutex.Release(ctx);
+				var sharedMutex = mutex;
+				var hasSuccessor = sharedMutex != null &&
+				                   (ctx.Plugin.ActionQueue.Any(queued => queued.mutex == sharedMutex && queued.ctx.id == ctx.id) ||
+				                    ctx.Plugin.ExecutingActions.Any(executing => !ReferenceEquals(executing, this) && executing.mutex == sharedMutex && executing.ctx.id == ctx.id));
+				if (sharedMutex != null && releaseMutex && !hasSuccessor) {
+					mutexToRelease = sharedMutex;
+					mutex = null;
+				} else if (sharedMutex != null && ctx.Trigger?.Sequential == true && !hasSuccessor) {
+					mutexToRelease = sharedMutex;
 					mutex = null;
 				}
 			}
+			mutexToRelease?.Release(context);
 		}
 	}
 
@@ -112,23 +125,29 @@ public partial class RealPlugin {
 	/// </param>
 	/// <returns>The number of queued actions removed from the queue.</returns>
 	internal int CancelQueuedActions(Func<QueuedAction, bool>? filter = null) {
-		var removedCount = 0;
+		int removedCount;
+		var mutexReleases = new List<(MutexInformation Mutex, Context Context)>();
 		lock (ActionQueue) {
 			var toRemove = ActionQueue.Where(qa => filter == null || filter(qa)).ToList();
 			removedCount = toRemove.Count;
 			foreach (var qa in toRemove)
 				ActionQueue.Remove(qa);
+			foreach (var action in toRemove) Interlocked.CompareExchange(ref action._finished, 2, 0);
 
 			foreach (var group in toRemove.Where(qa => qa.mutex != null)
-				         .GroupBy(qa => new { qa.mutex, qa.ctx.id })) {
+				         .GroupBy(qa => (qa.mutex, qa.ctx.id))) {
 				// Transfer the release to a surviving action, or finish the canceled chain.
 				var last = ExecutingActions.Concat(ActionQueue).LastOrDefault(qa => qa.mutex == group.Key.mutex && qa.ctx.id == group.Key.id);
 				if (last != null) {
 					if (group.Any(qa => qa.releaseMutex)) last.releaseMutex = true;
-				} else if (group.Any(qa => qa.releaseMutex || qa.ctx.Trigger.Sequential))
-					group.Key.mutex.Release(group.First().ctx);
+				} else if ((group.Any(qa => qa.releaseMutex) || group.Any(qa => qa.ctx.Trigger?.Sequential == true)) && group.Key.mutex != null) {
+					mutexReleases.Add((group.Key.mutex, group.First().ctx));
+				}
+				foreach (var action in group) action.mutex = null;
 			}
 		}
+		foreach (var (mutex, ctx) in mutexReleases.DistinctBy(release => (release.Mutex, release.Context.id)))
+			mutex.Release(ctx);
 		return removedCount;
 	}
 
@@ -167,56 +186,98 @@ public partial class RealPlugin {
 		return lastAction;
 	}
 
+	internal void ReleaseSequentialActionMutexIfUnused(Context ctx, QueuedAction action) {
+		if (action.mutex == null) return;
+		MutexInformation? mutexToRelease;
+		lock (ActionQueue) {
+			var actionMutex = action.mutex;
+			if (ActionQueue.Any(queued => queued.mutex == actionMutex && queued.ctx.id == ctx.id) ||
+			    ExecutingActions.Any(executing => !ReferenceEquals(executing, action) && executing.mutex == actionMutex && executing.ctx.id == ctx.id))
+				return;
+			if (!action.releaseMutex && ctx.Trigger?.Sequential != true) return;
+			if (Interlocked.CompareExchange(ref action._finished, 1, 0) != 0) return;
+			mutexToRelease = actionMutex;
+			action.mutex = null;
+		}
+		mutexToRelease?.Release(ctx);
+	}
+
 	public void QueueAction(Context ctx, Trigger? t, MutexInformation? m, ActionOld a, DateTime when, bool releaseMutex) {
+		ArgumentNullException.ThrowIfNull(ctx);
+		ArgumentNullException.ThrowIfNull(a);
+		ArgumentNullException.ThrowIfNull(t);
+		List<(MutexInformation Mutex, Context Context)> mutexReleases = [];
+		var rejected = false;
+		var accepted = false;
 		lock (ActionQueue) // verified
 		{
 			if (!a.RefireRequeue || a.RefireInterrupt) {
 				var ix = ActionQueue.Where(ax => ax.act.Id == a.Id).ToArray();
 				if (ix.Length != 0) {
+					var rems = new List<QueuedAction>();
 					if (a.RefireInterrupt) {
-						var rems = new List<QueuedAction>();
 						rems.AddRange(ix);
 						var exx = 0;
 						foreach (var qa in rems) {
 							ActionQueue.Remove(qa);
+							Interlocked.CompareExchange(ref qa._finished, 2, 0);
 							exx++;
 						}
 						if (exx > 0) {
 							a.AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/actionqueuerem", "Removed {0} instance(s) of trigger '{1}' action '{2}' from queue", exx, t.LogName, a.GetDescription(ctx)));
 						}
 					}
+					foreach (var group in rems.Where(qa => qa.mutex != null)
+						         .GroupBy(qa => (qa.mutex, qa.ctx.id))) {
+						var last = ExecutingActions.Concat(ActionQueue).LastOrDefault(qa => qa.mutex == group.Key.mutex && qa.ctx.id == group.Key.id);
+						if (last != null) {
+							if (group.Any(qa => qa.releaseMutex)) last.releaseMutex = true;
+						} else if ((group.Any(qa => qa.releaseMutex) || group.Any(qa => qa.ctx.Trigger?.Sequential == true)) && group.Key.mutex != null) {
+							mutexReleases.Add((group.Key.mutex, group.First().ctx));
+						}
+						foreach (var canceled in group) canceled.mutex = null;
+					}
 					if (!a.RefireRequeue) {
 						a.AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Plugin/actionqueuefail", "Trigger '{0}' action '{1}' not queued, refire requeue disabled", t.LogName, a.GetDescription(ctx)));
-						if (releaseMutex && m != null) {
-							m.Release(ctx);
-						}
-						return;
+						rejected = true;
 					}
 				}
 			}
-			long newOrdinal;
-			lock (this) {
-				newOrdinal = curOrdinal;
-				curOrdinal++;
+			if (!rejected) {
+				long newOrdinal;
+				lock (this) {
+					newOrdinal = curOrdinal;
+					curOrdinal++;
+				}
+				a.AddToLog(ctx, DebugLevelEnum.Info, I18n.Translate("internal/Plugin/actionqueued", "Queuing trigger '{0}' action '{1}' to {2} slot {3}", t.LogName, a.GetDescription(ctx), FormatDateTime(when), newOrdinal));
+				ActionQueue.Add(new QueuedAction(when, newOrdinal, m, a, ctx, releaseMutex));
+				ActionQueue.Sort();
+				accepted = true;
 			}
-			a.AddToLog(ctx, DebugLevelEnum.Info, I18n.Translate("internal/Plugin/actionqueued", "Queuing trigger '{0}' action '{1}' to {2} slot {3}", t.LogName, a.GetDescription(ctx), FormatDateTime(when), newOrdinal));
-			ActionQueue.Add(new QueuedAction(when, newOrdinal, m, a, ctx, releaseMutex));
-			ActionQueue.Sort();
 		}
+		foreach (var (mutex, mutexContext) in mutexReleases.DistinctBy(release => (release.Mutex, release.Context.id)))
+			mutex.Release(mutexContext);
+		if (!accepted && releaseMutex && m != null && mutexReleases.All(release => release.Mutex != m || release.Context.id != ctx.id)) m.Release(ctx);
 	}
 
 	internal bool ReadyForOperation() => true;
 
 	internal void ActionThreadProc(IFramework _) {
 		var now = DateTime.Now;
+		List<QueuedAction> ready = [];
 		lock (ActionQueue) {
-			while (ActionQueue.Count != 0) {
-				var tp = ActionQueue[0];
-				if (tp.when > now) break;
+			while (ActionQueue.Count != 0 && ActionQueue[0].when <= now) {
+				var action = ActionQueue[0];
 				ActionQueue.RemoveAt(0);
-				ExecutingActions.Add(tp);
-				tp.act.Execute(tp, tp.ctx);
+				ready.Add(action);
 			}
+		}
+		foreach (var action in ready) {
+			lock (ActionQueue) {
+				if (Volatile.Read(ref action._finished) == 2) continue;
+				ExecutingActions.Add(action);
+			}
+			action.act.Execute(action, action.ctx);
 		}
 	}
 

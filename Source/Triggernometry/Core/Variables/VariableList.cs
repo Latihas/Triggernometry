@@ -13,7 +13,7 @@ public class VariableList : Variable {
 	[XmlArrayItem(ElementName = "VariableScalar", Type = typeof(VariableScalar))]
 	[XmlArrayItem(ElementName = "VariableList", Type = typeof(VariableList))]
 	[XmlArrayItem(ElementName = "VariableTable", Type = typeof(VariableTable))]
-	public List<Variable> Values { get; set; } = [];
+	public List<Variable?> Values { get; set; } = [];
 
 	public VariableList() { }
 	public VariableList(IEnumerable<string> values) { Values = [.. values.Select(v => (Variable)new VariableScalar(v))]; }
@@ -31,7 +31,7 @@ public class VariableList : Variable {
 
 	public override string ToString() => string.Join(",", Values);
 
-	public override int CompareTo(object o) {
+	public override int CompareTo(object? o) {
 		if (o is not Variable) {
 			throw new InvalidOperationException();
 		}
@@ -206,25 +206,25 @@ public class VariableList : Variable {
 
 	public string IndicesOf(string targetStr, string joiner, List<int> indices) {
 		// accepts indices starts from 0; returns indices starts from 1
-		var selectedIndices = indices.Where(i => Values[i].ToString() == targetStr).Select(i => i + 1).ToList();
+		var selectedIndices = indices.Where(i => Values[i]?.ToString() == targetStr).Select(i => i + 1).ToList();
 		return string.Join(joiner, selectedIndices);
 	}
 
 	public int Count(string str, List<int> indices) {
-		return indices.Count(index => Values[index].ToString() == str);
+		return indices.Count(index => Values[index]?.ToString() == str);
 	}
 
 	public double Sum(List<int> indices) {
 		double sum = 0;
 		foreach (var i in indices) {
-			if (double.TryParse(Values[i].ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+			if (double.TryParse(Values[i]?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
 				sum += value;
 		}
 		return sum;
 	}
 
 	public string Join(string joiner, List<int> indices) {
-		return string.Join(joiner, indices.Select(index => Values[index].ToString()));
+		return string.Join(joiner, indices.Select(index => Values[index]?.ToString()));
 	}
 
 	public string Join(string joiner) => string.Join(joiner, Values);
@@ -241,7 +241,7 @@ public class VariableList : Variable {
 		LastChanger = changer;
 	}
 
-	private static int CompareNumeric(Variable a, Variable b) {
+	private static int CompareNumeric(Variable? a, Variable? b) {
 		var left = decimal.Parse(a.ToString(), CultureInfo.InvariantCulture);
 		var right = decimal.Parse(b.ToString(), CultureInfo.InvariantCulture);
 		return left.CompareTo(right);

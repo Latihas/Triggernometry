@@ -34,9 +34,8 @@ public class MultiLineRawArgs {
 	///     Duplicate constructor.
 	/// </summary>
 	public MultiLineRawArgs(MultiLineRawArgs src) {
-		if (src == null)
-			throw new ArgumentNullException(nameof(src));
-		_originalData = src._originalData;
+        ArgumentNullException.ThrowIfNull(src);
+        _originalData = src._originalData;
 		_data = new Dictionary<string, string>(src._data, StringComparer.OrdinalIgnoreCase);
 	}
 
@@ -49,7 +48,7 @@ public class MultiLineRawArgs {
 	public bool TryGet(string key, out string value) => _data.TryGetValue(key, out value);
 
 	/// <summary> 依次尝试查找多个 key 别名对应的值，大小写不敏感。</summary>
-	public bool TryGet(out string value, params string[] keys) {
+	public bool TryGet(out string? value, params string[] keys) {
 		foreach (var key in keys) {
 			if (_data.TryGetValue(key, out value))
 				return true;

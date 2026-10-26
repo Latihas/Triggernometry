@@ -73,11 +73,11 @@ public class ActionRepository : ActionBase {
 		}
 	}
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 
-		Repository r = null;
+		Repository? r = null;
 		switch (Operation) {
 			case OperationEnum.UpdateSelf:
 				r = ctx.Trigger?.Repo;

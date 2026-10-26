@@ -156,7 +156,7 @@ internal static class ModuleCombatants {
 	}
 
 	/// <returns>Null if not found.</returns>
-	private static unsafe Combatant? GetMobFromByteArray(BattleChara* source, uint mycharID) => _currentCombatantMemory.GetMobFromByteArray(source, mycharID);
+	private static unsafe Combatant? GetMobFromByteArray(BattleChara* source, uint mycharID) => _currentCombatantMemory?.GetMobFromByteArray(source, mycharID);
 
 	/// <returns>OpEntity.NullEntity() if not found.</returns>
 	internal static Entity InternalGetEntityByID(uint id) {

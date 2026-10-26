@@ -5,8 +5,8 @@ namespace Scarborough;
 
 internal static class OverrideHelper {
 	public static int HashCodes(params int[] hashCodes) {
-		if (hashCodes == null) throw new ArgumentNullException(nameof(hashCodes));
-		if (hashCodes.Length == 0) throw new ArgumentOutOfRangeException(nameof(hashCodes));
+        ArgumentNullException.ThrowIfNull(hashCodes);
+        if (hashCodes.Length == 0) throw new ArgumentOutOfRangeException(nameof(hashCodes));
 
 		unchecked {
 			var hash = 17;
@@ -20,8 +20,8 @@ internal static class OverrideHelper {
 	}
 
 	public static string ToString(params string[] strings) {
-		if (strings == null) throw new ArgumentNullException(nameof(strings));
-		if (strings.Length == 0 || strings.Length % 2 != 0) throw new ArgumentOutOfRangeException(nameof(strings));
+        ArgumentNullException.ThrowIfNull(strings);
+        if (strings.Length == 0 || strings.Length % 2 != 0) throw new ArgumentOutOfRangeException(nameof(strings));
 
 		var sb = new StringBuilder(16);
 

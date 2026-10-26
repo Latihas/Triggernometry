@@ -10,15 +10,13 @@ namespace Triggernometry.Core.Variables;
 
 [XmlRoot(ElementName = "VariableDictionary")]
 public sealed class VariableDictionary : Variable {
-	private Dictionary<string, Variable> _values = new(StringComparer.OrdinalIgnoreCase);
-
 	[XmlIgnore] public Dictionary<string, Variable> Values {
-		get => _values;
+		get;
 		set {
-			_values = value?.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase)
-			          ?? new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
+			field = value?.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase)
+			        ?? new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
 		}
-	}
+	} = new(StringComparer.OrdinalIgnoreCase);
 
 	[XmlArray("Items")] [XmlArrayItem("Item")]
 	public KeyValue[] KeyValuePairs {
@@ -57,7 +55,7 @@ public sealed class VariableDictionary : Variable {
 		return string.Join(",", Values.Select(pair => $"{pair.Key}={pair.Value}"));
 	}
 
-	public override int CompareTo(object o) {
+	public override int CompareTo(object? o) {
 		if (!(o is Variable)) {
 			throw new InvalidOperationException();
 		}

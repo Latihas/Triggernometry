@@ -89,7 +89,7 @@ public partial class Job {
 	/// <param name="jobID">The integer job ID.</param>
 	/// <param name="result">Outputs the Job object if found.</param>
 	/// <returns>True if the job is successfully found.</returns>
-	public static bool TryGetJob(int jobID, out Job result) {
+	public static bool TryGetJob(int jobID, out Job? result) {
 		if (jobID >= 0 && jobID < _jobs.Count) {
 			result = _jobs[jobID];
 			return true;
@@ -151,7 +151,7 @@ public partial class Job {
 	/// <param name="propName">The name of the property to query, case-insensitive.</param>
 	/// <param name="result">Outputs the property as a string if found.</param>
 	/// <returns>True if the property is successfully found.</returns>
-	public bool TryQueryProperty(string propName, out string result) {
+	public bool TryQueryProperty(string propName, out string? result) {
 		if (TryGetAccessor(propName, out var accessor)) {
 			result = accessor(this).ToDataString();
 			return true;
@@ -160,6 +160,6 @@ public partial class Job {
 		return false;
 	}
 
-	public static bool TryGetAccessor(string propName, out Func<Job, object> accessor)
+	public static bool TryGetAccessor(string propName, out Func<Job, object>? accessor)
 		=> _propAccessors.TryGetValue(propName, out accessor);
 }

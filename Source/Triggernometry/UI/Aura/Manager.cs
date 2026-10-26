@@ -27,7 +27,7 @@ internal class Manager : IDisposable {
 		public ActionTypeEnum Action { get; set; }
 		public Aura Item { get; set; }
 		public ItemTypeEnum ItemType { get; set; }
-		public ManualResetEvent Completed { get; set; } = null;
+		public ManualResetEvent? Completed { get; set; } = null;
 		public string Id { get; set; }
 	}
 
@@ -42,8 +42,8 @@ internal class Manager : IDisposable {
 	internal RealPlugin plug { get; set; }
 	private Queue<ItemAction> ItemActions { get; set; } = new();
 
-	public Dictionary<string, AuraImage> imageitems = new();
-	public Dictionary<string, AuraText> textitems = new();
+	public Dictionary<string, AuraImage?> imageitems = new();
+	public Dictionary<string, AuraText?> textitems = new();
 
 	// public Manager()
 	// {
@@ -66,8 +66,8 @@ internal class Manager : IDisposable {
 				try {
 					var ia = ItemActions.Dequeue();
 					ExecuteItemAction(ia);
-					if (ia.Completed != null) ia.Completed.Set();
-				} catch (Exception) {
+					ia.Completed?.Set();
+				} catch (Exception) {//
 				}
 			}
 		}
@@ -98,24 +98,18 @@ internal class Manager : IDisposable {
 					case ItemAction.ItemTypeEnum.Image: {
 						toRem.AddRange(from sx in imageitems where rex.IsMatch(sx.Key) select sx.Key);
 						foreach (var rem in toRem) {
-							AuraImage a = null;
-							a = imageitems[rem];
+							var a = imageitems[rem];
 							imageitems.Remove(rem);
-							if (a != null) {
-								a.Dispose();
-							}
+							a?.Dispose();
 						}
 					}
 						break;
 					case ItemAction.ItemTypeEnum.Text: {
 						toRem.AddRange(from sx in textitems where rex.IsMatch(sx.Key) select sx.Key);
 						foreach (var rem in toRem) {
-							AuraText a = null;
-							a = textitems[rem];
+							var a = textitems[rem];
 							textitems.Remove(rem);
-							if (a != null) {
-								a.Dispose();
-							}
+							a?.Dispose();
 						}
 					}
 						break;
@@ -125,25 +119,21 @@ internal class Manager : IDisposable {
 			case ItemAction.ActionTypeEnum.Deactivate: {
 				switch (ia.ItemType) {
 					case ItemAction.ItemTypeEnum.Image: {
-						AuraImage a = null;
+						AuraImage? a = null;
 						if (imageitems.TryGetValue(ia.Id, out var value)) {
 							a = value;
 							imageitems.Remove(ia.Id);
 						}
-						if (a != null) {
-							a.Dispose();
-						}
+						a?.Dispose();
 					}
 						break;
 					case ItemAction.ItemTypeEnum.Text: {
-						AuraText a = null;
+						AuraText? a = null;
 						if (textitems.TryGetValue(ia.Id, out var value)) {
 							a = value;
 							textitems.Remove(ia.Id);
 						}
-						if (a != null) {
-							a.Dispose();
-						}
+						a?.Dispose();
 					}
 						break;
 				}
@@ -152,24 +142,24 @@ internal class Manager : IDisposable {
 			case ItemAction.ActionTypeEnum.DeactivateAll: {
 				switch (ia.ItemType) {
 					case ItemAction.ItemTypeEnum.Image: {
-						var toRem = new List<AuraImage>();
+						var toRem = new List<AuraImage?>();
 						foreach (var si in imageitems) {
 							toRem.Add(si.Value);
 						}
 						imageitems.Clear();
 						foreach (var si in toRem) {
-							si.Dispose();
+							si?.Dispose();
 						}
 					}
 						break;
 					case ItemAction.ItemTypeEnum.Text: {
-						var toRem = new List<AuraText>();
+						var toRem = new List<AuraText?>();
 						foreach (var si in textitems) {
 							toRem.Add(si.Value);
 						}
 						textitems.Clear();
 						foreach (var si in toRem) {
-							si.Dispose();
+							si?.Dispose();
 						}
 					}
 						break;
@@ -211,7 +201,7 @@ internal class Manager : IDisposable {
 
 	private long GetNextOrdinal() => Interlocked.Increment(ref CurOrdinal);
 
-	private void ActivateGeneric(Aura a, Aura copyFrom) {
+	private void ActivateGeneric(Aura a, Aura? copyFrom) {
 		a.Ordinal = GetNextOrdinal();
 		if (copyFrom != null) {
 			a.ctx = copyFrom.ctx;
@@ -271,9 +261,9 @@ internal class Manager : IDisposable {
 		return a;
 	}
 
-	public AuraImage GetImage(string id) => imageitems.GetValueOrDefault(id);
+	public AuraImage? GetImage(string id) => imageitems.GetValueOrDefault(id);
 
-	public AuraText GetText(string id) => textitems.GetValueOrDefault(id);
+	public AuraText? GetText(string id) => textitems.GetValueOrDefault(id);
 
 	public void DeactivateAllImages() {
 		lock (ItemActions) {

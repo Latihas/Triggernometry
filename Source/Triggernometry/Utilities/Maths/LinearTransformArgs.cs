@@ -11,14 +11,13 @@ public sealed class LinearTransformArgs {
 	/// </summary>
 	public readonly bool IsScalingMode;
 
-	private XIVCoord _center = new CartesianCoord(0, 0, 0);
 	public XIVCoord Center {
 		get {
-			_center = _center ?? new CartesianCoord(0, 0, 0);
-			return _center;
+			field ??= new CartesianCoord(0, 0, 0);
+			return field;
 		}
-		set => _center = value ?? new CartesianCoord(0, 0, 0);
-	}
+		set => field = value ?? new CartesianCoord(0, 0, 0);
+	} = new CartesianCoord(0, 0, 0);
 
 	public double Rotation = Math.PI;
 
@@ -50,10 +49,9 @@ public sealed class LinearTransformArgs {
 	}
 
 	public XIVCoord TransformCoord(XIVCoord pos) {
-		if (pos == null)
-			throw new ArgumentNullException(nameof(pos));
+        ArgumentNullException.ThrowIfNull(pos);
 
-		double scaleX, scaleY, scaleZ;
+        double scaleX, scaleY, scaleZ;
 		if (IsScalingMode) {
 			scaleX = ScaleX;
 			scaleY = ScaleY;

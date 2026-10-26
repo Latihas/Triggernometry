@@ -19,9 +19,9 @@ public class VariableTable : Variable {
 
 	public int Width => Rows is { Count: > 0 } ? Rows[0].Values.Count : 0;
 
-	public int Height => Rows != null ? Rows.Count : 0;
+	public int Height => Rows?.Count ?? 0;
 
-	public override int CompareTo(object o) {
+	public override int CompareTo(object? o) {
 		if (!(o is Variable)) {
 			throw new InvalidOperationException();
 		}
@@ -204,7 +204,7 @@ public class VariableTable : Variable {
 
 	public int SeekColumn(Variable value) => SeekColumn(value.ToString());
 
-	public int SeekColumn(string value) {
+	public int SeekColumn(string? value) {
 		if (Height == 0) {
 			return 0;
 		}
@@ -218,32 +218,22 @@ public class VariableTable : Variable {
 
 	public int VLookup(Variable targetStr, int rowIndex, List<int> colIndices) => VLookup(targetStr.ToString(), rowIndex, colIndices);
 
-	public int VLookup(string targetStr, int colIndex, List<int> rowIndices) {
+	public int VLookup(string? targetStr, int colIndex, List<int> rowIndices) {
 		if (colIndex < 0 || colIndex >= Width) {
 			return 0;
 		}
 
-		foreach (var rowIndex in rowIndices) {
-			if (Rows[rowIndex].Values[colIndex].ToString().Equals(targetStr, StringComparison.OrdinalIgnoreCase)) {
-				return rowIndex + 1;
-			}
-		}
-		return 0;
+		return (from rowIndex in rowIndices where Rows[rowIndex].Values[colIndex].ToString().Equals(targetStr, StringComparison.OrdinalIgnoreCase) select rowIndex + 1).FirstOrDefault();
 	}
 
 	public int HLookup(Variable targetStr, int rowIndex, List<int> colIndices) => HLookup(targetStr.ToString(), rowIndex, colIndices);
 
-	public int HLookup(string targetStr, int rowIndex, List<int> colIndices) {
+	public int HLookup(string? targetStr, int rowIndex, List<int> colIndices) {
 		if (rowIndex < 0 || rowIndex >= Height) {
 			return 0;
 		}
 
-		foreach (var colIndex in colIndices) {
-			if (Rows[rowIndex].Values[colIndex].ToString().Equals(targetStr, StringComparison.OrdinalIgnoreCase)) {
-				return colIndex + 1;
-			}
-		}
-		return 0;
+		return (from colIndex in colIndices where Rows[rowIndex].Values[colIndex].ToString().Equals(targetStr, StringComparison.OrdinalIgnoreCase) select colIndex + 1).FirstOrDefault();
 	}
 
 	public string ToCSVString(string colJoiner = ",") {
@@ -278,40 +268,19 @@ public class VariableTable : Variable {
 	}
 
 	public string VJoin(string joiner1, string joiner2, List<int> colSlices, List<int> rowSlices) {
-		var cols = new List<string>();
-
-		foreach (var colIndex in colSlices) {
-			var rows = new List<string>();
-
-			foreach (var rowIndex in rowSlices) {
-				rows.Add(Rows[rowIndex].Values[colIndex].ToString());
-			}
-
-			cols.Add(string.Join(joiner1, rows));
-		}
-
+		var cols = colSlices.Select(colIndex => rowSlices.Select(rowIndex => Rows[rowIndex].Values[colIndex].ToString()).ToList()).Select(rows => string.Join(joiner1, rows)).ToList();
 		return string.Join(joiner2, cols);
 	}
 
 	public string HJoin(string joiner1, string joiner2, List<int> colSlices, List<int> rowSlices) {
-		var rows = new List<string>();
-
-		foreach (var rowIndex in rowSlices) {
-			var cols = new List<string>();
-
-			foreach (var colIndex in colSlices) {
-				cols.Add(Rows[rowIndex].Values[colIndex].ToString());
-			}
-
-			rows.Add(string.Join(joiner1, cols));
-		}
+		var rows = rowSlices.Select(rowIndex => colSlices.Select(colIndex => Rows[rowIndex].Values[colIndex].ToString()).ToList()).Select(cols => string.Join(joiner1, cols)).ToList();
 
 		return string.Join(joiner2, rows);
 	}
 
-	public void SetRow(int index, string[] newValues = null, string changer = "") {
+	public void SetRow(int index, string[]? newValues = null, string changer = "") {
 		// index starts from 0
-		newValues = newValues ?? [];
+		newValues ??= [];
 		var mx = Math.Max(Math.Max(newValues.Length, Width), 1);
 		var my = Math.Max(index + 1, Height);
 		if (mx != Width || my != Height) {
@@ -327,9 +296,9 @@ public class VariableTable : Variable {
 		}
 	}
 
-	public void SetColumn(int index, string[] newValues = null, string changer = "") {
+	public void SetColumn(int index, string[]? newValues = null, string changer = "") {
 		// index starts from 0
-		newValues = newValues ?? [];
+		newValues ??= [];
 
 		var mx = Math.Max(index + 1, Width);
 		var my = Math.Max(Math.Max(newValues.Length, Height), 1);
@@ -346,9 +315,9 @@ public class VariableTable : Variable {
 		}
 	}
 
-	public void InsertRow(int index, string[] newValues = null, string changer = "") {
+	public void InsertRow(int index, string[]? newValues = null, string changer = "") {
 		// index starts from 0
-		newValues = newValues ?? [];
+		newValues ??= [];
 		if (index >= Height) {
 			SetRow(index, newValues, changer);
 		} else {
@@ -376,9 +345,9 @@ public class VariableTable : Variable {
 		}
 	}
 
-	public void InsertColumn(int index, string[] newValues = null, string changer = "") {
+	public void InsertColumn(int index, string[]? newValues = null, string changer = "") {
 		// index starts from 0
-		newValues = newValues ?? [];
+		newValues ??= [];
 		if (index >= Width) {
 			SetColumn(index, newValues, changer);
 		} else {

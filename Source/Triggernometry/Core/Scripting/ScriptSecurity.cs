@@ -51,7 +51,7 @@ internal static class ScriptSecurity {
 	///     Examines using directives, declared variables, invocations, method declarations, and property types, <br />
 	///     to detect usage of any namespace or assembly listed in <paramref name="restrictedApis" />.
 	/// </summary>
-	internal static bool TryGetViolatingApi(Script script, out string violatingApi, params string[] restrictedApis) {
+	internal static bool TryGetViolatingApi(Script script, out string? violatingApi, params string[] restrictedApis) {
 		var comp = script.GetCompilation();
 		var syntaxTree = comp.SyntaxTrees.First();
 		var root = (CompilationUnitSyntax)syntaxTree.GetRoot();
@@ -67,7 +67,7 @@ internal static class ScriptSecurity {
 	}
 
 	/// <returns>Violating API name, or <see langword="null" /> if not found. </returns>
-	private static string TryGetViolatingApiFromUsings(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
+	private static string? TryGetViolatingApiFromUsings(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
 		foreach (var usingdir in root.Usings) {
 			var symbol = model.GetSymbolInfo(usingdir.Name).Symbol;
 			var name = symbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -77,18 +77,16 @@ internal static class ScriptSecurity {
 	}
 
 	/// <returns>Violating API name, or <see langword="null" /> if not found. </returns>
-	private static string TryGetViolatingApiFromVariables(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
+	private static string? TryGetViolatingApiFromVariables(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
 		var variables = root.DescendantNodes().OfType<VariableDeclaratorSyntax>();
 
 		foreach (var variable in variables) {
 			var symbol = model.GetDeclaredSymbol(variable);
-			ITypeSymbol type = null;
-			switch (symbol?.Kind) {
-				case SymbolKind.Field:
-					type = ((IFieldSymbol)symbol).Type; break;
-				case SymbolKind.Local:
-					type = ((ILocalSymbol)symbol).Type; break;
-			}
+			var type = symbol?.Kind switch {
+				SymbolKind.Field => ((IFieldSymbol)symbol).Type, 
+				SymbolKind.Local => ((ILocalSymbol)symbol).Type,
+				_ => null
+			};
 			var name = type?.ContainingNamespace?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 			if (IsApiRestricted(name, restrictedApis)) return name;
 		}
@@ -96,7 +94,7 @@ internal static class ScriptSecurity {
 	}
 
 	/// <returns>Violating API name, or <see langword="null" /> if not found. </returns>
-	private static string TryGetViolatingApiFromInvocations(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
+	private static string? TryGetViolatingApiFromInvocations(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
 		var invocs = root.DescendantNodes().OfType<InvocationExpressionSyntax>();
 
 		foreach (var invoc in invocs) {
@@ -109,7 +107,7 @@ internal static class ScriptSecurity {
 	}
 
 	/// <returns>Violating API name, or <see langword="null" /> if not found. </returns>
-	private static string TryGetViolatingApiFromMethods(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
+	private static string? TryGetViolatingApiFromMethods(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
 		var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
 
 		foreach (var method in methods) {
@@ -124,7 +122,7 @@ internal static class ScriptSecurity {
 	}
 
 	/// <returns>Violating API name, or <see langword="null" /> if not found. </returns>
-	private static string TryGetViolatingApiFromProperties(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
+	private static string? TryGetViolatingApiFromProperties(CompilationUnitSyntax root, SemanticModel model, string[] restrictedApis) {
 		var props = root.DescendantNodes().OfType<PropertyDeclarationSyntax>();
 
 		foreach (var prop in props) {
@@ -140,11 +138,11 @@ internal static class ScriptSecurity {
 		return null;
 	}
 
-	private static bool IsApiRestricted(string apiNameToCheck, params string[] restrictedApis) {
+	private static bool IsApiRestricted(string? apiNameToCheck, params string[]? restrictedApis) {
 		if (apiNameToCheck == null || restrictedApis == null || restrictedApis.Length == 0)
 			return false;
 
-		return restrictedApis.Any(restrictedApi => apiNameToCheck.Contains(restrictedApi));
+		return restrictedApis.Any(apiNameToCheck.Contains);
 	}
 
 	/// <summary>
@@ -162,7 +160,7 @@ internal static class ScriptSecurity {
 			.Any(expr => ContainsDynamic(model, expr));
 	}
 
-	private static bool ContainsDynamic(SemanticModel model, ExpressionSyntax exprSyntax) {
+	private static bool ContainsDynamic(SemanticModel? model, ExpressionSyntax? exprSyntax) {
 		if (model == null || exprSyntax == null) return false;
 
 		// check dynamic expressions

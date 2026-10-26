@@ -13,7 +13,7 @@ public class ActionPlaceholder : ActionBase {
 
 	internal override string DescribeImplementation() => I18n.Translate("internal/Action/descplaceholder", "Placeholder");
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		// nothing to execute            
 	}
 

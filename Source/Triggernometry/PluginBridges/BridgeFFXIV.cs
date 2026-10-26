@@ -114,7 +114,7 @@ public static class BridgeFFXIV {
 
 	public static uint PlayerId;
 	public static string PlayerHexId = "";
-	public static VariableDictionary Myself;
+	public static VariableDictionary? Myself;
 
 	public static int NumPartyMembers;
 	public static int PrevNumPartyMembers;
@@ -528,12 +528,11 @@ public static class BridgeFFXIV {
 		public override float Timer => Duration - (float)(DateTime.Now - Timestamp).TotalSeconds;
 		public override uint SourceID => _networkBuff.ActorID;
 
-		private readonly Entity _target;
-		public override Entity Target => _target;
+		public override Entity Target { get; set; }
 
 		public XivStatus(NetworkBuff networkBuff, Entity target) {
 			_networkBuff = networkBuff;
-			_target = target;
+			Target = target;
 		}
 
 		/* example:
@@ -584,7 +583,7 @@ public static class BridgeFFXIV {
 		return Myself ?? NullCombatant;
 	}
 
-	public static VariableDictionary GetNamedPartyMember(string name) {
+	public static VariableDictionary GetNamedPartyMember(string? name) {
 		UpdateState();
 		foreach (var vc in PartyMembers.Where(vc => vc.GetValue("name").ToString() == name)) return vc;
 		return _nullCombatant;

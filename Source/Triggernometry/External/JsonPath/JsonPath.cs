@@ -64,10 +64,10 @@ sealed partial class JsonPathContext {
 		SelectNodes(obj, expr, (v, _) => v);
 
 	public IEnumerable<T> SelectNodes<T>(object obj, string expr, Func<object, string, T> resultor) {
-		if (obj == null) throw new ArgumentNullException(nameof(obj));
-		if (resultor == null) throw new ArgumentNullException(nameof(resultor));
+        ArgumentNullException.ThrowIfNull(obj);
+        ArgumentNullException.ThrowIfNull(resultor);
 
-		var i = new Interpreter(ValueSystem, ScriptEvaluator);
+        var i = new Interpreter(ValueSystem, ScriptEvaluator);
 
 		expr = Normalize(expr);
 
@@ -94,10 +94,9 @@ sealed partial class JsonPathContext {
 	}
 
 	public static string AsBracketNotation(string[] indicies) {
-		if (indicies == null)
-			throw new ArgumentNullException(nameof(indicies));
+        ArgumentNullException.ThrowIfNull(indicies);
 
-		var sb = new StringBuilder();
+        var sb = new StringBuilder();
 
 		foreach (var index in indicies) {
 			if (sb.Length == 0) {
@@ -121,7 +120,7 @@ sealed partial class JsonPathContext {
 			: null;
 
 	private sealed class Interpreter {
-		private readonly Func<string, object, string, object> _eval;
+		private readonly Func<string, object, string, object?> _eval;
 		private readonly IJsonPathValueSystem _system;
 
 		private static readonly IJsonPathValueSystem DefaultValueSystem = new BasicValueSystem();
@@ -131,29 +130,15 @@ sealed partial class JsonPathContext {
 
 		private delegate void WalkCallback(object member, string loc, string expr, object value, string path);
 
-		public Interpreter(IJsonPathValueSystem valueSystem, Func<string, object, string, object> eval) {
-			_eval = eval ?? delegate {
-				// @ symbol in expr must be interpreted specially to resolve
-				// to value. In JavaScript, the implementation would look
-				// like:
-				//
-				// return obj && value && eval(expr.replace(/@/g, "value"));
-
-				return null;
-			};
+		public Interpreter(IJsonPathValueSystem? valueSystem, Func<string, object, string, object?>? eval) {
+			_eval = eval ?? ((_, _, _) => null);
 			_system = valueSystem ?? DefaultValueSystem;
 		}
 
-		private sealed class TraceArgs {
-			public readonly string Expr;
-			public readonly object Value;
-			public readonly string Path;
-
-			public TraceArgs(string expr, object value, string path) {
-				Expr = expr;
-				Value = value;
-				Path = path;
-			}
+		private sealed class TraceArgs(string expr, object value, string path) {
+			public readonly string Expr = expr;
+			public readonly object Value = value;
+			public readonly string Path = path;
 		}
 
 		public IEnumerable<T> Trace<T>(string expr, object value, string path, Func<object, string[], T> resultor) =>

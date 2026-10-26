@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -303,21 +303,21 @@ public partial class ActionOld {
 	#region Action specific properties - ACT Interaction operation
 
 	internal ActInteractionTypeEnum _ActOpType { get; set; } = ActInteractionTypeEnum.SetCombatState;
-	[XmlAttribute] public string ActOpType {
+	[XmlAttribute] public string? ActOpType {
 		get => _ActOpType != ActInteractionTypeEnum.SetCombatState ? _ActOpType.ToString() : null;
-		set => _ActOpType = Enum.Parse<ActInteractionTypeEnum>(value);
+		set { if (value is not null) _ActOpType = Enum.Parse<ActInteractionTypeEnum>(value); }
 	}
 
 	internal bool _ActOpBoolParam { get; set; }
-	[XmlAttribute] public string ActOpBoolParam {
+	[XmlAttribute] public string? ActOpBoolParam {
 		get => _ActOpBoolParam ? _ActOpBoolParam.ToString() : null;
-		set => _ActOpBoolParam = bool.Parse(value);
+		set { if (value is not null) _ActOpBoolParam = bool.Parse(value); }
 	}
 
 	internal string _ActOpStringParam = "";
-	[XmlAttribute] public string ActOpStringParam {
+	[XmlAttribute] public string? ActOpStringParam {
 		get => _ActOpStringParam != "" ? _ActOpStringParam : null;
-		set => _ActOpStringParam = value;
+		set => _ActOpStringParam = value ?? "";
 	}
 
 	#endregion
@@ -325,25 +325,25 @@ public partial class ActionOld {
 	#region Action specific properties - Beep
 
 	internal string _SystemBeepFreqExpression = "1046.5"; // freq(C6)
-	[XmlAttribute] public string SystemBeepFreqExpression {
+	[XmlAttribute] public string? SystemBeepFreqExpression {
 		get {
 			if (_SystemBeepFreqExpression == "1046.5") {
 				return null;
 			}
 			return _SystemBeepFreqExpression;
 		}
-		set => _SystemBeepFreqExpression = value;
+		set => _SystemBeepFreqExpression = value ?? "";
 	}
 
 	internal string _SystemBeepLengthExpression = "100";
-	[XmlAttribute] public string SystemBeepLengthExpression {
+	[XmlAttribute] public string? SystemBeepLengthExpression {
 		get {
 			if (_SystemBeepLengthExpression == "100") {
 				return null;
 			}
 			return _SystemBeepLengthExpression;
 		}
-		set => _SystemBeepLengthExpression = value;
+		set => _SystemBeepLengthExpression = value ?? "";
 	}
 
 	#endregion
@@ -351,7 +351,7 @@ public partial class ActionOld {
 	#region Action specific properties - Dict variable
 
 	internal DictVariableOpEnum _DictVariableOp { get; set; } = DictVariableOpEnum.Unset;
-	[XmlAttribute] public string DictVariableOp {
+	[XmlAttribute] public string? DictVariableOp {
 		get {
 			if (_DictVariableOp != DictVariableOpEnum.Unset) {
 				return _DictVariableOp.ToString();
@@ -359,7 +359,8 @@ public partial class ActionOld {
 			return null;
 		}
 		set {
-			_DictVariableOp = Enum.Parse<DictVariableOpEnum>(value);
+			if (value is not null)
+				_DictVariableOp = Enum.Parse<DictVariableOpEnum>(value);
 #pragma warning disable CS0612 // obsolete
 			if (_DictVariableOp is DictVariableOpEnum.GetEntityByName or DictVariableOpEnum.GetEntityById)
 #pragma warning restore CS0612
@@ -370,57 +371,57 @@ public partial class ActionOld {
 	}
 
 	internal DictVariableExpTypeEnum _DictVariableKeyType { get; set; } = DictVariableExpTypeEnum.String;
-	[XmlAttribute] public string DictVariableKeyType {
+	[XmlAttribute] public string? DictVariableKeyType {
 		get => _DictVariableKeyType != DictVariableExpTypeEnum.String ? _DictVariableKeyType.ToString() : null;
-		set => _DictVariableKeyType = Enum.Parse<DictVariableExpTypeEnum>(value);
+		set { if (value is not null) _DictVariableKeyType = Enum.Parse<DictVariableExpTypeEnum>(value); }
 	}
 
 	internal DictVariableExpTypeEnum _DictVariableValueType { get; set; } = DictVariableExpTypeEnum.String;
-	[XmlAttribute] public string DictVariableValueType {
+	[XmlAttribute] public string? DictVariableValueType {
 		get => _DictVariableValueType != DictVariableExpTypeEnum.String ? _DictVariableValueType.ToString() : null;
-		set => _DictVariableValueType = Enum.Parse<DictVariableExpTypeEnum>(value);
+		set { if (value is not null) _DictVariableValueType = Enum.Parse<DictVariableExpTypeEnum>(value); }
 	}
 
 	internal string _DictVariableName = "";
-	[XmlAttribute] public string DictVariableName {
+	[XmlAttribute] public string? DictVariableName {
 		get => _DictVariableName == "" ? null : _DictVariableName;
-		set => _DictVariableName = value;
+		set => _DictVariableName = value ?? "";
 	}
 
 	internal string _DictVariableTarget = "";
-	[XmlAttribute] public string DictVariableTarget {
+	[XmlAttribute] public string? DictVariableTarget {
 		get => _DictVariableTarget == "" ? null : _DictVariableTarget;
-		set => _DictVariableTarget = value;
+		set => _DictVariableTarget = value ?? "";
 	}
 
 	internal string _DictVariableLength = "";
-	[XmlAttribute] public string DictVariableLength {
+	[XmlAttribute] public string? DictVariableLength {
 		get => _DictVariableLength == "" ? null : _DictVariableLength;
-		set => _DictVariableLength = value;
+		set => _DictVariableLength = value ?? "";
 	}
 
 	internal string _DictVariableKey = "";
-	[XmlAttribute] public string DictVariableKey {
+	[XmlAttribute] public string? DictVariableKey {
 		get => _DictVariableKey == "" ? null : _DictVariableKey;
-		set => _DictVariableKey = value;
+		set => _DictVariableKey = value ?? "";
 	}
 
 	internal string _DictVariableValue = "";
-	[XmlAttribute] public string DictVariableValue {
+	[XmlAttribute] public string? DictVariableValue {
 		get => _DictVariableValue == "" ? null : _DictVariableValue;
-		set => _DictVariableValue = value;
+		set => _DictVariableValue = value ?? "";
 	}
 
 	internal bool _DictSourcePersist { get; set; }
-	[XmlAttribute] public string DictSourcePersist {
+	[XmlAttribute] public string? DictSourcePersist {
 		get => _DictSourcePersist ? _DictSourcePersist.ToString() : null;
-		set => _DictSourcePersist = bool.Parse(value);
+		set { if (value is not null) _DictSourcePersist = bool.Parse(value); }
 	}
 
 	internal bool _DictTargetPersist { get; set; }
-	[XmlAttribute] public string DictTargetPersist {
+	[XmlAttribute] public string? DictTargetPersist {
 		get => _DictTargetPersist ? _DictTargetPersist.ToString() : null;
-		set => _DictTargetPersist = bool.Parse(value);
+		set { if (value is not null) _DictTargetPersist = bool.Parse(value); }
 	}
 
 	#endregion
@@ -428,36 +429,36 @@ public partial class ActionOld {
 	#region Action specific properties - Discord webhook
 
 	internal string _DiscordWebhookURL = "";
-	[XmlAttribute] public string DiscordWebhookURL {
+	[XmlAttribute] public string? DiscordWebhookURL {
 		get {
 			if (_DiscordWebhookURL == "") {
 				return null;
 			}
 			return _DiscordWebhookURL;
 		}
-		set => _DiscordWebhookURL = value;
+		set => _DiscordWebhookURL = value ?? "";
 	}
 
 	internal string _DiscordWebhookMessage = "";
-	[XmlAttribute] public string DiscordWebhookMessage {
+	[XmlAttribute] public string? DiscordWebhookMessage {
 		get {
 			if (_DiscordWebhookMessage == "") {
 				return null;
 			}
 			return _DiscordWebhookMessage;
 		}
-		set => _DiscordWebhookMessage = value;
+		set => _DiscordWebhookMessage = value ?? "";
 	}
 
 	internal bool _DiscordTts { get; set; }
-	[XmlAttribute] public string DiscordTts {
+	[XmlAttribute] public string? DiscordTts {
 		get {
 			if (!_DiscordTts) {
 				return null;
 			}
 			return _DiscordTts.ToString();
 		}
-		set => _DiscordTts = bool.Parse(value);
+		set { if (value is not null) _DiscordTts = bool.Parse(value); }
 	}
 
 	#endregion
@@ -472,50 +473,50 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _DiskFileOp = Enum.Parse<DiskFileOpEnum>(value);
+		set { if (value is not null) _DiskFileOp = Enum.Parse<DiskFileOpEnum>(value); }
 	}
 
 	internal string _DiskFileOpName;
-	[XmlAttribute] public string DiskFileOpName {
+	[XmlAttribute] public string? DiskFileOpName {
 		get {
 			if (_DiskFileOpName == "") {
 				return null;
 			}
 			return _DiskFileOpName;
 		}
-		set => _DiskFileOpName = value;
+		set => _DiskFileOpName = value ?? "";
 	}
 	internal string _DiskFileOpVar;
-	[XmlAttribute] public string DiskFileOpVar {
+	[XmlAttribute] public string? DiskFileOpVar {
 		get {
 			if (_DiskFileOpVar == "") {
 				return null;
 			}
 			return _DiskFileOpVar;
 		}
-		set => _DiskFileOpVar = value;
+		set => _DiskFileOpVar = value ?? "";
 	}
 
 	internal bool _DiskFileCache { get; set; }
-	[XmlAttribute] public string DiskFileCache {
+	[XmlAttribute] public string? DiskFileCache {
 		get {
 			if (!_DiskFileCache) {
 				return null;
 			}
 			return _DiskFileCache.ToString();
 		}
-		set => _DiskFileCache = bool.Parse(value);
+		set { if (value is not null) _DiskFileCache = bool.Parse(value); }
 	}
 
 	internal bool _DiskPersist { get; set; }
-	[XmlAttribute] public string DiskPersist {
+	[XmlAttribute] public string? DiskPersist {
 		get {
 			if (!_DiskPersist) {
 				return null;
 			}
 			return _DiskPersist.ToString();
 		}
-		set => _DiskPersist = bool.Parse(value);
+		set { if (value is not null) _DiskPersist = bool.Parse(value); }
 	}
 
 	#endregion
@@ -523,25 +524,25 @@ public partial class ActionOld {
 	#region Action specific properties - Execute script
 
 	internal string _ExecScriptAssembliesExpression = "";
-	[XmlAttribute] public string ExecScriptAssembliesExpression {
+	[XmlAttribute] public string? ExecScriptAssembliesExpression {
 		get {
 			if (_ExecScriptAssembliesExpression == "") {
 				return null;
 			}
 			return _ExecScriptAssembliesExpression;
 		}
-		set => _ExecScriptAssembliesExpression = value;
+		set => _ExecScriptAssembliesExpression = value ?? "";
 	}
 
 	internal string _ExecScriptExpression = "";
-	[XmlAttribute] public string ExecScriptExpression {
+	[XmlAttribute] public string? ExecScriptExpression {
 		get {
 			if (_ExecScriptExpression == "") {
 				return null;
 			}
 			return _ExecScriptExpression;
 		}
-		set => _ExecScriptExpression = value;
+		set => _ExecScriptExpression = value ?? "";
 	}
 
 	#endregion
@@ -549,25 +550,25 @@ public partial class ActionOld {
 	#region Action specific properties - Folder operation
 
 	internal FolderOpEnum _FolderOp { get; set; } = FolderOpEnum.EnableFolder;
-	[XmlAttribute] public string FolderOp {
+	[XmlAttribute] public string? FolderOp {
 		get {
 			if (_FolderOp != FolderOpEnum.EnableFolder) {
 				return _FolderOp.ToString();
 			}
 			return null;
 		}
-		set => _FolderOp = Enum.Parse<FolderOpEnum>(value);
+		set { if (value is not null) _FolderOp = Enum.Parse<FolderOpEnum>(value); }
 	}
 
 	internal Guid _FolderId { get; set; } = Guid.Empty;
-	[XmlAttribute] public string FolderId {
+	[XmlAttribute] public string? FolderId {
 		get {
 			if (_FolderId != Guid.Empty) {
 				return _FolderId.ToString();
 			}
 			return null;
 		}
-		set => _FolderId = Guid.Parse(value);
+		set { if (value is not null) _FolderId = Guid.Parse(value); }
 	}
 
 	#endregion
@@ -575,168 +576,168 @@ public partial class ActionOld {
 	#region Action specific properties - Image aura
 
 	internal AuraOpEnum _AuraOp { get; set; } = AuraOpEnum.ActivateAura;
-	[XmlAttribute] public string AuraOp {
+	[XmlAttribute] public string? AuraOp {
 		get {
 			if (_AuraOp != AuraOpEnum.ActivateAura) {
 				return _AuraOp.ToString();
 			}
 			return null;
 		}
-		set => _AuraOp = Enum.Parse<AuraOpEnum>(value);
+		set { if (value is not null) _AuraOp = Enum.Parse<AuraOpEnum>(value); }
 	}
 
 	internal PictureBoxSizeMode _AuraImageMode { get; set; } = PictureBoxSizeMode.Normal;
-	[XmlAttribute] public string AuraImageMode {
+	[XmlAttribute] public string? AuraImageMode {
 		get {
 			if (_AuraImageMode != PictureBoxSizeMode.Normal) {
 				return _AuraImageMode.ToString();
 			}
 			return null;
 		}
-		set => _AuraImageMode = Enum.Parse<PictureBoxSizeMode>(value);
+		set { if (value is not null) _AuraImageMode = Enum.Parse<PictureBoxSizeMode>(value); }
 	}
 
 	internal string _AuraName = "";
-	[XmlAttribute] public string AuraName {
+	[XmlAttribute] public string? AuraName {
 		get {
 			if (_AuraName == "") {
 				return null;
 			}
 			return _AuraName;
 		}
-		set => _AuraName = value;
+		set => _AuraName = value ?? "";
 	}
 
 	internal string _AuraImage = "";
-	[XmlAttribute] public string AuraImage {
+	[XmlAttribute] public string? AuraImage {
 		get {
 			if (_AuraImage == "") {
 				return null;
 			}
 			return _AuraImage;
 		}
-		set => _AuraImage = value;
+		set => _AuraImage = value ?? "";
 	}
 
 	internal string _AuraXIniExpression = "";
-	[XmlAttribute] public string AuraXIniExpression {
+	[XmlAttribute] public string? AuraXIniExpression {
 		get {
 			if (_AuraXIniExpression == "") {
 				return null;
 			}
 			return _AuraXIniExpression;
 		}
-		set => _AuraXIniExpression = value;
+		set => _AuraXIniExpression = value ?? "";
 	}
 
 	internal string _AuraYIniExpression = "";
-	[XmlAttribute] public string AuraYIniExpression {
+	[XmlAttribute] public string? AuraYIniExpression {
 		get {
 			if (_AuraYIniExpression == "") {
 				return null;
 			}
 			return _AuraYIniExpression;
 		}
-		set => _AuraYIniExpression = value;
+		set => _AuraYIniExpression = value ?? "";
 	}
 
 	internal string _AuraWIniExpression = "";
-	[XmlAttribute] public string AuraWIniExpression {
+	[XmlAttribute] public string? AuraWIniExpression {
 		get {
 			if (_AuraWIniExpression == "") {
 				return null;
 			}
 			return _AuraWIniExpression;
 		}
-		set => _AuraWIniExpression = value;
+		set => _AuraWIniExpression = value ?? "";
 	}
 
 	internal string _AuraHIniExpression = "";
-	[XmlAttribute] public string AuraHIniExpression {
+	[XmlAttribute] public string? AuraHIniExpression {
 		get {
 			if (_AuraHIniExpression == "") {
 				return null;
 			}
 			return _AuraHIniExpression;
 		}
-		set => _AuraHIniExpression = value;
+		set => _AuraHIniExpression = value ?? "";
 	}
 
 	internal string _AuraOIniExpression = "";
-	[XmlAttribute] public string AuraOIniExpression {
+	[XmlAttribute] public string? AuraOIniExpression {
 		get {
 			if (_AuraOIniExpression == "") {
 				return null;
 			}
 			return _AuraOIniExpression;
 		}
-		set => _AuraOIniExpression = value;
+		set => _AuraOIniExpression = value ?? "";
 	}
 
 	internal string _AuraXTickExpression = "";
-	[XmlAttribute] public string AuraXTickExpression {
+	[XmlAttribute] public string? AuraXTickExpression {
 		get {
 			if (_AuraXTickExpression == "") {
 				return null;
 			}
 			return _AuraXTickExpression;
 		}
-		set => _AuraXTickExpression = value;
+		set => _AuraXTickExpression = value ?? "";
 	}
 
 	internal string _AuraYTickExpression = "";
-	[XmlAttribute] public string AuraYTickExpression {
+	[XmlAttribute] public string? AuraYTickExpression {
 		get {
 			if (_AuraYTickExpression == "") {
 				return null;
 			}
 			return _AuraYTickExpression;
 		}
-		set => _AuraYTickExpression = value;
+		set => _AuraYTickExpression = value ?? "";
 	}
 
 	internal string _AuraWTickExpression = "";
-	[XmlAttribute] public string AuraWTickExpression {
+	[XmlAttribute] public string? AuraWTickExpression {
 		get {
 			if (_AuraWTickExpression == "") {
 				return null;
 			}
 			return _AuraWTickExpression;
 		}
-		set => _AuraWTickExpression = value;
+		set => _AuraWTickExpression = value ?? "";
 	}
 
 	internal string _AuraHTickExpression = "";
-	[XmlAttribute] public string AuraHTickExpression {
+	[XmlAttribute] public string? AuraHTickExpression {
 		get {
 			if (_AuraHTickExpression == "") {
 				return null;
 			}
 			return _AuraHTickExpression;
 		}
-		set => _AuraHTickExpression = value;
+		set => _AuraHTickExpression = value ?? "";
 	}
 
 	internal string _AuraOTickExpression = "";
-	[XmlAttribute] public string AuraOTickExpression {
+	[XmlAttribute] public string? AuraOTickExpression {
 		get {
 			if (_AuraOTickExpression == "") {
 				return null;
 			}
 			return _AuraOTickExpression;
 		}
-		set => _AuraOTickExpression = value;
+		set => _AuraOTickExpression = value ?? "";
 	}
 
 	internal string _AuraTTLTickExpression = "";
-	[XmlAttribute] public string AuraTTLTickExpression {
+	[XmlAttribute] public string? AuraTTLTickExpression {
 		get {
 			if (_AuraTTLTickExpression == "") {
 				return null;
 			}
 			return _AuraTTLTickExpression;
 		}
-		set => _AuraTTLTickExpression = value;
+		set => _AuraTTLTickExpression = value ?? "";
 	}
 
 	#endregion
@@ -751,84 +752,84 @@ public partial class ActionOld {
 			}
 			return _JsonOperationType.ToString();
 		}
-		set => _JsonOperationType = Enum.Parse<HTTPMethodEnum>(value);
+		set { if (value is not null) _JsonOperationType = Enum.Parse<HTTPMethodEnum>(value); }
 	}
 
 	internal bool _JsonCacheRequest { get; set; }
-	[XmlAttribute] public string JsonCacheRequest {
+	[XmlAttribute] public string? JsonCacheRequest {
 		get {
 			if (!_JsonCacheRequest) {
 				return null;
 			}
 			return _JsonCacheRequest.ToString();
 		}
-		set => _JsonCacheRequest = bool.Parse(value);
+		set { if (value is not null) _JsonCacheRequest = bool.Parse(value); }
 	}
 
 	internal string _JsonResultVariable = "";
-	[XmlAttribute] public string JsonResultVariable {
+	[XmlAttribute] public string? JsonResultVariable {
 		get {
 			if (_JsonResultVariable == "") {
 				return null;
 			}
 			return _JsonResultVariable;
 		}
-		set => _JsonResultVariable = value;
+		set => _JsonResultVariable = value ?? "";
 	}
 
 	internal string _JsonEndpointExpression = "";
-	[XmlAttribute] public string JsonEndpointExpression {
+	[XmlAttribute] public string? JsonEndpointExpression {
 		get {
 			if (_JsonEndpointExpression == "") {
 				return null;
 			}
 			return _JsonEndpointExpression;
 		}
-		set => _JsonEndpointExpression = value;
+		set => _JsonEndpointExpression = value ?? "";
 	}
 
 	internal string _JsonPayloadExpression = "";
-	[XmlAttribute] public string JsonPayloadExpression {
+	[XmlAttribute] public string? JsonPayloadExpression {
 		get {
 			if (_JsonPayloadExpression == "") {
 				return null;
 			}
 			return _JsonPayloadExpression;
 		}
-		set => _JsonPayloadExpression = value;
+		set => _JsonPayloadExpression = value ?? "";
 	}
 
 	internal string _JsonHeaderExpression = "";
-	[XmlAttribute] public string JsonHeaderExpression {
+	[XmlAttribute] public string? JsonHeaderExpression {
 		get {
 			if (_JsonHeaderExpression == "") {
 				return null;
 			}
 			return _JsonHeaderExpression;
 		}
-		set => _JsonHeaderExpression = value;
+		set => _JsonHeaderExpression = value ?? "";
 	}
 
 	internal string _JsonFiringExpression = "";
-	[XmlAttribute] public string JsonFiringExpression {
+	[XmlAttribute] public string? JsonFiringExpression {
 		get {
 			if (_JsonFiringExpression == "") {
 				return null;
 			}
 			return _JsonFiringExpression;
 		}
-		set => _JsonFiringExpression = value;
+		set => _JsonFiringExpression = value ?? "";
 	}
 
 	internal bool _JsonResultVariablePersist { get; set; }
-	[XmlAttribute] public string JsonResultVariablePersist {
+	[XmlAttribute] public string? JsonResultVariablePersist {
 		get {
 			if (!_JsonResultVariablePersist) {
 				return null;
 			}
 			return _JsonResultVariablePersist.ToString();
 		}
-		set => _JsonResultVariablePersist = bool.Parse(value);
+		set { if (value is not null) _JsonResultVariablePersist = bool.Parse(value); }
 	}
 
 	#endregion
@@ -843,51 +844,51 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _KeypressType = Enum.Parse<KeypressTypeEnum>(value);
+		set { if (value is not null) _KeypressType = Enum.Parse<KeypressTypeEnum>(value); }
 	}
 
 	internal string _KeyPressExpression = "";
-	[XmlAttribute] public string KeyPressExpression {
+	[XmlAttribute] public string? KeyPressExpression {
 		get {
 			if (_KeyPressExpression == "") {
 				return null;
 			}
 			return _KeyPressExpression;
 		}
-		set => _KeyPressExpression = value;
+		set => _KeyPressExpression = value ?? "";
 	}
 
 	internal string _KeyPressCode = "";
-	[XmlAttribute] public string KeyPressCode {
+	[XmlAttribute] public string? KeyPressCode {
 		get {
 			if (_KeyPressCode == "") {
 				return null;
 			}
 			return _KeyPressCode;
 		}
-		set => _KeyPressCode = value;
+		set => _KeyPressCode = value ?? "";
 	}
 
 	internal string _KeyPressWindow = "";
-	[XmlAttribute] public string KeyPressWindow {
+	[XmlAttribute] public string? KeyPressWindow {
 		get {
 			if (_KeyPressWindow == "") {
 				return null;
 			}
 			return _KeyPressWindow;
 		}
-		set => _KeyPressWindow = value;
+		set => _KeyPressWindow = value ?? "";
 	}
 
 	internal string _KeyPressProcId = "";
-	[XmlAttribute] public string KeyPressProcId {
+	[XmlAttribute] public string? KeyPressProcId {
 		get {
 			if (_KeyPressProcId == "") {
 				return null;
 			}
 			return _KeyPressProcId;
 		}
-		set => _KeyPressProcId = value;
+		set => _KeyPressProcId = value ?? "";
 	}
 
 	#endregion
@@ -902,40 +903,40 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _LaunchProcessWindowStyle = Enum.Parse<ProcessWindowStyle>(value);
+		set { if (value is not null) _LaunchProcessWindowStyle = Enum.Parse<ProcessWindowStyle>(value); }
 	}
 
 	internal string _LaunchProcessPathExpression = "";
-	[XmlAttribute] public string LaunchProcessPathExpression {
+	[XmlAttribute] public string? LaunchProcessPathExpression {
 		get {
 			if (_LaunchProcessPathExpression == "") {
 				return null;
 			}
 			return _LaunchProcessPathExpression;
 		}
-		set => _LaunchProcessPathExpression = value;
+		set => _LaunchProcessPathExpression = value ?? "";
 	}
 
 	internal string _LaunchProcessCmdlineExpression = "";
-	[XmlAttribute] public string LaunchProcessCmdlineExpression {
+	[XmlAttribute] public string? LaunchProcessCmdlineExpression {
 		get {
 			if (_LaunchProcessCmdlineExpression == "") {
 				return null;
 			}
 			return _LaunchProcessCmdlineExpression;
 		}
-		set => _LaunchProcessCmdlineExpression = value;
+		set => _LaunchProcessCmdlineExpression = value ?? "";
 	}
 
 	internal string _LaunchProcessWorkingDirExpression = "";
-	[XmlAttribute] public string LaunchProcessWorkingDirExpression {
+	[XmlAttribute] public string? LaunchProcessWorkingDirExpression {
 		get {
 			if (_LaunchProcessWorkingDirExpression == "") {
 				return null;
 			}
 			return _LaunchProcessWorkingDirExpression;
 		}
-		set => _LaunchProcessWorkingDirExpression = value;
+		set => _LaunchProcessWorkingDirExpression = value ?? "";
 	}
 
 	#endregion
@@ -943,7 +944,7 @@ public partial class ActionOld {
 	#region Action specific properties - List variable
 
 	internal ListVariableOpEnum _ListVariableOp { get; set; } = ListVariableOpEnum.Unset;
-	[XmlAttribute] public string ListVariableOp {
+	[XmlAttribute] public string? ListVariableOp {
 		get => _ListVariableOp != ListVariableOpEnum.Unset ? _ListVariableOp.ToString() : null;
 		set {
 			if (Enum.TryParse(value, out ListVariableOpEnum type) || string.IsNullOrEmpty(value)) {
@@ -958,80 +959,80 @@ public partial class ActionOld {
 	}
 
 	internal ListVariableExpTypeEnum _ListVariableExpressionType { get; set; } = ListVariableExpTypeEnum.String;
-	[XmlAttribute] public string ListVariableExpressionType {
+	[XmlAttribute] public string? ListVariableExpressionType {
 		get {
 			if (_ListVariableExpressionType != ListVariableExpTypeEnum.String) {
 				return _ListVariableExpressionType.ToString();
 			}
 			return null;
 		}
-		set => _ListVariableExpressionType = Enum.Parse<ListVariableExpTypeEnum>(value);
+		set { if (value is not null) _ListVariableExpressionType = Enum.Parse<ListVariableExpTypeEnum>(value); }
 	}
 
 	internal string _ListVariableName = "";
-	[XmlAttribute] public string ListVariableName {
+	[XmlAttribute] public string? ListVariableName {
 		get {
 			if (_ListVariableName == "") {
 				return null;
 			}
 			return _ListVariableName;
 		}
-		set => _ListVariableName = value;
+		set => _ListVariableName = value ?? "";
 	}
 
 	internal string _ListVariableExpression = "";
-	[XmlAttribute] public string ListVariableExpression {
+	[XmlAttribute] public string? ListVariableExpression {
 		get {
 			if (_ListVariableExpression == "") {
 				return null;
 			}
 			return _ListVariableExpression;
 		}
-		set => _ListVariableExpression = value;
+		set => _ListVariableExpression = value ?? "";
 	}
 
 	internal string _ListVariableIndex = "";
-	[XmlAttribute] public string ListVariableIndex {
+	[XmlAttribute] public string? ListVariableIndex {
 		get {
 			if (_ListVariableIndex == "") {
 				return null;
 			}
 			return _ListVariableIndex;
 		}
-		set => _ListVariableIndex = value;
+		set => _ListVariableIndex = value ?? "";
 	}
 
 	internal string _ListVariableTarget = "";
-	[XmlAttribute] public string ListVariableTarget {
+	[XmlAttribute] public string? ListVariableTarget {
 		get {
 			if (_ListVariableTarget == "") {
 				return null;
 			}
 			return _ListVariableTarget;
 		}
-		set => _ListVariableTarget = value;
+		set => _ListVariableTarget = value ?? "";
 	}
 
 	internal bool _ListSourcePersist { get; set; }
-	[XmlAttribute] public string ListSourcePersist {
+	[XmlAttribute] public string? ListSourcePersist {
 		get {
 			if (!_ListSourcePersist) {
 				return null;
 			}
 			return _ListSourcePersist.ToString();
 		}
-		set => _ListSourcePersist = bool.Parse(value);
+		set { if (value is not null) _ListSourcePersist = bool.Parse(value); }
 	}
 
 	internal bool _ListTargetPersist { get; set; }
-	[XmlAttribute] public string ListTargetPersist {
+	[XmlAttribute] public string? ListTargetPersist {
 		get {
 			if (!_ListTargetPersist) {
 				return null;
 			}
 			return _ListTargetPersist.ToString();
 		}
-		set => _ListTargetPersist = bool.Parse(value);
+		set { if (value is not null) _ListTargetPersist = bool.Parse(value); }
 	}
 
 	#endregion
@@ -1046,40 +1047,40 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _LogMessageTarget = Enum.Parse<LogEvent.SourceEnum>(value);
+		set { if (value is not null) _LogMessageTarget = Enum.Parse<LogEvent.SourceEnum>(value); }
 	}
 
 	internal string _LogMessageText = "";
-	[XmlAttribute] public string LogMessageText {
+	[XmlAttribute] public string? LogMessageText {
 		get {
 			if (_LogMessageText == "") {
 				return null;
 			}
 			return _LogMessageText;
 		}
-		set => _LogMessageText = value;
+		set => _LogMessageText = value ?? "";
 	}
 
 	internal bool _LogProcess { get; set; }
-	[XmlAttribute] public string LogProcess {
+	[XmlAttribute] public string? LogProcess {
 		get {
 			if (!_LogProcess) {
 				return null;
 			}
 			return _LogProcess.ToString();
 		}
-		set => _LogProcess = bool.Parse(value);
+		set { if (value is not null) _LogProcess = bool.Parse(value); }
 	}
 
 	internal bool _LogProcessACT { get; set; }
-	[XmlAttribute] public string LogProcessACT {
+	[XmlAttribute] public string? LogProcessACT {
 		get {
 			if (!_LogProcessACT) {
 				return null;
 			}
 			return _LogProcessACT.ToString();
 		}
-		set => _LogProcessACT = bool.Parse(value);
+		set { if (value is not null) _LogProcessACT = bool.Parse(value); }
 	}
 
 	internal LogMessageEnum _LogLevel { get; set; } = LogMessageEnum.Error;
@@ -1091,7 +1092,8 @@ public partial class ActionOld {
 			return null;
 		}
 		set {
-			_LogLevel = Enum.Parse<LogMessageEnum>(value);
+			if (value is not null)
+				_LogLevel = Enum.Parse<LogMessageEnum>(value);
 			if ((int)_LogLevel == -1) {
 				_LogLevel = LogMessageEnum.Error;
 			}
@@ -1111,36 +1113,36 @@ public partial class ActionOld {
 	public List<ActionOld> LoopActions = [];
 
 	internal string _LoopDelayExpression = "";
-	[XmlAttribute] public string LoopDelayExpression {
+	[XmlAttribute] public string? LoopDelayExpression {
 		get {
 			if (_LoopDelayExpression == "") {
 				return null;
 			}
 			return _LoopDelayExpression;
 		}
-		set => _LoopDelayExpression = value;
+		set => _LoopDelayExpression = value ?? "";
 	}
 
 	internal string _LoopInitExpression = "0";
-	[XmlAttribute] public string LoopInitExpression {
+	[XmlAttribute] public string? LoopInitExpression {
 		get {
 			if (_LoopInitExpression == "0") {
 				return null;
 			}
 			return _LoopInitExpression;
 		}
-		set => _LoopInitExpression = value;
+		set => _LoopInitExpression = value ?? "";
 	}
 
 	internal string _LoopIncrExpression = "1";
-	[XmlAttribute] public string LoopIncrExpression {
+	[XmlAttribute] public string? LoopIncrExpression {
 		get {
 			if (_LoopIncrExpression == "1") {
 				return null;
 			}
 			return _LoopIncrExpression;
 		}
-		set => _LoopIncrExpression = value;
+		set => _LoopIncrExpression = value ?? "";
 	}
 
 	#endregion
@@ -1155,18 +1157,18 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _MessageBoxIconType = Enum.Parse<MessageBoxIconTypeEnum>(value);
+		set { if (value is not null) _MessageBoxIconType = Enum.Parse<MessageBoxIconTypeEnum>(value); }
 	}
 
 	internal string _MessageBoxText = "";
-	[XmlAttribute] public string MessageBoxText {
+	[XmlAttribute] public string? MessageBoxText {
 		get {
 			if (_MessageBoxText == "") {
 				return null;
 			}
 			return _MessageBoxText;
 		}
-		set => _MessageBoxText = value;
+		set => _MessageBoxText = value ?? "";
 	}
 
 	#endregion
@@ -1181,7 +1183,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _MouseOpType = Enum.Parse<MouseOpEnum>(value);
+		set { if (value is not null) _MouseOpType = Enum.Parse<MouseOpEnum>(value); }
 	}
 
 	internal MouseCoordEnum _MouseCoordType { get; set; } = MouseCoordEnum.Absolute;
@@ -1192,29 +1194,29 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _MouseCoordType = Enum.Parse<MouseCoordEnum>(value);
+		set { if (value is not null) _MouseCoordType = Enum.Parse<MouseCoordEnum>(value); }
 	}
 
 	internal string _MouseX = "0";
-	[XmlAttribute] public string MouseX {
+	[XmlAttribute] public string? MouseX {
 		get {
 			if (_MouseX is "0" or "") {
 				return null;
 			}
 			return _MouseX;
 		}
-		set => _MouseX = value;
+		set => _MouseX = value ?? "";
 	}
 
 	internal string _MouseY = "0";
-	[XmlAttribute] public string MouseY {
+	[XmlAttribute] public string? MouseY {
 		get {
 			if (_MouseY is "0" or "") {
 				return null;
 			}
 			return _MouseY;
 		}
-		set => _MouseY = value;
+		set => _MouseY = value ?? "";
 	}
 
 	#endregion
@@ -1229,18 +1231,18 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _MutexOpType = Enum.Parse<MutexOpEnum>(value);
+		set { if (value is not null) _MutexOpType = Enum.Parse<MutexOpEnum>(value); }
 	}
 
 	internal string _MutexName = "";
-	[XmlAttribute] public string MutexName {
+	[XmlAttribute] public string? MutexName {
 		get {
 			if (_MutexName == "") {
 				return null;
 			}
 			return _MutexName;
 		}
-		set => _MutexName = value;
+		set => _MutexName = value ?? "";
 	}
 
 	#endregion
@@ -1248,25 +1250,25 @@ public partial class ActionOld {
 	#region Action specific properties - Named callback
 
 	internal string _NamedCallbackName = "";
-	[XmlAttribute] public string NamedCallbackName {
+	[XmlAttribute] public string? NamedCallbackName {
 		get {
 			if (_NamedCallbackName == "") {
 				return null;
 			}
 			return _NamedCallbackName;
 		}
-		set => _NamedCallbackName = value;
+		set => _NamedCallbackName = value ?? "";
 	}
 
 	internal string _NamedCallbackParam = "";
-	[XmlAttribute] public string NamedCallbackParam {
+	[XmlAttribute] public string? NamedCallbackParam {
 		get {
 			if (_NamedCallbackParam == "") {
 				return null;
 			}
 			return _NamedCallbackParam;
 		}
-		set => _NamedCallbackParam = value;
+		set => _NamedCallbackParam = value ?? "";
 	}
 
 	#endregion
@@ -1274,69 +1276,69 @@ public partial class ActionOld {
 	#region Action specific properties - OBS
 
 	internal ObsControlTypeEnum _OBSControlType { get; set; } = ObsControlTypeEnum.StartStreaming;
-	[XmlAttribute] public string OBSControlType {
+	[XmlAttribute] public string? OBSControlType {
 		get {
 			if (_OBSControlType != ObsControlTypeEnum.StartStreaming) {
 				return _OBSControlType.ToString();
 			}
 			return null;
 		}
-		set => _OBSControlType = Enum.Parse<ObsControlTypeEnum>(value);
+		set { if (value is not null) _OBSControlType = Enum.Parse<ObsControlTypeEnum>(value); }
 	}
 
 	internal string _OBSEndPoint = "";
-	[XmlAttribute] public string OBSEndPoint {
+	[XmlAttribute] public string? OBSEndPoint {
 		get {
 			if (string.IsNullOrWhiteSpace(_OBSEndPoint)) {
 				return null;
 			}
 			return _OBSEndPoint;
 		}
-		set => _OBSEndPoint = value;
+		set => _OBSEndPoint = value ?? "";
 	}
 
 	internal string _OBSPassword = "";
-	[XmlAttribute] public string OBSPassword {
+	[XmlAttribute] public string? OBSPassword {
 		get {
 			if (string.IsNullOrWhiteSpace(_OBSPassword)) {
 				return null;
 			}
 			return _OBSPassword;
 		}
-		set => _OBSPassword = value;
+		set => _OBSPassword = value ?? "";
 	}
 
 	internal string _OBSSceneName = "";
-	[XmlAttribute] public string OBSSceneName {
+	[XmlAttribute] public string? OBSSceneName {
 		get {
 			if (_OBSSceneName == "") {
 				return null;
 			}
 			return _OBSSceneName;
 		}
-		set => _OBSSceneName = value;
+		set => _OBSSceneName = value ?? "";
 	}
 
 	internal string _OBSSourceName = "";
-	[XmlAttribute] public string OBSSourceName {
+	[XmlAttribute] public string? OBSSourceName {
 		get {
 			if (_OBSSourceName == "") {
 				return null;
 			}
 			return _OBSSourceName;
 		}
-		set => _OBSSourceName = value;
+		set => _OBSSourceName = value ?? "";
 	}
 
 	internal string _OBSJSONPayload = "";
-	[XmlAttribute] public string OBSJSONPayload {
+	[XmlAttribute] public string? OBSJSONPayload {
 		get {
 			if (_OBSJSONPayload == "") {
 				return null;
 			}
 			return _OBSJSONPayload;
 		}
-		set => _OBSJSONPayload = value;
+		set => _OBSJSONPayload = value ?? "";
 	}
 
 	#endregion
@@ -1351,17 +1353,17 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _LSControlType = Enum.Parse<LiveSplitControlTypeEnum>(value);
+		set { if (value is not null) _LSControlType = Enum.Parse<LiveSplitControlTypeEnum>(value); }
 	}
 	internal string _LSCustomPayload = "";
-	[XmlAttribute] public string LiveSplitCustomPayload {
+	[XmlAttribute] public string? LiveSplitCustomPayload {
 		get {
 			if (_LSControlType != LiveSplitControlTypeEnum.CustomPayload) {
 				return null;
 			}
 			return _LSCustomPayload;
 		}
-		set => _LSCustomPayload = value;
+		set => _LSCustomPayload = value ?? "";
 	}
 
 	#endregion
@@ -1369,49 +1371,49 @@ public partial class ActionOld {
 	#region Action specific properties - Play sound
 
 	internal string _PlaySoundFileExpression = "";
-	[XmlAttribute] public string PlaySoundFileExpression {
+	[XmlAttribute] public string? PlaySoundFileExpression {
 		get {
 			if (_PlaySoundFileExpression == "") {
 				return null;
 			}
 			return _PlaySoundFileExpression;
 		}
-		set => _PlaySoundFileExpression = value;
+		set => _PlaySoundFileExpression = value ?? "";
 	}
 
 	internal string _PlaySoundVolumeExpression = "100";
-	[XmlAttribute] public string PlaySoundVolumeExpression {
+	[XmlAttribute] public string? PlaySoundVolumeExpression {
 		get {
 			if (_PlaySoundVolumeExpression == "100") {
 				return null;
 			}
 			return _PlaySoundVolumeExpression;
 		}
-		set => _PlaySoundVolumeExpression = value;
+		set => _PlaySoundVolumeExpression = value ?? "";
 	}
 
 	internal bool _PlaySoundExclusive { get; set; } = true;
-	[XmlAttribute] public string PlaySoundExclusive {
+	[XmlAttribute] public string? PlaySoundExclusive {
 		get {
 			if (_PlaySoundExclusive) {
 				return null;
 			}
 			return _PlaySoundExclusive.ToString();
 		}
-		set => _PlaySoundExclusive = bool.Parse(value);
+		set { if (value is not null) _PlaySoundExclusive = bool.Parse(value); }
 	}
 
 	internal Configuration.AudioRoutingMethodEnum _SoundRouting = Configuration.AudioRoutingMethodEnum.None;
-	[XmlAttribute] public string SoundRouting {
+	[XmlAttribute] public string? SoundRouting {
 		get => _SoundRouting != Configuration.AudioRoutingMethodEnum.None ? _SoundRouting.ToString() : null;
-		set => _SoundRouting = Enum.Parse<Configuration.AudioRoutingMethodEnum>(value);
+		set { if (value is not null) _SoundRouting = Enum.Parse<Configuration.AudioRoutingMethodEnum>(value); }
 	}
 
-	[XmlAttribute] public string PlaySoundMyself // old version compatibility
+	[XmlAttribute] public string? PlaySoundMyself // old version compatibility
 	{
 		get => null;
 		set {
-			if (bool.Parse(value)) {
+			if (value is not null && bool.Parse(value)) {
 				_SoundRouting = Configuration.AudioRoutingMethodEnum.Triggernometry;
 			}
 		}
@@ -1422,63 +1424,63 @@ public partial class ActionOld {
 	#region Action specific properties - Play speech
 
 	internal Configuration.AudioRoutingMethodEnum _TTSRouting = Configuration.AudioRoutingMethodEnum.None;
-	[XmlAttribute] public string TTSRouting {
+	[XmlAttribute] public string? TTSRouting {
 		get => _TTSRouting != Configuration.AudioRoutingMethodEnum.None ? _TTSRouting.ToString() : null;
-		set => _TTSRouting = Enum.Parse<Configuration.AudioRoutingMethodEnum>(value);
+		set { if (value is not null) _TTSRouting = Enum.Parse<Configuration.AudioRoutingMethodEnum>(value); }
 	}
 
-	[XmlAttribute] public string PlaySpeechMyself // old version compatibility
+	[XmlAttribute] public string? PlaySpeechMyself // old version compatibility
 	{
 		get => null;
 		set {
-			if (bool.Parse(value)) {
+			if (value is not null && bool.Parse(value)) {
 				_TTSRouting = Configuration.AudioRoutingMethodEnum.Triggernometry;
 			}
 		}
 	}
 
 	internal string _UseTTSTextExpression = "";
-	[XmlAttribute] public string UseTTSTextExpression {
+	[XmlAttribute] public string? UseTTSTextExpression {
 		get {
 			if (_UseTTSTextExpression == "") {
 				return null;
 			}
 			return _UseTTSTextExpression;
 		}
-		set => _UseTTSTextExpression = value;
+		set => _UseTTSTextExpression = value ?? "";
 	}
 
 	internal string _UseTTSVolumeExpression = "100";
-	[XmlAttribute] public string UseTTSVolumeExpression {
+	[XmlAttribute] public string? UseTTSVolumeExpression {
 		get {
 			if (_UseTTSVolumeExpression == "100") {
 				return null;
 			}
 			return _UseTTSVolumeExpression;
 		}
-		set => _UseTTSVolumeExpression = value;
+		set => _UseTTSVolumeExpression = value ?? "";
 	}
 
 	internal string _UseTTSRateExpression = "0";
-	[XmlAttribute] public string UseTTSRateExpression {
+	[XmlAttribute] public string? UseTTSRateExpression {
 		get {
 			if (_UseTTSRateExpression == "0") {
 				return null;
 			}
 			return _UseTTSRateExpression;
 		}
-		set => _UseTTSRateExpression = value;
+		set => _UseTTSRateExpression = value ?? "";
 	}
 
 	internal bool _UseTTSExclusive { get; set; } = true;
-	[XmlAttribute] public string UseTTSExclusive {
+	[XmlAttribute] public string? UseTTSExclusive {
 		get {
 			if (_UseTTSExclusive) {
 				return null;
 			}
 			return _UseTTSExclusive.ToString();
 		}
-		set => _UseTTSExclusive = bool.Parse(value);
+		set { if (value is not null) _UseTTSExclusive = bool.Parse(value); }
 	}
 
 	#endregion
@@ -1486,25 +1488,25 @@ public partial class ActionOld {
 	#region Action specific properties - Repository
 
 	internal RepositoryOpEnum _RepositoryOp { get; set; } = RepositoryOpEnum.UpdateSelf;
-	[XmlAttribute] public string RepositoryOp {
+	[XmlAttribute] public string? RepositoryOp {
 		get {
 			if (_RepositoryOp != RepositoryOpEnum.UpdateSelf) {
 				return _RepositoryOp.ToString();
 			}
 			return null;
 		}
-		set => _RepositoryOp = Enum.Parse<RepositoryOpEnum>(value);
+		set { if (value is not null) _RepositoryOp = Enum.Parse<RepositoryOpEnum>(value); }
 	}
 
 	internal Guid _RepositoryId { get; set; } = Guid.Empty;
-	[XmlAttribute] public string RepositoryId {
+	[XmlAttribute] public string? RepositoryId {
 		get {
 			if (_RepositoryId != Guid.Empty) {
 				return _RepositoryId.ToString();
 			}
 			return null;
 		}
-		set => _RepositoryId = Guid.Parse(value);
+		set { if (value is not null) _RepositoryId = Guid.Parse(value); }
 	}
 
 	#endregion
@@ -1519,62 +1521,62 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _VariableOp = Enum.Parse<VariableOpEnum>(value);
+		set { if (value is not null) _VariableOp = Enum.Parse<VariableOpEnum>(value); }
 	}
 
 	internal string _VariableName = "";
-	[XmlAttribute] public string VariableName {
+	[XmlAttribute] public string? VariableName {
 		get {
 			if (_VariableName == "") {
 				return null;
 			}
 			return _VariableName;
 		}
-		set => _VariableName = value;
+		set => _VariableName = value ?? "";
 	}
 
 	internal string _VariableJsonTarget = "";
-	[XmlAttribute] public string VariableJsonTarget {
+	[XmlAttribute] public string? VariableJsonTarget {
 		get {
 			if (_VariableJsonTarget == "") {
 				return null;
 			}
 			return _VariableJsonTarget;
 		}
-		set => _VariableJsonTarget = value;
+		set => _VariableJsonTarget = value ?? "";
 	}
 
 	internal string _VariableExpression = "";
-	[XmlAttribute] public string VariableExpression {
+	[XmlAttribute] public string? VariableExpression {
 		get {
 			if (_VariableExpression == "") {
 				return null;
 			}
 			return _VariableExpression;
 		}
-		set => _VariableExpression = value;
+		set => _VariableExpression = value ?? "";
 	}
 
 	internal bool _VariableTargetPersist { get; set; }
-	[XmlAttribute] public string VariableTargetPersist {
+	[XmlAttribute] public string? VariableTargetPersist {
 		get {
 			if (!_VariableTargetPersist) {
 				return null;
 			}
 			return _VariableTargetPersist.ToString();
 		}
-		set => _VariableTargetPersist = bool.Parse(value);
+		set { if (value is not null) _VariableTargetPersist = bool.Parse(value); }
 	}
 
 	internal bool _VariablePersist { get; set; }
-	[XmlAttribute] public string VariablePersist {
+	[XmlAttribute] public string? VariablePersist {
 		get {
 			if (!_VariablePersist) {
 				return null;
 			}
 			return _VariablePersist.ToString();
 		}
-		set => _VariablePersist = bool.Parse(value);
+		set { if (value is not null) _VariablePersist = bool.Parse(value); }
 	}
 
 	#endregion
@@ -1582,102 +1584,102 @@ public partial class ActionOld {
 	#region Action specific properties - Table variable
 
 	internal TableVariableOpEnum _TableVariableOp { get; set; } = TableVariableOpEnum.Unset;
-	[XmlAttribute] public string TableVariableOp {
+	[XmlAttribute] public string? TableVariableOp {
 		get {
 			if (_TableVariableOp != TableVariableOpEnum.Unset) {
 				return _TableVariableOp.ToString();
 			}
 			return null;
 		}
-		set => _TableVariableOp = Enum.Parse<TableVariableOpEnum>(value);
+		set { if (value is not null) _TableVariableOp = Enum.Parse<TableVariableOpEnum>(value); }
 	}
 
 	internal TableVariableExpTypeEnum _TableVariableExpressionType { get; set; } = TableVariableExpTypeEnum.String;
-	[XmlAttribute] public string TableVariableExpressionType {
+	[XmlAttribute] public string? TableVariableExpressionType {
 		get {
 			if (_TableVariableExpressionType != TableVariableExpTypeEnum.String) {
 				return _TableVariableExpressionType.ToString();
 			}
 			return null;
 		}
-		set => _TableVariableExpressionType = Enum.Parse<TableVariableExpTypeEnum>(value);
+		set { if (value is not null) _TableVariableExpressionType = Enum.Parse<TableVariableExpTypeEnum>(value); }
 	}
 
 	internal string _TableVariableName = "";
-	[XmlAttribute] public string TableVariableName {
+	[XmlAttribute] public string? TableVariableName {
 		get {
 			if (_TableVariableName == "") {
 				return null;
 			}
 			return _TableVariableName;
 		}
-		set => _TableVariableName = value;
+		set => _TableVariableName = value ?? "";
 	}
 
 	internal string _TableVariableTarget = "";
-	[XmlAttribute] public string TableVariableTarget {
+	[XmlAttribute] public string? TableVariableTarget {
 		get {
 			if (_TableVariableTarget == "") {
 				return null;
 			}
 			return _TableVariableTarget;
 		}
-		set => _TableVariableTarget = value;
+		set => _TableVariableTarget = value ?? "";
 	}
 
 	internal string _TableVariableExpression = "";
-	[XmlAttribute] public string TableVariableExpression {
+	[XmlAttribute] public string? TableVariableExpression {
 		get {
 			if (_TableVariableExpression == "") {
 				return null;
 			}
 			return _TableVariableExpression;
 		}
-		set => _TableVariableExpression = value;
+		set => _TableVariableExpression = value ?? "";
 	}
 
 	internal string _TableVariableX = "";
-	[XmlAttribute] public string TableVariableX {
+	[XmlAttribute] public string? TableVariableX {
 		get {
 			if (_TableVariableX == "") {
 				return null;
 			}
 			return _TableVariableX;
 		}
-		set => _TableVariableX = value;
+		set => _TableVariableX = value ?? "";
 	}
 
 	internal string _TableVariableY = "";
-	[XmlAttribute] public string TableVariableY {
+	[XmlAttribute] public string? TableVariableY {
 		get {
 			if (_TableVariableY == "") {
 				return null;
 			}
 			return _TableVariableY;
 		}
-		set => _TableVariableY = value;
+		set => _TableVariableY = value ?? "";
 	}
 
 	internal bool _TableSourcePersist { get; set; }
-	[XmlAttribute] public string TableSourcePersist {
+	[XmlAttribute] public string? TableSourcePersist {
 		get {
 			if (!_TableSourcePersist) {
 				return null;
 			}
 			return _TableSourcePersist.ToString();
 		}
-		set => _TableSourcePersist = bool.Parse(value);
+		set { if (value is not null) _TableSourcePersist = bool.Parse(value); }
 	}
 
 	internal bool _TableTargetPersist { get; set; }
-	[XmlAttribute] public string TableTargetPersist {
+	[XmlAttribute] public string? TableTargetPersist {
 		get {
 			if (!_TableTargetPersist) {
 				return null;
 			}
 			return _TableTargetPersist.ToString();
 		}
-		set => _TableTargetPersist = bool.Parse(value);
+		set { if (value is not null) _TableTargetPersist = bool.Parse(value); }
 	}
 
 	#endregion
@@ -1692,7 +1694,7 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _TextAuraOp = Enum.Parse<AuraOpEnum>(value);
+		set { if (value is not null) _TextAuraOp = Enum.Parse<AuraOpEnum>(value); }
 	}
 
 	internal TextAuraAlignmentEnum _TextAuraAlignment { get; set; } = TextAuraAlignmentEnum.MiddleCenter;
@@ -1703,11 +1705,11 @@ public partial class ActionOld {
 			}
 			return null;
 		}
-		set => _TextAuraAlignment = Enum.Parse<TextAuraAlignmentEnum>(value);
+		set { if (value is not null) _TextAuraAlignment = Enum.Parse<TextAuraAlignmentEnum>(value); }
 	}
 
 	internal TextAuraEffectEnum _TextAuraEffect { get; set; } = TextAuraEffectEnum.None;
-	[XmlAttribute] public string TextAuraEffect {
+	[XmlAttribute] public string? TextAuraEffect {
 		get {
 			if (_TextAuraEffect != TextAuraEffectEnum.None) {
 				return _TextAuraEffect.ToString();
@@ -1716,7 +1718,8 @@ public partial class ActionOld {
 		}
 		set {
 			TextAuraEffectEnum tea = 0;
-			var ex = value.Split(' ');
+			if (value is null) return;
+			var ex = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 			foreach (var exx in ex) {
 				tea |= Enum.Parse<TextAuraEffectEnum>(exx.Replace(",", ""));
 			}
@@ -1725,201 +1728,201 @@ public partial class ActionOld {
 	}
 
 	internal float _TextAuraFontSize { get; set; } = 10.0f;
-	[XmlAttribute] public string TextAuraFontSize {
+	[XmlAttribute] public string? TextAuraFontSize {
 		get {
 			if (ActionType != ActionTypeEnum.TextAura) {
 				return null;
 			}
 			return I18n.ThingToString(_TextAuraFontSize);
 		}
-		set => _TextAuraFontSize = float.Parse(value, CultureInfo.InvariantCulture);
+		set { if (value is not null) _TextAuraFontSize = float.Parse(value, CultureInfo.InvariantCulture); }
 	}
 
 	internal string _TextAuraForegroundClInt = "";
-	[XmlAttribute] public string TextAuraForeground {
+	[XmlAttribute] public string? TextAuraForeground {
 		get {
 			if (!string.IsNullOrWhiteSpace(_TextAuraForegroundClInt)) {
 				return _TextAuraForegroundClInt;
 			}
 			return null;
 		}
-		set => _TextAuraForegroundClInt = value;
+		set => _TextAuraForegroundClInt = value ?? "";
 	}
 
 	internal string _TextAuraBackgroundClInt = "";
-	[XmlAttribute] public string TextAuraBackground {
+	[XmlAttribute] public string? TextAuraBackground {
 		get {
 			if (!string.IsNullOrWhiteSpace(_TextAuraBackgroundClInt)) {
 				return _TextAuraBackgroundClInt;
 			}
 			return null;
 		}
-		set => _TextAuraBackgroundClInt = value;
+		set => _TextAuraBackgroundClInt = value ?? "";
 	}
 
 	internal string _TextAuraOutlineClInt = "";
-	[XmlAttribute] public string TextAuraOutline {
+	[XmlAttribute] public string? TextAuraOutline {
 		get {
 			if (!string.IsNullOrWhiteSpace(_TextAuraOutlineClInt)) {
 				return _TextAuraOutlineClInt;
 			}
 			return null;
 		}
-		set => _TextAuraOutlineClInt = value;
+		set => _TextAuraOutlineClInt = value ?? "";
 	}
 
 	internal string _TextAuraName = "";
-	[XmlAttribute] public string TextAuraName {
+	[XmlAttribute] public string? TextAuraName {
 		get {
 			if (_TextAuraName == "") {
 				return null;
 			}
 			return _TextAuraName;
 		}
-		set => _TextAuraName = value;
+		set => _TextAuraName = value ?? "";
 	}
 
 	internal string _TextAuraExpression = "";
-	[XmlAttribute] public string TextAuraExpression {
+	[XmlAttribute] public string? TextAuraExpression {
 		get {
 			if (_TextAuraExpression == "") {
 				return null;
 			}
 			return _TextAuraExpression;
 		}
-		set => _TextAuraExpression = value;
+		set => _TextAuraExpression = value ?? "";
 	}
 
 	internal string _TextAuraXIniExpression = "";
-	[XmlAttribute] public string TextAuraXIniExpression {
+	[XmlAttribute] public string? TextAuraXIniExpression {
 		get {
 			if (_TextAuraXIniExpression == "") {
 				return null;
 			}
 			return _TextAuraXIniExpression;
 		}
-		set => _TextAuraXIniExpression = value;
+		set => _TextAuraXIniExpression = value ?? "";
 	}
 
 	internal string _TextAuraYIniExpression = "";
-	[XmlAttribute] public string TextAuraYIniExpression {
+	[XmlAttribute] public string? TextAuraYIniExpression {
 		get {
 			if (_TextAuraYIniExpression == "") {
 				return null;
 			}
 			return _TextAuraYIniExpression;
 		}
-		set => _TextAuraYIniExpression = value;
+		set => _TextAuraYIniExpression = value ?? "";
 	}
 
 	internal string _TextAuraWIniExpression = "";
-	[XmlAttribute] public string TextAuraWIniExpression {
+	[XmlAttribute] public string? TextAuraWIniExpression {
 		get {
 			if (_TextAuraWIniExpression == "") {
 				return null;
 			}
 			return _TextAuraWIniExpression;
 		}
-		set => _TextAuraWIniExpression = value;
+		set => _TextAuraWIniExpression = value ?? "";
 	}
 
 	internal string _TextAuraHIniExpression = "";
-	[XmlAttribute] public string TextAuraHIniExpression {
+	[XmlAttribute] public string? TextAuraHIniExpression {
 		get {
 			if (_TextAuraHIniExpression == "") {
 				return null;
 			}
 			return _TextAuraHIniExpression;
 		}
-		set => _TextAuraHIniExpression = value;
+		set => _TextAuraHIniExpression = value ?? "";
 	}
 
 	internal string _TextAuraOIniExpression = "";
-	[XmlAttribute] public string TextAuraOIniExpression {
+	[XmlAttribute] public string? TextAuraOIniExpression {
 		get {
 			if (_TextAuraOIniExpression == "") {
 				return null;
 			}
 			return _TextAuraOIniExpression;
 		}
-		set => _TextAuraOIniExpression = value;
+		set => _TextAuraOIniExpression = value ?? "";
 	}
 
 	internal string _TextAuraXTickExpression = "";
-	[XmlAttribute] public string TextAuraXTickExpression {
+	[XmlAttribute] public string? TextAuraXTickExpression {
 		get {
 			if (_TextAuraXTickExpression == "") {
 				return null;
 			}
 			return _TextAuraXTickExpression;
 		}
-		set => _TextAuraXTickExpression = value;
+		set => _TextAuraXTickExpression = value ?? "";
 	}
 
 	internal string _TextAuraYTickExpression = "";
-	[XmlAttribute] public string TextAuraYTickExpression {
+	[XmlAttribute] public string? TextAuraYTickExpression {
 		get {
 			if (_TextAuraYTickExpression == "") {
 				return null;
 			}
 			return _TextAuraYTickExpression;
 		}
-		set => _TextAuraYTickExpression = value;
+		set => _TextAuraYTickExpression = value ?? "";
 	}
 
 	internal string _TextAuraWTickExpression = "";
-	[XmlAttribute] public string TextAuraWTickExpression {
+	[XmlAttribute] public string? TextAuraWTickExpression {
 		get {
 			if (_TextAuraWTickExpression == "") {
 				return null;
 			}
 			return _TextAuraWTickExpression;
 		}
-		set => _TextAuraWTickExpression = value;
+		set => _TextAuraWTickExpression = value ?? "";
 	}
 
 	internal string _TextAuraHTickExpression = "";
-	[XmlAttribute] public string TextAuraHTickExpression {
+	[XmlAttribute] public string? TextAuraHTickExpression {
 		get {
 			if (_TextAuraHTickExpression == "") {
 				return null;
 			}
 			return _TextAuraHTickExpression;
 		}
-		set => _TextAuraHTickExpression = value;
+		set => _TextAuraHTickExpression = value ?? "";
 	}
 
 	internal string _TextAuraOTickExpression = "";
-	[XmlAttribute] public string TextAuraOTickExpression {
+	[XmlAttribute] public string? TextAuraOTickExpression {
 		get {
 			if (_TextAuraOTickExpression == "") {
 				return null;
 			}
 			return _TextAuraOTickExpression;
 		}
-		set => _TextAuraOTickExpression = value;
+		set => _TextAuraOTickExpression = value ?? "";
 	}
 
 	internal string _TextAuraTTLTickExpression = "";
-	[XmlAttribute] public string TextAuraTTLTickExpression {
+	[XmlAttribute] public string? TextAuraTTLTickExpression {
 		get {
 			if (_TextAuraTTLTickExpression == "") {
 				return null;
 			}
 			return _TextAuraTTLTickExpression;
 		}
-		set => _TextAuraTTLTickExpression = value;
+		set => _TextAuraTTLTickExpression = value ?? "";
 	}
 
 	internal string _TextAuraFontName = "";
-	[XmlAttribute] public string TextAuraFontName {
+	[XmlAttribute] public string? TextAuraFontName {
 		get {
 			if (_TextAuraFontName == "" || ActionType != ActionTypeEnum.TextAura) {
 				return null;
 			}
 			return _TextAuraFontName;
 		}
-		set => _TextAuraFontName = value;
+		set => _TextAuraFontName = value ?? "";
 	}
 
 	#endregion
@@ -1927,68 +1930,68 @@ public partial class ActionOld {
 	#region Action specific properties - Trigger operation
 
 	internal TriggerZoneTypeEnum _TriggerZoneType { get; set; } = TriggerZoneTypeEnum.ZoneName;
-	[XmlAttribute] public string TriggerZoneType {
+	[XmlAttribute] public string? TriggerZoneType {
 		get {
 			if (_TriggerZoneType != TriggerZoneTypeEnum.ZoneName) {
 				return _TriggerZoneType.ToString();
 			}
 			return null;
 		}
-		set => _TriggerZoneType = Enum.Parse<TriggerZoneTypeEnum>(value);
+		set { if (value is not null) _TriggerZoneType = Enum.Parse<TriggerZoneTypeEnum>(value); }
 	}
 
 	internal TriggerOpEnum _TriggerOp { get; set; } = TriggerOpEnum.FireTrigger;
-	[XmlAttribute] public string TriggerOp {
+	[XmlAttribute] public string? TriggerOp {
 		get {
 			if (_TriggerOp != TriggerOpEnum.FireTrigger) {
 				return _TriggerOp.ToString();
 			}
 			return null;
 		}
-		set => _TriggerOp = Enum.Parse<TriggerOpEnum>(value);
+		set { if (value is not null) _TriggerOp = Enum.Parse<TriggerOpEnum>(value); }
 	}
 
 	internal Guid _TriggerId { get; set; } = Guid.Empty;
-	[XmlAttribute] public string TriggerId {
+	[XmlAttribute] public string? TriggerId {
 		get {
 			if (_TriggerId != Guid.Empty) {
 				return _TriggerId.ToString();
 			}
 			return null;
 		}
-		set => _TriggerId = Guid.Parse(value);
+		set { if (value is not null) _TriggerId = Guid.Parse(value); }
 	}
 
 	internal string _TriggerText = "";
-	[XmlAttribute] public string TriggerText {
+	[XmlAttribute] public string? TriggerText {
 		get {
 			if (_TriggerText == "") {
 				return null;
 			}
 			return _TriggerText;
 		}
-		set => _TriggerText = value;
+		set => _TriggerText = value ?? "";
 	}
 
 	internal string _TriggerZone = "";
-	[XmlAttribute] public string TriggerZone {
+	[XmlAttribute] public string? TriggerZone {
 		get {
 			if (_TriggerZone == "") {
 				return null;
 			}
 			return _TriggerZone;
 		}
-		set => _TriggerZone = value;
+		set => _TriggerZone = value ?? "";
 	}
 
 	internal string _TriggerTagRegex = "";
-	[XmlAttribute] public string TriggerTagRegex {
+	[XmlAttribute] public string? TriggerTagRegex {
 		get => string.IsNullOrWhiteSpace(_TriggerTagRegex) ? null : _TriggerTagRegex;
-		set => _TriggerTagRegex = value;
+		set => _TriggerTagRegex = value ?? "";
 	}
 
 	[XmlIgnore] internal TriggerForceTypeEnum _TriggerForceType { get; set; } = TriggerForceTypeEnum.NoSkip;
-	[XmlAttribute] public string TriggerForce {
+	[XmlAttribute] public string? TriggerForce {
 		get {
 			var ex = new List<string>();
 			if (_TriggerForceType == TriggerForceTypeEnum.SkipAll) {
@@ -2053,58 +2056,58 @@ public partial class ActionOld {
 	#region Action specific properties - Window message
 
 	internal string _WmsgProcId = "";
-	[XmlAttribute] public string WmsgProcId {
+	[XmlAttribute] public string? WmsgProcId {
 		get {
 			if (_WmsgProcId == "") {
 				return null;
 			}
 			return _WmsgProcId;
 		}
-		set => _WmsgProcId = value;
+		set => _WmsgProcId = value ?? "";
 	}
 
 	internal string _WmsgTitle = "";
-	[XmlAttribute] public string WmsgTitle {
+	[XmlAttribute] public string? WmsgTitle {
 		get {
 			if (_WmsgTitle == "") {
 				return null;
 			}
 			return _WmsgTitle;
 		}
-		set => _WmsgTitle = value;
+		set => _WmsgTitle = value ?? "";
 	}
 
 	internal string _WmsgCode = "";
-	[XmlAttribute] public string WmsgCode {
+	[XmlAttribute] public string? WmsgCode {
 		get {
 			if (_WmsgCode == "") {
 				return null;
 			}
 			return _WmsgCode;
 		}
-		set => _WmsgCode = value;
+		set => _WmsgCode = value ?? "";
 	}
 
 	internal string _WmsgWparam = "";
-	[XmlAttribute] public string WmsgWparam {
+	[XmlAttribute] public string? WmsgWparam {
 		get {
 			if (_WmsgWparam == "") {
 				return null;
 			}
 			return _WmsgWparam;
 		}
-		set => _WmsgWparam = value;
+		set => _WmsgWparam = value ?? "";
 	}
 
 	internal string _WmsgLparam = "";
-	[XmlAttribute] public string WmsgLparam {
+	[XmlAttribute] public string? WmsgLparam {
 		get {
 			if (_WmsgLparam == "") {
 				return null;
 			}
 			return _WmsgLparam;
 		}
-		set => _WmsgLparam = value;
+		set => _WmsgLparam = value ?? "";
 	}
 
 	#endregion

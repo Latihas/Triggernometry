@@ -12,11 +12,11 @@ public partial class DataGridViewEx : DataGridView {
 		CellEndEdit += DataGridViewEx_CellEndEdit;
 	}
 
-	private void DataGridViewEx_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e) {
+	private void DataGridViewEx_CellBeginEdit(object? sender, DataGridViewCellCancelEventArgs e) {
 		CellEdited = Rows[e.RowIndex].Cells[e.ColumnIndex];
 	}
 
-	private void DataGridViewEx_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
+	private void DataGridViewEx_CellEndEdit(object? sender, DataGridViewCellEventArgs e) {
 		CellEdited = null;
 	}
 

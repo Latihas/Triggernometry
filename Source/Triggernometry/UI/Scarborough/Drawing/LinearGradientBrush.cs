@@ -44,8 +44,8 @@ public class LinearGradientBrush : IDisposable, IBrush {
 	/// <param name="device">The Graphics device.</param>
 	/// <param name="colors">The colors</param>
 	public LinearGradientBrush(RenderTarget device, params Color[] colors) {
-		if (device == null) throw new ArgumentNullException(nameof(device));
-		if (colors == null || colors.Length == 0) throw new ArgumentNullException(nameof(colors));
+        ArgumentNullException.ThrowIfNull(device);
+        if (colors == null || colors.Length == 0) throw new ArgumentNullException(nameof(colors));
 
 		var position = 0.0f;
 		var stepSize = 1.0f / colors.Length;

@@ -30,58 +30,52 @@ public sealed class ConditionSingle : ConditionComponent {
 		ListDoesNotContain
 	}
 
-	private string _ExpressionL;
-	private ExprTypeEnum _ExpressionTypeL;
-	private string _ExpressionR;
-	private ExprTypeEnum _ExpressionTypeR;
-	private CndTypeEnum _ConditionType;
-
 
 	[XmlAttribute] public string ExpressionL {
-		get => _ExpressionL;
+		get;
 		set {
-			if (value != _ExpressionL) {
-				_ExpressionL = value;
+			if (value != field) {
+				field = value;
 				TriggerOnPropertyChange();
 			}
 		}
 	}
 
 	[XmlAttribute] public ExprTypeEnum ExpressionTypeL {
-		get => _ExpressionTypeL;
+		get;
 		set {
-			if (value != _ExpressionTypeL) {
-				_ExpressionTypeL = value;
+			if (value != field) {
+				field = value;
 				TriggerOnPropertyChange();
 			}
 		}
 	}
 
 	[XmlAttribute] public string ExpressionR {
-		get => _ExpressionR;
+		get;
 		set {
-			if (value != _ExpressionR) {
-				_ExpressionR = value;
+			if (value != field) {
+				field = value;
 				TriggerOnPropertyChange();
 			}
 		}
 	}
 
 	[XmlAttribute] public ExprTypeEnum ExpressionTypeR {
-		get => _ExpressionTypeR;
+		get;
 		set {
-			if (value != _ExpressionTypeR) {
-				_ExpressionTypeR = value;
+			if (value != field) {
+				field = value;
 				TriggerOnPropertyChange();
 			}
 		}
 	}
 
 	[XmlAttribute] public CndTypeEnum ConditionType {
-		get => _ConditionType;
+		get;
 		set {
-			if (value != _ConditionType) {
-				_ConditionType = value;
+			if (value != field) {
+				field = value;
 				TriggerOnPropertyChange();
 			}
 		}

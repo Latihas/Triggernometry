@@ -32,17 +32,17 @@ public class RepositoryList {
 			xs.Serialize(ms, this, ns);
 			ms.Seek(0, SeekOrigin.Begin);
 			buf = new byte[ms.Length];
-			ms.Read(buf, 0, (int)ms.Length);
+			ms.ReadExactly(buf, 0, (int)ms.Length);
 		}
 		return Encoding.UTF8.GetString(buf);
 	}
 
-	public static RepositoryList Unserialize(string src) {
+	public static RepositoryList? Unserialize(string src) {
 		try {
 			var xs = new XmlSerializer(typeof(RepositoryList));
 			using var ms = new MemoryStream(Encoding.UTF8.GetBytes(src));
-			return (RepositoryList)xs.Deserialize(ms);
-		} catch (Exception) {
+			return (RepositoryList?)xs.Deserialize(ms);
+		} catch (Exception) {//
 		}
 		return null;
 	}

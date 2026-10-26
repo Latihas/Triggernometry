@@ -55,7 +55,7 @@ public class StickyWindow : GraphicsWindow {
 	/// <param name="height">The height of the window.</param>
 	/// <param name="parentWindow">An IntPtr representing the parent windows handle.</param>
 	/// <param name="device">Optionally specify a Graphics device to use.</param>
-	public StickyWindow(int x, int y, int width, int height, IntPtr parentWindow, Graphics device = null) : base(x, y, width, height, device) {
+	public StickyWindow(int x, int y, int width, int height, IntPtr parentWindow, Graphics? device = null) : base(x, y, width, height, device) {
 		if (!User32.IsWindow(parentWindow)) throw new ArgumentOutOfRangeException(nameof(parentWindow));
 
 		ParentWindowHandle = parentWindow;

@@ -150,7 +150,7 @@ public class ActionObsControl : ActionBase {
 		}
 	}
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 

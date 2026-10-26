@@ -64,12 +64,11 @@ internal class ObsController : IDisposable {
 		}
 	}
 
-	private Process _obsProc;
 	private Process ObsProc {
-		get => _obsProc;
+		get;
 		set {
-			_obsProc?.Dispose();
-			_obsProc = value;
+			field?.Dispose();
+			field = value;
 		}
 	}
 	private DateTime _lastChecked;
@@ -151,7 +150,7 @@ internal class ObsController : IDisposable {
 		SendRequestJson(json);
 	}
 
-	private void WSConnection_OnMessage(object sender, MessageEventArgs e) {
+	private void WSConnection_OnMessage(object? sender, MessageEventArgs e) {
 		var message = JsonSerializer.Deserialize<Message>(e.Data);
 		switch ((OpCode)message.op) {
 			case OpCode.Hello:

@@ -54,7 +54,7 @@ public class ActionMessageBox : ActionBase {
 
 	internal override string DescribeImplementation() => I18n.Translate($"internal/Action/descmsgbox{Icon}", "show a message box saying ({0}) with icon (" + Icon + ")", Text);
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 

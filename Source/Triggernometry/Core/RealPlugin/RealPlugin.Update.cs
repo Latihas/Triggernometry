@@ -61,7 +61,7 @@ public partial class RealPlugin {
 		[XmlIgnore] public Version Version { get; set; }
 
 		[XmlAttribute("Version")] public string Xml_Version {
-			get => Version?.ToString();
+			get => Version.ToString();
 			set => Version = Version.Parse(value);
 		}
 
@@ -72,7 +72,7 @@ public partial class RealPlugin {
 		[XmlIgnore] public Version LowestAllowedVersion { get; set; }
 
 		[XmlAttribute("LowestAllowedVersion")] public string Xml_LowestAllowedVersion {
-			get => LowestAllowedVersion?.ToString();
+			get => LowestAllowedVersion.ToString();
 			set => LowestAllowedVersion = Version.Parse(value);
 		}
 

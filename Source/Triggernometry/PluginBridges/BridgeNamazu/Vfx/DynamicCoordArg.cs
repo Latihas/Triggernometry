@@ -58,10 +58,9 @@ internal sealed class DynamicCoordArg {
 	}
 
 	public static DynamicCoordArg FromCoord(XIVCoord coord) {
-		if (coord == null)
-			throw new ArgumentNullException(nameof(coord));
+        ArgumentNullException.ThrowIfNull(coord);
 
-		return new DynamicCoordArg {
+        return new DynamicCoordArg {
 			Kind = CoordArgKind.Fixed,
 			FixedCoord = coord
 		};
@@ -73,10 +72,9 @@ internal sealed class DynamicCoordArg {
 	};
 
 	private static DynamicCoordArg FromCoordinateSelector(XIVCoord coord) {
-		if (coord == null)
-			throw new ArgumentNullException(nameof(coord));
+        ArgumentNullException.ThrowIfNull(coord);
 
-		return new DynamicCoordArg {
+        return new DynamicCoordArg {
 			Kind = CoordArgKind.CoordinateSelector,
 			FixedCoord = coord
 		};

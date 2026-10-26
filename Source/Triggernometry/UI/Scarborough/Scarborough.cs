@@ -497,10 +497,10 @@ public class Scarborough : IDisposable {
 		});
 	}
 
-	private void Render(RenderCollection rc) {
+	private void Render(RenderCollection rc_) {
 		renderItemsToRemove.Clear();
 		deferredMessages.Clear();
-		foreach (var si in rc.items) {
+		foreach (var si in rc_.items) {
 			try {
 				si.Render();
 			} catch (Exception ex) {
@@ -553,13 +553,13 @@ public class Scarborough : IDisposable {
 					lock (textitems) textitems.Remove(myKey);
 				}
 				si.Dispose();
-				rc.items.Remove(si);
+				rc_.items.Remove(si);
 			}
 		}
 		if (drawItemsDirty) {
 			if (IsImGuiRenderer) {
 				drawItems.Clear();
-				drawItems.AddRange(rc.items);
+				drawItems.AddRange(rc_.items);
 				drawItems.Sort((a, b) => a.Ordinal.CompareTo(b.Ordinal));
 			} else {
 				drawItems.Clear();
@@ -623,7 +623,7 @@ public class Scarborough : IDisposable {
 	}
 
 	public class DeferredMessage {
-		public Context ctx { get; set; }
+		public Context? ctx { get; set; }
 		public RealPlugin plug { get; set; }
 		public RealPlugin.DebugLevelEnum level { get; set; } = RealPlugin.DebugLevelEnum.None;
 		public string Message { get; set; } = "";

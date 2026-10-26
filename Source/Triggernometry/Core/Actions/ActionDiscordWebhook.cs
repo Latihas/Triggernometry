@@ -62,9 +62,8 @@ public class ActionDiscordWebhook : ActionBase {
 		return I18n.Translate("internal/Action/descdiscordmsg", "send message ({0}) to Discord webhook ({1})", Message, WebhookURL);
 	}
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
-		var plug = ctx.Plugin;
 
 		var msg = ctx.EvaluateStringExpression(ActionContextLogger, ctx, Message);
 		var url = ctx.EvaluateStringExpression(ActionContextLogger, ctx, WebhookURL);

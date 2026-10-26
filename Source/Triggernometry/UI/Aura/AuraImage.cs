@@ -9,24 +9,22 @@ namespace Triggernometry.UI.Aura;
 internal sealed class AuraImage : Aura {
 	internal string ImageFilenameExpression { get; set; }
 
-	private string _ImageFileName;
 	internal string ImageFileName {
-		get => _ImageFileName;
+		get;
 		set {
-			if (value != _ImageFileName) {
+			if (value != field) {
 				Changed = true;
-				_ImageFileName = value;
+				field = value;
 			}
 		}
 	}
 
-	private PictureBoxSizeMode _Display;
 	internal PictureBoxSizeMode Display {
-		get => _Display;
+		get;
 		set {
-			if (value != _Display) {
+			if (value != field) {
 				Changed = true;
-				_Display = value;
+				field = value;
 			}
 		}
 	}

@@ -7,7 +7,7 @@ using Triggernometry.Localization;
 namespace Triggernometry.PluginBridges;
 
 public static class BridgeCactbot {
-	public static JObject LoadCactbotOptions() {
+	public static JObject? LoadCactbotOptions() {
 		try {
 			return ModuleEvents.CallOverlayHandler(new JObject {
 				["call"] = "cactbotLoadData",
@@ -19,10 +19,9 @@ public static class BridgeCactbot {
 	}
 
 	public static void SaveCactbotOptions(JObject config) {
-		if (config == null)
-			throw new ArgumentNullException(nameof(config));
+        ArgumentNullException.ThrowIfNull(config);
 
-		ModuleEvents.CallOverlayHandler(new JObject {
+        ModuleEvents.CallOverlayHandler(new JObject {
 			["call"] = "cactbotSaveData",
 			["overlay"] = "options",
 			["data"] = config["data"]
@@ -57,11 +56,8 @@ public static class BridgeCactbot {
 	}
 
 	public static bool DisableTriggerSetTts(JObject config, string triggerSetName) {
-		if (config == null)
-			throw new ArgumentNullException(nameof(config));
-
-		if (string.IsNullOrWhiteSpace(triggerSetName))
-			return false;
+        ArgumentNullException.ThrowIfNull(config);
+        if (string.IsNullOrWhiteSpace(triggerSetName)) return false;
 
 		triggerSetName = triggerSetName.Trim();
 
@@ -69,8 +65,7 @@ public static class BridgeCactbot {
 
 		var current = triggerSet.Value<string>("Output");
 		var newOption = GetDisabledTtsOption(current);
-		if (newOption == null)
-			return false;
+		if (newOption == null) return false;
 
 		triggerSet["Output"] = newOption;
 		RealPlugin.Instance.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Custom,
@@ -85,25 +80,15 @@ public static class BridgeCactbot {
 			.GetOrCreate("triggerSets")
 			.GetOrCreate(triggerSetName); // e.g. FuturesRewrittenUltimate
 
-	private static string GetDisabledTtsOption(string current) {
-		switch (current) {
-			case "ttsOnly":
-				return "disabled";
-
-			case null:
-			case "default":
-			case "ttsAndText":
-				return "textOnly";
-
-			default:
-				return null;
-		}
-	}
+	private static string? GetDisabledTtsOption(string? current) => current switch {
+		"ttsOnly" => "disabled", 
+		null or "default" or "ttsAndText" => "textOnly",
+		_ => null
+	};
 
 	public static JObject GetOrCreate(this JObject parent, string property) {
-		if (parent == null)
-			throw new ArgumentNullException(nameof(parent));
-		if (parent[property] is JObject child)
+        ArgumentNullException.ThrowIfNull(parent);
+        if (parent[property] is JObject child)
 			return child;
 		child = new JObject();
 		parent[property] = child;

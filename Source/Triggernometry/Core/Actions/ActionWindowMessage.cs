@@ -90,7 +90,7 @@ public class ActionWindowMessage : ActionBase {
 		return I18n.Translate("internal/Action/descwmsg", "Send message ({0}) wparam ({1}) lparam ({2}) to {3}", MessageId, Wparam, Lparam, target);
 	}
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 

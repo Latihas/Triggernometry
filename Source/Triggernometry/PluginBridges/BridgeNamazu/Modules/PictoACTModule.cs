@@ -88,12 +88,11 @@ public partial class PictoACTModule : ModuleBase {
 
 	private void SafeExecute(StaticVfxArgs args) {
 		try {
-			if (args == null)
-				throw new ArgumentNullException(nameof(args));
+            ArgumentNullException.ThrowIfNull(args);
 
-			// todo 应该放进 staticvfxargs
-			// 尚未实现 shouldLog
-			var shouldLog = args.Raw?.TryGet("Log", out var rawLog) == true && rawLog.ParseData<bool>(); // default false
+            // todo 应该放进 staticvfxargs
+            // 尚未实现 shouldLog
+            var shouldLog = args.Raw?.TryGet("Log", out var rawLog) == true && rawLog.ParseData<bool>(); // default false
 
 			switch (args.Action) {
 				case StaticVfxAction.Create:
@@ -281,7 +280,7 @@ public partial class PictoACTModule : ModuleBase {
 
 			pos0 = args.Pos.FixedCoord.Duplicate();
 		}
-		pos0 = pos0 ?? new CartesianCoord(0, 0, 0);
+		pos0 ??= new CartesianCoord(0, 0, 0);
 
 		var θ0 = args.TransformNorthAngle ?? -PI;
 

@@ -25,17 +25,15 @@ public class NamazuPlugin(PostNamazu.PostNamazu plugin) {
 	public NamazuModule SendKeyModule => GetOriginalModuleByName("SendKey");
 	public NamazuModule WayMarkModule => GetOriginalModuleByName("WayMark");
 
-	private GreyMagicExternalProcessMemory _Memory;
-	public GreyMagicExternalProcessMemory Memory => _Memory ??= new GreyMagicExternalProcessMemory();
+	public GreyMagicExternalProcessMemory Memory => field ??= new GreyMagicExternalProcessMemory();
 
-	private NamazuScanner _SigScanner;
 	public NamazuScanner SigScanner {
 		get {
 			var current = _plugin.SigScanner;
-			if (_SigScanner?.RawScanner != current) {
-				_SigScanner = current == null ? null : new NamazuScanner(current);
+			if (field?.RawScanner != current) {
+				field = current == null ? null : new NamazuScanner(current);
 			}
-			return _SigScanner;
+			return field;
 		}
 	}
 	public bool IsReady => true;

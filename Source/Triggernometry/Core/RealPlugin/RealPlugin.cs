@@ -106,6 +106,7 @@ public partial class RealPlugin {
 	internal LiveSplitController? _livesplit;
 	internal CancellationTokenSource? cts;
 	internal Lock ctslock = new();
+	internal BackgroundActionQueue BackgroundActions { get; } = new();
 	// public Form mainform { get; set; }
 	internal int MinX = int.MaxValue, MinY = int.MaxValue, MaxX = int.MinValue, MaxY = int.MinValue;
 
@@ -149,6 +150,7 @@ public partial class RealPlugin {
 	}
 
 	public static void ResetPlugin(IPluginLog _log) {
+		_instance?.BackgroundActions.CompleteAndWait();
 		_instance = new RealPlugin();
 		Log = _log;
 	}
@@ -213,7 +215,7 @@ public partial class RealPlugin {
 		// MessageBox.Show(ui, text, I18n.Translate("internal/Plugin/exception", "Exception"), MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 
-	private void FixDuplicateFolderReferences(Dictionary<Guid, List<Folder>> references, Configuration c, Folder f) {
+	private void FixDuplicateFolderReferences(Dictionary<Guid, List<Folder>>? references, Configuration c, Folder? f) {
 		if (f == null) {
 			var existing = new Dictionary<Guid, List<Folder>>();
 			foreach (var sf in c.Root.Folders) {
@@ -377,6 +379,7 @@ public partial class RealPlugin {
 	}
 
 	public void DeInitPlugin() {
+		BackgroundActions.CompleteAndWait();
 		BridgeFFXIV.ZoneChanged -= ZoneChangeDelegate;
 		// ui?.CloseForms();
 		if (_ep != null) {

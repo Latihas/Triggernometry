@@ -420,12 +420,11 @@ public partial class ExpressionTextBox : UserControl {
 		set => Expression = value;
 	}
 
-	private bool _IsPersistent;
 	[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 	public bool IsPersistent {
-		get => _IsPersistent;
+		get;
 		set {
-			_IsPersistent = value;
+			field = value;
 			UpdateBackground();
 		}
 	}
@@ -472,7 +471,6 @@ public partial class ExpressionTextBox : UserControl {
 	};
 
 	private bool _triedToGetUiContext = false;
-	private Context _uiContext;
 
 	/// <summary> For autofilling. </summary>
 	// to-do: replace the logic using the static RealPlugin instance
@@ -480,8 +478,8 @@ public partial class ExpressionTextBox : UserControl {
 	internal Context UiContext {
 		get =>
 			// Del
-			_uiContext ?? Context.Unbound;
-		set => _uiContext = value;
+			field ?? Context.Unbound;
+		set;
 	}
 
 	// record all the capture groups and combine with prefixes
@@ -496,7 +494,7 @@ public partial class ExpressionTextBox : UserControl {
 		}
 	}
 
-	private static HashSet<string> _currentRegexGroupsAndPrefixes;
+	private static HashSet<string>? _currentRegexGroupsAndPrefixes;
 	private static HashSet<string> CurrentRegexGroupsAndPrefixes {
 		get // lazy loading
 		{
@@ -522,7 +520,7 @@ public partial class ExpressionTextBox : UserControl {
 
 	public delegate void EnterDelegate();
 
-	public event EnterDelegate OnEnterKeyHit;
+	public event EnterDelegate? OnEnterKeyHit;
 	public IButtonControl AcceptButton;
 	public IButtonControl CancelButton;
 
@@ -577,15 +575,15 @@ public partial class ExpressionTextBox : UserControl {
 		UiContext = uiContext;
 	}
 
-	private void ExpressionTextBox_LostFocus(object sender, EventArgs e) {
+	private void ExpressionTextBox_LostFocus(object? sender, EventArgs e) {
 		HideAutocomplete();
 	}
 
-	private void ExpressionTextBox_Leave(object sender, EventArgs e) {
+	private void ExpressionTextBox_Leave(object? sender, EventArgs e) {
 		HideAutocomplete();
 	}
 
-	private void ExpressionTextBox_Disposed(object sender, EventArgs e) {
+	private void ExpressionTextBox_Disposed(object? sender, EventArgs e) {
 		HideAutocomplete();
 	}
 
@@ -642,17 +640,17 @@ public partial class ExpressionTextBox : UserControl {
 		}
 	}
 
-	private void ListBox1_DoubleClick(object sender, EventArgs e) {
+	private void ListBox1_DoubleClick(object? sender, EventArgs e) {
 		if (AutocompleteActive()) {
 			ApplyAutoComplete();
 		}
 	}
 
-	private void ListBox1_MouseDown(object sender, EventArgs e) {
+	private void ListBox1_MouseDown(object? sender, EventArgs e) {
 		textBox1.Focus();
 	}
 
-	private void Acf_GotFocus(object sender, EventArgs e) {
+	private void Acf_GotFocus(object? sender, EventArgs e) {
 		textBox1.Focus();
 	}
 
@@ -682,7 +680,7 @@ public partial class ExpressionTextBox : UserControl {
 		}
 	}
 
-	private void TextBox1_KeyDown(object sender, KeyEventArgs e) {
+	private void TextBox1_KeyDown(object? sender, KeyEventArgs e) {
 		if (e.KeyData is Keys.Up or Keys.Down or Keys.PageDown or Keys.PageUp) {
 			if (AutocompleteActive()) {
 				if (e.KeyData == Keys.Up) {
@@ -727,7 +725,7 @@ public partial class ExpressionTextBox : UserControl {
 		}
 	}
 
-	private void TextBox1_KeyPress(object sender, KeyPressEventArgs e) {
+	private void TextBox1_KeyPress(object? sender, KeyPressEventArgs e) {
 		if (textBox1.ReadOnly) return;
 		if (e.KeyChar == Convert.ToChar(Keys.Enter)) {
 			e.Handled = true;
@@ -873,7 +871,7 @@ public partial class ExpressionTextBox : UserControl {
 		}
 	}
 
-	private void TextBox1_TextChanged(object sender, EventArgs e) {
+	private void TextBox1_TextChanged(object? sender, EventArgs e) {
 		UpdateBackground();
 		if (textBox1.Multiline) {
 			MultiLineAdjustHeight();
@@ -896,7 +894,7 @@ public partial class ExpressionTextBox : UserControl {
 		if (!textBox1.Focused) return;
 
 		var temp = textBox1.Text[..textBox1.SelectionStart];
-		IEnumerable<string> matchedStrings = null;
+		IEnumerable<string>? matchedStrings = null;
 		suffix = "";
 		isNameAutocomplete = false;
 
@@ -1218,11 +1216,11 @@ public partial class ExpressionTextBox : UserControl {
 		HideAutocomplete();
 	}
 
-	private void panel1_Click(object sender, EventArgs e) {
+	private void panel1_Click(object? sender, EventArgs e) {
 		ToggleExpand();
 	}
 
-	private void panel1_DoubleClick(object sender, EventArgs e) {
+	private void panel1_DoubleClick(object? sender, EventArgs e) {
 		ToggleExpand();
 	}
 
@@ -1253,7 +1251,7 @@ public partial class ExpressionTextBox : UserControl {
 
 	// Prevent pasting a hidden \n (usually from ACT loglines) into the txtbox
 	// Did not use WinProc since there are some regular TextBoxes in the forms besides ExpTxtBox.
-	public static void ReplaceIncompleteLineBreaksInClipboard(object sender, EventArgs e) {
+	public static void ReplaceIncompleteLineBreaksInClipboard(object? sender, EventArgs e) {
 		try {
 			if (Clipboard.ContainsText()) {
 				var clipboardText = Clipboard.GetText();

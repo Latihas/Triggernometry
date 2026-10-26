@@ -19,7 +19,7 @@ public class Polygon {
 	public Polygon(IEnumerable<Vector2> vertices) : this(vertices?.ToList()) {
 	}
 
-	public Polygon(List<Vector2> vertexList) {
+	public Polygon(List<Vector2>? vertexList) {
 		if (vertexList == null || vertexList.Count < 3)
 			throw new ArgumentException(I18n.Translate("internal/Polygon/toofewvertices", "A polygon requires at least 3 vertices."));
 		var n = vertexList.Count;
@@ -71,7 +71,7 @@ public class Polygon {
 		var A1B2 = b2 - a1;
 		var B1A1 = -A1B1;
 		var B1A2 = a2 - b1;
-		var tolerance = 1e-5;
+		const double tolerance = 1e-5;
 		return Cross(A1A2, A1B1) * Cross(A1A2, A1B2) < -tolerance && // b1、b2 在 a1-a2 的两侧
 		       Cross(B1B2, B1A1) * Cross(B1B2, B1A2) < -tolerance; // a1、a2 在 b1-b2 的两侧
 	}
@@ -107,7 +107,7 @@ public class Polygon {
 				                 Cross(v1 - v2, v3 - v2) == 0;
 				if (!degenerate) {
 					// A convex vertex is an ear only if no other vertex lies in its triangle.
-					if (vertices.Where((v, i) => i != prev && i != candidate.idx && i != next)
+					if (vertices.Where((_, i) => i != prev && i != candidate.idx && i != next)
 					    .Any(v => IsPointInTriangle(v, v1, v2, v3))) continue;
 					output.Add(new Polygon(v1, v2, v3));
 				}

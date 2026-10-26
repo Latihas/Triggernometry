@@ -288,7 +288,7 @@ public partial class GameConfigForm : Form {
 }
 
 /// <summary> 可以从值检索键的双射字典结构，可以用于将 ComboBox 选项和触发器内存储的键相互映射。</summary>
-public class BijectDictionary<TKey, TValue> {
+public class BijectDictionary<TKey, TValue> where TKey : notnull where TValue : notnull {
 	private readonly Dictionary<TKey, TValue> _dict = new();
 	private readonly Dictionary<TValue, TKey> _revDict = new();
 	private readonly List<TKey> _keys = [];

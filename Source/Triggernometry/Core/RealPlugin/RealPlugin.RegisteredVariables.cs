@@ -34,7 +34,7 @@ public partial class RealPlugin {
 	/// <summary>
 	///     Collects effective activation changes for a folder and its descendants.
 	/// </summary>
-	private void CollectFolderVariableChanges(Folder folder, bool isActive, string zone, List<Folder> disabled, List<Folder> enabled) {
+	private void CollectFolderVariableChanges(Folder folder, bool isActive, string? zone, List<Folder> disabled, List<Folder> enabled) {
 		isActive = isActive && folder.Enabled && folder.PassesZoneRestriction(zone);
 		if (folder.isRegisteredVariableScopeActive != isActive) {
 			(isActive ? enabled : disabled).Add(folder);
@@ -48,7 +48,7 @@ public partial class RealPlugin {
 	/// <summary>
 	///     Deletes all deactivated scoped keys before loading any newly active folder's scoped definitions.
 	/// </summary>
-	internal void UpdateActiveFolderVariables(string zone) {
+	internal void UpdateActiveFolderVariables(string? zone) {
 		lock (RegisteredVariables) {
 			var disabled = new List<Folder>();
 			var enabled = new List<Folder>();

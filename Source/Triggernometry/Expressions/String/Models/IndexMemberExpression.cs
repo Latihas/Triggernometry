@@ -27,15 +27,13 @@ public readonly struct IndexMemberExpression {
 	/// </summary>
 	public readonly string Name;
 
-	private readonly string[] _indexes;
 	private readonly MemberExpression? _member;
-	private readonly string _rawExpression;
 
 	/// <summary>
 	///     The parsed index array with each index expression trimmed. <br />
 	///     Should not be <see langword="null" />; Empty array when absent.
 	/// </summary>
-	public string[] Indexes => _indexes ?? [];
+	public string[] Indexes => field ?? [];
 
 	/// <summary>
 	///     The parsed member expression. <br />
@@ -47,28 +45,28 @@ public readonly struct IndexMemberExpression {
 	///     The original expression text.
 	///     Reconstructed if the raw expression was not provided.
 	/// </summary>
-	public string RawExpression => _rawExpression ?? BuildRawExpression();
+	public string RawExpression => field ?? BuildRawExpression();
 
 	/// <summary>
 	///     Creates an instance directly from already-parsed components.
 	/// </summary>
 	public IndexMemberExpression(
 		string name,
-		string[] indexes,
+		string[]? indexes,
 		MemberExpression member,
-		string rawExpression = null) {
-		Name = name ?? throw new ArgumentNullException("name");
-		_indexes = indexes ?? [];
+		string? rawExpression = null) {
+		Name = name ?? throw new ArgumentNullException(nameof(name));
+		Indexes = indexes ?? [];
 		_member = member;
-		_rawExpression = rawExpression;
+		RawExpression = rawExpression;
 	}
 
 	/// <summary>
 	///     Parses an index-member expression from the given string.
 	/// </summary>
 	public IndexMemberExpression(string expr) {
-		_rawExpression = expr ?? throw new ArgumentNullException(nameof(expr));
-		_indexes = null;
+		RawExpression = expr ?? throw new ArgumentNullException(nameof(expr));
+		Indexes = null;
 		_member = null;
 		Name = expr;
 
@@ -87,7 +85,7 @@ public readonly struct IndexMemberExpression {
 			// fall back to treating the entire expression as Name
 			if (indexList.Count == 0) return;
 
-			_indexes = [.. indexList];
+			Indexes = [.. indexList];
 		}
 
 		Name = rawPossibleName.TrimEx();
@@ -128,7 +126,7 @@ public readonly struct IndexMemberExpression {
 	///     Attempt to get the index value at the specified position.
 	///     Return <see langword="null" /> if the index does not exist.
 	/// </summary>
-	public string TryGetIndex(int indexOfIndex) {
+	public string? TryGetIndex(int indexOfIndex) {
 		if (indexOfIndex >= 0 && indexOfIndex < Indexes.Length)
 			return Indexes[indexOfIndex];
 		return null;
@@ -157,7 +155,7 @@ public readonly struct IndexMemberExpression {
 	///     Scans the expression to find the possible base name,
 	///     along with the positions of the first '[' and the first valid '.'.
 	/// </summary>
-	private static string ScanPossibleName(
+	private static string? ScanPossibleName(
 		string expr,
 		out int lBracketPos,
 		out int validDotPos) {

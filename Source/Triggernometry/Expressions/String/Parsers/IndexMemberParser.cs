@@ -13,8 +13,8 @@ using static Triggernometry.Core.Configuration;
 namespace Triggernometry.Expressions.String.Parsers;
 
 internal static class IndexMemberParser {
-	internal static string TryParse(string template, Context ctx) {
-		ctx = ctx ?? Context.Unbound;
+	internal static string? TryParse(string template, Context ctx) {
+		ctx ??= Context.Unbound;
 		var plug = ctx.Plugin; // can be null
 
 		var expr = new IndexMemberExpression(template);

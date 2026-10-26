@@ -14,13 +14,13 @@ internal static class TemplateParser {
 		/// <summary> Index of the last template char in the string. </summary>
 		public readonly int End;
 		/// <summary> The expression "..." inside "${...}" </summary>
-		public readonly string Expression;
+		public readonly string? Expression;
 		/// <summary> The group index n of $n. </summary>
 		public readonly int? NumIndex;
 		/// <summary> The string ${...} or $n </summary>
 		public string RawExpression => NumIndex != null ? $"${NumIndex}" : $"${{{Expression}}}";
 
-		public TemplateMatch(int start, int end, string expression, int? numIndex) {
+		public TemplateMatch(int start, int end, string? expression, int? numIndex) {
 			Start = start;
 			End = end;
 			Expression = expression;
@@ -28,7 +28,7 @@ internal static class TemplateParser {
 		}
 	}
 
-	private static string ParseTemplateMatch(TemplateMatch m, Context ctx, bool isNumeric = false) {
+	private static string ParseTemplateMatch(TemplateMatch m, Context? ctx, bool isNumeric = false) {
 		string? result;
 		if (m.NumIndex == null) // "${...}"
 		{
@@ -44,7 +44,7 @@ internal static class TemplateParser {
 			if (result == null && ctx?.Trigger != null) {
 				var msg = I18n.Translate("internal/TemplateParser/capturegroupoutofrange",
 					"Regex capture group index {0} is out of range.\nTrigger: {1}", m.RawExpression, ctx.Trigger?.LogName ?? "(null)");
-				ctx.Plugin?.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, msg, ctx.Trigger);
+				ctx.Plugin.UnfilteredAddToLog(RealPlugin.DebugLevelEnum.Warning, msg, ctx.Trigger);
 			}
 		}
 		return result ?? string.Empty;
@@ -53,7 +53,7 @@ internal static class TemplateParser {
 	/// <summary>
 	///     Find all non-nested template expressions <c>$n</c> or <c>${...}</c> in the given string.
 	/// </summary>
-	internal static List<TemplateMatch> FindNonNestedTemplates(string expr) {
+	internal static List<TemplateMatch> FindNonNestedTemplates(string? expr) {
 		var results = new List<TemplateMatch>();
 		if (string.IsNullOrEmpty(expr)) return results;
 
@@ -127,7 +127,7 @@ internal static class TemplateParser {
 		newScanPos = rBracePos;
 	}
 
-	internal static string ReplaceTemplates(string text, List<TemplateMatch> templates, Context ctx, bool isNumeric) {
+	internal static string ReplaceTemplates(string text, List<TemplateMatch>? templates, Context ctx, bool isNumeric) {
 		if (templates == null || templates.Count == 0)
 			return text;
 
@@ -163,14 +163,15 @@ internal static class TemplateParser {
 
 	/// <summary> Null if not matched. </summary>
 	internal static string? ParseSingleTemplate(string templateBody, Context? ctx, bool isTestModeNumeric) {
-		ctx = ctx ?? Context.Unbound;
+		ctx ??= Context.Unbound;
 		return KeywordParser.TryParse(templateBody, ctx, isTestModeNumeric) // ${_xxx} ${regexGroup} ${regexIdx}
 		       ?? ColonParser.TryParse(templateBody, ctx) // expressions start with "xxx:"
 		       ?? IndexMemberParser.TryParse(templateBody, ctx); // var, var.prop(arg), var[index], var[index1][index2].prop(arg), ...
 	}
 
 	/// <summary> Replace all valid currency-sign templates ¤n, ¤{...} to dollar-sign templates $n, ${...} in the given string. </summary>
-	internal static string ReplaceCurrencyTemplates(string expr) {
+	internal static string ReplaceCurrencyTemplates(string? expr) {
+		if (string.IsNullOrEmpty(expr)) return "";
 		var sb = new StringBuilder(expr.Length);
 		var n = expr.Length;
 		for (var i = 0; i < n; i++) {

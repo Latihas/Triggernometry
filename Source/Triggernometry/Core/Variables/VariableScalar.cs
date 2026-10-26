@@ -16,8 +16,8 @@ public class VariableScalar : Variable {
 
 	public override string ToString() => Value;
 
-	public override int CompareTo(object o) {
-		if (!(o is Variable)) {
+	public override int CompareTo(object? o) {
+		if (o is not Variable) {
 			throw new InvalidOperationException();
 		}
 		if (o is VariableScalar scalar) {

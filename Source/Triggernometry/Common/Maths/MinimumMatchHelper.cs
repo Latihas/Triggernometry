@@ -39,10 +39,10 @@ public static class MinimumMatchHelper {
 	///     Returns source indexes in target order, together with the minimum total cost.
 	/// </summary>
 	public static (int[] SrcIndexes, double MinCost) Match<TSrc, TTgt>(TSrc[] src, TTgt[] tgt, Func<TSrc, TTgt, double> costSelector) {
-		if (src == null) throw new ArgumentNullException(nameof(src));
-		if (tgt == null) throw new ArgumentNullException(nameof(tgt));
-		if (costSelector == null) throw new ArgumentNullException(nameof(costSelector));
-		if (src.Length != tgt.Length) throw new ArgumentException(I18n.Translate("internal/MinimumMatchHelper/lengthmismatch", "src and tgt must have the same length."));
+        ArgumentNullException.ThrowIfNull(src);
+        ArgumentNullException.ThrowIfNull(tgt);
+        ArgumentNullException.ThrowIfNull(costSelector);
+        if (src.Length != tgt.Length) throw new ArgumentException(I18n.Translate("internal/MinimumMatchHelper/lengthmismatch", "src and tgt must have the same length."));
 
 		var n = src.Length;
 		if (n == 0) return ([], 0);

@@ -60,15 +60,16 @@ public partial class ActionOld {
 			var xmlDoc = new XmlDocument();
 			xmlDoc.LoadXml(xmlData);
 			using var sr = new StringReader(xmlData);
-			if (xmlDoc.DocumentElement.Name == "ActionBundle") {
+			var root = xmlDoc.DocumentElement ?? throw new InvalidDataException("Action XML has no document element.");
+			if (root.Name == "ActionBundle") {
 				var bundleSerializer = new XmlSerializer(typeof(ActionBundle));
-				var bundle = (ActionBundle)bundleSerializer.Deserialize(sr);
+				var bundle = bundleSerializer.Deserialize(sr) as ActionBundle;
 				if (bundle?.Actions != null)
 					result.AddRange(bundle.Actions);
 			} else // single Action
 			{
 				var actionSerializer = new XmlSerializer(typeof(ActionOld));
-				var a = (ActionOld)actionSerializer.Deserialize(sr);
+				var a = actionSerializer.Deserialize(sr) as ActionOld;
 				if (a != null)
 					result.Add(a);
 			}
@@ -78,10 +79,10 @@ public partial class ActionOld {
 
 	#region General properties
 
-	internal ActionOld NextAction { get; set; } = null;
+	internal ActionOld? NextAction { get; set; }
 
 	/// <summary> ѭ���ĸ����� </summary>
-	internal ActionOld LoopAction { get; set; }
+	internal ActionOld? LoopAction { get; set; }
 	//internal Guid LoopContext { get; set; } = Guid.Empty;
 
 	/// <summary>
@@ -208,8 +209,8 @@ public partial class ActionOld {
 		Enabled = false
 	};
 
-	[XmlElement("Condition")] public ConditionGroup Xml_Condition {
-		get => Condition.Children.Count == 0 && !Condition.Enabled ? null : Condition;
+	[XmlElement("Condition")] public ConditionGroup? Xml_Condition {
+		get => Condition is { Children.Count: 0, Enabled: false } ? null : Condition;
 		set => Condition = value ?? new ConditionGroup {
 			Enabled = false
 		};
@@ -272,7 +273,7 @@ public partial class ActionOld {
 
 				if (ActionType == ActionTypeEnum.Loop) {
 					ExecuteLoopAction(ref ctx, qa, out var shouldReturn); // ctx might be changed here
-					if (shouldReturn) return; // need to check: mutex should be released here?
+					if (shouldReturn) return;
 				} else {
 					ExecutionCore(qa, ctx);
 				}
@@ -285,11 +286,7 @@ public partial class ActionOld {
 				var dt = DateTime.Now.AddMilliseconds(ctx.EvaluateNumericExpression(ActionContextLogger, ctx, NextAction.ExecutionDelayExpression));
 				Instance.QueueAction(ctx, ctx.Trigger, qa?.mutex, NextAction, dt, false);
 			}
-			// Non-sequential actions release through the final queued action's ActionFinished.
-			else if (qa?.mutex != null && ctx.Trigger.Sequential) {
-				qa.mutex.Release(ctx);
-				qa.mutex = null;
-			}
+			// QueuedAction completion owns release after checking whether a successor was queued.
 		} catch (Exception ex) {
 			if (ActionType == ActionTypeEnum.NamedCallback) {
 				if (ex is TargetInvocationException { InnerException: not null } tiex)
@@ -319,8 +316,9 @@ public partial class ActionOld {
 		if (loopActionIdOld == Id)
 			ctx.loopIterator += (int)ctx.EvaluateNumericExpression(ActionContextLogger, ctx, _LoopIncrExpression);
 
-		if (!LoopCondition.Enabled || !LoopCondition.CheckCondition(ctx, ActionContextLogger, ctx))
+		if (!LoopCondition.Enabled || !LoopCondition.CheckCondition(ctx, ActionContextLogger, ctx)) {
 			return;
+		}
 
 		var continuing = false;
 		if (loopActionIdOld != Id) {
@@ -335,7 +333,11 @@ public partial class ActionOld {
 			continuing = true;
 		}
 		var curTime = DateTime.Now;
-		var lastAction = Instance.QueueActions(ctx, curTime, LoopActions, ctx.Trigger.Sequential, qa?.mutex, ActionContextLogger);
+		var lastAction = Instance.QueueActions(ctx, curTime, LoopActions, ctx.Trigger.Sequential, qa.mutex, ActionContextLogger);
+		if (lastAction == null) {
+			Instance.ReleaseSequentialActionMutexIfUnused(ctx, qa);
+			return;
+		}
 		lastAction.LoopAction = this;
 
 		shouldReturn = continuing;
@@ -362,21 +364,18 @@ public partial class ActionOld {
 	}
 
 	internal void Execute(QueuedAction? qa, Context ctx) {
-		if (qa != null) {
-			lock (ctx.Plugin.ActionQueue) ctx.Plugin.ExecutingActions.Add(qa);
+		void RunAction() {
+			try {
+				ExecutionImplementation(qa, ctx);
+			} catch (Exception ex) {
+				System.Diagnostics.Debug.WriteLine(ex);
+			}
 		}
 		if (Asynchronous) {
 			var ct = ctx.Plugin.GetCancellationToken();
-			Task.Run(() => {
-				try {
-					ct.ThrowIfCancellationRequested();
-					ExecutionImplementation(qa, ctx);
-				} finally {
-					qa?.ActionFinished();
-				}
-			}, ct);
+			ctx.Plugin.BackgroundActions.Queue(RunAction, () => qa?.ActionFinished(), ct);
 		} else {
-			ExecutionImplementation(qa, ctx);
+			RunAction();
 			qa?.ActionFinished();
 		}
 	}
@@ -602,10 +601,9 @@ public partial class ActionOld {
 	}
 
 	internal void CopyCommonPropertiesTo(ActionBase action) {
-		if (action == null)
-			throw new ArgumentNullException(nameof(action));
+        ArgumentNullException.ThrowIfNull(action);
 
-		action.Enabled = Enabled;
+        action.Enabled = Enabled;
 		action.Id = Id;
 		action.ParentTrigger = ParentTrigger;
 		action.OrderNumber = OrderNumber;

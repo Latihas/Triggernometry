@@ -49,10 +49,10 @@ public class UserInterface {
 
 	// private Color disabledNodeColor;
 
-	// public delegate string TempDelegate(object sender);
+	// public delegate string TempDelegate(object? sender);
 	// private delegate void ProgressDelegate(int progress, string state);
-	// internal delegate void VoidDelegate(object sender, EventArgs e);
-	// internal delegate bool BoolDelegate(object sender, EventArgs e);
+	// internal delegate void VoidDelegate(object? sender, EventArgs e);
+	// internal delegate bool BoolDelegate(object? sender, EventArgs e);
 
 	public static ImageIndices GetImageIndexForClosedFolder(Folder f) => f.IsLimited() ? ImageIndices.LimitedFolderClosed : ImageIndices.FolderClosed;
 
@@ -73,13 +73,13 @@ public class UserInterface {
 
 		// Compare the length of the strings, or the strings
 		// themselves, if they are the same length.
-		public int Compare(object x, object y) {
+		public int Compare(object? x, object? y) {
 			var tx = x as TreeNode;
 			var ty = y as TreeNode;
-			if (tx.Tag is Folder && ty.Tag is Trigger) {
+			if (tx?.Tag is Folder && ty?.Tag is Trigger) {
 				return -1;
 			}
-			if (ty.Tag is Folder && tx.Tag is Trigger) {
+			if (ty?.Tag is Folder && tx?.Tag is Trigger) {
 				return 1;
 			}
 			// Both folders / triggers:
@@ -92,7 +92,7 @@ public class UserInterface {
 	//    // Del
 	// }
 
-	// private void UserInterface_Disposed(object sender, EventArgs e)
+	// private void UserInterface_Disposed(object? sender, EventArgs e)
 	// {
 	//    // Del       
 	// }
@@ -108,12 +108,12 @@ public class UserInterface {
 	//    // Del
 	// }
 
-	// internal void TreeView1_DragOver(object sender, DragEventArgs e)
+	// internal void TreeView1_DragOver(object? sender, DragEventArgs e)
 	// {
 	//    // Del
 	// }
 
-	internal void TreeView1_DragEnter(object sender, DragEventArgs e) {
+	internal void TreeView1_DragEnter(object? sender, DragEventArgs e) {
 		e.Effect = e.AllowedEffect;
 	}
 
@@ -132,12 +132,12 @@ public class UserInterface {
 	//    // Del
 	// }
 
-	// internal void TreeView1_DragDrop(object sender, DragEventArgs e)
+	// internal void TreeView1_DragDrop(object? sender, DragEventArgs e)
 	// {
 	//    // Del
 	// }
 
-	// internal void TreeView1_ItemDrag(object sender, ItemDragEventArgs e)
+	// internal void TreeView1_ItemDrag(object? sender, ItemDragEventArgs e)
 	//    // Del
 	// }
 	//
@@ -189,62 +189,62 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// internal void btnAddTriggerFolder_Click(object sender, EventArgs e)
+	// internal void btnAddTriggerFolder_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void btnAddTrigger_Click(object sender, EventArgs e)
+	// internal void btnAddTrigger_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+	// internal void treeView1_AfterSelect(object? sender, TreeViewEventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void btnEdit_Click(object sender, EventArgs e)
+	// internal void btnEdit_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void folderToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void folderToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void triggerToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void triggerToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void removeToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void removeToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void editToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void editToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void ctxDescendingSort_Click(object sender, EventArgs e)
+	// internal void ctxDescendingSort_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void importToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void importToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void exportToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void exportToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+	// internal void contextMenuStrip1_Opening(object? sender, CancelEventArgs e)
 	// {
 	//    // Del
 	// }
@@ -284,7 +284,7 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// internal void btnRemoveTrigger_Click(object sender, EventArgs e)
+	// internal void btnRemoveTrigger_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -314,22 +314,22 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// internal void btnExportTrigger_Click(object sender, EventArgs e)
+	// internal void btnExportTrigger_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void clearActionQueueToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void clearActionQueueToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void enabledToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void enabledToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void disabledToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void disabledToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -344,32 +344,32 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// internal void configurationToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void configurationToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void treeView1_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+	// internal void treeView1_BeforeCollapse(object? sender, TreeViewCancelEventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void treeView1_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+	// internal void treeView1_BeforeExpand(object? sender, TreeViewCancelEventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+	// internal void treeView1_NodeMouseClick(object? sender, TreeNodeMouseClickEventArgs e)
 	// {            
 	//    // Del
 	// }
 	//
-	// internal void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void aboutToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// internal void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+	// internal void treeView1_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
 	// {
 	//    // Del
 	// }
@@ -384,27 +384,27 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// internal void viewLogToolStripMenuItem_Click(object sender, EventArgs e)
+	// internal void viewLogToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void Formlog_FormClosed(object sender, FormClosedEventArgs e)
+	// private void Formlog_FormClosed(object? sender, FormClosedEventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void Formsearch_FormClosed(object sender, FormClosedEventArgs e)
+	// private void Formsearch_FormClosed(object? sender, FormClosedEventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void killExecutingActionsToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void killExecutingActionsToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void viewVariablesToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void viewVariablesToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -424,17 +424,17 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// private void treeView1_AfterCheck(object sender, TreeViewEventArgs e)
+	// private void treeView1_AfterCheck(object? sender, TreeViewEventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void deactivateAllAurasToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void deactivateAllAurasToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void testInputToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void testInputToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -444,7 +444,7 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// private void rfunBenchmarkToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void rfunBenchmarkToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -475,17 +475,17 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// private void treeView1_KeyDown(object sender, KeyEventArgs e)
+	// private void treeView1_KeyDown(object? sender, KeyEventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void copyToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void pasteToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -495,37 +495,37 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// private void clearAllVariablesToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void clearAllVariablesToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void saveConfigurationManuallyToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void saveConfigurationManuallyToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void btnCloseWelcome_Click(object sender, EventArgs e)
+	// private void btnCloseWelcome_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+	// private void linkLabel1_LinkClicked(object? sender, LinkLabelLinkClickedEventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void goToConfigurationFolderToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void goToConfigurationFolderToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void remoteTriggerRepositoryToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void remoteTriggerRepositoryToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void repositoryToolStripMenuItem_Click(object sender, EventArgs e)
+	// private void repositoryToolStripMenuItem_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -535,7 +535,7 @@ public class UserInterface {
 	//    // Del
 	// }
 	//
-	// private void Tsi_CheckedChanged(object sender, EventArgs e)
+	// private void Tsi_CheckedChanged(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -641,37 +641,37 @@ public class UserInterface {
 	}
 
 	//
-	// private void btnUpdate_Click(object sender, EventArgs e)
+	// private void btnUpdate_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void ctxUpdate_Click(object sender, EventArgs e)
+	// private void ctxUpdate_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void btnAddRepoList_Click(object sender, EventArgs e)
+	// private void btnAddRepoList_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void ctxAddRepoList_Click(object sender, EventArgs e)
+	// private void ctxAddRepoList_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void errThing1_Click(object sender, EventArgs e)
+	// private void errThing1_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void ctxCollapse_Click(object sender, EventArgs e)
+	// private void ctxCollapse_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
 	//
-	// private void ctxExpand_Click(object sender, EventArgs e)
+	// private void ctxExpand_Click(object? sender, EventArgs e)
 	// {
 	//    // Del
 	// }
@@ -1166,7 +1166,7 @@ public class UserInterface {
 	// {
 	// }
 	//
-	// private void btnOptions_DropDownOpening(object sender, EventArgs e)
+	// private void btnOptions_DropDownOpening(object? sender, EventArgs e)
 	// {
 	//     btnActionQueueProcessing.Visible = cfg.DeveloperMode;
 	//     btnTryInterrupt.Visible = cfg.DeveloperMode;
@@ -1180,7 +1180,7 @@ public class UserInterface {
 	//     btnSearch.Visible = cfg.DeveloperMode;
 	// }
 	//
-	// private void ctxFire_Click(object sender, EventArgs e)
+	// private void ctxFire_Click(object? sender, EventArgs e)
 	// {
 	//     if (treeView1.SelectedNode != null)
 	//     {
@@ -1193,7 +1193,7 @@ public class UserInterface {
 	//     }
 	// }
 	//
-	// private void ctxFireAllowCondition_Click(object sender, EventArgs e)
+	// private void ctxFireAllowCondition_Click(object? sender, EventArgs e)
 	// {
 	//     if (treeView1.SelectedNode != null)
 	//     {
@@ -1253,18 +1253,18 @@ public class UserInterface {
 	//     }
 	// }
 	//
-	// private void btnCornerPopup_Click(object sender, EventArgs e)
+	// private void btnCornerPopup_Click(object? sender, EventArgs e)
 	// {
 	//     TabPage tp = (TabPage)btnCornerPopup.Tag;
 	//     plug.TabLocateHook(tp);
 	// }
 	//
-	// private void btnSearch_Click(object sender, EventArgs e)
+	// private void btnSearch_Click(object? sender, EventArgs e)
 	// {
 	//     OpenSearchForm();
 	// }
 	//
-	// private void button1_Click(object sender, EventArgs e)
+	// private void button1_Click(object? sender, EventArgs e)
 	// {
 	// }
 	//
@@ -1276,17 +1276,17 @@ public class UserInterface {
 	//     FindForm().Focus();
 	// }
 	//
-	// private void ctxReadme_Click(object sender, EventArgs e)
+	// private void ctxReadme_Click(object? sender, EventArgs e)
 	// {
 	//     btnEdit_Click(sender, e);
 	// }
 	//
-	// private void btnUpdateCheck_Click(object sender, EventArgs e)
+	// private void btnUpdateCheck_Click(object? sender, EventArgs e)
 	// {
 	//     plug.CheckForUpdates(isManual: true);
 	// }
 	//
-	// private void timer1_Tick(object sender, EventArgs e)
+	// private void timer1_Tick(object? sender, EventArgs e)
 	// {
 	//     RepositoryFolder rfo = (RepositoryFolder)treeView1.Nodes[1].Tag;
 	//     List<Repository> upds = new List<Repository>();

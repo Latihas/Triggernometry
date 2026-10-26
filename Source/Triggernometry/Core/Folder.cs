@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Triggernometry.Core.Serialization;
@@ -47,14 +48,12 @@ public class Folder {
 		set => ZoneFilterEnabled = XmlAttr.Bool(value);
 	}
 
-	[XmlIgnore] private string _zoneRegex = "";
-
 	[XmlIgnore] private Regex? _regexCacheZone;
 
-	[XmlIgnore] public string ZoneRegex {
-		get => _zoneRegex;
-		set => SetRegex(value, ref _zoneRegex, ref _regexCacheZone);
-	}
+	[XmlIgnore] [field: XmlIgnore] public string ZoneRegex {
+		get;
+		set => SetRegex(value, ref field, ref _regexCacheZone);
+	} = "";
 
 	[XmlAttribute("ZoneFilterRegularExpression")] // old name, kept for now
 	public string Xml_ZoneRegex {
@@ -73,14 +72,12 @@ public class Folder {
 		set => FFXIVZoneFilterEnabled = XmlAttr.Bool(value);
 	}
 
-	[XmlIgnore] private string _ffxivZoneIdRegex = "";
-
 	[XmlIgnore] private Regex _regexCacheFfxivZoneId;
 
-	[XmlIgnore] public string FfxivZoneIdRegex {
-		get => _ffxivZoneIdRegex;
-		set => SetRegex(value, ref _ffxivZoneIdRegex, ref _regexCacheFfxivZoneId);
-	}
+	[XmlIgnore] [field: XmlIgnore] public string FfxivZoneIdRegex {
+		get;
+		set => SetRegex(value, ref field, ref _regexCacheFfxivZoneId);
+	} = "";
 
 	[XmlAttribute("FfxivZoneFilterRegularExpression")] // old name, kept for now
 	public string Xml_FfxivZoneIdRegex {
@@ -98,14 +95,12 @@ public class Folder {
 		set => EventFilterEnabled = XmlAttr.Bool(value);
 	}
 
-	[XmlIgnore] private string _eventRegex = "";
-
 	[XmlIgnore] private Regex _regexCacheEvent;
 
-	[XmlIgnore] public string EventRegex {
-		get => _eventRegex;
-		set => SetRegex(value, ref _eventRegex, ref _regexCacheEvent);
-	}
+	[XmlIgnore] [field: XmlIgnore] public string EventRegex {
+		get;
+		set => SetRegex(value, ref field, ref _regexCacheEvent);
+	} = "";
 
 	[XmlAttribute("EventFilterRegularExpression")] // old name, kept for now
 	public string Xml_EventRegex {
@@ -134,15 +129,13 @@ public class Folder {
 
 	// ============ Environment Variables ============
 
-	[XmlIgnore] private string _rawEnvironmentVariables;
-
 	[XmlIgnore] public Dictionary<string, string> EnvironmentVariables { get; private set; }
 		= new(StringComparer.OrdinalIgnoreCase);
 
-	[XmlIgnore] public string RawEnvironmentVariables {
-		get => _rawEnvironmentVariables;
+	[XmlIgnore] [field: XmlIgnore] public string RawEnvironmentVariables {
+		get;
 		set {
-			_rawEnvironmentVariables = value;
+			field = value;
 			ParseRawEnvironmentVariables();
 		}
 	}
@@ -220,8 +213,8 @@ public class Folder {
 		set => DisableRemoteToggle = XmlAttr.Bool(value);
 	}
 
-	private void SetRegex(string value, ref string rawRegexField, ref Regex regexCacheField) {
-		value = value ?? "";
+	private void SetRegex(string value, ref string rawRegexField, ref Regex? regexCacheField) {
+		value ??= "";
 
 		if (rawRegexField == value) return;
 
@@ -322,12 +315,8 @@ public class Folder {
 	///     Each trigger in the current folder is yielded first, followed by triggers from all nested folders.
 	/// </summary>
 	public IEnumerable<Trigger> RecursiveGetTriggers() {
-		foreach (var t in Triggers)
-			yield return t;
+		foreach (var t in Triggers) yield return t;
 
-		foreach (var sub in Folders) {
-			foreach (var t in sub.RecursiveGetTriggers())
-				yield return t;
-		}
+		foreach (var t in Folders.SelectMany(sub => sub.RecursiveGetTriggers())) { yield return t; }
 	}
 }

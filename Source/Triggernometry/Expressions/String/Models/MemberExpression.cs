@@ -61,9 +61,8 @@ public readonly struct MemberExpression {
 	///     · <paramref name="startIndex" /> points to the first character of the member name
 	/// </summary>
 	public MemberExpression(string expr, int startIndex = 0) {
-		if (expr == null)
-			throw new ArgumentNullException(nameof(expr));
-		if (startIndex < 0 || startIndex >= expr.Length)
+        ArgumentNullException.ThrowIfNull(expr);
+        if (startIndex < 0 || startIndex >= expr.Length)
 			throw new ArgumentOutOfRangeException(nameof(startIndex));
 
 		_rawExpression = startIndex == 0 ? expr : expr[startIndex..];

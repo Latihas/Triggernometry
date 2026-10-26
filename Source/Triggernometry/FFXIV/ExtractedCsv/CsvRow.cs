@@ -45,10 +45,9 @@ public class CsvRow {
 	///     根据列名获取字段。
 	/// </summary>
 	public string Get(string key) {
-		if (key == null)
-			throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(key);
 
-		if (!HeaderIndex.TryGetValue(key, out var colIndex))
+        if (!HeaderIndex.TryGetValue(key, out var colIndex))
 			throw new KeyNotFoundException(I18n.Translate("internal/CsvRow/columnnotfound", "Column '{0}' was not found.", key));
 
 		if (colIndex < 0 || colIndex >= Fields.Count)
@@ -77,10 +76,9 @@ public class CsvRow {
 	///     供工厂方法 <see cref="GetOrCreateFactory" /> 使用。
 	/// </summary>
 	protected void CopyBaseFrom(CsvRow src) {
-		if (src == null)
-			throw new ArgumentNullException(nameof(src));
+        ArgumentNullException.ThrowIfNull(src);
 
-		Table = src.Table;
+        Table = src.Table;
 		Index = src.Index;
 		Fields = src.Fields;
 	}

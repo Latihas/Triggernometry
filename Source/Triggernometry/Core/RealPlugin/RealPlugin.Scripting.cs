@@ -39,7 +39,7 @@ public partial class RealPlugin {
 		}
 	}
 
-	public object InvokeStorageCallback(string name, IEnumerable<string> args) {
+	public object? InvokeStorageCallback(string name, IEnumerable<string>? args) {
 		if (!Instance.scriptingStorage.TryGetValue(name, out var obj))
 			throw new ArgumentException(I18n.Translate("internal/Scripting/callbacknotfound",
 				"Callback function '{0}' was not found.", name));

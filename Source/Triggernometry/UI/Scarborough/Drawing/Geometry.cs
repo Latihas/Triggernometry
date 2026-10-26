@@ -26,8 +26,8 @@ public class Geometry : IDisposable {
 	/// </summary>
 	/// <param name="device"></param>
 	public Geometry(Graphics device) {
-		if (device == null) throw new ArgumentNullException(nameof(device));
-		if (!device.IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Geometry/uninitializedtarget", "The render target needs to be initialized first."));
+        ArgumentNullException.ThrowIfNull(device);
+        if (!device.IsInitialized) throw new InvalidOperationException(I18n.Translate("internal/Geometry/uninitializedtarget", "The render target needs to be initialized first."));
 
 		_geometry = new PathGeometry(device.GetFactory());
 		_sink = _geometry.Open();

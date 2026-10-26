@@ -46,14 +46,14 @@ public partial class TreeViewEx : TreeView {
 		base.WndProc(ref m);
 	}
 
-	private void TreeViewEx_BeforeExpand(object sender, TreeViewCancelEventArgs e) {
+	private void TreeViewEx_BeforeExpand(object? sender, TreeViewCancelEventArgs e) {
 		if (e.Node.Tag is Folder { Repo: not null, DisableRemoteExpand: true }) {
 			MessageBox.Show(I18n.Translate("internal/TreeViewEx/nobrowserequired", "You do not need to browse this folder."), I18n.Translate("internal/TreeViewEx/remotetriggers", "Remote triggers"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			e.Cancel = true;
 		}
 	}
 
-	private void TreeViewEx_BeforeCheck(object sender, TreeViewCancelEventArgs e) {
+	private void TreeViewEx_BeforeCheck(object? sender, TreeViewCancelEventArgs e) {
 		if (e.Node.Tag is Folder { Repo: not null, DisableRemoteToggle: true }) {
 			MessageBox.Show(I18n.Translate("internal/TreeViewEx/noeditrequired", "You do not need to modify this folder."), I18n.Translate("internal/TreeViewEx/remotetriggers", "Remote triggers"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			e.Cancel = true;

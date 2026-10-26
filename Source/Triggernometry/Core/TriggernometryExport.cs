@@ -8,8 +8,8 @@ using System.Xml.Serialization;
 namespace Triggernometry.Core;
 
 public partial class TriggernometryExport {
-	private Version _pluginVersion;
-	[XmlAttribute] public string PluginVersion {
+	private Version? _pluginVersion = null;
+	[XmlAttribute] public string? PluginVersion {
 		get => _pluginVersion?.ToString();
 		set => _pluginVersion = string.IsNullOrEmpty(value) ? null : new Version(value);
 	}
@@ -18,14 +18,8 @@ public partial class TriggernometryExport {
 
 	[XmlIgnore] public bool Corrupted;
 
-	public Folder ExportedFolder;
-	public Trigger ExportedTrigger;
-
-	public TriggernometryExport() {
-		_pluginVersion = null;
-		ExportedFolder = null;
-		ExportedTrigger = null;
-	}
+	public Folder? ExportedFolder = null;
+	public Trigger? ExportedTrigger = null;
 
 	public string Serialize() {
 		var ns = new XmlSerializerNamespaces();
@@ -36,7 +30,7 @@ public partial class TriggernometryExport {
 			xs.Serialize(ms, this, ns);
 			ms.Seek(0, SeekOrigin.Begin);
 			buf = new byte[ms.Length];
-			ms.Read(buf, 0, (int)ms.Length);
+			ms.ReadExactly(buf, 0, (int)ms.Length);
 		}
 		return Encoding.UTF8.GetString(buf);
 	}
@@ -45,8 +39,9 @@ public partial class TriggernometryExport {
 		try {
 			var xs = new XmlSerializer(typeof(TriggernometryExport));
 			using var ms = new MemoryStream(Encoding.UTF8.GetBytes(src));
-			var result = (TriggernometryExport)xs.Deserialize(ms);
-			result.ExportedFolder?.RecursiveGetTriggers()?.ToList().ForEach(t => t.SetActionsParent());
+			var result = (TriggernometryExport?)xs.Deserialize(ms);
+			if (result == null) throw new Exception("Unserialize Failed");
+			result.ExportedFolder?.RecursiveGetTriggers().ToList().ForEach(t => t.SetActionsParent());
 			result.ExportedTrigger?.SetActionsParent();
 			return result;
 		} catch (Exception ex) {

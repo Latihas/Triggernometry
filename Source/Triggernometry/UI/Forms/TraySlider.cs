@@ -147,7 +147,7 @@ internal partial class TraySliderForm : Form {
 			BindMouseEvents(child);
 	}
 
-	private void tmrShow_Tick(object sender, EventArgs e) {
+	private void tmrShow_Tick(object? sender, EventArgs e) {
 		if (!_activated)
 			return;
 
@@ -181,7 +181,7 @@ internal partial class TraySliderForm : Form {
 	private int _slideStartTick;
 	private const int SlideDurationMs = 600;
 
-	private void tmrSlideIn_Tick(object sender, EventArgs e) {
+	private void tmrSlideIn_Tick(object? sender, EventArgs e) {
 		var t = (Environment.TickCount - _slideStartTick) / (double)SlideDurationMs;
 
 		if (t >= 1.0) {
@@ -201,7 +201,7 @@ internal partial class TraySliderForm : Form {
 		Opacity = fadeInT;
 	}
 
-	private void tmrFade_Tick(object sender, EventArgs e) {
+	private void tmrFade_Tick(object? sender, EventArgs e) {
 		if (!_hasMouse && (!IsForegroundFullScreen() || _forceShow))
 			FadeOut();
 	}
@@ -220,7 +220,7 @@ internal partial class TraySliderForm : Form {
 		tmrFadeOut.Start();
 	}
 
-	private void tmrFadeOut_Tick(object sender, EventArgs e) {
+	private void tmrFadeOut_Tick(object? sender, EventArgs e) {
 		_fadeOutStep++;
 
 		Opacity = Math.Max(0.0, 1.0 - _fadeOutStep * 0.1);
@@ -239,7 +239,7 @@ internal partial class TraySliderForm : Form {
 			Dispose();
 	}
 
-	private void Button_Click(object sender, EventArgs e) {
+	private void Button_Click(object? sender, EventArgs e) {
 		_choiceClicked = true;
 		FadeOut();
 
@@ -255,16 +255,16 @@ internal partial class TraySliderForm : Form {
 		}
 	}
 
-	private void TraySlider_FormClosing(object sender, FormClosingEventArgs e) {
+	private void TraySlider_FormClosing(object? sender, FormClosingEventArgs e) {
 		e.Cancel = true;
 		Hide();
 	}
 
-	private void TraySlider_MouseEnter(object sender, EventArgs e) {
+	private void TraySlider_MouseEnter(object? sender, EventArgs e) {
 		_hasMouse = true;
 	}
 
-	private void TraySlider_MouseLeave(object sender, EventArgs e) {
+	private void TraySlider_MouseLeave(object? sender, EventArgs e) {
 		_hasMouse = false;
 	}
 
@@ -378,7 +378,7 @@ public class TraySlider {
 		}
 
 		if (mainForm.InvokeRequired)
-			mainForm.BeginInvoke((Action?)Action);
+			mainForm.BeginInvoke((Action)Action);
 		else
 			Action();
 	}

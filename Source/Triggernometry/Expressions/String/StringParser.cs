@@ -17,7 +17,7 @@ public static class StringParser {
 	///     · <paramref name="ctx" />: Evaluation context; if null, <see cref="Context.Unbound" /> is used.<br />
 	///     · Returns the evaluated result as a string. Null if not matched.
 	/// </summary>
-	public static string ParseSingleTemplate(string expr, Context ctx = null)
+	public static string? ParseSingleTemplate(string expr, Context? ctx = null)
 		=> TemplateParser.ParseSingleTemplate(expr, ctx, false);
 
 	/// <summary>
@@ -26,7 +26,7 @@ public static class StringParser {
 	///     · <paramref name="ctx" />: Evaluation context; if null, <see cref="Context.Unbound" /> is used.<br />
 	///     · Returns the text with all templates evaluated.
 	/// </summary>
-	public static string Parse(string expr, Context ctx = null)
+	public static string Parse(string expr, Context? ctx = null)
 		=> Parse(expr, ctx, false);
 
 	/// <summary>
@@ -38,8 +38,8 @@ public static class StringParser {
 	///     · <paramref name="isTestModeNumeric" />: Whether the expression is numeric. Only used when testing with
 	///     placeholders.<br />
 	/// </summary>
-	internal static string Parse(string expr, Context ctx, bool isTestModeNumeric) {
-		ctx = ctx ?? Context.Unbound;
+	internal static string Parse(string? expr, Context? ctx, bool isTestModeNumeric) {
+		ctx ??= Context.Unbound;
 
 		// '\r' '\n' => '⏎'
 		var newExpr = ReplaceLineBreak(expr);

@@ -19,7 +19,7 @@ public class StaticVfx : VfxBase {
 	internal Vector3? Angle3DArg;
 
 	/// <summary> 当前设置的 VFX 自身缩放参数；允许使用 _d 表示 Pos-Target 二维距离，_d3 表示三维距离 </summary>
-	internal ScaleArg ScaleArg;
+	internal ScaleArg? ScaleArg;
 
 	/// <summary> 当前设置的线性变换坐标系中心 O / Center，可以是固定坐标或实体 id </summary>
 	internal DynamicCoordArg? TransformCenterArg;
@@ -28,7 +28,7 @@ public class StaticVfx : VfxBase {
 	internal double? TransformNorthAngle;
 
 	/// <summary> 当前设置的线性变换坐标系正北指向的坐标，可以是固定坐标或实体 id </summary>
-	internal DynamicCoordArg TransformNorthCoordArg;
+	internal DynamicCoordArg? TransformNorthCoordArg;
 
 	/// <summary> 当前设置的 X 是否不翻转 </summary>
 	internal bool? TransformKeepX;
@@ -60,10 +60,9 @@ public class StaticVfx : VfxBase {
 	///     将本次解析到的参数合并到当前 VFX 的参数源状态上。Create 时会补齐默认位姿；Modify 时仅覆盖显式指定的参数。
 	/// </summary>
 	public void ApplyArgs(StaticVfxArgs newArgs, bool isCreate) {
-		if (newArgs == null)
-			throw new ArgumentNullException(nameof(newArgs));
+        ArgumentNullException.ThrowIfNull(newArgs);
 
-		ApplyPosArgs(newArgs, isCreate);
+        ApplyPosArgs(newArgs, isCreate);
 		ApplyAngleOrTargetArgs(newArgs, isCreate);
 		ApplyScaleArgs(newArgs);
 		ApplyColorArgs(newArgs);

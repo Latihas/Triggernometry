@@ -287,7 +287,7 @@ public static class VfxManager {
 	/// <summary>
 	///     将线性变换相关参数中的实体动态参数中解析为坐标，并根据参数优先级解析为纯数学的线性变换参数。
 	/// </summary>
-	private static LinearTransformArgs ResolveLinearTransformArgs(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities) {
+	private static LinearTransformArgs? ResolveLinearTransformArgs(StaticVfx vfx, IReadOnlyDictionary<uint, Entity> entities) {
 		var transform = new LinearTransformArgs();
 		Entity? centerEntity = null;
 
@@ -372,11 +372,11 @@ public static class VfxManager {
 	///     根据参数解析最终选中的实体；只有 Near/Far 需要每 100 ms 重新排名。
 	///     缓存仅记录 ID，实体的坐标和朝向在每次调用时仍从当前实体列表读取。
 	/// </summary>
-	private static Entity ResolveEntityArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg arg) {
+	private static Entity? ResolveEntityArg(IReadOnlyDictionary<uint, Entity> entities, DynamicCoordArg? arg) {
 		if (arg == null || arg.IsFixed)
 			return null;
 
-		Entity source = null;
+		Entity? source = null;
 		if (arg.Kind == CoordArgKind.EntityId) {
 			source = FindEntity(entities, arg.EntityId);
 			if (source == null) return null;
@@ -424,22 +424,22 @@ public static class VfxManager {
 		}
 	}
 
-	private static Entity FindEntity(IReadOnlyDictionary<uint, Entity> entities, uint id) {
-		if (id == 0 || id == 0xE0000000)
+	private static Entity? FindEntity(IReadOnlyDictionary<uint, Entity> entities, uint id) {
+		if (id is 0 or 0xE0000000)
 			return null;
 
 		if (entities?.TryGetValue(id, out var entity) != true)
 			entity = Entity.GetEntityByID(id);
 
-		return entity != null && entity.Exist ? entity : null;
+		return entity is { Exist: true } ? entity : null;
 	}
 
-	private static uint? SelectEntityByDistance(IReadOnlyDictionary<uint, Entity> entities,
+	private static uint? SelectEntityByDistance(IReadOnlyDictionary<uint, Entity>? entities,
 		double refX, double refY, uint? excludedId, DynamicCoordArg arg) {
 		// 复用工作循环构建的实体缓存，避免额外读取实体列表。
 		var candidates = entities?.Values ?? Entity.GetEntities();
 		var eligible = candidates
-			.Where(e => e != null && e.Exist &&
+			.Where(e => e is { Exist: true } &&
 			            (!excludedId.HasValue || e.ID != excludedId.Value) &&
 			            e.CurrentHP > 0 && MatchesSelectType(e, arg.SelectType))
 			.Select(e => new {

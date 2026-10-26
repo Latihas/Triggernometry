@@ -58,7 +58,7 @@ public class ActionPlaySound : ActionBase {
 
 	internal override string DescribeImplementation() => I18n.Translate("internal/Action/descplaysound", "play sound file ({0}) at volume ({1}) %", Filename, Volume);
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		// RealPlugin plug = ctx.Plugin;
 

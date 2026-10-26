@@ -1630,8 +1630,8 @@ public class Graphics : IDisposable {
 	public void DrawText(Font font, float fontSize, IBrush brush, float x, float y, string text) {
 		if (!IsDrawing) throw ThrowHelper.UseBeginScene();
 
-		if (text == null) throw new ArgumentNullException(nameof(text));
-		if (text.Length == 0) return;
+        ArgumentNullException.ThrowIfNull(text);
+        if (text.Length == 0) return;
 
 		var clippedWidth = x < 0 ? Width + x : Width - x;
 		var clippedHeight = y < 0 ? Height + y : Height - y;
@@ -1657,8 +1657,8 @@ public class Graphics : IDisposable {
 	public void DrawTextEx(Font font, FontStyle fs, float fontSize, IBrush brush, ParagraphAlignment pa, TextAlignment ta, float x, float y, float width, float height, string text) {
 		if (!IsDrawing) throw ThrowHelper.UseBeginScene();
 
-		if (text == null) throw new ArgumentNullException(nameof(text));
-		if (text.Length == 0) return;
+        ArgumentNullException.ThrowIfNull(text);
+        if (text.Length == 0) return;
 
 		var layout = new TextLayout(_fontFactory, text, font.TextFormat, width, height);
 
@@ -1724,8 +1724,8 @@ public class Graphics : IDisposable {
 	public void DrawTextWithBackground(Font font, float fontSize, IBrush brush, IBrush background, float x, float y, string text) {
 		if (!IsDrawing) throw ThrowHelper.UseBeginScene();
 
-		if (text == null) throw new ArgumentNullException(nameof(text));
-		if (text.Length == 0) return;
+        ArgumentNullException.ThrowIfNull(text);
+        if (text.Length == 0) return;
 
 		var clippedWidth = x < 0 ? Width + x : Width - x;
 		var clippedHeight = y < 0 ? Height + y : Height - y;

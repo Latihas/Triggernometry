@@ -67,7 +67,7 @@ public class ActionPlaySpeech : ActionBase {
 
 	internal override string DescribeImplementation() => I18n.Translate("internal/Action/desctts", "say ({0}) at volume ({1}) %, using speed ({2})", Message, Volume, Rate);
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		// RealPlugin plug = ctx.Plugin;
 

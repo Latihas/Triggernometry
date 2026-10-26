@@ -35,7 +35,7 @@ internal static class TernaryParser {
 				sepIndex = input.LastIndexOf(sep, quoteIndex - 1);
 			}
 		}
-		sepIndex = sepIndex ?? input.LastIndexOf(sep);
+		sepIndex ??= input.LastIndexOf(sep);
 		if (sepIndex == -1) return null;
 
 		var afterSep = input[(sepIndex.Value + 1)..].TrimLeftEx();

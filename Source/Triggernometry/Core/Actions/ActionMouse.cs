@@ -109,7 +109,7 @@ public class ActionMouse : ActionBase {
 		}
 	}
 
-	internal override void ExecuteImplementation(ActionInstance ai) // todo: avoid Sleep
+	internal override void ExecuteImplementation(ActionInstance? ai) // todo: avoid Sleep
 	{
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
@@ -131,7 +131,7 @@ public class ActionMouse : ActionBase {
 				WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
 				break;
 			case OperationEnum.LeftClick:
-				Task.Run(async () => {
+				_ = Task.Run(async () => {
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
 					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.LEFTDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
@@ -140,7 +140,7 @@ public class ActionMouse : ActionBase {
 				});
 				break;
 			case OperationEnum.MiddleClick:
-				Task.Run(async () => {
+				_ = Task.Run(async () => {
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
 					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MIDDLEDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
@@ -149,7 +149,7 @@ public class ActionMouse : ActionBase {
 				});
 				break;
 			case OperationEnum.RightClick:
-				Task.Run(async () => {
+				_ = Task.Run(async () => {
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.MOVE, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);
 					await Task.Delay(10);
 					WindowsUtils.SendMouse(flags | WindowsUtils.MouseEventFlags.RIGHTDOWN, WindowsUtils.MouseEventDataXButtons.NONE, mousex, mousey);

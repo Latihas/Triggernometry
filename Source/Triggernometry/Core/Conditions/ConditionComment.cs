@@ -5,16 +5,15 @@ namespace Triggernometry.Core.Conditions;
 
 /// <summary> Stores a note in condition order without participating in evaluation. </summary>
 public sealed class ConditionComment : ConditionComponent {
-	private string _Text = "";
 	[XmlAttribute]
 	public string Text {
-		get => _Text;
+		get;
 		set {
-			if (_Text == value) return;
-			_Text = value;
+			if (field == value) return;
+			field = value;
 			TriggerOnPropertyChange();
 		}
-	}
+	} = "";
 
 	public override string ToString() => string.IsNullOrEmpty(Text)
 		? I18n.Translate("internal/ConditionComment/empty", "Comment")

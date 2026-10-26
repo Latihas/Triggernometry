@@ -111,7 +111,7 @@ public class Entity {
 				CheckArgCount(">=1", "HasAnyStatus", args);
 				var ids = args.Select(a => (ushort)MathParser.Parse(a)).ToArray();
 				var currentStatuses = new HashSet<ushort>(e.Statuses.Select(s => s.StatusID));
-				return ids.Any(id => currentStatuses.Contains(id));
+				return ids.Any(currentStatuses.Contains);
 			},
 
 			// true if entity has all specified status IDs
@@ -119,7 +119,7 @@ public class Entity {
 				CheckArgCount(">=1", "HasAllStatus", args);
 				var ids = args.Select(a => (ushort)MathParser.Parse(a)).ToArray();
 				var currentStatuses = new HashSet<ushort>(e.Statuses.Select(s => s.StatusID));
-				return ids.All(id => currentStatuses.Contains(id));
+				return ids.All(currentStatuses.Contains);
 			},
 
 			// remaining timer of status, or default if missing
@@ -199,8 +199,8 @@ public class Entity {
 			["DirTo"] = (e, args) => {
 				CheckArgCount("3-4", "DirTo", args);
 				var roundvecArgs = args.Select(MathParser.Parse).ToArray();
-				roundvecArgs[0] = roundvecArgs[0] - e.PosX;
-				roundvecArgs[1] = roundvecArgs[1] - e.PosY;
+				roundvecArgs[0] -= e.PosX;
+				roundvecArgs[1] -= e.PosY;
 				return MathParser.RoundvecFunction(roundvecArgs);
 			},
 
@@ -431,13 +431,13 @@ public class Entity {
 
 	#region Get Entities
 
-	public static IEnumerable<Entity> GetEntities(Func<Entity, bool> filter)
+	public static IEnumerable<Entity?> GetEntities(Func<Entity?, bool> filter)
 		=> GetEntities().Where(filter);
 
 	public static IEnumerable<Entity> GetEntities(Func<Entity, bool> filter, bool useOverlay)
 		=> GetEntities(useOverlay).Where(filter);
 
-	public static IEnumerable<Entity> GetEntities() {
+	public static IEnumerable<Entity?> GetEntities() {
 		var result = ModuleCombatants.InternalGetEntities().ToList();
 		if (result.Count == 0)
 			result = [.. BridgeFFXIV.InternalGetEntities()];

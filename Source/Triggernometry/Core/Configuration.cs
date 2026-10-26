@@ -62,12 +62,11 @@ public class Configuration {
 	[XmlAttribute]
 	public UpdateNotificationsEnum UpdateNotifications { get; set; } = UpdateNotificationsEnum.Yes;
 
-	private int _UpdateInterval = 60;
 	[XmlAttribute]
 	public int UpdateInterval {
-		get => _UpdateInterval;
-		set => _UpdateInterval = value < 5 ? 5 : value;
-	}
+		get;
+		set => field = value < 5 ? 5 : value;
+	} = 60;
 
 	[XmlAttribute]
 	public UpdateCheckMethodEnum UpdateCheckMethod { get; set; } = UpdateCheckMethodEnum.ACT;
@@ -211,18 +210,16 @@ public class Configuration {
 	}
 
 	[XmlAttribute] public FfxivPartyOrderingEnum FfxivPartyOrdering { get; set; } = FfxivPartyOrderingEnum.CustomSelfFirst;
-	private string _FfxivCustomPartyOrder;
 	[XmlAttribute] public string FfxivCustomPartyOrder {
-		get => _FfxivCustomPartyOrder;
+		get;
 		set {
-			_FfxivCustomPartyOrder = value;
+			field = value;
 			_FfxivCustomPartyOrderLookup.Clear();
 			var ex = value.Split([.. ","], StringSplitOptions.RemoveEmptyEntries);
 			var subn = 1;
 			foreach (var e in ex) {
 				var et = e.Trim();
-				var valn = 0;
-				if (int.TryParse(et, out valn)) {
+				if (int.TryParse(et, out var valn)) {
 					if (_FfxivCustomPartyOrderLookup.TryAdd(valn, subn)) {
 						subn++;
 					}
@@ -233,12 +230,8 @@ public class Configuration {
 
 	internal int GetPartyOrderValue(int job) => _FfxivCustomPartyOrderLookup.GetValueOrDefault(job, 9999);
 
-	internal int GetPartyOrderValue(string job) {
-		var ex = 0;
-		if (int.TryParse(job, out ex)) {
-			return GetPartyOrderValue(ex);
-		}
-		return 999;
+	internal int GetPartyOrderValue(string? job) {
+		return int.TryParse(job, out var ex) ? GetPartyOrderValue(ex) : 999;
 	}
 
 	private Dictionary<int, int> _FfxivCustomPartyOrderLookup { get; set; } = new();

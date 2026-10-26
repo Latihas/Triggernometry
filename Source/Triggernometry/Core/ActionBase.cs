@@ -61,7 +61,7 @@ public abstract class ActionBase {
 
 
 	public ActionBase Copy() {
-		var clone = (ActionBase)Activator.CreateInstance(GetType());
+		var clone = (ActionBase?)Activator.CreateInstance(GetType()) ?? throw new InvalidOperationException($"Unable to create action type {GetType().FullName}.");
 		CopyCommonPropertiesTo(clone);
 		CopySpecificPropertiesTo(clone);
 		return clone;
@@ -72,14 +72,13 @@ public abstract class ActionBase {
 	/// </summary>
 	/// <exception cref="ArgumentNullException">Thrown if <paramref name="action" /> is <c>null</c>.</exception>
 	internal void CopyCommonPropertiesTo(ActionBase action) {
-		if (action == null)
-			throw new ArgumentNullException(nameof(action));
+        ArgumentNullException.ThrowIfNull(action);
 
-		action.Enabled = Enabled;
+        action.Enabled = Enabled;
 		action.Id = Id;
 		action.ParentTrigger = ParentTrigger;
 		action.OrderNumber = OrderNumber;
-		action.Condition = (ConditionGroup)Condition?.Duplicate();
+		action.Condition = Condition?.Duplicate() as ConditionGroup ?? new ConditionGroup { Enabled = false };
 		action.Tag = Tag;
 		action.RefireInterrupt = RefireInterrupt;
 		action.RefireRequeue = RefireRequeue;
@@ -93,14 +92,13 @@ public abstract class ActionBase {
 	}
 
 	internal void CopyCommonPropertiesTo(ActionOld oldAction) {
-		if (oldAction == null)
-			throw new ArgumentNullException(nameof(oldAction));
+        ArgumentNullException.ThrowIfNull(oldAction);
 
-		oldAction.Enabled = Enabled;
+        oldAction.Enabled = Enabled;
 		oldAction.Id = Id;
 		oldAction.ParentTrigger = ParentTrigger;
 		oldAction.OrderNumber = OrderNumber;
-		oldAction.Condition = (ConditionGroup)Condition?.Duplicate();
+		oldAction.Condition = Condition?.Duplicate() as ConditionGroup ?? new ConditionGroup { Enabled = false };
 		oldAction.Tag = Tag;
 		oldAction.RefireInterrupt = RefireInterrupt;
 		oldAction.RefireRequeue = RefireRequeue;
@@ -258,9 +256,9 @@ public abstract class ActionBase {
 		///     For example, underlying data might be string, but we want to have an editor for numeric expression.
 		///     If null, type is taken from underlying datatype.
 		/// </summary>
-		internal Type _typehint;
+		internal Type? _typehint;
 
-		public ActionAttribute(int order = 0, Type typehint = null, SpecialTypeEnum specialtype = SpecialTypeEnum.None) {
+		public ActionAttribute(int order = 0, Type? typehint = null, SpecialTypeEnum specialtype = SpecialTypeEnum.None) {
 			_order = order;
 			_typehint = typehint;
 			_specialtype = specialtype;
@@ -271,9 +269,9 @@ public abstract class ActionBase {
 	///     Helper class for ComboBox/CheckedListBox for binding Enum values to a specific item
 	/// </summary>
 	public class EnumBinding {
-		public string Text { get; set; }
-		public PropertyInfo Prop { get; set; }
-		public string EnumValueName { get; set; }
+		public string Text { get; set; } = "";
+		public PropertyInfo Prop { get; set; } = null!;
+		public string EnumValueName { get; set; } = "";
 
 		public override string ToString() => Text;
 	}
@@ -283,11 +281,11 @@ public abstract class ActionBase {
 	///     execution.
 	/// </summary>
 	public class ActionInstance : IComparable {
-		public ActionInstance(DateTime when, long ordinal, MutexInformation mtx, ActionOld act, Context ctx, bool releaseMutex) {
+		public ActionInstance(DateTime when, long ordinal, MutexInformation? mtx, ActionOld act, Context ctx, bool releaseMutex) {
 			this.when = when;
 			this.ordinal = ordinal;
 			mutex = mtx;
-			this.act = act;
+			this.act = act ?? throw new ArgumentNullException(nameof(act));
 			this.ctx = ctx;
 			this.releaseMutex = releaseMutex;
 		}
@@ -300,7 +298,7 @@ public abstract class ActionBase {
 		internal bool releaseMutex { get; set; }
 
 		public int CompareTo(object? o) {
-			var b = (ActionInstance)o;
+			if (o is not ActionInstance b) return 1;
 			var ex = when.CompareTo(b.when);
 			if (ex != 0) {
 				return ex;
@@ -362,15 +360,16 @@ public abstract class ActionBase {
 			var xmlDoc = new XmlDocument();
 			xmlDoc.LoadXml(xmlData);
 			using var sr = new StringReader(xmlData);
-			if (xmlDoc.DocumentElement.Name == "ActionBundle") {
+			var root = xmlDoc.DocumentElement ?? throw new InvalidDataException("Action XML has no document element.");
+			if (root.Name == "ActionBundle") {
 				var bundleSerializer = new XmlSerializer(typeof(ActionBundle));
-				var bundle = (ActionBundle)bundleSerializer.Deserialize(sr);
+				var bundle = bundleSerializer.Deserialize(sr) as ActionBundle;
 				if (bundle?.Actions != null)
 					result.AddRange(bundle.Actions);
 			} else // single Action
 			{
 				var actionSerializer = new XmlSerializer(typeof(ActionOld));
-				var a = (ActionOld)actionSerializer.Deserialize(sr);
+				var a = actionSerializer.Deserialize(sr) as ActionOld;
 				if (a != null)
 					result.Add(a);
 			}
@@ -378,10 +377,10 @@ public abstract class ActionBase {
 		}
 	}
 
-	internal ActionOld NextAction { get; set; } = null;
+	internal ActionOld? NextAction { get; set; }
 
 	/// <summary> 循环的父动作 </summary>
-	internal ActionOld LoopAction { get; set; } = null;
+	internal ActionOld? LoopAction { get; set; }
 	//internal Guid LoopContext { get; set; } = Guid.Empty;
 
 	/// <summary>
@@ -397,7 +396,7 @@ public abstract class ActionBase {
 	}
 
 
-	[XmlIgnore] public Trigger ParentTrigger { get; set; }
+	[XmlIgnore] public Trigger? ParentTrigger { get; set; }
 
 
 	[XmlIgnore] public string ExecutionDelayExpression { get; set; } = "0";
@@ -477,7 +476,7 @@ public abstract class ActionBase {
 
 
 	/// <summary>A string tag used in trigger/folder actions to interrupt specific actions.</summary>
-	[XmlIgnore] public string Tag { get; set; }
+	[XmlIgnore] public string Tag { get; set; } = "";
 
 	[XmlAttribute("Tag")] public string Xml_Tag {
 		get => XmlAttr.String(Tag);
@@ -489,9 +488,11 @@ public abstract class ActionBase {
 		Enabled = false
 	};
 
-	[XmlElement("Condition")] public ConditionGroup Xml_Condition {
+	[XmlElement("Condition")] public ConditionGroup? Xml_Condition {
 		get => Condition.Children.Count == 0 && !Condition.Enabled ? null : Condition;
-		set => Condition = value;
+		set => Condition = value ?? new ConditionGroup {
+			Enabled = false
+		};
 	}
 
 	#endregion
@@ -567,12 +568,10 @@ public abstract class ActionBase {
 		}
 		if (Asynchronous) {
 			var ct = ctx.Plugin.GetCancellationToken();
-			_ = Task.Run(() => {
-				ct.ThrowIfCancellationRequested();
+			ctx.Plugin.BackgroundActions.Queue(() => {
 				AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
 				ExecuteImplementation(ai);
-				ai.ActionFinished();
-			}, ct);
+			}, ai.ActionFinished, ct);
 		} else {
 			AddToLog(ctx, DebugLevelEnum.Verbose, I18n.Translate("internal/Action/executingaction", "Executing action '{0}' in thread {1}", Describe(), Environment.CurrentManagedThreadId));
 			ExecuteImplementation(ai);
@@ -609,7 +608,7 @@ public abstract class ActionBase {
 	protected IOrderedEnumerable<int> ApplySorting(int elementCount, List<bool> isNumeric, List<bool> isAscending, List<List<string>> values) {
 		// Create an enumeration of indices representing the initial order
 		var indices = Enumerable.Range(0, elementCount);
-		IOrderedEnumerable<int> sortedIndices = null;
+		IOrderedEnumerable<int>? sortedIndices = null;
 
 		// Iterate through the sorting key functions
 		for (var keyIndex = 0; keyIndex < values.Count; keyIndex++) {
@@ -628,16 +627,16 @@ public abstract class ActionBase {
 			} else {
 				if (isNumeric[k]) {
 					sortedIndices = isAscending[k]
-						? sortedIndices.ThenBy(i => Convert.ToDouble(values[k][i]))
-						: sortedIndices.ThenByDescending(i => Convert.ToDouble(values[k][i]));
+						? sortedIndices!.ThenBy(i => Convert.ToDouble(values[k][i]))
+						: sortedIndices!.ThenByDescending(i => Convert.ToDouble(values[k][i]));
 				} else {
 					sortedIndices = isAscending[k]
-						? sortedIndices.ThenBy(i => values[k][i])
-						: sortedIndices.ThenByDescending(i => values[k][i]);
+						? sortedIndices!.ThenBy(i => values[k][i])
+						: sortedIndices!.ThenByDescending(i => values[k][i]);
 				}
 			}
 		}
-		return sortedIndices;
+		return sortedIndices ?? indices.OrderBy(i => i);
 	}
 
 	protected static void CheckInvalidDymanicExpr(string expr, string[] invalidExprs) {
@@ -770,7 +769,7 @@ public abstract class ActionBase {
 			// (which can be different from the underlying data type)                
 			if (aa._typehint == null) {
 				// determine editor type from property type instead
-				var val = pi.GetValue(this);
+				var val = pi.GetValue(this) ?? throw new InvalidOperationException($"Property {pi.Name} has no value.");
 				aa._typehint = val.GetType();
 				if (aa._typehint.IsEnum) {
 					aa._typehint = typeof(Enum);
@@ -791,8 +790,7 @@ public abstract class ActionBase {
 	/// <param name="sender">ExpressionTextBox</param>
 	/// <param name="e">Unused</param>
 	private void Etb_TextChanged(object? sender, EventArgs e) {
-		var etb = (ExpressionTextBox)sender;
-		var pi = (PropertyInfo)etb.Tag;
+		if (sender is not ExpressionTextBox etb || etb.Tag is not PropertyInfo pi) return;
 		pi.SetValue(this, etb.Text);
 	}
 
@@ -801,9 +799,8 @@ public abstract class ActionBase {
 	/// </summary>
 	/// <param name="sender">CheckBox</param>
 	/// <param name="e">Unused</param>
-	private void Cb_CheckedChanged(object sender, EventArgs e) {
-		var cb = (CheckBox)sender;
-		var pi = (PropertyInfo)cb.Tag;
+	private void Cb_CheckedChanged(object? sender, EventArgs e) {
+		if (sender is not CheckBox cb || cb.Tag is not PropertyInfo pi) return;
 		if (pi.PropertyType == typeof(bool)) {
 			pi.SetValue(this, cb.Checked);
 		} else {
@@ -816,9 +813,8 @@ public abstract class ActionBase {
 	/// </summary>
 	/// <param name="sender">ComboBox</param>
 	/// <param name="e">Unused</param>
-	private void Cb_SelectedIndexChanged(object sender, EventArgs e) {
-		var cb = (ComboBox)sender;
-		var eb = (EnumBinding)cb.SelectedItem;
+	private void Cb_SelectedIndexChanged(object? sender, EventArgs e) {
+		if (sender is not ComboBox cb || cb.SelectedItem is not EnumBinding eb) return;
 		var pi = eb.Prop;
 		pi.SetValue(this, Enum.Parse(pi.PropertyType, eb.EnumValueName));
 	}
@@ -828,10 +824,9 @@ public abstract class ActionBase {
 	/// </summary>
 	/// <param name="sender">CheckedListBox</param>
 	/// <param name="e">Unused</param>
-	private void Clb_ItemCheck(object sender, ItemCheckEventArgs e) {
-		var clb = (CheckedListBox)sender;
+	private void Clb_ItemCheck(object? sender, ItemCheckEventArgs e) {
+		if (sender is not CheckedListBox clb || clb.Tag is not PropertyInfo pi) return;
 		var newval = 0;
-		var pi = (PropertyInfo)clb.Tag;
 		for (var i = 0; i < clb.Items.Count; i++) {
 			if (i == e.Index) {
 				if (e.NewValue == CheckState.Unchecked) {
@@ -848,10 +843,10 @@ public abstract class ActionBase {
 	}
 
 	private void BrowseBtn_Click(object? sender, EventArgs e) {
-		var b = (Button)sender;
+		if (sender is not Button b || b.Tag is null) return;
 		var prop = ((PropertyInfo prop, ActionAttribute attr, ExpressionTextBox target))b.Tag;
 		using var ofd = new OpenFileDialog();
-		var curvalue = (string)prop.prop.GetValue(this);
+		var curvalue = prop.prop.GetValue(this) as string ?? "";
 		ofd.FileName = curvalue;
 		switch (prop.attr._specialtype) {
 			case ActionAttribute.SpecialTypeEnum.FileSelector:
@@ -894,7 +889,7 @@ public abstract class ActionBase {
 						// show file selector
 						var etb = new ExpressionTextBox();
 						etb.ExpressionType = ExpressionTextBox.SupportedExpressionTypeEnum.String;
-						etb.Expression = (string)prop.prop.GetValue(this);
+						etb.Expression = prop.prop.GetValue(this) as string ?? "";
 						etb.TextChanged += Etb_TextChanged;
 						etb.Tag = prop.prop;
 						var browseBtn = new Button();
@@ -914,7 +909,7 @@ public abstract class ActionBase {
 						// show string expression field
 						var etb = new ExpressionTextBox();
 						etb.ExpressionType = ExpressionTextBox.SupportedExpressionTypeEnum.String;
-						etb.Expression = (string)prop.prop.GetValue(this);
+						etb.Expression = prop.prop.GetValue(this) as string ?? "";
 						etb.TextChanged += Etb_TextChanged;
 						etb.Tag = prop.prop;
 						propeditors.Add((prop.prop, prop.attr, ctrl: etb));
@@ -925,7 +920,7 @@ public abstract class ActionBase {
 				// show numeric expression field
 				var etb = new ExpressionTextBox();
 				etb.ExpressionType = ExpressionTextBox.SupportedExpressionTypeEnum.Numeric;
-				etb.Expression = (string)prop.prop.GetValue(this);
+				etb.Expression = prop.prop.GetValue(this) as string ?? "";
 				etb.TextChanged += Etb_TextChanged;
 				etb.Tag = prop.prop;
 				propeditors.Add((prop.prop, prop.attr, ctrl: etb));
@@ -933,7 +928,7 @@ public abstract class ActionBase {
 				// show regex expression field
 				var etb = new ExpressionTextBox();
 				etb.ExpressionType = ExpressionTextBox.SupportedExpressionTypeEnum.Regex;
-				etb.Expression = (string)prop.prop.GetValue(this);
+				etb.Expression = prop.prop.GetValue(this) as string ?? "";
 				etb.TextChanged += Etb_TextChanged;
 				etb.Tag = prop.prop;
 				propeditors.Add((prop.prop, prop.attr, ctrl: etb));
@@ -943,9 +938,9 @@ public abstract class ActionBase {
 				cb.Text = "";
 				cb.CheckAlign = ContentAlignment.MiddleRight;
 				if (prop.prop.PropertyType == typeof(bool)) {
-					cb.Checked = (bool)prop.prop.GetValue(this);
+					cb.Checked = prop.prop.GetValue(this) is bool value && value;
 				} else {
-					cb.Checked = bool.Parse(prop.prop.GetValue(this).ToString());
+					cb.Checked = bool.TryParse(prop.prop.GetValue(this)?.ToString(), out var value) && value;
 				}
 				cb.CheckedChanged += Cb_CheckedChanged;
 				cb.Tag = prop.prop;
@@ -956,13 +951,13 @@ public abstract class ActionBase {
 					var clb = new CheckedListBox();
 					clb.CheckOnClick = true;
 					var names = Enum.GetNames(prop.prop.PropertyType);
-					var curval = (int)prop.prop.GetValue(this);
+					var curval = prop.prop.GetValue(this) is int value ? value : 0;
 					foreach (var name in names) {
 						// for example, "Internal/Enum/ActionTriggerOperation/ForceEnum/SkipConditions"
 						var thisval = (int)Enum.Parse(prop.prop.PropertyType, name);
 						if (thisval != 0 && (thisval & thisval - 1) == 0) {
 							// show only single bit values
-							var trkey = "Internal/Enum/" + prop.prop.PropertyType.DeclaringType.Name + "/" + prop.prop.PropertyType.Name + "/" + name;
+							var trkey = "Internal/Enum/" + (prop.prop.PropertyType.DeclaringType?.Name ?? "") + "/" + prop.prop.PropertyType.Name + "/" + name;
 							var eb = new EnumBinding {
 								Text = trkey,
 								Prop = prop.prop,
@@ -983,10 +978,10 @@ public abstract class ActionBase {
 					var cb = new ComboBox();
 					cb.DropDownStyle = ComboBoxStyle.DropDownList;
 					var names = Enum.GetNames(prop.prop.PropertyType);
-					var curval = prop.prop.GetValue(this).ToString();
+					var curval = prop.prop.GetValue(this)?.ToString() ?? "";
 					foreach (var name in names) {
 						// for example, "Internal/Enum/ActionActInteraction/OperationEnum/SetCombatState"
-						var trkey = "Internal/Enum/" + prop.prop.PropertyType.DeclaringType.Name + "/" + prop.prop.PropertyType.Name + "/" + name;
+						var trkey = "Internal/Enum/" + (prop.prop.PropertyType.DeclaringType?.Name ?? "") + "/" + prop.prop.PropertyType.Name + "/" + name;
 						var eb = new EnumBinding {
 							Text = trkey,
 							Prop = prop.prop,
@@ -1062,7 +1057,7 @@ public abstract class ActionBase {
 		return tlp;
 	}
 
-	protected virtual Control GetPropertyEditor((PropertyInfo prop, ActionAttribute attr) prop) => null;
+	protected virtual Control? GetPropertyEditor((PropertyInfo prop, ActionAttribute attr) prop) => null;
 
 	/// <summary>
 	///     Creates a property editor control for the action. Actions can override this to provide their own entirely custom
@@ -1071,7 +1066,7 @@ public abstract class ActionBase {
 	///     parameter, override the PropertyInfo overload instead.
 	/// </summary>
 	/// <returns>Property editor for the action</returns>
-	internal virtual Control GetPropertyEditor() => GetGenericPropertyEditor();
+	internal virtual Control? GetPropertyEditor() => GetGenericPropertyEditor();
 
 	#endregion
 }

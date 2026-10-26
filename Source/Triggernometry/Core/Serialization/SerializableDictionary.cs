@@ -5,8 +5,8 @@ using System.Xml.Serialization;
 
 namespace Triggernometry.Core.Serialization;
 
-public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable {
-	public XmlSchema GetSchema() => null;
+public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable where TKey : notnull {
+	public XmlSchema? GetSchema() => null;
 
 	public void ReadXml(XmlReader x) {
 		if (x.IsEmptyElement) {
@@ -18,13 +18,14 @@ public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IX
 		while (x.NodeType != XmlNodeType.EndElement) {
 			x.ReadStartElement("Item");
 			x.ReadStartElement("Key");
-			var key = (TKey)xsk.Deserialize(x);
+			var key = (TKey?)xsk.Deserialize(x);
 			x.ReadEndElement();
 			x.ReadStartElement("Value");
-			var value = (TValue)xsv.Deserialize(x);
+			var value = (TValue?)xsv.Deserialize(x);
 			x.ReadEndElement();
 			x.ReadEndElement();
-			this[key] = value;
+			if (key != null && value != null)
+				this[key] = value;
 			x.MoveToContent();
 		}
 		x.Read();

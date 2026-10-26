@@ -19,10 +19,8 @@ public class Scene : IDisposable {
 	/// </summary>
 	/// <param name="device">A Graphics surface</param>
 	public Scene(Graphics device) {
-		if (device == null) {
-			throw new ArgumentNullException(nameof(device));
-		}
-		Device = device;
+        ArgumentNullException.ThrowIfNull(device);
+        Device = device;
 		device.BeginScene();
 	}
 

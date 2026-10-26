@@ -11,7 +11,7 @@ using Triggernometry.Localization;
 namespace Triggernometry.Expressions.String.Utils;
 
 public static partial class DataStringHelper {
-	public static string ToDataString(this object prop) {
+	public static string ToDataString(this object? prop) {
 		if (prop == null) return "";
 		switch (prop) {
 			case string s:
@@ -67,7 +67,7 @@ public static partial class DataStringHelper {
 		return success;
 	}
 
-	public static bool TryParseData(string input, Type targetType, out object result) {
+	public static bool TryParseData(string input, Type targetType, out object? result) {
 		result = null;
 
 		try {
@@ -165,10 +165,10 @@ public static partial class DataStringHelper {
 	public static T RawInvoke<T>(this Delegate _delegate, params string[] rawArgs)
 		=> (T)_delegate.RawInvoke(rawArgs);
 
-	public static object RawInvoke(this Delegate _delegate, params string[] rawArgs) {
+	public static object? RawInvoke(this Delegate _delegate, params string[]? rawArgs) {
 		var paramsInfo = _delegate.Method.GetParameters();
 
-		rawArgs = rawArgs ?? [];
+		rawArgs ??= [];
 		if (rawArgs.Length > paramsInfo.Length)
 			throw new ArgumentException(I18n.Translate("internal/DataStringHelper/toomanyarguments",
 				"Too many arguments: expected at most {0}, but got {1}.", paramsInfo.Length, rawArgs.Length));

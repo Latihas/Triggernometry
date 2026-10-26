@@ -49,12 +49,12 @@ public static class ScriptHelper // the previous "Interpreter.StaticHelper"
 	}
 
 	public static string EvaluateStringExpression(string expr, Context? ctx = null) {
-		ctx = ctx ?? Context.Unbound;
+		ctx ??= Context.Unbound;
 		return ctx.EvaluateStringExpression(null, ctx, expr);
 	}
 
 	public static double EvaluateNumericExpression(string expr, Context? ctx = null) {
-		ctx = ctx ?? Context.Unbound;
+		ctx ??= Context.Unbound;
 		return ctx.EvaluateNumericExpression(null, ctx, expr);
 	}
 

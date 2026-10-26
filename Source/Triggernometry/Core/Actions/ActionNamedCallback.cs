@@ -39,7 +39,7 @@ public class ActionNamedCallback : ActionBase {
 
 	internal override string DescribeImplementation() => I18n.Translate("internal/Action/descnamedcallback", "Invoke named callback ({0}) with parameter ({1})", Name, Parameter);
 
-	internal override void ExecuteImplementation(ActionInstance ai) {
+	internal override void ExecuteImplementation(ActionInstance? ai) {
 		var ctx = ai?.ctx ?? Context.Unbound;
 		var plug = ctx.Plugin;
 

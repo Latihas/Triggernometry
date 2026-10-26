@@ -178,8 +178,8 @@ public partial class RegisteredVariableViewer : UserControl {
 		else dgvVariables.BeginEdit(true);
 	}
 
-	private void AddVariable_Click(object sender, EventArgs e) => AddRow(false);
-	private void AddComment_Click(object sender, EventArgs e) => AddRow(true);
+	private void AddVariable_Click(object? sender, EventArgs e) => AddRow(false);
+	private void AddComment_Click(object? sender, EventArgs e) => AddRow(true);
 
 	private void ExpandEdit() {
 		if (!dgvVariables.EndEdit()) return;
@@ -199,7 +199,7 @@ public partial class RegisteredVariableViewer : UserControl {
 		}
 	}
 
-	private void ExpandEdit_Click(object sender, EventArgs e) => ExpandEdit();
+	private void ExpandEdit_Click(object? sender, EventArgs e) => ExpandEdit();
 
 	/// <summary> Applies enabled selected rows or all rows without saving folder definitions. </summary>
 	private void ApplyRows(bool all) {
@@ -215,8 +215,8 @@ public partial class RegisteredVariableViewer : UserControl {
 		}
 	}
 
-	private void Apply_Click(object sender, EventArgs e) => ApplyRows(false);
-	private void ApplyAll_Click(object sender, EventArgs e) => ApplyRows(true);
+	private void Apply_Click(object? sender, EventArgs e) => ApplyRows(false);
+	private void ApplyAll_Click(object? sender, EventArgs e) => ApplyRows(true);
 
 	/// <summary> Offers to remove renamed runtime keys when the enclosing form is saved. </summary>
 	internal void ConfirmRenamedVariables() {
@@ -261,12 +261,12 @@ public partial class RegisteredVariableViewer : UserControl {
 		UpdateButtons();
 	}
 
-	private void Up_Click(object sender, EventArgs e) => MoveRows(RowMove.Up);
-	private void Down_Click(object sender, EventArgs e) => MoveRows(RowMove.Down);
-	private void Top_Click(object sender, EventArgs e) => MoveRows(RowMove.Top);
-	private void Bottom_Click(object sender, EventArgs e) => MoveRows(RowMove.Bottom);
+	private void Up_Click(object? sender, EventArgs e) => MoveRows(RowMove.Up);
+	private void Down_Click(object? sender, EventArgs e) => MoveRows(RowMove.Down);
+	private void Top_Click(object? sender, EventArgs e) => MoveRows(RowMove.Top);
+	private void Bottom_Click(object? sender, EventArgs e) => MoveRows(RowMove.Bottom);
 
-	private void Remove_Click(object sender, EventArgs e) {
+	private void Remove_Click(object? sender, EventArgs e) {
 		if (isReadOnly || !dgvVariables.EndEdit()) return;
 		var selected = SelectedRows();
 		if (selected.Count == 0) return;
@@ -278,7 +278,7 @@ public partial class RegisteredVariableViewer : UserControl {
 		UpdateButtons();
 	}
 
-	private void Copy_Click(object sender, EventArgs e) {
+	private void Copy_Click(object? sender, EventArgs e) {
 		if (!dgvVariables.EndEdit()) return;
 		var variables = SelectedRows().Select(ReadRow).ToList();
 		if (variables.Count == 0) return;
@@ -291,7 +291,7 @@ public partial class RegisteredVariableViewer : UserControl {
 		} catch (Exception ex) { ShowClipboardError(ex); }
 	}
 
-	private void Paste_Click(object sender, EventArgs e) {
+	private void Paste_Click(object? sender, EventArgs e) {
 		if (isReadOnly || !dgvVariables.EndEdit() || !Clipboard.ContainsText()) return;
 		try {
 			var serializer = new XmlSerializer(typeof(List<RegisteredVariable>), new XmlRootAttribute("RegisteredVariables"));
@@ -314,33 +314,33 @@ public partial class RegisteredVariableViewer : UserControl {
 			MessageBoxButtons.OK, MessageBoxIcon.Warning);
 	}
 
-	private void dgvVariables_SelectionChanged(object sender, EventArgs e) => UpdateButtons();
+	private void dgvVariables_SelectionChanged(object? sender, EventArgs e) => UpdateButtons();
 
-	private void dgvVariables_CurrentCellDirtyStateChanged(object sender, EventArgs e) {
+	private void dgvVariables_CurrentCellDirtyStateChanged(object? sender, EventArgs e) {
 		if (dgvVariables.IsCurrentCellDirty && (dgvVariables.CurrentCell is DataGridViewCheckBoxCell
 		                                        || dgvVariables.CurrentCell is DataGridViewComboBoxCell))
 			dgvVariables.CommitEdit(DataGridViewDataErrorContexts.Commit);
 	}
 
-	private void dgvVariables_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
+	private void dgvVariables_CellValueChanged(object? sender, DataGridViewCellEventArgs e) {
 		if (e.RowIndex < 0) return;
 		UpdateRowStyle(dgvVariables.Rows[e.RowIndex]);
 		UpdateButtons();
 	}
 
-	private void dgvVariables_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) {
+	private void dgvVariables_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e) {
 		if (e.RowIndex < 0 || e.ColumnIndex != colValue.Index || e.Value == null) return;
 		e.Value = e.Value.ToString().Replace("\r\n", " ⏎ ").Replace("\r", " ⏎ ").Replace("\n", " ⏎ ");
 		e.FormattingApplied = true;
 	}
 
-	private void dgvVariables_CellDoubleClick(object sender, DataGridViewCellEventArgs e) {
+	private void dgvVariables_CellDoubleClick(object? sender, DataGridViewCellEventArgs e) {
 		if (e.RowIndex >= 0 && (e.ColumnIndex == colValue.Index
 		                        || ((RegisteredVariable)dgvVariables.Rows[e.RowIndex].Tag).IsComment)) ExpandEdit();
 	}
 
 	/// <summary> Draws comment text across the entire row without individual cell borders or controls. </summary>
-	private void dgvVariables_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e) {
+	private void dgvVariables_RowPostPaint(object? sender, DataGridViewRowPostPaintEventArgs e) {
 		var row = dgvVariables.Rows[e.RowIndex];
 		if (!(row.Tag is RegisteredVariable definition) || !definition.IsComment) return;
 		var bounds = dgvVariables.GetRowDisplayRectangle(e.RowIndex, false);
@@ -360,7 +360,7 @@ public partial class RegisteredVariableViewer : UserControl {
 			| TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
 	}
 
-	private void dgvVariables_MouseDown(object sender, MouseEventArgs e) {
+	private void dgvVariables_MouseDown(object? sender, MouseEventArgs e) {
 		if (e.Button != MouseButtons.Right) return;
 		var index = dgvVariables.HitTest(e.X, e.Y).RowIndex;
 		if (index < 0 || dgvVariables.Rows[index].Selected) return;
@@ -369,16 +369,16 @@ public partial class RegisteredVariableViewer : UserControl {
 		dgvVariables.Rows[index].Selected = true;
 	}
 
-	private void dgvVariables_MouseUp(object sender, MouseEventArgs e) {
+	private void dgvVariables_MouseUp(object? sender, MouseEventArgs e) {
 		if (dgvVariables.HitTest(e.X, e.Y).RowIndex >= 0) return;
 		// Clear after the grid finishes its own mouse-down selection handling.
 		dgvVariables.CurrentCell = null;
 		dgvVariables.ClearSelection();
 	}
 
-	private void ctxVariables_Opening(object sender, CancelEventArgs e) => UpdateButtons();
+	private void ctxVariables_Opening(object? sender, CancelEventArgs e) => UpdateButtons();
 
-	private void dgvVariables_KeyDown(object sender, KeyEventArgs e) {
+	private void dgvVariables_KeyDown(object? sender, KeyEventArgs e) {
 		// Keep normal text clipboard shortcuts while a cell is being edited.
 		if (dgvVariables.IsCurrentCellInEditMode) return;
 		if (e.KeyData == (Keys.Control | Keys.C)) Copy_Click(sender, e);

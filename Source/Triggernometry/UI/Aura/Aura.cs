@@ -27,57 +27,52 @@ internal abstract class Aura : IDisposable {
 
 	internal bool Changed { get; set; }
 
-	private int _Left;
 	internal int Left {
-		get => _Left;
+		get;
 		set {
-			if (value != _Left) {
+			if (value != field) {
 				Changed = true;
-				_Left = value;
+				field = value;
 			}
 		}
 	}
 
-	private int _Top;
 	internal int Top {
-		get => _Top;
+		get;
 		set {
-			if (value != _Top) {
+			if (value != field) {
 				Changed = true;
-				_Top = value;
+				field = value;
 			}
 		}
 	}
 
-	private int _Width;
 	internal int Width {
-		get => _Width;
+		get;
 		set {
-			if (value != _Width) {
+			if (value != field) {
 				Changed = true;
-				_Width = value;
+				field = value;
 			}
 		}
 	}
 
-	private int _Height;
 	internal int Height {
-		get => _Height;
+		get;
 		set {
-			if (value != _Height) {
+			if (value != field) {
 				Changed = true;
-				_Height = value;
+				field = value;
 			}
 		}
 	}
 
-	private int _Opacity;
 	internal int Opacity {
-		get => _Opacity;
+		get;
 		set {
-			if (value != _Opacity) {
+			if (value != field) {
 				Changed = true;
-				_Opacity = value;
+				field = value;
 			}
 		}
 	}

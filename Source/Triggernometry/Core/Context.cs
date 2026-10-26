@@ -59,7 +59,7 @@ public class Context {
 	///     Create a new evaluation context bound to a trigger.<br />
 	///     �� <paramref name="trigger" />: Trigger associated with this context; may be null.
 	/// </summary>
-	public Context(Trigger trigger) {
+	public Context(Trigger? trigger) {
 		Trigger = trigger;
 		if (Trigger != null) {
 			triggeredTime = DateTime.UtcNow;

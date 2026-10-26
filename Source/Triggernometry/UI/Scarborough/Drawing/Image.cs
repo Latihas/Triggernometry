@@ -151,9 +151,9 @@ public class Image : IDisposable {
 	/// </summary>
 	/// <param name="image">The Image object.</param>
 	public static implicit operator Bitmap(Image image) {
-		if (image == null) throw new ArgumentNullException(nameof(image));
+        ArgumentNullException.ThrowIfNull(image);
 
-		return image.Bitmap;
+        return image.Bitmap;
 	}
 
 	/// <summary>
@@ -171,16 +171,16 @@ public class Image : IDisposable {
 		PixelFormat.Format32bppPBGRA
 	];
 
-	private static Bitmap LoadBitmapFromMemory(RenderTarget device, byte[] bytes) {
-		if (device == null) throw new ArgumentNullException(nameof(device));
-		if (bytes == null) throw new ArgumentNullException(nameof(bytes));
-		if (bytes.Length == 0) throw new ArgumentOutOfRangeException(nameof(bytes));
+	private static Bitmap? LoadBitmapFromMemory(RenderTarget device, byte[] bytes) {
+        ArgumentNullException.ThrowIfNull(device);
+        ArgumentNullException.ThrowIfNull(bytes);
+        if (bytes.Length == 0) throw new ArgumentOutOfRangeException(nameof(bytes));
 
-		Bitmap bmp = null;
-		MemoryStream stream = null;
-		BitmapDecoder decoder = null;
-		BitmapFrameDecode frame = null;
-		FormatConverter converter = null;
+		Bitmap? bmp = null;
+		MemoryStream? stream = null;
+		BitmapDecoder? decoder = null;
+		BitmapFrameDecode? frame = null;
+		FormatConverter? converter = null;
 
 		try {
 			stream = new MemoryStream(bytes);
@@ -229,9 +229,9 @@ public class Image : IDisposable {
 	private static Bitmap LoadBitmapFromFile(RenderTarget device, string path) => LoadBitmapFromMemory(device, File.ReadAllBytes(path));
 
 	private static void TryCatch(Action action) {
-		if (action == null) throw new ArgumentNullException(nameof(action));
+        ArgumentNullException.ThrowIfNull(action);
 
-		try {
+        try {
 			action();
 		} catch {
 		}

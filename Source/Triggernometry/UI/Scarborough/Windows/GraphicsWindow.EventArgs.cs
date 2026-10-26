@@ -20,10 +20,8 @@ public class DrawGraphicsEventArgs : EventArgs {
 	/// </summary>
 	/// <param name="graphics"></param>
 	public DrawGraphicsEventArgs(Graphics graphics) {
-		if (graphics == null) {
-			throw new ArgumentNullException(nameof(graphics));
-		}
-		Graphics = graphics;
+        ArgumentNullException.ThrowIfNull(graphics);
+        Graphics = graphics;
 	}
 }
 
@@ -44,10 +42,8 @@ public class SetupGraphicsEventArgs : EventArgs {
 	/// </summary>
 	/// <param name="graphics"></param>
 	public SetupGraphicsEventArgs(Graphics graphics) {
-		if (graphics == null) {
-			throw new ArgumentNullException(nameof(graphics));
-		}
-		Graphics = graphics;
+        ArgumentNullException.ThrowIfNull(graphics);
+        Graphics = graphics;
 	}
 }
 
@@ -68,9 +64,7 @@ public class DestroyGraphicsEventArgs : EventArgs {
 	/// </summary>
 	/// <param name="graphics"></param>
 	public DestroyGraphicsEventArgs(Graphics graphics) {
-		if (graphics == null) {
-			throw new ArgumentNullException(nameof(graphics));
-		}
-		Graphics = graphics;
+        ArgumentNullException.ThrowIfNull(graphics);
+        Graphics = graphics;
 	}
 }

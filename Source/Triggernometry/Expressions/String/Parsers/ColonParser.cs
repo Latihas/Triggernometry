@@ -11,8 +11,8 @@ using Triggernometry.Localization;
 namespace Triggernometry.Expressions.String.Parsers;
 
 internal static class ColonParser {
-	internal static string TryParse(string template, Context ctx) {
-		ctx = ctx ?? Context.Unbound;
+	internal static string? TryParse(string template, Context? ctx) {
+		ctx ??= Context.Unbound;
 		var plug = ctx.Plugin; // can be null
 
 		var colonPos = template.IndexOf(':');
@@ -322,7 +322,7 @@ internal static class ColonParser {
 		}
 	}
 
-	private static void ResolveVarAccess(string prefixLower, Context ctx, out VariableStore store, out bool mustExist, out bool isTemp) {
+	private static void ResolveVarAccess(string prefixLower, Context? ctx, out VariableStore store, out bool mustExist, out bool isTemp) {
 		mustExist = prefixLower.StartsWith("!");
 		isTemp = prefixLower.StartsWith("?");
 		var pPos = mustExist ? 1 : 0;

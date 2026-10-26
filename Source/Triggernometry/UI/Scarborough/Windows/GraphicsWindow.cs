@@ -83,7 +83,7 @@ public class GraphicsWindow : OverlayWindow {
 	/// <param name="width">The width of the window.</param>
 	/// <param name="height">The height of the window.</param>
 	/// <param name="device">Optionally specify a Graphics device to use.</param>
-	public GraphicsWindow(int x, int y, int width, int height, Graphics device = null) : this(device) {
+	public GraphicsWindow(int x, int y, int width, int height, Graphics? device = null) : this(device) {
 		X = x;
 		Y = y;
 		Width = width;
